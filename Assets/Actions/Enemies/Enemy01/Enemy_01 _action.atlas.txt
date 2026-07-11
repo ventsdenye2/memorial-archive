@@ -1,0 +1,104 @@
+
+怪物.png
+size: 302,1025
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+头
+  rotate: true
+  xy: 127, 204
+  size: 219, 140
+  orig: 219, 201
+  offset: 0, 3
+  index: -1
+手臂1
+  rotate: true
+  xy: 2, 802
+  size: 127, 291
+  orig: 127, 291
+  offset: 0, 0
+  index: -1
+手臂2
+  rotate: true
+  xy: 2, 931
+  size: 92, 298
+  orig: 94, 299
+  offset: 1, 1
+  index: -1
+撬棍
+  rotate: true
+  xy: 2, 45
+  size: 378, 104
+  orig: 380, 106
+  offset: 1, 1
+  index: -1
+毛子 副本
+  rotate: true
+  xy: 108, 81
+  size: 121, 116
+  orig: 121, 116
+  offset: 0, 0
+  index: -1
+牌
+  rotate: false
+  xy: 245, 90
+  size: 54, 54
+  orig: 56, 56
+  offset: 1, 1
+  index: -1
+牌带
+  rotate: true
+  xy: 271, 450
+  size: 19, 24
+  orig: 21, 26
+  offset: 1, 1
+  index: -1
+皮带
+  rotate: false
+  xy: 245, 146
+  size: 54, 56
+  orig: 56, 58
+  offset: 1, 1
+  index: -1
+皮带1
+  rotate: true
+  xy: 271, 471
+  size: 124, 29
+  orig: 126, 31
+  offset: 1, 1
+  index: -1
+耳朵1
+  rotate: false
+  xy: 2, 2
+  size: 68, 41
+  orig: 70, 43
+  offset: 1, 1
+  index: -1
+耳朵2
+  rotate: true
+  xy: 72, 13
+  size: 30, 53
+  orig: 41, 56
+  offset: 9, 1
+  index: -1
+腿（存疑）
+  rotate: true
+  xy: 2, 597
+  size: 203, 289
+  orig: 203, 292
+  offset: 0, 0
+  index: -1
+身体
+  rotate: true
+  xy: 2, 425
+  size: 170, 267
+  orig: 174, 273
+  offset: 0, 6
+  index: -1
+领子
+  rotate: false
+  xy: 127, 4
+  size: 116, 75
+  orig: 119, 78
+  offset: 1, 2
+  index: -1

@@ -9,7 +9,7 @@ namespace MemorialArchive.Gameplay.Inventory.View
     public sealed class SceneContainerSeedView : MonoBehaviour
     {
         [Serializable]
-        private sealed class SceneItemSeed
+        public sealed class SceneItemSeed
         {
             public int itemId;
             public int quantity = 1;
@@ -19,6 +19,9 @@ namespace MemorialArchive.Gameplay.Inventory.View
 
         [SerializeField] private string containerId;
         [SerializeField] private SceneItemSeed[] initialItems;
+
+        public string ContainerId => containerId;
+        public SceneItemSeed[] InitialItems => initialItems;
 
         private void Start()
         {
@@ -34,12 +37,18 @@ namespace MemorialArchive.Gameplay.Inventory.View
                 return;
             }
 
+            var occupied = new bool[InventorySystem.SceneContainerWidth, InventorySystem.SceneContainerHeight];
             foreach (var seed in initialItems)
             {
-                if (seed == null || seed.itemId <= 0)
+                if (seed == null || seed.itemId <= 0 ||
+                    seed.x < 0 || seed.x >= InventorySystem.SceneContainerWidth ||
+                    seed.y < 0 || seed.y >= InventorySystem.SceneContainerHeight || occupied[seed.x, seed.y])
                 {
+                    Debug.LogError($"Invalid or overlapping seed in container {containerId}.", this);
                     continue;
                 }
+
+                occupied[seed.x, seed.y] = true;
 
                 container.items.Add(new InventoryItemPlacement
                 {

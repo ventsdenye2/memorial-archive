@@ -12,6 +12,7 @@ namespace MemorialArchive.Framework.Scene
         {
             this.context = context;
             context.Events.Subscribe<SceneTransitionRequestedEvent>(HandleSceneTransitionRequested);
+            SceneManager.sceneLoaded += HandleUnitySceneLoaded;
         }
 
         public void Dispose()
@@ -20,6 +21,8 @@ namespace MemorialArchive.Framework.Scene
             {
                 context.Events.Unsubscribe<SceneTransitionRequestedEvent>(HandleSceneTransitionRequested);
             }
+
+            SceneManager.sceneLoaded -= HandleUnitySceneLoaded;
 
             context = null;
         }
@@ -32,7 +35,11 @@ namespace MemorialArchive.Framework.Scene
             }
 
             SceneManager.LoadScene(evt.SceneId);
-            context.Events.Publish(new SceneLoadedEvent(evt.SceneId));
+        }
+
+        private void HandleUnitySceneLoaded(UnityEngine.SceneManagement.Scene scene, LoadSceneMode mode)
+        {
+            context?.Events.Publish(new SceneLoadedEvent(scene.name));
         }
     }
 }

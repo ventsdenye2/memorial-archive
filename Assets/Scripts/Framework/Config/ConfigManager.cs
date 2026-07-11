@@ -64,16 +64,16 @@ namespace MemorialArchive.Framework.Config
                 return;
             }
 
-            AddAll(database.Items, items, item => item.ItemId);
-            AddAll(database.CharacterAttributes, characterAttributes, config => config.AttributeId);
-            AddAll(database.CharacterStates, characterStates, config => config.StateId);
-            AddAll(database.Monsters, monsters, monster => monster.MonsterId);
-            AddAll(database.Interactions, interactions, interaction => interaction.InteractionId);
-            AddAll(database.Puzzles, puzzles, puzzle => puzzle.PuzzleId);
-            AddAll(database.Stories, stories, story => story.StoryId);
+            AddAll(database.Items, items, item => item.ItemId, "ItemConfig");
+            AddAll(database.CharacterAttributes, characterAttributes, config => config.AttributeId, "CharacterAttributeConfig");
+            AddAll(database.CharacterStates, characterStates, config => config.StateId, "CharacterStateConfig");
+            AddAll(database.Monsters, monsters, monster => monster.MonsterId, "MonsterConfig");
+            AddAll(database.Interactions, interactions, interaction => interaction.InteractionId, "InteractionConfig");
+            AddAll(database.Puzzles, puzzles, puzzle => puzzle.PuzzleId, "PuzzleConfig");
+            AddAll(database.Stories, stories, story => story.StoryId, "StoryEntryConfig");
         }
 
-        private static void AddAll<TKey, TValue>(IEnumerable<TValue> values, IDictionary<TKey, TValue> target, System.Func<TValue, TKey> keySelector)
+        private static void AddAll<TKey, TValue>(IEnumerable<TValue> values, IDictionary<TKey, TValue> target, System.Func<TValue, TKey> keySelector, string label)
             where TValue : UnityEngine.Object
         {
             if (values == null)
@@ -88,7 +88,20 @@ namespace MemorialArchive.Framework.Config
                     continue;
                 }
 
-                target[keySelector(value)] = value;
+                var key = keySelector(value);
+                if (EqualityComparer<TKey>.Default.Equals(key, default))
+                {
+                    UnityEngine.Debug.LogError($"{label} '{value.name}' has an empty/default ID.");
+                    continue;
+                }
+
+                if (target.ContainsKey(key))
+                {
+                    UnityEngine.Debug.LogError($"Duplicate {label} ID '{key}'. Keep IDs unique before integration.");
+                    continue;
+                }
+
+                target.Add(key, value);
             }
         }
     }

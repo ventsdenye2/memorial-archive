@@ -26,11 +26,14 @@ namespace MemorialArchive.Gameplay.Inventory.Logic
 
         public string ModuleKey => "inventory";
         public InventoryData PlayerInventory => playerInventory;
+        public string ActiveSceneContainerId => activeSceneContainerId;
+        public bool HasOpenSceneContainer => !string.IsNullOrEmpty(activeSceneContainerId);
 
         public void Initialize(GameContext context)
         {
             this.context = context;
             context.Events.Subscribe<OpenContainerRequestedEvent>(HandleOpenContainerRequested);
+            context.Events.Subscribe<ContainerClosedEvent>(HandleContainerClosed);
             context.Events.Subscribe<ShortcutEquipPressedEvent>(HandleShortcutEquipPressed);
             context.Events.Subscribe<ItemUseRequestedEvent>(HandleItemUseRequested);
         }
@@ -40,6 +43,7 @@ namespace MemorialArchive.Gameplay.Inventory.Logic
             if (context != null)
             {
                 context.Events.Unsubscribe<OpenContainerRequestedEvent>(HandleOpenContainerRequested);
+                context.Events.Unsubscribe<ContainerClosedEvent>(HandleContainerClosed);
                 context.Events.Unsubscribe<ShortcutEquipPressedEvent>(HandleShortcutEquipPressed);
                 context.Events.Unsubscribe<ItemUseRequestedEvent>(HandleItemUseRequested);
             }
@@ -47,6 +51,17 @@ namespace MemorialArchive.Gameplay.Inventory.Logic
             context = null;
             sceneContainers.Clear();
             playerInventory = new InventoryData();
+            activeSceneContainerId = null;
+        }
+
+        public SceneContainerData GetActiveSceneContainer()
+        {
+            return HasOpenSceneContainer ? GetOrCreateSceneContainer(activeSceneContainerId) : null;
+        }
+
+        public IEnumerable<InventoryItemPlacement> GetPlayerPlacements(InventoryContainerKind kind)
+        {
+            return GetPlayerItems(kind);
         }
 
         public SceneContainerData GetOrCreateSceneContainer(string containerId)
@@ -69,7 +84,7 @@ namespace MemorialArchive.Gameplay.Inventory.Logic
         {
             if (item == null)
             {
-                return false;
+                return Fail(null, "Item is null.");
             }
 
             EnsureInstanceId(item);
@@ -91,7 +106,7 @@ namespace MemorialArchive.Gameplay.Inventory.Logic
                 }
             }
 
-            return false;
+            return Fail(item.instanceId, "Backpack has no legal free space.");
         }
 
         public bool TryMoveToBackpack(string instanceId, int x, int y)
@@ -99,7 +114,7 @@ namespace MemorialArchive.Gameplay.Inventory.Logic
             var source = FindPlacement(instanceId);
             if (source == null)
             {
-                return false;
+                return Fail(instanceId, "Item instance was not found in the player inventory or active scene container.");
             }
 
             var config = context.Configs.GetItem(source.item.itemId);
@@ -109,7 +124,7 @@ namespace MemorialArchive.Gameplay.Inventory.Logic
 
             if (!backpackGrid.CanPlace(candidate, GetPlayerItems(InventoryContainerKind.Backpack), source.item.instanceId))
             {
-                return false;
+                return Fail(instanceId, "Target backpack cells are occupied or outside the 3x3 grid.");
             }
 
             RemovePlacement(source);
@@ -122,24 +137,24 @@ namespace MemorialArchive.Gameplay.Inventory.Logic
         {
             if (slotIndex < 0 || slotIndex >= ShortcutSlotCount)
             {
-                return false;
+                return Fail(instanceId, "Shortcut slot index must be 0, 1, or 2.");
             }
 
             if (FindPlayerSlot(InventoryContainerKind.ShortcutBar, slotIndex) != null)
             {
-                return false;
+                return Fail(instanceId, "Shortcut slot is already occupied.");
             }
 
             var source = FindPlacement(instanceId);
             if (source == null)
             {
-                return false;
+                return Fail(instanceId, "Item instance was not found.");
             }
 
             var config = context.Configs.GetItem(source.item.itemId);
             if (config != null && !config.CanEquipToShortcut)
             {
-                return false;
+                return Fail(instanceId, "Item configuration forbids shortcut equipment.");
             }
 
             var candidate = BuildPlayerPlacement(source.item, InventoryContainerKind.ShortcutBar, 0, 0, 1, 1, slotIndex);
@@ -154,19 +169,19 @@ namespace MemorialArchive.Gameplay.Inventory.Logic
         {
             if (FindPlayerSlot(InventoryContainerKind.Offhand, 0) != null)
             {
-                return false;
+                return Fail(instanceId, "The single offhand slot is already occupied.");
             }
 
             var source = FindPlacement(instanceId);
             if (source == null)
             {
-                return false;
+                return Fail(instanceId, "Item instance was not found.");
             }
 
             var config = context.Configs.GetItem(source.item.itemId);
             if (config == null || !config.CanEquipToOffhand || config.OffhandType == OffhandType.None)
             {
-                return false;
+                return Fail(instanceId, "Item configuration forbids offhand equipment.");
             }
 
             var candidate = BuildPlayerPlacement(source.item, InventoryContainerKind.Offhand, 0, 0, 1, 1, 0);
@@ -176,20 +191,54 @@ namespace MemorialArchive.Gameplay.Inventory.Logic
             return true;
         }
 
+        public bool TryMergeStack(string sourceInstanceId, string targetInstanceId)
+        {
+            var source = FindPlacement(sourceInstanceId);
+            var target = FindPlacement(targetInstanceId);
+            if (source == null || target == null || source == target || source.item == null || target.item == null)
+            {
+                return Fail(sourceInstanceId, "Both source and target stack instances must exist.");
+            }
+
+            if (source.item.itemId != target.item.itemId)
+            {
+                return Fail(sourceInstanceId, "Only identical item IDs can merge.");
+            }
+
+            var config = context.Configs.GetItem(source.item.itemId);
+            var maxStack = config != null ? config.MaxStack : 1;
+            if (maxStack <= 1 || target.item.quantity >= maxStack)
+            {
+                return Fail(sourceInstanceId, "Target item is not stackable or is already full.");
+            }
+
+            var moved = Mathf.Min(source.item.quantity, maxStack - target.item.quantity);
+            target.item.quantity += moved;
+            source.item.quantity -= moved;
+            if (source.item.quantity <= 0)
+            {
+                RemovePlacement(source);
+            }
+
+            context.Events.Publish(new InventoryChangedEvent());
+            return true;
+        }
+
         public bool TryDropToSceneContainer(string instanceId, string containerId, int x, int y)
         {
             var source = FindPlayerPlacement(instanceId);
-            var target = GetOrCreateSceneContainer(containerId);
+            var effectiveContainerId = string.IsNullOrEmpty(containerId) ? activeSceneContainerId : containerId;
+            var target = GetOrCreateSceneContainer(effectiveContainerId);
             if (source == null || target == null)
             {
-                return false;
+                return Fail(instanceId, "Dropping requires a valid player item and an open scene container.");
             }
 
             var candidate = new InventoryItemPlacement
             {
                 item = source.item,
                 containerKind = InventoryContainerKind.SceneContainer,
-                containerId = containerId,
+                containerId = effectiveContainerId,
                 x = x,
                 y = y,
                 width = 1,
@@ -199,7 +248,7 @@ namespace MemorialArchive.Gameplay.Inventory.Logic
 
             if (!sceneContainerGrid.CanPlace(candidate, target.items))
             {
-                return false;
+                return Fail(instanceId, "Target scene-container cell is occupied or outside the 2x2 grid.");
             }
 
             RemovePlacement(source);
@@ -213,7 +262,7 @@ namespace MemorialArchive.Gameplay.Inventory.Logic
             var placement = FindPlayerSlot(InventoryContainerKind.ShortcutBar, slotIndex);
             if (placement == null)
             {
-                return false;
+                return Fail(null, $"Shortcut slot {slotIndex} is empty.");
             }
 
             playerInventory.selectedShortcutIndex = slotIndex;
@@ -263,6 +312,11 @@ namespace MemorialArchive.Gameplay.Inventory.Logic
         {
             activeSceneContainerId = evt.ContainerId;
             GetOrCreateSceneContainer(evt.ContainerId);
+        }
+
+        private void HandleContainerClosed(ContainerClosedEvent evt)
+        {
+            activeSceneContainerId = null;
         }
 
         private void HandleShortcutEquipPressed(ShortcutEquipPressedEvent evt)
@@ -415,6 +469,12 @@ namespace MemorialArchive.Gameplay.Inventory.Logic
             {
                 item.instanceId = Guid.NewGuid().ToString("N");
             }
+        }
+
+        private bool Fail(string instanceId, string reason)
+        {
+            context?.Events.Publish(new InventoryMoveFailedEvent(instanceId, reason));
+            return false;
         }
     }
 }

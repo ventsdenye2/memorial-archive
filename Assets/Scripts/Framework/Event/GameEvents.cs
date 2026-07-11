@@ -1,5 +1,6 @@
 using MemorialArchive.Gameplay.Interaction.Data;
 using MemorialArchive.Gameplay.Inventory.Data;
+using MemorialArchive.Framework.UI;
 using UnityEngine;
 
 namespace MemorialArchive.Framework.Event
@@ -74,6 +75,72 @@ namespace MemorialArchive.Framework.Event
         public OpenContainerRequestedEvent(string containerId) => ContainerId = containerId;
         public string ContainerId { get; }
     }
+
+    public readonly struct ContainerClosedEvent { }
+
+    public readonly struct PanelOpenedEvent
+    {
+        public PanelOpenedEvent(PanelId panelId) => PanelId = panelId;
+        public PanelId PanelId { get; }
+    }
+
+    public readonly struct PanelClosedEvent
+    {
+        public PanelClosedEvent(PanelId panelId) => PanelId = panelId;
+        public PanelId PanelId { get; }
+    }
+
+    public readonly struct SaveCompletedEvent
+    {
+        public SaveCompletedEvent(int slotIndex, bool overwroteExisting)
+        {
+            SlotIndex = slotIndex;
+            OverwroteExisting = overwroteExisting;
+        }
+
+        public int SlotIndex { get; }
+        public bool OverwroteExisting { get; }
+    }
+
+    public readonly struct SaveFailedEvent
+    {
+        public SaveFailedEvent(int slotIndex, string reason)
+        {
+            SlotIndex = slotIndex;
+            Reason = reason;
+        }
+
+        public int SlotIndex { get; }
+        public string Reason { get; }
+    }
+
+    public readonly struct InventoryMoveFailedEvent
+    {
+        public InventoryMoveFailedEvent(string instanceId, string reason)
+        {
+            InstanceId = instanceId;
+            Reason = reason;
+        }
+
+        public string InstanceId { get; }
+        public string Reason { get; }
+    }
+
+    public readonly struct DodgeRequestedEvent
+    {
+        public DodgeRequestedEvent(Vector2 direction, float distanceDesignUnits, float durationSeconds)
+        {
+            Direction = direction;
+            DistanceDesignUnits = distanceDesignUnits;
+            DurationSeconds = durationSeconds;
+        }
+
+        public Vector2 Direction { get; }
+        public float DistanceDesignUnits { get; }
+        public float DurationSeconds { get; }
+    }
+
+    public readonly struct Stage1GameplayStartedEvent { }
 
     public readonly struct InspectRequestedEvent
     {

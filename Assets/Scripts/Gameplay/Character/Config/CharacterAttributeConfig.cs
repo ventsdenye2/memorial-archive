@@ -7,10 +7,15 @@ namespace MemorialArchive.Gameplay.Character.Config
     {
         [SerializeField] private int attributeId;
         [SerializeField] private string displayName;
-        [SerializeField] private int maxHealth = 100;
-        [SerializeField] private int maxStamina = 100;
-        [SerializeField] private float walkSpeed = 2.4f;
-        [SerializeField] private float runSpeed = 4f;
+        [SerializeField] private int maxHealth = 3;
+        [SerializeField] private int maxStamina = 30;
+        [SerializeField] private float walkSpeed = 100f;
+        [SerializeField] private float runSpeed = 300f;
+        [SerializeField] private float runStaminaCostPerSecond = 2f;
+        [SerializeField] private float staminaRecoveryPerSecond = 1f;
+        [SerializeField] private float dodgeStaminaCost = 6f;
+        [SerializeField] private float dodgeDistance = 120f;
+        [SerializeField] private float dodgeDurationSeconds = 0.18f;
         [SerializeField] private float dodgeCooldownSeconds = 0.8f;
 
         public int AttributeId => attributeId;
@@ -19,6 +24,11 @@ namespace MemorialArchive.Gameplay.Character.Config
         public int MaxStamina => maxStamina;
         public float WalkSpeed => walkSpeed;
         public float RunSpeed => runSpeed;
+        public float RunStaminaCostPerSecond => runStaminaCostPerSecond;
+        public float StaminaRecoveryPerSecond => staminaRecoveryPerSecond;
+        public float DodgeStaminaCost => dodgeStaminaCost;
+        public float DodgeDistance => dodgeDistance;
+        public float DodgeDurationSeconds => dodgeDurationSeconds;
         public float DodgeCooldownSeconds => dodgeCooldownSeconds;
     }
 }

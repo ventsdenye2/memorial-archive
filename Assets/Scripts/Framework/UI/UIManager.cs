@@ -12,6 +12,22 @@ namespace MemorialArchive.Framework.UI
         private readonly Stack<BasePanel> panelStack = new Stack<BasePanel>();
         private GameContext context;
 
+        public bool IsGameplayInputBlocked
+        {
+            get
+            {
+                foreach (var panel in panelStack)
+                {
+                    if (panel != null && panel.IsOpen && panel.PausesGame)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+        }
+
         public void Initialize(GameContext context)
         {
             this.context = context;
@@ -20,6 +36,7 @@ namespace MemorialArchive.Framework.UI
             context.Events.Subscribe<OpenMapPressedEvent>(HandleOpenMapPressed);
             context.Events.Subscribe<PausePressedEvent>(HandlePausePressed);
             context.Events.Subscribe<OpenContainerRequestedEvent>(HandleOpenContainerRequested);
+            context.Events.Subscribe<ContainerClosedEvent>(HandleContainerClosed);
             context.Events.Subscribe<CharacterDiedEvent>(HandleCharacterDied);
         }
 
@@ -32,10 +49,50 @@ namespace MemorialArchive.Framework.UI
                 context.Events.Unsubscribe<OpenMapPressedEvent>(HandleOpenMapPressed);
                 context.Events.Unsubscribe<PausePressedEvent>(HandlePausePressed);
                 context.Events.Unsubscribe<OpenContainerRequestedEvent>(HandleOpenContainerRequested);
+                context.Events.Unsubscribe<ContainerClosedEvent>(HandleContainerClosed);
                 context.Events.Unsubscribe<CharacterDiedEvent>(HandleCharacterDied);
             }
 
+            CloseAll();
             context = null;
+        }
+
+        public void RegisterScenePanels(IEnumerable<BasePanel> scenePanels)
+        {
+            if (scenePanels == null)
+            {
+                return;
+            }
+
+            foreach (var panel in scenePanels)
+            {
+                if (panel == null)
+                {
+                    continue;
+                }
+
+                panels.RemoveAll(existing => existing == null || existing.PanelId == panel.PanelId);
+                panels.Add(panel);
+            }
+        }
+
+        public void UnregisterScenePanels(IEnumerable<BasePanel> scenePanels)
+        {
+            if (scenePanels == null)
+            {
+                return;
+            }
+
+            foreach (var panel in scenePanels)
+            {
+                if (panel == null)
+                {
+                    continue;
+                }
+
+                Close(panel.PanelId);
+                panels.Remove(panel);
+            }
         }
 
         public BasePanel Open(PanelId panelId)
@@ -54,6 +111,7 @@ namespace MemorialArchive.Framework.UI
 
             panel.Open();
             panelStack.Push(panel);
+            context?.Events.Publish(new PanelOpenedEvent(panelId));
             ApplyPauseState();
             return panel;
         }
@@ -68,6 +126,39 @@ namespace MemorialArchive.Framework.UI
 
             panel.Close();
             RebuildStackWithout(panel);
+            context?.Events.Publish(new PanelClosedEvent(panelId));
+            ApplyPauseState();
+        }
+
+        public void Toggle(PanelId panelId)
+        {
+            var panel = FindPanel(panelId);
+            if (panel != null && panel.IsOpen)
+            {
+                Close(panelId);
+                return;
+            }
+
+            Open(panelId);
+        }
+
+        public bool IsOpen(PanelId panelId)
+        {
+            var panel = FindPanel(panelId);
+            return panel != null && panel.IsOpen;
+        }
+
+        public void CloseAll()
+        {
+            while (panelStack.Count > 0)
+            {
+                var panel = panelStack.Pop();
+                if (panel != null && panel.IsOpen)
+                {
+                    panel.Close();
+                }
+            }
+
             ApplyPauseState();
         }
 
@@ -80,6 +171,7 @@ namespace MemorialArchive.Framework.UI
 
             var panel = panelStack.Pop();
             panel.Close();
+            context?.Events.Publish(new PanelClosedEvent(panel.PanelId));
             ApplyPauseState();
         }
 
@@ -122,22 +214,22 @@ namespace MemorialArchive.Framework.UI
 
         private void HandleOpenInventoryPressed(OpenInventoryPressedEvent evt)
         {
-            Open(PanelId.Inventory);
+            Toggle(PanelId.Inventory);
         }
 
         private void HandleOpenDiaryPressed(OpenDiaryPressedEvent evt)
         {
-            Open(PanelId.Diary);
+            Toggle(PanelId.Diary);
         }
 
         private void HandleOpenMapPressed(OpenMapPressedEvent evt)
         {
-            Open(PanelId.Map);
+            Toggle(PanelId.Map);
         }
 
         private void HandlePausePressed(PausePressedEvent evt)
         {
-            Open(PanelId.System);
+            Toggle(PanelId.System);
         }
 
         private void HandleOpenContainerRequested(OpenContainerRequestedEvent evt)
@@ -145,6 +237,13 @@ namespace MemorialArchive.Framework.UI
             Open(PanelId.Container);
             Open(PanelId.Inventory);
             Open(PanelId.ShortcutBar);
+        }
+
+        private void HandleContainerClosed(ContainerClosedEvent evt)
+        {
+            Close(PanelId.Container);
+            Close(PanelId.Inventory);
+            Close(PanelId.ShortcutBar);
         }
 
         private void HandleCharacterDied(CharacterDiedEvent evt)

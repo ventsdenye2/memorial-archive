@@ -34,6 +34,7 @@ namespace MemorialArchive.Gameplay.Item.Config
     {
         [SerializeField] private int itemId;
         [SerializeField] private string itemName;
+        [SerializeField] private Sprite icon;
         [SerializeField] private ItemCategory category = ItemCategory.Generic;
         [SerializeField] private InventoryFootprint backpackFootprint = InventoryFootprint.OneByOne;
         [SerializeField] private int maxStack = 1;
@@ -47,6 +48,7 @@ namespace MemorialArchive.Gameplay.Item.Config
 
         public int ItemId => itemId;
         public string ItemName => itemName;
+        public Sprite Icon => icon;
         public ItemCategory Category => category;
         public InventoryFootprint BackpackFootprint => backpackFootprint;
         public int MaxStack => Mathf.Max(1, maxStack);

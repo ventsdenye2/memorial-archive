@@ -3,10 +3,11 @@ using MemorialArchive.Framework.Core;
 using MemorialArchive.Framework.Event;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 namespace MemorialArchive.Gameplay.Story.View
 {
-    public sealed class BlackScreenStoryController : MonoBehaviour
+    public sealed class BlackScreenStoryController : MonoBehaviour, IPointerClickHandler
     {
         [SerializeField] private Text storyText;
         [SerializeField] private float charactersPerSecond = 18f;
@@ -15,6 +16,7 @@ namespace MemorialArchive.Gameplay.Story.View
         private string fullText;
         private bool isRevealing;
         private Coroutine revealRoutine;
+        private int lastAdvanceFrame = -1;
 
         private void OnEnable()
         {
@@ -39,14 +41,10 @@ namespace MemorialArchive.Gameplay.Story.View
                 return;
             }
 
-            if (isRevealing)
-            {
-                FinishReveal();
-                return;
-            }
-
-            FinishStory();
+            Advance();
         }
+
+        public void OnPointerClick(PointerEventData eventData) => Advance();
 
         private void HandleBlackScreenStoryStarted(BlackScreenStoryStartedEvent evt)
         {
@@ -79,7 +77,7 @@ namespace MemorialArchive.Gameplay.Story.View
                     storyText.text = fullText.Substring(0, visibleCount);
                 }
 
-                yield return new WaitForSeconds(1f / Mathf.Max(1f, charactersPerSecond));
+                yield return new WaitForSecondsRealtime(1f / Mathf.Max(1f, charactersPerSecond));
             }
 
             FinishReveal();
@@ -111,6 +109,27 @@ namespace MemorialArchive.Gameplay.Story.View
             }
 
             GameRoot.Instance.Context.Events.Publish(new BlackScreenStoryFinishedEvent(finishedStoryId));
+        }
+
+        private void Advance()
+        {
+            // A mouse click is reported both as Input.anyKeyDown and as an
+            // EventSystem pointer click. Consume it only once so one click
+            // cannot reveal and immediately close the story panel.
+            if (string.IsNullOrEmpty(activeStoryId) || lastAdvanceFrame == Time.frameCount)
+            {
+                return;
+            }
+
+            lastAdvanceFrame = Time.frameCount;
+
+            if (isRevealing)
+            {
+                FinishReveal();
+                return;
+            }
+
+            FinishStory();
         }
     }
 }

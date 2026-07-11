@@ -8,6 +8,19 @@ namespace MemorialArchive.Gameplay.Camera.View
         [SerializeField] private Vector3 offset = new Vector3(0f, 0f, -10f);
         [SerializeField] private float followSpeed = 8f;
 
+        public Transform Target => target;
+
+        private void Start()
+        {
+            if (target == null)
+            {
+                var player = GameObject.FindGameObjectWithTag("Player");
+                target = player != null ? player.transform : null;
+            }
+        }
+
+        public void SetTarget(Transform value) => target = value;
+
         private void LateUpdate()
         {
             if (target == null)

@@ -1,0 +1,104 @@
+
+Enemy_02.png
+size: 738,534
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+敌人_ 02 _ 左耳
+  rotate: true
+  xy: 429, 42
+  size: 111, 159
+  orig: 113, 161
+  offset: 1, 1
+  index: -1
+敌人_02 _领子
+  rotate: false
+  xy: 2, 2
+  size: 86, 47
+  orig: 89, 50
+  offset: 1, 2
+  index: -1
+敌人_02_ 右耳
+  rotate: true
+  xy: 90, 6
+  size: 43, 133
+  orig: 45, 136
+  offset: 1, 2
+  index: -1
+敌人_02_ 拖尾
+  rotate: false
+  xy: 2, 232
+  size: 340, 300
+  orig: 340, 309
+  offset: 0, 0
+  index: -1
+敌人_02_ 笔本
+  rotate: true
+  xy: 687, 248
+  size: 50, 36
+  orig: 52, 38
+  offset: 1, 1
+  index: -1
+敌人_02_ 背带
+  rotate: true
+  xy: 225, 18
+  size: 31, 113
+  orig: 33, 115
+  offset: 1, 1
+  index: -1
+敌人_02_ 身体
+  rotate: true
+  xy: 344, 300
+  size: 232, 392
+  orig: 232, 593
+  offset: 0, 5
+  index: -1
+敌人_02_右臂
+  rotate: true
+  xy: 429, 226
+  size: 72, 256
+  orig: 72, 256
+  offset: 0, 0
+  index: -1
+敌人_02_围裙
+  rotate: true
+  xy: 2, 51
+  size: 179, 425
+  orig: 179, 427
+  offset: 0, 2
+  index: -1
+敌人_02_尾巴
+  rotate: false
+  xy: 687, 205
+  size: 37, 41
+  orig: 40, 44
+  offset: 1, 2
+  index: -1
+敌人_02_左臂
+  rotate: true
+  xy: 429, 155
+  size: 69, 254
+  orig: 69, 255
+  offset: 0, 1
+  index: -1
+敌人_02_手术刀
+  rotate: false
+  xy: 340, 18
+  size: 78, 31
+  orig: 80, 33
+  offset: 1, 1
+  index: -1
+敌人_02_护士帽
+  rotate: false
+  xy: 344, 246
+  size: 74, 52
+  orig: 77, 54
+  offset: 1, 1
+  index: -1
+敌人_03_头
+  rotate: false
+  xy: 590, 23
+  size: 141, 130
+  orig: 141, 131
+  offset: 0, 0
+  index: -1

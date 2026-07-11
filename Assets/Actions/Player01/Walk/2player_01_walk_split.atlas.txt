@@ -1,0 +1,104 @@
+
+2player_01_walk_split.png
+size: 974,408
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Player_01_Arm_Left
+  rotate: true
+  xy: 715, 78
+  size: 70, 157
+  orig: 70, 157
+  offset: 0, 0
+  index: -1
+Player_01_Arm_Right_chadou
+  rotate: true
+  xy: 841, 176
+  size: 56, 102
+  orig: 56, 102
+  offset: 0, 0
+  index: -1
+Player_01_Body_back
+  rotate: false
+  xy: 604, 20
+  size: 109, 147
+  orig: 109, 147
+  offset: 0, 0
+  index: -1
+Player_01_Body_front
+  rotate: false
+  xy: 604, 169
+  size: 116, 237
+  orig: 116, 237
+  offset: 0, 0
+  index: -1
+Player_01_Hair
+  rotate: false
+  xy: 923, 21
+  size: 48, 31
+  orig: 48, 32
+  offset: 0, 1
+  index: -1
+Player_01_Tail
+  rotate: false
+  xy: 722, 150
+  size: 117, 86
+  orig: 118, 86
+  offset: 0, 0
+  index: -1
+Player_01_cape
+  rotate: true
+  xy: 715, 2
+  size: 74, 88
+  orig: 74, 89
+  offset: 0, 0
+  index: -1
+Player_01_ear_Left
+  rotate: true
+  xy: 923, 54
+  size: 29, 49
+  orig: 29, 50
+  offset: 0, 0
+  index: -1
+Player_01_ear_Right
+  rotate: false
+  xy: 891, 24
+  size: 30, 59
+  orig: 30, 59
+  offset: 0, 0
+  index: -1
+Player_01_face
+  rotate: false
+  xy: 805, 19
+  size: 84, 57
+  orig: 101, 57
+  offset: 17, 0
+  index: -1
+Player_01_hat
+  rotate: true
+  xy: 874, 85
+  size: 89, 53
+  orig: 89, 54
+  offset: 0, 1
+  index: -1
+Player_01_leg_Right
+  rotate: false
+  xy: 722, 238
+  size: 144, 168
+  orig: 144, 168
+  offset: 0, 0
+  index: -1
+Player_01_leg_left
+  rotate: false
+  xy: 868, 234
+  size: 94, 172
+  orig: 94, 172
+  offset: 0, 0
+  index: -1
+背景
+  rotate: true
+  xy: 2, 6
+  size: 400, 600
+  orig: 402, 602
+  offset: 1, 1
+  index: -1

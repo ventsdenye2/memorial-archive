@@ -22,6 +22,15 @@ namespace MemorialArchive.Gameplay.Character.View
             }
 
             var events = root.Context.Events;
+
+            PublishUiKeys(events);
+            if (root.Context.UI != null && root.Context.UI.IsGameplayInputBlocked)
+            {
+                events.Publish(new MoveInputEvent(Vector2.zero));
+                events.Publish(new RunInputEvent(false));
+                return;
+            }
+
             events.Publish(new MoveInputEvent(new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"))));
             events.Publish(new RunInputEvent(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)));
             events.Publish(new BlockInputEvent(Input.GetMouseButton(1)));
@@ -47,6 +56,11 @@ namespace MemorialArchive.Gameplay.Character.View
                 events.Publish(new ReloadPressedEvent());
             }
 
+            PublishShortcutKeys(events);
+        }
+
+        private void PublishUiKeys(EventBus events)
+        {
             if (Input.GetKeyDown(inventoryKey))
             {
                 events.Publish(new OpenInventoryPressedEvent());
@@ -66,8 +80,6 @@ namespace MemorialArchive.Gameplay.Character.View
             {
                 events.Publish(new PausePressedEvent());
             }
-
-            PublishShortcutKeys(events);
         }
 
         private static void PublishShortcutKeys(EventBus events)

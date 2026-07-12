@@ -35,7 +35,7 @@ namespace MemorialArchive.Gameplay.Character.View
         // CameraFollowView.Start 也会按 Tag 查找，这里主动 SetTarget 确保不依赖激活顺序。
         private void BindCamera()
         {
-            var cam = Camera.main;
+            var cam = UnityEngine.Camera.main;
             if (cam == null)
             {
                 return;

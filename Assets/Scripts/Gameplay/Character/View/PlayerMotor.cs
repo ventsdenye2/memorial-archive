@@ -1,5 +1,6 @@
 using MemorialArchive.Framework.Core;
 using MemorialArchive.Framework.Event;
+using MemorialArchive.Gameplay.Camera.View;
 using MemorialArchive.Gameplay.Character.Logic;
 using UnityEngine;
 
@@ -27,6 +28,24 @@ namespace MemorialArchive.Gameplay.Character.View
         {
             character = GameRoot.Instance?.GetSystem<CharacterSystem>();
             GameRoot.Instance?.Context?.Events.Subscribe<DodgeRequestedEvent>(HandleDodgeRequested);
+            BindCamera();
+        }
+
+        // 3.5.5：Camera 通过 SetTarget 或运行时查找 Player 绑定。
+        // CameraFollowView.Start 也会按 Tag 查找，这里主动 SetTarget 确保不依赖激活顺序。
+        private void BindCamera()
+        {
+            var cam = Camera.main;
+            if (cam == null)
+            {
+                return;
+            }
+
+            var follow = cam.GetComponent<CameraFollowView>();
+            if (follow != null)
+            {
+                follow.SetTarget(transform);
+            }
         }
 
         private void OnDisable()

@@ -18,6 +18,8 @@ namespace MemorialArchive.Gameplay.Stage1
             Stage1Ids.EntrancePoint01
         };
 
+        private static readonly int[] RequiredItemIds = { 1002, 1003, 1012, 1020, 1006, 1024 };
+
         [SerializeField] private GameObject blackScreenStoryRoot;
         [SerializeField] private GameObject stage1DemoRoot;
         [SerializeField] private ScenePanelRegistry panelRegistry;
@@ -59,6 +61,19 @@ namespace MemorialArchive.Gameplay.Stage1
                 valid &= Require(foundIds.Contains(requiredId), $"Required interaction ID is missing: {requiredId}");
             }
 
+            var foundSpawn = false;
+            foreach (var point in FindObjectsOfType<Stage1NamedPoint>(true))
+            {
+                foundSpawn |= point.PointId == Stage1Ids.SpawnPoint;
+            }
+
+            valid &= Require(foundSpawn, $"Required spawn point is missing: {Stage1Ids.SpawnPoint}");
+            foreach (var itemId in RequiredItemIds)
+            {
+                valid &= Require(GameRoot.Instance?.Context?.Configs?.GetItem(itemId) != null,
+                    $"ItemConfig is missing for item ID {itemId}");
+            }
+
             var containerIds = new HashSet<string>();
             foreach (var seed in FindObjectsOfType<SceneContainerSeedView>(true))
             {
@@ -70,6 +85,10 @@ namespace MemorialArchive.Gameplay.Stage1
 
             valid &= Require(containerIds.Contains(Stage1Ids.DemoContainer01), $"Missing container seed: {Stage1Ids.DemoContainer01}");
             valid &= Require(containerIds.Contains(Stage1Ids.DemoContainer02), $"Missing container seed: {Stage1Ids.DemoContainer02}");
+            valid &= Require(HasSeedSet(Stage1Ids.DemoContainer01, 1002, 1003, 1012),
+                $"Container seed {Stage1Ids.DemoContainer01} must contain 1002, 1003 and 1012.");
+            valid &= Require(HasSeedSet(Stage1Ids.DemoContainer02, 1020, 1006, 1024),
+                $"Container seed {Stage1Ids.DemoContainer02} must contain 1020, 1006 and 1024.");
 
             if (valid)
             {
@@ -77,6 +96,36 @@ namespace MemorialArchive.Gameplay.Stage1
             }
 
             return valid;
+        }
+
+        private static bool HasSeedSet(string containerId, params int[] expectedItemIds)
+        {
+            var itemIds = new HashSet<int>();
+            foreach (var seedView in FindObjectsOfType<SceneContainerSeedView>(true))
+            {
+                if (seedView.ContainerId != containerId || seedView.InitialItems == null)
+                {
+                    continue;
+                }
+
+                foreach (var seed in seedView.InitialItems)
+                {
+                    if (seed != null)
+                    {
+                        itemIds.Add(seed.itemId);
+                    }
+                }
+            }
+
+            foreach (var expectedItemId in expectedItemIds)
+            {
+                if (!itemIds.Contains(expectedItemId))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         private bool Require(bool condition, string message)

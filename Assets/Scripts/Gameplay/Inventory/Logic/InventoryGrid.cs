@@ -14,7 +14,7 @@ namespace MemorialArchive.Gameplay.Inventory.Logic
         public int Width { get; }
         public int Height { get; }
 
-        public bool CanPlace(InventoryItemPlacement candidate, IEnumerable<InventoryItemPlacement> existingItems, string ignoredInstanceId = null)
+        public bool CanPlace(InventoryItemPlacement candidate, IEnumerable<InventoryItemPlacement> existingItems, params string[] ignoredInstanceIds)
         {
             if (candidate == null || candidate.width <= 0 || candidate.height <= 0)
             {
@@ -43,7 +43,7 @@ namespace MemorialArchive.Gameplay.Inventory.Logic
                     continue;
                 }
 
-                if (!string.IsNullOrEmpty(ignoredInstanceId) && existing.item.instanceId == ignoredInstanceId)
+                if (ShouldIgnore(existing.item.instanceId, ignoredInstanceIds))
                 {
                     continue;
                 }
@@ -55,6 +55,24 @@ namespace MemorialArchive.Gameplay.Inventory.Logic
             }
 
             return true;
+        }
+
+        private static bool ShouldIgnore(string instanceId, string[] ignoredInstanceIds)
+        {
+            if (string.IsNullOrEmpty(instanceId) || ignoredInstanceIds == null)
+            {
+                return false;
+            }
+
+            foreach (var ignoredId in ignoredInstanceIds)
+            {
+                if (!string.IsNullOrEmpty(ignoredId) && ignoredId == instanceId)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static bool Overlaps(InventoryItemPlacement a, InventoryItemPlacement b)

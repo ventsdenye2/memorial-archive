@@ -506,7 +506,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   panels:
-  - {fileID: 760659547}
+  - {fileID: 0}
   - {fileID: 86103556}
   - {fileID: 238876379}
   - {fileID: 1759146780}
@@ -734,17 +734,6 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 4528769424190385685, guid: 98fa4c96c9ed79f43a839cfbe22c40eb, type: 3}
   m_PrefabInstance: {fileID: 760659545}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &760659547 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2741924669812013417, guid: 98fa4c96c9ed79f43a839cfbe22c40eb, type: 3}
-  m_PrefabInstance: {fileID: 760659545}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 39a6d2ce5faa50f44bfba93ff162ec3d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1724329125
 GameObject:
   m_ObjectHideFlags: 0

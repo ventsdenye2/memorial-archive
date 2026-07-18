@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Cinemachine;
 using MemorialArchive.Framework.Config;
 using MemorialArchive.Framework.Core;
 using MemorialArchive.Framework.Scene;
@@ -17,6 +18,7 @@ using MemorialArchive.Gameplay.Item.Config;
 using MemorialArchive.Gameplay.Stage1;
 using MemorialArchive.Gameplay.Story.Config;
 using MemorialArchive.Gameplay.Story.View;
+using Spine.Unity;
 using UnityEditor;
 using UnityEditor.Events;
 using UnityEditor.SceneManagement;
@@ -189,7 +191,54 @@ namespace MemorialArchive.Editor
             root.AddComponent<CapsuleCollider2D>();
             root.AddComponent<GameplayInputReader>();
             root.AddComponent<PlayerMotor>();
+            AttachPlayerSpine(root);
             return SavePrefab(root, path);
+        }
+
+        // 给 Player 装配 Spine 角色（PlayerVisual 子 GO + SkeletonAnimation + CharacterAnimationView）。
+        // 美术资产按动作拆成独立 SkeletonDataAsset，CharacterAnimationView 在运行时切换。
+        private static void AttachPlayerSpine(GameObject root)
+        {
+            const string actionRoot = "Assets/Actions/Player01";
+            var idleData = AssetDatabase.LoadAssetAtPath<SkeletonDataAsset>(actionRoot + "/Idle/player_02_Idle_split_SkeletonData.asset");
+            var walkData = AssetDatabase.LoadAssetAtPath<SkeletonDataAsset>(actionRoot + "/Walk/2player_01_walk_split_SkeletonData.asset");
+            var runData = AssetDatabase.LoadAssetAtPath<SkeletonDataAsset>(actionRoot + "/Run/player_01_run_split_SkeletonData.asset");
+            var dodgeData = AssetDatabase.LoadAssetAtPath<SkeletonDataAsset>(actionRoot + "/Fight_Throw_Block_Death_Dodge/player_01_fight_split_SkeletonData.asset");
+            if (idleData == null || walkData == null || runData == null || dodgeData == null)
+            {
+                UnityEngine.Debug.LogWarning("Stage1ProjectBootstrap: Spine SkeletonDataAsset missing, Player will fall back to placeholder sprite.");
+                return;
+            }
+
+            // SpriteRenderer 仅作占位回退；接入 Spine 后禁用，避免双层显示。
+            var placeholderRenderer = root.GetComponent<SpriteRenderer>();
+            if (placeholderRenderer != null)
+            {
+                placeholderRenderer.enabled = false;
+            }
+
+            var visualGo = new GameObject("PlayerVisual");
+            visualGo.transform.SetParent(root.transform, false);
+            visualGo.transform.localScale = new Vector3(1f, 1f, 1f);
+
+            var skeletonAnimation = visualGo.AddComponent<SkeletonAnimation>();
+            skeletonAnimation.skeletonDataAsset = idleData;
+            // 不调用 AnimationName setter（它内部会 GetSkeletonData 查找动画，未 Initialize 时抛 NPE）。
+            // 直接序列化底层 _animationName 字段，让 SkeletonAnimation 在 Awake/Initialize 时自己播放。
+            var skeletonSo = new SerializedObject(skeletonAnimation);
+            skeletonSo.FindProperty("_animationName").stringValue = "idle";
+            skeletonSo.FindProperty("loop").boolValue = true;
+            skeletonSo.ApplyModifiedPropertiesWithoutUndo();
+
+            var animView = root.AddComponent<CharacterAnimationView>();
+            var so = new SerializedObject(animView);
+            so.FindProperty("skeletonAnimation").objectReferenceValue = skeletonAnimation;
+            so.FindProperty("idleData").objectReferenceValue = idleData;
+            so.FindProperty("walkData").objectReferenceValue = walkData;
+            so.FindProperty("runData").objectReferenceValue = runData;
+            so.FindProperty("dodgeData").objectReferenceValue = dodgeData;
+            so.FindProperty("characterScale").floatValue = 1f;
+            so.ApplyModifiedPropertiesWithoutUndo();
         }
 
         private static GameObject BuildCameraPrefab()
@@ -202,10 +251,44 @@ namespace MemorialArchive.Editor
             var camera = root.AddComponent<UnityEngine.Camera>();
             camera.orthographic = true;
             camera.orthographicSize = 5.4f;
+            // 不再用 Skybox 默认值；设为 SolidColor + 黑，避免边缘短暂露出 Unity 默认蓝。
+            camera.clearFlags = CameraClearFlags.SolidColor;
+            camera.backgroundColor = Color.black;
             root.transform.position = new Vector3(0f, 0f, -10f);
             root.AddComponent<AudioListener>();
+            // CameraFollowView 保留为空壳（Validator 要求恰好 1 个），实际跟随交给 Cinemachine。
             root.AddComponent<CameraFollowView>();
+            AttachCinemachineRig(root);
             return SavePrefab(root, path);
+        }
+
+        // 给 MainCamera 装 Cinemachine：Brain 在相机本体，VirtualCamera + FramingTransposer + Confiner2D 在子 GO。
+        // Confiner 的 BoundingShape2D 在 BuildSampleScene 里注入（场景侧的 Collider2D 引用）。
+        private static void AttachCinemachineRig(GameObject cameraRoot)
+        {
+            var brain = cameraRoot.AddComponent<CinemachineBrain>();
+            brain.m_DefaultBlend = new CinemachineBlendDefinition(CinemachineBlendDefinition.Style.EaseInOut, 0.5f);
+
+            var vcamGo = new GameObject("CM_vcam_Player");
+            vcamGo.transform.SetParent(cameraRoot.transform, false);
+            vcamGo.transform.localPosition = Vector3.zero;
+
+            var vcam = vcamGo.AddComponent<CinemachineVirtualCamera>();
+            vcam.Priority = 10;
+            vcam.m_Lens.Orthographic = true;
+            vcam.m_Lens.OrthographicSize = 5.4f;
+
+            // Body: FramingTransposer（2D 友好，无 dead zone = 贴身跟随）
+            var body = vcam.AddCinemachineComponent<CinemachineFramingTransposer>();
+            body.m_DeadZoneWidth = 0f;
+            body.m_DeadZoneHeight = 0f;
+            body.m_XDamping = 0.5f;
+            body.m_YDamping = 0.5f;
+            body.m_CenterOnActivate = true;
+
+            // Extension: Confiner2D（2D 专用；要求 BoundingShape2D 是 PolygonCollider2D 或 CompositeCollider2D，
+            // BoxCollider2D 不被支持因为 Confiner2D 算法依赖 Collider2D.path 顶点）
+            vcamGo.AddComponent<CinemachineConfiner2D>();
         }
 
         private static GameObject BuildMainMenuPanel()
@@ -407,6 +490,8 @@ namespace MemorialArchive.Editor
             var cameraObject = ResolveSampleSceneCamera(scene, demoRoot.transform, prefabs["MainCamera"]);
             var follow = cameraObject.GetComponent<CameraFollowView>();
             if (follow != null) follow.SetTarget(player.transform);
+            // Cinemachine vcam.Follow 也指向 Player，并注入 Confiner 边界（与"休息室"背景 19.2x10.8 对齐）。
+            ConfigureCinemachine(cameraObject, player.transform, demoRoot.transform);
             var interactions = FindChildOrCreate(demoRoot.transform, "InteractionPoints");
             CreateInteractionPoint(interactions.transform, "ContainerPoint_01", Stage1Ids.ContainerPoint01, InteractionType.Container, Stage1Ids.DemoContainer01, new Vector2(-1.5f, 1f), new[] { (1002, 0, 0, 1), (1003, 1, 0, 1), (1012, 0, 1, 1) });
             CreateInteractionPoint(interactions.transform, "ContainerPoint_02", Stage1Ids.ContainerPoint02, InteractionType.Container, Stage1Ids.DemoContainer02, new Vector2(1.5f, 1f), new[] { (1020, 0, 0, 6), (1006, 1, 0, 1), (1024, 0, 1, 1) });
@@ -515,6 +600,48 @@ namespace MemorialArchive.Editor
             var wall = parent.Find(name)?.gameObject ?? new GameObject(name);
             wall.transform.SetParent(parent, false); wall.transform.localPosition = position;
             var collider = GetOrAddComponent<BoxCollider2D>(wall); collider.size = size;
+        }
+
+        // 给 Cinemachine vcam 注入 Follow + Confiner 边界。
+        // 边界 BoxCollider2D 独立 GameObject（不依赖可能不存在的背景 sprite），尺寸与"休息室"背景 19.2x10.8 对齐，
+        // 保证相机视野（ortho 5.4 → 高 10.8）在任何角落都不超出背景画面、不露蓝边。
+        private static void ConfigureCinemachine(GameObject cameraObject, Transform playerTransform, Transform demoRoot)
+        {
+            var vcam = cameraObject.GetComponentInChildren<CinemachineVirtualCamera>(true);
+            if (vcam == null)
+            {
+                Debug.LogWarning("Stage1ProjectBootstrap: CinemachineVirtualCamera not found on MainCamera, skipping Confiner setup.");
+                return;
+            }
+
+            vcam.Follow = playerTransform;
+
+            var geometryHolder = FindChildOrCreate(demoRoot, "RoomGeometry");
+            var confinerGo = geometryHolder.transform.Find("CameraConfiner")?.gameObject ?? new GameObject("CameraConfiner");
+            confinerGo.transform.SetParent(geometryHolder.transform, false);
+            confinerGo.transform.localPosition = Vector3.zero;
+
+            // CinemachineConfiner2D 要求 BoundingShape2D 是 PolygonCollider2D 或 CompositeCollider2D
+            //（它读 Collider2D.GetPath(int) 顶点；BoxCollider2D 无 path，运行时会失败）。
+            // 这里手构一个 4 顶点矩形 Polygon，与"休息室"背景 19.2x10.8 对齐。
+            var bounds = GetOrAddComponent<PolygonCollider2D>(confinerGo);
+            bounds.isTrigger = true;
+            bounds.SetPath(0, new Vector2[]
+            {
+                new Vector2(-9.6f, -5.4f),
+                new Vector2( 9.6f, -5.4f),
+                new Vector2( 9.6f,  5.4f),
+                new Vector2(-9.6f,  5.4f)
+            });
+
+            var confiner = vcam.GetComponent<CinemachineConfiner2D>();
+            if (confiner != null)
+            {
+                var so = new SerializedObject(confiner);
+                so.FindProperty("m_BoundingShape2D").objectReferenceValue = bounds;
+                so.ApplyModifiedPropertiesWithoutUndo();
+                confiner.InvalidateCache(); // 重新计算边界缓存
+            }
         }
 
         private static GameObject CreatePanelRoot<T>(string name, PanelId id, bool pauses, bool startClosed) where T : BasePanel
@@ -674,6 +801,15 @@ namespace MemorialArchive.Editor
         {
             var originalCamera = FindRoot(scene, "Main Camera") ?? FindRoot(scene, "MainCamera");
             var generatedCamera = demoRoot.Find("MainCamera");
+
+            // 如果旧相机没有 CinemachineBrain（历史遗留 prefab 实例），销毁它，让流程走到下方从最新 prefab 实例化。
+            // 这能保证场景里的 MainCamera 永远跟 MainCamera.prefab 同步（包括 vcam 子 GO、Confiner extension 等）。
+            if (originalCamera != null && originalCamera.GetComponent<CinemachineBrain>() == null)
+            {
+                UnityEngine.Object.DestroyImmediate(originalCamera);
+                originalCamera = null;
+            }
+
             if (originalCamera != null)
             {
                 if (generatedCamera != null && generatedCamera.gameObject != originalCamera)

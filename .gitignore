@@ -56,3 +56,10 @@ Thumbs.db
 !Assets/**/*.meta
 !Packages/**/*.meta
 !ProjectSettings/**/*.meta
+
+# ZCode agent session config
+.zcode/
+
+# Local dev screenshots (MCP capture artifacts)
+Assets/Screenshots/
+Assets/Screenshots.meta

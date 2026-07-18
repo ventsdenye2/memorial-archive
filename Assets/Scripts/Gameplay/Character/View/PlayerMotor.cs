@@ -32,7 +32,7 @@ namespace MemorialArchive.Gameplay.Character.View
         }
 
         // 3.5.5：Camera 通过 SetTarget 或运行时查找 Player 绑定。
-        // CameraFollowView.Start 也会按 Tag 查找，这里主动 SetTarget 确保不依赖激活顺序。
+        // Cinemachine 接管后，这里同时把 vcam.Follow 指向 Player；CameraFollowView 仍保留为空壳（Validator 要求）。
         private void BindCamera()
         {
             var cam = UnityEngine.Camera.main;
@@ -45,6 +45,16 @@ namespace MemorialArchive.Gameplay.Character.View
             if (follow != null)
             {
                 follow.SetTarget(transform);
+            }
+
+            var brain = cam.GetComponent<Cinemachine.CinemachineBrain>();
+            if (brain != null)
+            {
+                var vcam = FindObjectOfType<Cinemachine.CinemachineVirtualCamera>();
+                if (vcam != null)
+                {
+                    vcam.Follow = transform;
+                }
             }
         }
 

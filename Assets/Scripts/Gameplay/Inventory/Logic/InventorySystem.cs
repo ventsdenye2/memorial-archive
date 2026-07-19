@@ -257,6 +257,108 @@ namespace MemorialArchive.Gameplay.Inventory.Logic
             return true;
         }
 
+        /// <summary>
+        /// Moves an item that is already in the opened scene container.  Scene
+        /// containers deliberately use a 1x1 representation for every item;
+        /// the 1x2 rule belongs to the player's backpack only.
+        /// </summary>
+        public bool TryMoveWithinActiveSceneContainer(string instanceId, int x, int y)
+        {
+            if (!HasOpenSceneContainer || !sceneContainers.TryGetValue(activeSceneContainerId, out var container))
+            {
+                return Fail(instanceId, "No scene container is currently open.");
+            }
+
+            var source = container.items.Find(item => item != null && item.item != null && item.item.instanceId == instanceId);
+            if (source == null)
+            {
+                return Fail(instanceId, "Item instance was not found in the active scene container.");
+            }
+
+            var candidate = new InventoryItemPlacement
+            {
+                item = source.item,
+                containerKind = InventoryContainerKind.SceneContainer,
+                containerId = activeSceneContainerId,
+                x = x,
+                y = y,
+                width = 1,
+                height = 1,
+                slotIndex = -1
+            };
+
+            if (!sceneContainerGrid.CanPlace(candidate, container.items, instanceId))
+            {
+                return Fail(instanceId, "Target scene-container cell is occupied or outside the 2x2 grid.");
+            }
+
+            container.items.Remove(source);
+            container.items.Add(candidate);
+            context.Events.Publish(new InventoryChangedEvent());
+            return true;
+        }
+
+        /// <summary>
+        /// Moves an item onto an occupied slot. Identical items are merged when
+        /// possible; otherwise the two placements are exchanged only when both
+        /// items are legal at their new destinations.
+        /// </summary>
+        public bool TryMoveOrSwap(
+            string sourceInstanceId,
+            string targetInstanceId,
+            InventoryContainerKind targetKind,
+            int targetX,
+            int targetY,
+            int targetSlotIndex)
+        {
+            var source = FindPlacement(sourceInstanceId);
+            var target = FindPlacement(targetInstanceId);
+            if (source == null || target == null || source == target)
+            {
+                return Fail(sourceInstanceId, "Both source and target items are required for an occupied-slot move.");
+            }
+
+            if (source.item.itemId == target.item.itemId)
+            {
+                return TryMergeStack(sourceInstanceId, targetInstanceId);
+            }
+
+            var sourceContainerId = source.containerKind == InventoryContainerKind.SceneContainer
+                ? activeSceneContainerId
+                : null;
+            var targetContainerId = targetKind == InventoryContainerKind.SceneContainer
+                ? activeSceneContainerId
+                : null;
+            if (string.IsNullOrEmpty(targetContainerId) && targetKind == InventoryContainerKind.SceneContainer)
+            {
+                return Fail(sourceInstanceId, "A scene container must be open before swapping into it.");
+            }
+
+            var sourceCandidate = BuildPlacementForDestination(
+                source.item, targetKind, targetContainerId, targetX, targetY, targetSlotIndex);
+            var targetCandidate = BuildPlacementForDestination(
+                target.item, source.containerKind, sourceContainerId, source.x, source.y, source.slotIndex);
+            if (!CanEnterContainer(source.item, sourceCandidate.containerKind) ||
+                !CanEnterContainer(target.item, targetCandidate.containerKind) ||
+                !CanPlaceCandidate(sourceCandidate, sourceInstanceId, targetInstanceId) ||
+                !CanPlaceCandidate(targetCandidate, sourceInstanceId, targetInstanceId))
+            {
+                return Fail(sourceInstanceId, "The two items cannot be exchanged at these positions.");
+            }
+
+            RemovePlacement(source);
+            RemovePlacement(target);
+            AddPlacement(sourceCandidate);
+            AddPlacement(targetCandidate);
+            if (source.containerKind == InventoryContainerKind.ShortcutBar || targetKind == InventoryContainerKind.ShortcutBar)
+            {
+                context.Events.Publish(new ShortcutChangedEvent());
+            }
+
+            context.Events.Publish(new InventoryChangedEvent());
+            return true;
+        }
+
         public bool TrySelectShortcut(int slotIndex)
         {
             var placement = FindPlayerSlot(InventoryContainerKind.ShortcutBar, slotIndex);
@@ -419,6 +521,74 @@ namespace MemorialArchive.Gameplay.Inventory.Logic
         private InventoryItemPlacement FindPlayerSlot(InventoryContainerKind kind, int slotIndex)
         {
             return playerInventory.playerItems.Find(item => item != null && item.containerKind == kind && item.slotIndex == slotIndex);
+        }
+
+        private InventoryItemPlacement BuildPlacementForDestination(
+            InventoryItemInstance item,
+            InventoryContainerKind kind,
+            string containerId,
+            int x,
+            int y,
+            int slotIndex)
+        {
+            var config = context.Configs.GetItem(item.itemId);
+            var isBackpack = kind == InventoryContainerKind.Backpack;
+            return new InventoryItemPlacement
+            {
+                item = item,
+                containerKind = kind,
+                containerId = kind == InventoryContainerKind.SceneContainer ? containerId : null,
+                x = x,
+                y = y,
+                width = isBackpack && config != null ? config.BackpackWidth : 1,
+                height = isBackpack && config != null ? config.BackpackHeight : 1,
+                slotIndex = kind == InventoryContainerKind.Backpack || kind == InventoryContainerKind.SceneContainer ? -1 : slotIndex
+            };
+        }
+
+        private bool CanEnterContainer(InventoryItemInstance item, InventoryContainerKind kind)
+        {
+            var config = context.Configs.GetItem(item.itemId);
+            if (kind == InventoryContainerKind.ShortcutBar)
+            {
+                return config == null || config.CanEquipToShortcut;
+            }
+
+            if (kind == InventoryContainerKind.Offhand)
+            {
+                return config != null && config.CanEquipToOffhand && config.OffhandType != OffhandType.None;
+            }
+
+            return true;
+        }
+
+        private bool CanPlaceCandidate(InventoryItemPlacement candidate, string firstIgnoredId, string secondIgnoredId)
+        {
+            if (candidate.containerKind == InventoryContainerKind.Backpack)
+            {
+                return backpackGrid.CanPlace(candidate, GetPlayerItems(InventoryContainerKind.Backpack), firstIgnoredId, secondIgnoredId);
+            }
+
+            if (candidate.containerKind == InventoryContainerKind.SceneContainer)
+            {
+                var container = GetOrCreateSceneContainer(candidate.containerId);
+                return container != null && sceneContainerGrid.CanPlace(candidate, container.items, firstIgnoredId, secondIgnoredId);
+            }
+
+            return FindPlayerSlot(candidate.containerKind, candidate.slotIndex) == null ||
+                   FindPlayerSlot(candidate.containerKind, candidate.slotIndex).item.instanceId == firstIgnoredId ||
+                   FindPlayerSlot(candidate.containerKind, candidate.slotIndex).item.instanceId == secondIgnoredId;
+        }
+
+        private void AddPlacement(InventoryItemPlacement placement)
+        {
+            if (placement.containerKind == InventoryContainerKind.SceneContainer)
+            {
+                GetOrCreateSceneContainer(placement.containerId).items.Add(placement);
+                return;
+            }
+
+            playerInventory.playerItems.Add(placement);
         }
 
         private void RemovePlacement(InventoryItemPlacement placement)

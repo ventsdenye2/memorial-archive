@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f5e3ba4677810d49bb01d860c9a9091, type: 3}
+  m_Name: "1006_\u624B\u63D0\u706F"
+  m_EditorClassIdentifier: 
+  itemId: 1006
+  itemName: "\u624B\u63D0\u706F"
+  icon: {fileID: 0}
+  category: 8
+  backpackFootprint: 0
+  maxStack: 1
+  canUse: 0
+  canEquipToShortcut: 0
+  canEquipToOffhand: 1
+  offhandType: 2
+  canPlaceAmmo: 0
+  compatibleWeaponItemId: 0
+  effectId: lantern_light

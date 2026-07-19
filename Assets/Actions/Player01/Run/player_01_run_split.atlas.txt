@@ -1,0 +1,97 @@
+
+player_01_run_split.png
+size: 529,282
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Player_01_Arm_Left
+  rotate: true
+  xy: 267, 114
+  size: 70, 157
+  orig: 402, 602
+  offset: 160, 241
+  index: -1
+Player_01_Arm_Right
+  rotate: true
+  xy: 269, 57
+  size: 55, 157
+  orig: 402, 602
+  offset: 151, 240
+  index: -1
+Player_01_Body_back
+  rotate: true
+  xy: 120, 2
+  size: 108, 147
+  orig: 402, 602
+  offset: 143, 162
+  index: -1
+Player_01_Body_front
+  rotate: false
+  xy: 2, 43
+  size: 116, 237
+  orig: 402, 602
+  offset: 118, 161
+  index: -1
+Player_01_Hair
+  rotate: false
+  xy: 362, 23
+  size: 48, 32
+  orig: 402, 602
+  offset: 205, 404
+  index: -1
+Player_01_Tail
+  rotate: true
+  xy: 441, 161
+  size: 119, 86
+  orig: 402, 602
+  offset: 69, 211
+  index: -1
+Player_01_cape
+  rotate: false
+  xy: 428, 73
+  size: 74, 86
+  orig: 402, 602
+  offset: 163, 306
+  index: -1
+Player_01_ear_Left
+  rotate: true
+  xy: 63, 13
+  size: 28, 50
+  orig: 402, 602
+  offset: 192, 421
+  index: -1
+Player_01_ear_Right
+  rotate: true
+  xy: 2, 12
+  size: 29, 59
+  orig: 402, 602
+  offset: 190, 420
+  index: -1
+Player_01_face
+  rotate: false
+  xy: 428, 13
+  size: 84, 58
+  orig: 402, 602
+  offset: 184, 377
+  index: -1
+Player_01_hat
+  rotate: false
+  xy: 269, 2
+  size: 91, 53
+  orig: 402, 602
+  offset: 168, 413
+  index: -1
+Player_01_leg_Right
+  rotate: false
+  xy: 120, 112
+  size: 145, 168
+  orig: 402, 602
+  offset: 189, 128
+  index: -1
+Player_01_leg_left
+  rotate: true
+  xy: 267, 186
+  size: 94, 172
+  orig: 402, 602
+  offset: 127, 123
+  index: -1

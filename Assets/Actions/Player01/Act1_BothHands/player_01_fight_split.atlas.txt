@@ -1,0 +1,125 @@
+
+player_01_fight_split.png
+size: 861,497
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Player_01_Arm_Left
+  rotate: false
+  xy: 755, 164
+  size: 70, 157
+  orig: 402, 602
+  offset: 160, 241
+  index: -1
+Player_01_Arm_Right1
+  rotate: false
+  xy: 673, 64
+  size: 55, 156
+  orig: 55, 156
+  offset: 0, 0
+  index: -1
+Player_01_Arm_Right2
+  rotate: true
+  xy: 671, 7
+  size: 55, 155
+  orig: 55, 156
+  offset: 0, 1
+  index: -1
+Player_01_Body_back
+  rotate: true
+  xy: 524, 122
+  size: 108, 147
+  orig: 402, 602
+  offset: 143, 162
+  index: -1
+Player_01_Body_front
+  rotate: true
+  xy: 524, 378
+  size: 117, 237
+  orig: 402, 602
+  offset: 118, 161
+  index: -1
+Player_01_Hair
+  rotate: false
+  xy: 612, 2
+  size: 48, 32
+  orig: 402, 602
+  offset: 205, 404
+  index: -1
+Player_01_Tail
+  rotate: true
+  xy: 524, 2
+  size: 118, 86
+  orig: 402, 602
+  offset: 70, 211
+  index: -1
+Player_01_Weapon_both
+  rotate: true
+  xy: 694, 222
+  size: 154, 59
+  orig: 400, 600
+  offset: 168, 240
+  index: -1
+Player_01_cape
+  rotate: false
+  xy: 730, 73
+  size: 74, 89
+  orig: 402, 602
+  offset: 163, 303
+  index: -1
+Player_01_ear_Left
+  rotate: false
+  xy: 827, 271
+  size: 28, 50
+  orig: 402, 602
+  offset: 192, 421
+  index: -1
+Player_01_ear_Right
+  rotate: false
+  xy: 828, 12
+  size: 29, 59
+  orig: 402, 602
+  offset: 190, 420
+  index: -1
+Player_01_face
+  rotate: true
+  xy: 612, 36
+  size: 84, 57
+  orig: 402, 602
+  offset: 184, 377
+  index: -1
+Player_01_finger_Left
+  rotate: false
+  xy: 827, 238
+  size: 32, 31
+  orig: 400, 600
+  offset: 245, 252
+  index: -1
+Player_01_hat
+  rotate: true
+  xy: 806, 73
+  size: 89, 53
+  orig: 402, 602
+  offset: 170, 413
+  index: -1
+Player_01_leg_Right
+  rotate: true
+  xy: 524, 232
+  size: 144, 168
+  orig: 402, 602
+  offset: 189, 128
+  index: -1
+Player_01_leg_left
+  rotate: false
+  xy: 763, 323
+  size: 94, 172
+  orig: 402, 602
+  offset: 127, 123
+  index: -1
+anti-tank-Grenada
+  rotate: true
+  xy: 2, 5
+  size: 490, 520
+  orig: 1234, 1428
+  offset: 369, 426
+  index: -1

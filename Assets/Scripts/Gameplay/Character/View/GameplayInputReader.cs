@@ -1,0 +1,116 @@
+using MemorialArchive.Framework.Core;
+using MemorialArchive.Framework.Event;
+using UnityEngine;
+
+namespace MemorialArchive.Gameplay.Character.View
+{
+    public sealed class GameplayInputReader : MonoBehaviour
+    {
+        [SerializeField] private KeyCode interactKey = KeyCode.E;
+        [SerializeField] private KeyCode dodgeKey = KeyCode.Space;
+        [SerializeField] private KeyCode inventoryKey = KeyCode.Tab;
+        [SerializeField] private KeyCode diaryKey = KeyCode.I;
+        [SerializeField] private KeyCode mapKey = KeyCode.M;
+        [SerializeField] private KeyCode reloadKey = KeyCode.R;
+
+        private void Update()
+        {
+            var root = GameRoot.Instance;
+            if (root == null || root.Context == null)
+            {
+                return;
+            }
+
+            var events = root.Context.Events;
+
+            PublishUiKeys(events);
+            if (root.Context.UI != null && root.Context.UI.IsGameplayInputBlocked)
+            {
+                events.Publish(new MoveInputEvent(Vector2.zero));
+                events.Publish(new RunInputEvent(false));
+                return;
+            }
+
+            events.Publish(new MoveInputEvent(new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"))));
+            events.Publish(new RunInputEvent(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)));
+            events.Publish(new BlockInputEvent(Input.GetMouseButton(1)));
+            events.Publish(new AimInputEvent(Input.GetMouseButton(1), GetPointerWorldPosition()));
+
+            if (Input.GetMouseButtonDown(0))
+            {
+                events.Publish(new PrimaryActionPressedEvent());
+            }
+
+            if (Input.GetKeyDown(interactKey))
+            {
+                events.Publish(new InteractPressedEvent());
+            }
+
+            if (Input.GetKeyDown(dodgeKey))
+            {
+                events.Publish(new DodgePressedEvent());
+            }
+
+            if (Input.GetKeyDown(reloadKey))
+            {
+                events.Publish(new ReloadPressedEvent());
+            }
+
+            PublishShortcutKeys(events);
+        }
+
+        private void PublishUiKeys(EventBus events)
+        {
+            if (Input.GetKeyDown(inventoryKey))
+            {
+                events.Publish(new OpenInventoryPressedEvent());
+            }
+
+            if (Input.GetKeyDown(diaryKey))
+            {
+                events.Publish(new OpenDiaryPressedEvent());
+            }
+
+            if (Input.GetKeyDown(mapKey))
+            {
+                events.Publish(new OpenMapPressedEvent());
+            }
+
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                events.Publish(new PausePressedEvent());
+            }
+        }
+
+        private static void PublishShortcutKeys(EventBus events)
+        {
+            if (Input.GetKeyDown(KeyCode.Alpha1))
+            {
+                events.Publish(new ShortcutEquipPressedEvent(0));
+            }
+
+            if (Input.GetKeyDown(KeyCode.Alpha2))
+            {
+                events.Publish(new ShortcutEquipPressedEvent(1));
+            }
+
+            if (Input.GetKeyDown(KeyCode.Alpha3))
+            {
+                events.Publish(new ShortcutEquipPressedEvent(2));
+            }
+        }
+
+        private static Vector2 GetPointerWorldPosition()
+        {
+            var camera = UnityEngine.Camera.main;
+            if (camera == null)
+            {
+                return Vector2.zero;
+            }
+
+            var screenPosition = Input.mousePosition;
+            var worldPosition = camera.ScreenToWorldPoint(new Vector3(screenPosition.x, screenPosition.y, -camera.transform.position.z));
+            return worldPosition;
+        }
+    }
+}

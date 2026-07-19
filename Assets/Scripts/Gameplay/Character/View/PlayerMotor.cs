@@ -22,6 +22,13 @@ namespace MemorialArchive.Gameplay.Character.View
             {
                 body = GetComponent<Rigidbody2D>();
             }
+
+            // 本项目当前是横向 2D 平面玩法：出生时所在的场景下边缘就是唯一可行走线。
+            // 输入和 CharacterSystem 已经不提供 Y 方向；这里再锁住物理 Y，避免碰撞或外力把玩家推离该线。
+            if (body != null)
+            {
+                body.constraints |= RigidbodyConstraints2D.FreezePositionY;
+            }
         }
 
         private void OnEnable()

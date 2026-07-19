@@ -13,6 +13,9 @@ namespace MemorialArchive.Gameplay.Character.Logic
         private CharacterData data = new CharacterData();
         private GameContext context;
         private Vector2 moveDirection;
+        // 角色朝向属于角色状态，而不是动画 View 的私有状态。
+        // 当前阶段只允许横向移动，因此它始终是 left/right 之一。
+        private Vector2 facingDirection = Vector2.right;
         private bool isRunning;
         private bool isBlocking;
         private bool isAiming;
@@ -72,6 +75,7 @@ namespace MemorialArchive.Gameplay.Character.Logic
             context = null;
             data = new CharacterData();
             moveDirection = Vector2.zero;
+            facingDirection = Vector2.right;
             isRunning = false;
             isBlocking = false;
             isAiming = false;
@@ -156,7 +160,12 @@ namespace MemorialArchive.Gameplay.Character.Logic
 
         private void HandleMoveInput(MoveInputEvent evt)
         {
-            moveDirection = Vector2.ClampMagnitude(evt.Direction, 1f);
+            // 输入层已经只发送 Horizontal；逻辑层再次压制 Y，保证其它事件来源也不能让角色上下移动。
+            moveDirection = new Vector2(Mathf.Clamp(evt.Direction.x, -1f, 1f), 0f);
+            if (moveDirection.sqrMagnitude > 0.0001f)
+            {
+                facingDirection = moveDirection.normalized;
+            }
         }
 
         private void HandleRunInput(RunInputEvent evt)
@@ -192,7 +201,9 @@ namespace MemorialArchive.Gameplay.Character.Logic
             }
 
 
-            var direction = moveDirection.sqrMagnitude > 0.0001f ? moveDirection.normalized : aimDirection;
+            // 移动中向移动方向闪避；静止时维持朝向并向背后闪避。
+            // 不使用瞄准方向，避免鼠标位置改变静止闪避的方向。
+            var direction = moveDirection.sqrMagnitude > 0.0001f ? moveDirection.normalized : -facingDirection;
             exactStamina -= attributes.DodgeStaminaCost;
             data.stamina = Mathf.CeilToInt(exactStamina);
             dodgeCooldownRemaining = attributes.DodgeCooldownSeconds;

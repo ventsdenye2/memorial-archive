@@ -31,7 +31,8 @@ namespace MemorialArchive.Gameplay.Character.View
                 return;
             }
 
-            events.Publish(new MoveInputEvent(new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"))));
+            // 当前关卡是横向移动：只读取 A/D（Horizontal），不把 W/S 传入角色逻辑。
+            events.Publish(new MoveInputEvent(new Vector2(Input.GetAxisRaw("Horizontal"), 0f)));
             events.Publish(new RunInputEvent(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)));
             events.Publish(new BlockInputEvent(Input.GetMouseButton(1)));
             events.Publish(new AimInputEvent(Input.GetMouseButton(1), GetPointerWorldPosition()));

@@ -187,7 +187,7 @@ namespace MemorialArchive.Editor
             root.transform.localScale = new Vector3(0.7f, 0.9f, 1f);
             var body = root.AddComponent<Rigidbody2D>();
             body.gravityScale = 0f;
-            body.freezeRotation = true;
+            body.constraints = RigidbodyConstraints2D.FreezePositionY | RigidbodyConstraints2D.FreezeRotation;
             root.AddComponent<CapsuleCollider2D>();
             root.AddComponent<GameplayInputReader>();
             root.AddComponent<PlayerMotor>();

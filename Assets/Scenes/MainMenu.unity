@@ -187,9 +187,29 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 694597021}
     m_Modifications:
+    - target: {fileID: 2764304191018108416, guid: 8884f062db5e0b04093e668b52ab4c77, type: 3}
+      propertyPath: m_PreserveAspect
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 2831398996939417246, guid: 8884f062db5e0b04093e668b52ab4c77, type: 3}
       propertyPath: m_Name
       value: NewGameConfirmPanel
+      objectReference: {fileID: 0}
+    - target: {fileID: 5558907660749188654, guid: 8884f062db5e0b04093e668b52ab4c77, type: 3}
+      propertyPath: m_SpriteState.m_HighlightedSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 5f46d99db0ab56641ae8502ac5c77181, type: 3}
+    - target: {fileID: 6296262106917130530, guid: 8884f062db5e0b04093e668b52ab4c77, type: 3}
+      propertyPath: m_Alpha
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7432644571044836525, guid: 8884f062db5e0b04093e668b52ab4c77, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7553036602059853452, guid: 8884f062db5e0b04093e668b52ab4c77, type: 3}
+      propertyPath: m_PreserveAspect
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7601943768591665790, guid: 8884f062db5e0b04093e668b52ab4c77, type: 3}
       propertyPath: m_Pivot.x
@@ -271,6 +291,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9149826668008113660, guid: 8884f062db5e0b04093e668b52ab4c77, type: 3}
+      propertyPath: m_SpriteState.m_HighlightedSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 7e62c4eff1b86bd44a8ac81959807cab, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -723,6 +747,10 @@ PrefabInstance:
     - target: {fileID: 6027704583408526155, guid: 98fa4c96c9ed79f43a839cfbe22c40eb, type: 3}
       propertyPath: m_Name
       value: MainMenuPanel
+      objectReference: {fileID: 0}
+    - target: {fileID: 6027704583408526155, guid: 98fa4c96c9ed79f43a839cfbe22c40eb, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

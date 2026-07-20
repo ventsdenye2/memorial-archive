@@ -14,13 +14,13 @@ namespace MemorialArchive.Gameplay.Inventory.View
         [SerializeField] private int y;
         [SerializeField] private int slotIndex = -1;
 
-        private InventoryPanel owner;
-        private Image background;
-        private Image icon;
-        private Text label;
+        [SerializeField] private InventoryPanel owner;
+        [SerializeField] private Image background;
+        [SerializeField] private Image icon;
+        [SerializeField] private Text label;
         private string itemInstanceId;
-        private Sprite normalSprite;
-        private Sprite selectedSprite;
+        [SerializeField] private Sprite normalSprite;
+        [SerializeField] private Sprite selectedSprite;
 
         public InventoryContainerKind ContainerKind => containerKind;
         public int X => x;
@@ -94,7 +94,7 @@ namespace MemorialArchive.Gameplay.Inventory.View
         }
 
         public void OnPointerClick(PointerEventData eventData) => owner?.HandleSlotClicked(this);
-        public void OnBeginDrag(PointerEventData eventData) => owner?.BeginDrag(this);
+        public void OnBeginDrag(PointerEventData eventData) => owner?.BeginDrag(this, eventData.position);
         public void OnDrag(PointerEventData eventData) => owner?.Drag(eventData.position);
         public void OnEndDrag(PointerEventData eventData) => owner?.EndDrag();
         public void OnDrop(PointerEventData eventData) => owner?.DropOn(this);

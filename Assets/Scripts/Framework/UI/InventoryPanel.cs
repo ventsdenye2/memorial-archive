@@ -5,21 +5,17 @@ using MemorialArchive.Gameplay.Inventory.Data;
 using MemorialArchive.Gameplay.Inventory.Logic;
 using MemorialArchive.Gameplay.Inventory.View;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.Events;
 using UnityEngine.UI;
 
 namespace MemorialArchive.Framework.UI
 {
     /// <summary>
-    /// Runtime UI for the first-stage inventory contract.  The rules remain in
-    /// InventorySystem; this class only renders slots and turns UI intent into
-    /// system calls.
+    /// Renders the stage-one inventory. Its layout is authored in the prefab;
+    /// this class only refreshes static slot views and routes UI intent.
     /// </summary>
     public sealed class InventoryPanel : BasePanel
     {
         private const float SlotSize = 72f;
-        private const float SlotGap = 8f;
 
         [Header("Stage-one artwork")]
         [SerializeField] private Sprite maskSprite;
@@ -36,18 +32,24 @@ namespace MemorialArchive.Framework.UI
         [SerializeField] private Sprite cancelSprite;
         [SerializeField] private Sprite cancelHighlightedSprite;
 
-        private readonly List<InventorySlotView> slots = new List<InventorySlotView>();
+        [Header("Prefab layout")]
+        [SerializeField] private List<InventorySlotView> slots = new List<InventorySlotView>();
+        [SerializeField] private Text statusLabel;
+        [SerializeField] private Text descriptionLabel;
+
         private InventorySlotView selectedSlot;
         private InventorySlotView dragSource;
         private RectTransform dragVisual;
-        private Text statusLabel;
-        private Text descriptionLabel;
-        private bool built;
+        private Canvas dragCanvas;
+        private bool dragDroppedOnSlot;
 
         protected override void Awake()
         {
             base.Awake();
-            BuildIfNeeded();
+            if (slots.Count == 0)
+            {
+                Debug.LogError("InventoryPanel has no authored slot views. Rebuild its prefab layout from Tools/Memorial Archive.", this);
+            }
         }
 
         private void OnEnable()
@@ -65,7 +67,6 @@ namespace MemorialArchive.Framework.UI
         public override void Open()
         {
             base.Open();
-            BuildIfNeeded();
             Subscribe();
             Refresh();
         }
@@ -93,6 +94,7 @@ namespace MemorialArchive.Framework.UI
                     SetStatus("已选中物品：点击目标格，或直接拖拽。", false);
                     Refresh();
                 }
+
                 return;
             }
 
@@ -107,7 +109,7 @@ namespace MemorialArchive.Framework.UI
             MoveTo(selectedSlot, slot);
         }
 
-        public void BeginDrag(InventorySlotView slot)
+        public void BeginDrag(InventorySlotView slot, Vector2 screenPosition)
         {
             if (slot == null || string.IsNullOrEmpty(slot.ItemInstanceId))
             {
@@ -115,8 +117,10 @@ namespace MemorialArchive.Framework.UI
             }
 
             dragSource = slot;
+            dragDroppedOnSlot = false;
             selectedSlot = slot;
             CreateDragVisual(slot);
+            PositionDragVisual(screenPosition);
             Refresh();
         }
 
@@ -124,13 +128,21 @@ namespace MemorialArchive.Framework.UI
         {
             if (dragVisual != null)
             {
-                dragVisual.position = screenPosition;
+                PositionDragVisual(screenPosition);
             }
         }
 
         public void DropOn(InventorySlotView destination)
         {
-            if (dragSource != null && destination != null && dragSource != destination)
+            if (dragSource == null || destination == null)
+            {
+                return;
+            }
+
+            // Releasing on any inventory slot is a deliberate in-panel drop,
+            // even when the requested move is rejected by its own rules.
+            dragDroppedOnSlot = true;
+            if (dragSource != destination)
             {
                 MoveTo(dragSource, destination);
             }
@@ -138,9 +150,92 @@ namespace MemorialArchive.Framework.UI
 
         public void EndDrag()
         {
+            if (dragSource != null && !dragDroppedOnSlot && IsPlayerSlot(dragSource))
+            {
+                DropOutsidePlayerInventory(dragSource);
+            }
+
             dragSource = null;
+            dragDroppedOnSlot = false;
             DestroyDragVisual();
         }
+
+        public void CloseFromButton()
+        {
+            var root = GameRoot.Instance;
+            var inventory = root?.GetSystem<InventorySystem>();
+            if (inventory != null && inventory.HasOpenSceneContainer)
+            {
+                root.Context.Events.Publish(new ContainerClosedEvent());
+                return;
+            }
+
+            root?.Context?.UI?.Close(PanelId.Inventory);
+        }
+
+        public void SelectFromButton()
+        {
+            SetStatus(selectedSlot == null ? "请先选择一个物品。" : "已选择，可拖到目标格。", selectedSlot == null);
+        }
+
+        public void CancelFromButton()
+        {
+            selectedSlot = null;
+            SetStatus("已取消选择。", false);
+            Refresh();
+        }
+
+#if UNITY_EDITOR
+        public void RebuildPrefabLayoutForEditor()
+        {
+            for (var i = transform.childCount - 1; i >= 0; i--)
+            {
+                DestroyImmediate(transform.GetChild(i).gameObject);
+            }
+
+            slots.Clear();
+            statusLabel = null;
+            descriptionLabel = null;
+
+            var mask = CreateImage("InventoryMask", transform, Vector2.zero, new Vector2(1920f, 1080f), maskSprite);
+            var maskRect = mask.rectTransform;
+            maskRect.anchorMin = Vector2.zero;
+            maskRect.anchorMax = Vector2.one;
+            maskRect.offsetMin = maskRect.offsetMax = Vector2.zero;
+            mask.raycastTarget = true;
+            mask.transform.SetAsFirstSibling();
+
+            CreateImage("SceneContainerPanel", transform, new Vector2(-390f, 70f), new Vector2(400f, 399f), scenePanelSprite);
+            CreateImage("BackpackPanel", transform, new Vector2(310f, 15f), new Vector2(484f, 652f), backpackPanelSprite);
+            CreateGrid(InventoryContainerKind.SceneContainer, -1, new Vector2(-390f, 75f), 2, 2,
+                new Vector2(128f, 86f), new Vector2(8f, 8f), slotSprite, selectedSlotSprite);
+            CreateGrid(InventoryContainerKind.Backpack, -1, new Vector2(310f, 105f), 3, 3,
+                new Vector2(116f, 78f), new Vector2(4f, 3f), slotSprite, selectedSlotSprite);
+
+            CreateImage("ItemDescriptionFrame", transform, new Vector2(310f, -175f), new Vector2(412f, 83f), descriptionSprite);
+            descriptionLabel = CreateText("ItemDescription", transform, new Vector2(310f, -175f), new Vector2(360f, 64f), 15, TextAnchor.MiddleLeft);
+            descriptionLabel.color = new Color(0.18f, 0.11f, 0.08f, 1f);
+            descriptionLabel.text = "选择物品后，这里会显示名称和数量。";
+
+            CreateButton("CloseButton", transform, new Vector2(650f, 385f), new Vector2(54f, 54f), closeSprite, null, InventoryPanelButtonActionType.Close);
+            CreateButton("SelectButton", transform, new Vector2(230f, -275f), new Vector2(126f, 66f), selectSprite, selectHighlightedSprite, InventoryPanelButtonActionType.Select);
+            CreateButton("CancelButton", transform, new Vector2(390f, -275f), new Vector2(126f, 66f), cancelSprite, cancelHighlightedSprite, InventoryPanelButtonActionType.Cancel);
+
+            CreateGrid(InventoryContainerKind.ShortcutBar, 0, new Vector2(-45f, -455f), 3, 1,
+                new Vector2(75f, 73f), new Vector2(16f, 0f), hudSlotSprite, hudSelectedSlotSprite);
+            CreateGrid(InventoryContainerKind.Offhand, 0, new Vector2(137f, -455f), 1, 1,
+                new Vector2(75f, 73f), Vector2.zero, hudSlotSprite, hudSelectedSlotSprite);
+            for (var i = 0; i < 3; i++)
+            {
+                CreateHint((i + 1).ToString(), new Vector2(-136f + i * 91f, -430f));
+            }
+
+            CreateHint("副", new Vector2(137f, -430f));
+            statusLabel = CreateText("InventoryStatus", transform, new Vector2(-390f, -165f), new Vector2(390f, 58f), 14, TextAnchor.MiddleCenter);
+            statusLabel.color = new Color(0.2f, 0.13f, 0.09f, 1f);
+            statusLabel.text = "拖拽物品到背包、快捷栏或副手栏。";
+        }
+#endif
 
         private void MoveTo(InventorySlotView source, InventorySlotView destination)
         {
@@ -154,13 +249,8 @@ namespace MemorialArchive.Framework.UI
             var success = false;
             if (!string.IsNullOrEmpty(destination.ItemInstanceId))
             {
-                success = inventory.TryMoveOrSwap(
-                    source.ItemInstanceId,
-                    destination.ItemInstanceId,
-                    destination.ContainerKind,
-                    destination.X,
-                    destination.Y,
-                    destination.SlotIndex);
+                success = inventory.TryMoveOrSwap(source.ItemInstanceId, destination.ItemInstanceId, destination.ContainerKind,
+                    destination.X, destination.Y, destination.SlotIndex);
             }
             else
             {
@@ -188,71 +278,41 @@ namespace MemorialArchive.Framework.UI
             Refresh();
         }
 
-        private void BuildIfNeeded()
+        private void DropOutsidePlayerInventory(InventorySlotView source)
         {
-            if (built)
+            var inventory = GameRoot.Instance?.GetSystem<InventorySystem>();
+            if (inventory == null || !inventory.HasOpenSceneContainer)
             {
+                SetStatus("当前没有打开的场景物品栏，无法放下物品。", true);
                 return;
             }
 
-            built = true;
-            var rect = transform as RectTransform;
-            if (rect == null)
+            foreach (var slot in slots)
             {
+                if (slot == null || slot.ContainerKind != InventoryContainerKind.SceneContainer || FindPlacement(inventory, slot) != null)
+                {
+                    continue;
+                }
+
+                var success = inventory.TryDropToSceneContainer(source.ItemInstanceId, null, slot.X, slot.Y);
+                SetStatus(success ? "物品已放入场景物品栏。" : "无法放入场景物品栏。", !success);
+                Refresh();
                 return;
             }
 
-            var mask = CreateImage("InventoryMask", transform, Vector2.zero, new Vector2(1920f, 1080f), maskSprite);
-            var maskRect = mask.rectTransform;
-            maskRect.anchorMin = Vector2.zero;
-            maskRect.anchorMax = Vector2.one;
-            maskRect.offsetMin = maskRect.offsetMax = Vector2.zero;
-            mask.raycastTarget = true;
-            mask.transform.SetAsFirstSibling();
-
-            CreateImage("SceneContainerPanel", transform, new Vector2(-390f, 70f), new Vector2(400f, 399f), scenePanelSprite);
-            CreateImage("BackpackPanel", transform, new Vector2(310f, 15f), new Vector2(484f, 652f), backpackPanelSprite);
-            CreateGrid(InventoryContainerKind.SceneContainer, -1, new Vector2(-390f, 75f), 2, 2,
-                new Vector2(128f, 86f), new Vector2(8f, 8f), slotSprite, selectedSlotSprite);
-            CreateGrid(InventoryContainerKind.Backpack, -1, new Vector2(310f, 105f), 3, 3,
-                new Vector2(116f, 78f), new Vector2(4f, 3f), slotSprite, selectedSlotSprite);
-
-            CreateImage("ItemDescriptionFrame", transform, new Vector2(310f, -175f), new Vector2(412f, 83f), descriptionSprite);
-            descriptionLabel = CreateText("ItemDescription", transform, new Vector2(310f, -175f), new Vector2(360f, 64f), 15, TextAnchor.MiddleLeft);
-            descriptionLabel.color = new Color(0.18f, 0.11f, 0.08f, 1f);
-            descriptionLabel.text = "选择物品后，这里会显示名称和数量。";
-
-            CreateButton("CloseButton", transform, new Vector2(650f, 385f), new Vector2(54f, 54f), closeSprite, null, CloseInventory);
-            CreateButton("SelectButton", transform, new Vector2(230f, -275f), new Vector2(126f, 66f), selectSprite, selectHighlightedSprite, SelectCurrent);
-            CreateButton("CancelButton", transform, new Vector2(390f, -275f), new Vector2(126f, 66f), cancelSprite, cancelHighlightedSprite, CancelSelection);
-
-            // The reference keeps the HUD row visible while the bag is open. These
-            // slots remain the actual drag/drop targets: 1, 2, 3, then offhand.
-            CreateGrid(InventoryContainerKind.ShortcutBar, 0, new Vector2(-45f, -455f), 3, 1,
-                new Vector2(75f, 73f), new Vector2(16f, 0f), hudSlotSprite, hudSelectedSlotSprite);
-            CreateGrid(InventoryContainerKind.Offhand, 0, new Vector2(137f, -455f), 1, 1,
-                new Vector2(75f, 73f), Vector2.zero, hudSlotSprite, hudSelectedSlotSprite);
-            for (var i = 0; i < 3; i++)
-            {
-                CreateHint((i + 1).ToString(), new Vector2(-136f + i * 91f, -430f));
-            }
-            CreateHint("副", new Vector2(137f, -430f));
-
-            statusLabel = CreateText("InventoryStatus", transform, new Vector2(-390f, -165f), new Vector2(390f, 58f), 14, TextAnchor.MiddleCenter);
-            statusLabel.color = new Color(0.2f, 0.13f, 0.09f, 1f);
-            statusLabel.text = "拖拽物品到背包、快捷栏或副手栏。";
+            SetStatus("场景物品栏已满，物品保留在原位置。", true);
         }
 
-        private void CreateGrid(
-            InventoryContainerKind kind,
-            int baseSlotIndex,
-            Vector2 center,
-            int width,
-            int height,
-            Vector2 cellSize,
-            Vector2 gap,
-            Sprite normalSprite,
-            Sprite highlightSprite)
+        private static bool IsPlayerSlot(InventorySlotView slot)
+        {
+            return slot.ContainerKind == InventoryContainerKind.Backpack ||
+                   slot.ContainerKind == InventoryContainerKind.ShortcutBar ||
+                   slot.ContainerKind == InventoryContainerKind.Offhand;
+        }
+
+#if UNITY_EDITOR
+        private void CreateGrid(InventoryContainerKind kind, int baseSlotIndex, Vector2 center, int width, int height,
+            Vector2 cellSize, Vector2 gap, Sprite normalSprite, Sprite highlightSprite)
         {
             var startX = center.x - (width - 1) * (cellSize.x + gap.x) * 0.5f;
             var startY = center.y + (height - 1) * (cellSize.y + gap.y) * 0.5f;
@@ -266,15 +326,8 @@ namespace MemorialArchive.Framework.UI
                     slotRect.anchorMin = slotRect.anchorMax = new Vector2(0.5f, 0.5f);
                     slotRect.anchoredPosition = new Vector2(startX + x * (cellSize.x + gap.x), startY - y * (cellSize.y + gap.y));
                     slotRect.sizeDelta = cellSize;
-                    var image = slotObject.GetComponent<Image>();
-                    image.sprite = normalSprite;
-                    image.color = normalSprite != null ? Color.white : new Color(0.12f, 0.14f, 0.18f, 0.92f);
+                    var slotIndex = kind == InventoryContainerKind.ShortcutBar ? baseSlotIndex + x : kind == InventoryContainerKind.Offhand ? 0 : -1;
                     var slot = slotObject.GetComponent<InventorySlotView>();
-                    var slotIndex = kind == InventoryContainerKind.ShortcutBar ? baseSlotIndex + x : -1;
-                    if (kind == InventoryContainerKind.Offhand)
-                    {
-                        slotIndex = 0;
-                    }
                     slot.Configure(this, kind, x, y, slotIndex, normalSprite, highlightSprite);
                     slots.Add(slot);
                 }
@@ -304,16 +357,10 @@ namespace MemorialArchive.Framework.UI
             return image;
         }
 
-        private static Button CreateButton(
-            string name,
-            Transform parent,
-            Vector2 position,
-            Vector2 size,
-            Sprite normal,
-            Sprite highlighted,
-            UnityAction callback)
+        private void CreateButton(string name, Transform parent, Vector2 position, Vector2 size, Sprite normal,
+            Sprite highlighted, InventoryPanelButtonActionType actionType)
         {
-            var buttonObject = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button));
+            var buttonObject = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button), typeof(InventoryPanelButtonAction));
             buttonObject.transform.SetParent(parent, false);
             var rect = buttonObject.GetComponent<RectTransform>();
             rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
@@ -333,8 +380,8 @@ namespace MemorialArchive.Framework.UI
                 state.pressedSprite = highlighted;
                 button.spriteState = state;
             }
-            button.onClick.AddListener(callback);
-            return button;
+
+            buttonObject.GetComponent<InventoryPanelButtonAction>().Configure(this, actionType);
         }
 
         private static Text CreateText(string name, Transform parent, Vector2 position, Vector2 size, int fontSize, TextAnchor alignment)
@@ -353,14 +400,10 @@ namespace MemorialArchive.Framework.UI
             text.raycastTarget = false;
             return text;
         }
+#endif
 
         private void Refresh()
         {
-            if (!built)
-            {
-                return;
-            }
-
             var inventory = GameRoot.Instance?.GetSystem<InventorySystem>();
             if (inventory == null)
             {
@@ -369,6 +412,11 @@ namespace MemorialArchive.Framework.UI
 
             foreach (var slot in slots)
             {
+                if (slot == null)
+                {
+                    continue;
+                }
+
                 var placement = FindPlacement(inventory, slot);
                 var config = placement?.item == null ? null : GameRoot.Instance.Context.Configs.GetItem(placement.item.itemId);
                 var itemName = config != null ? config.ItemName : placement != null ? GetItemName(placement.item.itemId) : string.Empty;
@@ -385,43 +433,11 @@ namespace MemorialArchive.Framework.UI
             }
         }
 
-        private void CloseInventory()
-        {
-            var root = GameRoot.Instance;
-            var inventory = root?.GetSystem<InventorySystem>();
-            if (inventory != null && inventory.HasOpenSceneContainer)
-            {
-                root.Context.Events.Publish(new ContainerClosedEvent());
-                return;
-            }
-
-            root?.Context?.UI?.Close(PanelId.Inventory);
-        }
-
-        private void SelectCurrent()
-        {
-            SetStatus(selectedSlot == null ? "请先选择一个物品。" : "已选择，可拖到目标格。", selectedSlot == null);
-        }
-
-        private void CancelSelection()
-        {
-            selectedSlot = null;
-            SetStatus("已取消选择。", false);
-            Refresh();
-        }
-
         private static InventoryItemPlacement FindPlacement(InventorySystem inventory, InventorySlotView slot)
         {
-            IEnumerable<InventoryItemPlacement> candidates = null;
-            if (slot.ContainerKind == InventoryContainerKind.SceneContainer)
-            {
-                candidates = inventory.GetActiveSceneContainer()?.items;
-            }
-            else
-            {
-                candidates = inventory.GetPlayerPlacements(slot.ContainerKind);
-            }
-
+            IEnumerable<InventoryItemPlacement> candidates = slot.ContainerKind == InventoryContainerKind.SceneContainer
+                ? inventory.GetActiveSceneContainer()?.items
+                : inventory.GetPlayerPlacements(slot.ContainerKind);
             if (candidates == null)
             {
                 return null;
@@ -429,29 +445,15 @@ namespace MemorialArchive.Framework.UI
 
             foreach (var placement in candidates)
             {
-                if (placement == null || placement.item == null)
+                if (placement?.item == null)
                 {
                     continue;
                 }
 
-                if (slot.ContainerKind == InventoryContainerKind.ShortcutBar && placement.slotIndex == slot.SlotIndex)
-                {
-                    return placement;
-                }
-
-                if (slot.ContainerKind == InventoryContainerKind.Offhand && placement.slotIndex == 0)
-                {
-                    return placement;
-                }
-
-                if (slot.ContainerKind == InventoryContainerKind.Backpack &&
-                    slot.X >= placement.x && slot.X < placement.x + placement.width &&
-                    slot.Y >= placement.y && slot.Y < placement.y + placement.height)
-                {
-                    return placement;
-                }
-
-                if (slot.ContainerKind == InventoryContainerKind.SceneContainer && placement.x == slot.X && placement.y == slot.Y)
+                if (slot.ContainerKind == InventoryContainerKind.ShortcutBar && placement.slotIndex == slot.SlotIndex ||
+                    slot.ContainerKind == InventoryContainerKind.Offhand && placement.slotIndex == 0 ||
+                    slot.ContainerKind == InventoryContainerKind.Backpack && slot.X >= placement.x && slot.X < placement.x + placement.width && slot.Y >= placement.y && slot.Y < placement.y + placement.height ||
+                    slot.ContainerKind == InventoryContainerKind.SceneContainer && placement.x == slot.X && placement.y == slot.Y)
                 {
                     return placement;
                 }
@@ -504,21 +506,51 @@ namespace MemorialArchive.Framework.UI
         private void CreateDragVisual(InventorySlotView source)
         {
             DestroyDragVisual();
-            var canvas = GetComponentInParent<Canvas>();
-            if (canvas == null)
+            dragCanvas = GetComponentInParent<Canvas>();
+            if (dragCanvas == null)
             {
                 return;
             }
 
             var visual = new GameObject("InventoryDragVisual", typeof(RectTransform), typeof(Image));
-            visual.transform.SetParent(canvas.transform, false);
+            visual.transform.SetParent(dragCanvas.transform, false);
             dragVisual = visual.GetComponent<RectTransform>();
+            dragVisual.anchorMin = dragVisual.anchorMax = new Vector2(0.5f, 0.5f);
+            dragVisual.pivot = new Vector2(0.5f, 0.5f);
             dragVisual.sizeDelta = new Vector2(SlotSize, SlotSize);
             var image = visual.GetComponent<Image>();
-            image.color = new Color(0.86f, 0.63f, 0.18f, 0.75f);
+            var itemId = GetItemId(source);
+            var icon = GameRoot.Instance?.Context?.Configs?.GetItem(itemId)?.Icon;
+            image.sprite = icon;
+            image.preserveAspect = icon != null;
+            image.color = icon != null ? new Color(1f, 1f, 1f, 0.82f) : new Color(0.86f, 0.63f, 0.18f, 0.82f);
             image.raycastTarget = false;
-            var label = CreateText("Label", visual.transform, Vector2.zero, new Vector2(SlotSize, SlotSize), 13, TextAnchor.MiddleCenter);
-            label.text = GetItemName(GetItemId(source));
+            var labelObject = new GameObject("Label", typeof(RectTransform), typeof(Text));
+            labelObject.transform.SetParent(visual.transform, false);
+            var labelRect = labelObject.GetComponent<RectTransform>();
+            labelRect.anchorMin = labelRect.anchorMax = new Vector2(0.5f, 0.5f);
+            labelRect.sizeDelta = new Vector2(SlotSize, SlotSize);
+            var label = labelObject.GetComponent<Text>();
+            label.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            label.fontSize = 13;
+            label.alignment = TextAnchor.MiddleCenter;
+            label.raycastTarget = false;
+            label.text = GetItemName(itemId);
+        }
+
+        private void PositionDragVisual(Vector2 screenPosition)
+        {
+            if (dragVisual == null || dragCanvas == null)
+            {
+                return;
+            }
+
+            var canvasRect = dragCanvas.transform as RectTransform;
+            var camera = dragCanvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : dragCanvas.worldCamera;
+            if (canvasRect != null && RectTransformUtility.ScreenPointToWorldPointInRectangle(canvasRect, screenPosition, camera, out var worldPosition))
+            {
+                dragVisual.position = worldPosition;
+            }
         }
 
         private int GetItemId(InventorySlotView slot)
@@ -534,6 +566,8 @@ namespace MemorialArchive.Framework.UI
                 Destroy(dragVisual.gameObject);
                 dragVisual = null;
             }
+
+            dragCanvas = null;
         }
     }
 }

@@ -228,7 +228,7 @@ namespace MemorialArchive.Framework.UI
             {
                 var placement = FindPlacement(inventory.GetPlayerPlacements(InventoryContainerKind.ShortcutBar), i);
                 RefreshSlot(i, shortcutSlots[i], placement,
-                    placement != null && inventory.PlayerInventory.selectedShortcutIndex == i);
+                    inventory.PlayerInventory.selectedShortcutIndex == i);
             }
 
             var offhand = FindPlacement(inventory.GetPlayerPlacements(InventoryContainerKind.Offhand), 0);

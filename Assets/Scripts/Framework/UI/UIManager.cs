@@ -234,16 +234,17 @@ namespace MemorialArchive.Framework.UI
 
         private void HandleOpenContainerRequested(OpenContainerRequestedEvent evt)
         {
-            Open(PanelId.Container);
+            // InventoryPanel is now the complete container UI: it renders both
+            // the scene container and the player's backpack.  The legacy
+            // ContainerPanel and ShortcutBarPanel are separate placeholder
+            // overlays and must not be opened here, otherwise they obscure the
+            // authored inventory layout.
             Open(PanelId.Inventory);
-            Open(PanelId.ShortcutBar);
         }
 
         private void HandleContainerClosed(ContainerClosedEvent evt)
         {
-            Close(PanelId.Container);
             Close(PanelId.Inventory);
-            Close(PanelId.ShortcutBar);
         }
 
         private void HandleCharacterDied(CharacterDiedEvent evt)

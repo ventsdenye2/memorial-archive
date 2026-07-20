@@ -130,6 +130,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 661262692}
     m_Modifications:
+    - target: {fileID: 1279048344559121503, guid: c1b68ae76a0c8944cb8f05e0e22d470f, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -110
+      objectReference: {fileID: 0}
     - target: {fileID: 3645568528169418754, guid: c1b68ae76a0c8944cb8f05e0e22d470f, type: 3}
       propertyPath: m_Name
       value: DiaryPanel

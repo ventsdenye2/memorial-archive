@@ -361,14 +361,16 @@ namespace MemorialArchive.Gameplay.Inventory.Logic
 
         public bool TrySelectShortcut(int slotIndex)
         {
-            var placement = FindPlayerSlot(InventoryContainerKind.ShortcutBar, slotIndex);
-            if (placement == null)
+            if (slotIndex < 0 || slotIndex >= ShortcutSlotCount)
             {
-                return Fail(null, $"Shortcut slot {slotIndex} is empty.");
+                return Fail(null, "Shortcut slot index must be 0, 1, or 2.");
             }
 
+            // 数字键选择的是快捷栏格子本身。即使该格暂时为空，也需要保留
+            // 选中反馈；空格只会让 SelectedItemChangedEvent 携带 null，不会使用物品。
+            var placement = FindPlayerSlot(InventoryContainerKind.ShortcutBar, slotIndex);
             playerInventory.selectedShortcutIndex = slotIndex;
-            context.Events.Publish(new SelectedItemChangedEvent(placement.item));
+            context.Events.Publish(new SelectedItemChangedEvent(placement?.item));
             return true;
         }
 
@@ -414,6 +416,11 @@ namespace MemorialArchive.Gameplay.Inventory.Logic
         {
             activeSceneContainerId = evt.ContainerId;
             GetOrCreateSceneContainer(evt.ContainerId);
+
+            // UIManager subscribes before InventorySystem, so the inventory
+            // panel may be opened and refreshed before the active container is
+            // assigned. Notify it again after the container data is ready.
+            context.Events.Publish(new InventoryChangedEvent());
         }
 
         private void HandleContainerClosed(ContainerClosedEvent evt)

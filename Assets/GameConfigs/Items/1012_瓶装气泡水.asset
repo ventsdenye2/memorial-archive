@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemId: 1012
   itemName: "\u74F6\u88C5\u6C14\u6CE1\u6C34"
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 894a4c663fd6a324ab54172bc8f86c68, type: 3}
   category: 1
   backpackFootprint: 0
   maxStack: 1

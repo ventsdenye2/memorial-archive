@@ -66,6 +66,10 @@ namespace MemorialArchive.Gameplay.Character.View
         private void OnDisable()
         {
             GameRoot.Instance?.Context?.Events.Unsubscribe<DodgeRequestedEvent>(HandleDodgeRequested);
+            if (current == LocomotionState.Dodge)
+            {
+                PublishDodgeAnimationState(false);
+            }
             UnsubscribeDodgeComplete();
         }
 
@@ -132,6 +136,7 @@ namespace MemorialArchive.Gameplay.Character.View
 
         private void SwitchToLocomotion()
         {
+            PublishDodgeAnimationState(false);
             UnsubscribeDodgeComplete();
             // 重置为 Idle，下一帧 SampleLocomotion 会按 MoveDirection 校正到 Walk/Run。
             current = LocomotionState.Idle;
@@ -141,16 +146,16 @@ namespace MemorialArchive.Gameplay.Character.View
 
         private void HandleDodgeRequested(DodgeRequestedEvent evt)
         {
-            facingRight = evt.Direction.x >= 0f;
             current = LocomotionState.Dodge;
             stateEnteredAt = Time.time;
 
-            // DurationSeconds 只描述 PlayerMotor 的闪避位移时间，不参与视觉动画切换。
-            // 动画层只监听本次 dodge TrackEntry，完整播放后再回到 locomotion。
+            // 不根据移动方向改变朝向；无论静止还是移动，都按角色当前朝向
+            // 播放动画资产中自带位移的 dodge。
             UnsubscribeDodgeComplete();
             var entry = SwitchSkeleton(dodgeData, "dodge", false);
             if (entry != null)
             {
+                PublishDodgeAnimationState(true);
                 SubscribeDodgeComplete(entry);
             }
             else
@@ -168,6 +173,11 @@ namespace MemorialArchive.Gameplay.Character.View
             }
 
             SwitchToLocomotion();
+        }
+
+        private static void PublishDodgeAnimationState(bool isPlaying)
+        {
+            GameRoot.Instance?.Context?.Events.Publish(new DodgeAnimationStateChangedEvent(isPlaying));
         }
 
         private TrackEntry SwitchSkeleton(SkeletonDataAsset data, string animName, bool loop)

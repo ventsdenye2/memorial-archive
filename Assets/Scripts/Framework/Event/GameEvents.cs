@@ -140,6 +140,14 @@ namespace MemorialArchive.Framework.Event
         public float DurationSeconds { get; }
     }
 
+    // View 层同步：Spine dodge 播放期间，PlayerMotor 暂停普通位移，
+    // 让画面中的位移只由动画骨骼自身产生。
+    public readonly struct DodgeAnimationStateChangedEvent
+    {
+        public DodgeAnimationStateChangedEvent(bool isPlaying) => IsPlaying = isPlaying;
+        public bool IsPlaying { get; }
+    }
+
     public readonly struct Stage1GameplayStartedEvent { }
 
     public readonly struct InspectRequestedEvent

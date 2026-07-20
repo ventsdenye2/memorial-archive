@@ -13,8 +13,7 @@ namespace MemorialArchive.Gameplay.Character.View
 
         [SerializeField] private Rigidbody2D body;
         private CharacterSystem character;
-        private Vector2 dodgeVelocity;
-        private float dodgeRemaining;
+        private bool dodgeAnimationPlaying;
 
         private void Awake()
         {
@@ -34,7 +33,7 @@ namespace MemorialArchive.Gameplay.Character.View
         private void OnEnable()
         {
             character = GameRoot.Instance?.GetSystem<CharacterSystem>();
-            GameRoot.Instance?.Context?.Events.Subscribe<DodgeRequestedEvent>(HandleDodgeRequested);
+            GameRoot.Instance?.Context?.Events.Subscribe<DodgeAnimationStateChangedEvent>(HandleDodgeAnimationStateChanged);
             BindCamera();
         }
 
@@ -67,7 +66,8 @@ namespace MemorialArchive.Gameplay.Character.View
 
         private void OnDisable()
         {
-            GameRoot.Instance?.Context?.Events.Unsubscribe<DodgeRequestedEvent>(HandleDodgeRequested);
+            GameRoot.Instance?.Context?.Events.Unsubscribe<DodgeAnimationStateChangedEvent>(HandleDodgeAnimationStateChanged);
+            dodgeAnimationPlaying = false;
         }
 
         private void FixedUpdate()
@@ -81,26 +81,19 @@ namespace MemorialArchive.Gameplay.Character.View
                 }
             }
 
-            Vector2 velocity;
-            if (dodgeRemaining > 0f)
-            {
-                velocity = dodgeVelocity;
-                dodgeRemaining = Mathf.Max(0f, dodgeRemaining - Time.fixedDeltaTime);
-            }
-            else
-            {
-                velocity = character.MoveDirection * character.CurrentMoveSpeed * DesignUnitsToWorldUnits;
-            }
+            // dodge 已经在 Spine 动画中烘焙了整体后移。播放期间不再叠加
+            // Rigidbody 闪避位移或普通 A/D 位移，避免双重位移和方向冲突。
+            var velocity = dodgeAnimationPlaying
+                ? Vector2.zero
+                : character.MoveDirection * character.CurrentMoveSpeed * DesignUnitsToWorldUnits;
 
             body.MovePosition(body.position + velocity * Time.fixedDeltaTime);
             character.Data.position = body.position;
         }
 
-        private void HandleDodgeRequested(DodgeRequestedEvent evt)
+        private void HandleDodgeAnimationStateChanged(DodgeAnimationStateChangedEvent evt)
         {
-            var duration = Mathf.Max(0.01f, evt.DurationSeconds);
-            dodgeVelocity = evt.Direction.normalized * evt.DistanceDesignUnits * DesignUnitsToWorldUnits / duration;
-            dodgeRemaining = duration;
+            dodgeAnimationPlaying = evt.IsPlaying;
         }
     }
 }

@@ -6,6 +6,7 @@ using MemorialArchive.Gameplay.Inventory.Logic;
 using MemorialArchive.Gameplay.Inventory.View;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 namespace MemorialArchive.Framework.UI
@@ -20,11 +21,27 @@ namespace MemorialArchive.Framework.UI
         private const float SlotSize = 72f;
         private const float SlotGap = 8f;
 
+        [Header("Stage-one artwork")]
+        [SerializeField] private Sprite maskSprite;
+        [SerializeField] private Sprite scenePanelSprite;
+        [SerializeField] private Sprite backpackPanelSprite;
+        [SerializeField] private Sprite slotSprite;
+        [SerializeField] private Sprite selectedSlotSprite;
+        [SerializeField] private Sprite hudSlotSprite;
+        [SerializeField] private Sprite hudSelectedSlotSprite;
+        [SerializeField] private Sprite descriptionSprite;
+        [SerializeField] private Sprite closeSprite;
+        [SerializeField] private Sprite selectSprite;
+        [SerializeField] private Sprite selectHighlightedSprite;
+        [SerializeField] private Sprite cancelSprite;
+        [SerializeField] private Sprite cancelHighlightedSprite;
+
         private readonly List<InventorySlotView> slots = new List<InventorySlotView>();
         private InventorySlotView selectedSlot;
         private InventorySlotView dragSource;
         private RectTransform dragVisual;
         private Text statusLabel;
+        private Text descriptionLabel;
         private bool built;
 
         protected override void Awake()
@@ -185,24 +202,60 @@ namespace MemorialArchive.Framework.UI
                 return;
             }
 
-            CreateSection("场景容器 2 x 2", new Vector2(-315f, 150f));
-            CreateGrid(InventoryContainerKind.SceneContainer, -1, new Vector2(-315f, 55f), 2, 2);
-            CreateSection("背包 3 x 3", new Vector2(-40f, 150f));
-            CreateGrid(InventoryContainerKind.Backpack, -1, new Vector2(-40f, 20f), 3, 3);
-            CreateSection("副手栏", new Vector2(285f, 150f));
-            CreateGrid(InventoryContainerKind.Offhand, 0, new Vector2(285f, 55f), 1, 1);
-            CreateSection("快捷栏（按 1 / 2 / 3 选择）", new Vector2(0f, -185f));
-            CreateGrid(InventoryContainerKind.ShortcutBar, 0, new Vector2(0f, -245f), 3, 1);
+            var mask = CreateImage("InventoryMask", transform, Vector2.zero, new Vector2(1920f, 1080f), maskSprite);
+            var maskRect = mask.rectTransform;
+            maskRect.anchorMin = Vector2.zero;
+            maskRect.anchorMax = Vector2.one;
+            maskRect.offsetMin = maskRect.offsetMax = Vector2.zero;
+            mask.raycastTarget = true;
+            mask.transform.SetAsFirstSibling();
 
-            statusLabel = CreateText("InventoryStatus", transform, new Vector2(0f, -325f), new Vector2(760f, 38f), 15, TextAnchor.MiddleCenter);
-            statusLabel.color = new Color(0.86f, 0.9f, 0.95f, 1f);
-            statusLabel.text = "从场景容器拖拽物品；点击也可以完成同样操作。";
+            CreateImage("SceneContainerPanel", transform, new Vector2(-390f, 70f), new Vector2(400f, 399f), scenePanelSprite);
+            CreateImage("BackpackPanel", transform, new Vector2(310f, 15f), new Vector2(484f, 652f), backpackPanelSprite);
+            CreateGrid(InventoryContainerKind.SceneContainer, -1, new Vector2(-390f, 75f), 2, 2,
+                new Vector2(128f, 86f), new Vector2(8f, 8f), slotSprite, selectedSlotSprite);
+            CreateGrid(InventoryContainerKind.Backpack, -1, new Vector2(310f, 105f), 3, 3,
+                new Vector2(116f, 78f), new Vector2(4f, 3f), slotSprite, selectedSlotSprite);
+
+            CreateImage("ItemDescriptionFrame", transform, new Vector2(310f, -175f), new Vector2(412f, 83f), descriptionSprite);
+            descriptionLabel = CreateText("ItemDescription", transform, new Vector2(310f, -175f), new Vector2(360f, 64f), 15, TextAnchor.MiddleLeft);
+            descriptionLabel.color = new Color(0.18f, 0.11f, 0.08f, 1f);
+            descriptionLabel.text = "选择物品后，这里会显示名称和数量。";
+
+            CreateButton("CloseButton", transform, new Vector2(650f, 385f), new Vector2(54f, 54f), closeSprite, null, CloseInventory);
+            CreateButton("SelectButton", transform, new Vector2(230f, -275f), new Vector2(126f, 66f), selectSprite, selectHighlightedSprite, SelectCurrent);
+            CreateButton("CancelButton", transform, new Vector2(390f, -275f), new Vector2(126f, 66f), cancelSprite, cancelHighlightedSprite, CancelSelection);
+
+            // The reference keeps the HUD row visible while the bag is open. These
+            // slots remain the actual drag/drop targets: 1, 2, 3, then offhand.
+            CreateGrid(InventoryContainerKind.ShortcutBar, 0, new Vector2(-45f, -455f), 3, 1,
+                new Vector2(75f, 73f), new Vector2(16f, 0f), hudSlotSprite, hudSelectedSlotSprite);
+            CreateGrid(InventoryContainerKind.Offhand, 0, new Vector2(137f, -455f), 1, 1,
+                new Vector2(75f, 73f), Vector2.zero, hudSlotSprite, hudSelectedSlotSprite);
+            for (var i = 0; i < 3; i++)
+            {
+                CreateHint((i + 1).ToString(), new Vector2(-136f + i * 91f, -430f));
+            }
+            CreateHint("副", new Vector2(137f, -430f));
+
+            statusLabel = CreateText("InventoryStatus", transform, new Vector2(-390f, -165f), new Vector2(390f, 58f), 14, TextAnchor.MiddleCenter);
+            statusLabel.color = new Color(0.2f, 0.13f, 0.09f, 1f);
+            statusLabel.text = "拖拽物品到背包、快捷栏或副手栏。";
         }
 
-        private void CreateGrid(InventoryContainerKind kind, int baseSlotIndex, Vector2 center, int width, int height)
+        private void CreateGrid(
+            InventoryContainerKind kind,
+            int baseSlotIndex,
+            Vector2 center,
+            int width,
+            int height,
+            Vector2 cellSize,
+            Vector2 gap,
+            Sprite normalSprite,
+            Sprite highlightSprite)
         {
-            var startX = center.x - (width - 1) * (SlotSize + SlotGap) * 0.5f;
-            var startY = center.y + (height - 1) * (SlotSize + SlotGap) * 0.5f;
+            var startX = center.x - (width - 1) * (cellSize.x + gap.x) * 0.5f;
+            var startY = center.y + (height - 1) * (cellSize.y + gap.y) * 0.5f;
             for (var y = 0; y < height; y++)
             {
                 for (var x = 0; x < width; x++)
@@ -211,23 +264,77 @@ namespace MemorialArchive.Framework.UI
                     slotObject.transform.SetParent(transform, false);
                     var slotRect = slotObject.GetComponent<RectTransform>();
                     slotRect.anchorMin = slotRect.anchorMax = new Vector2(0.5f, 0.5f);
-                    slotRect.anchoredPosition = new Vector2(startX + x * (SlotSize + SlotGap), startY - y * (SlotSize + SlotGap));
-                    slotRect.sizeDelta = new Vector2(SlotSize, SlotSize);
+                    slotRect.anchoredPosition = new Vector2(startX + x * (cellSize.x + gap.x), startY - y * (cellSize.y + gap.y));
+                    slotRect.sizeDelta = cellSize;
                     var image = slotObject.GetComponent<Image>();
-                    image.color = new Color(0.12f, 0.14f, 0.18f, 0.92f);
+                    image.sprite = normalSprite;
+                    image.color = normalSprite != null ? Color.white : new Color(0.12f, 0.14f, 0.18f, 0.92f);
                     var slot = slotObject.GetComponent<InventorySlotView>();
                     var slotIndex = kind == InventoryContainerKind.ShortcutBar ? baseSlotIndex + x : -1;
-                    slot.Configure(this, kind, x, y, slotIndex);
+                    if (kind == InventoryContainerKind.Offhand)
+                    {
+                        slotIndex = 0;
+                    }
+                    slot.Configure(this, kind, x, y, slotIndex, normalSprite, highlightSprite);
                     slots.Add(slot);
                 }
             }
         }
 
-        private void CreateSection(string text, Vector2 position)
+        private void CreateHint(string text, Vector2 position)
         {
-            var label = CreateText("Section", transform, position, new Vector2(220f, 28f), 17, TextAnchor.MiddleCenter);
-            label.color = new Color(0.96f, 0.78f, 0.4f, 1f);
+            var label = CreateText("SlotHint", transform, position, new Vector2(28f, 24f), 16, TextAnchor.MiddleCenter);
+            label.fontStyle = FontStyle.Bold;
+            label.color = new Color(0.22f, 0.14f, 0.09f, 1f);
             label.text = text;
+        }
+
+        private static Image CreateImage(string name, Transform parent, Vector2 position, Vector2 size, Sprite sprite)
+        {
+            var imageObject = new GameObject(name, typeof(RectTransform), typeof(Image));
+            imageObject.transform.SetParent(parent, false);
+            var rect = imageObject.GetComponent<RectTransform>();
+            rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition = position;
+            rect.sizeDelta = size;
+            var image = imageObject.GetComponent<Image>();
+            image.sprite = sprite;
+            image.color = sprite != null ? Color.white : new Color(0f, 0f, 0f, 0.72f);
+            image.raycastTarget = false;
+            return image;
+        }
+
+        private static Button CreateButton(
+            string name,
+            Transform parent,
+            Vector2 position,
+            Vector2 size,
+            Sprite normal,
+            Sprite highlighted,
+            UnityAction callback)
+        {
+            var buttonObject = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button));
+            buttonObject.transform.SetParent(parent, false);
+            var rect = buttonObject.GetComponent<RectTransform>();
+            rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition = position;
+            rect.sizeDelta = size;
+            var image = buttonObject.GetComponent<Image>();
+            image.sprite = normal;
+            image.color = Color.white;
+            var button = buttonObject.GetComponent<Button>();
+            button.navigation = new Navigation { mode = Navigation.Mode.None };
+            if (highlighted != null)
+            {
+                button.transition = Selectable.Transition.SpriteSwap;
+                var state = button.spriteState;
+                state.highlightedSprite = highlighted;
+                state.selectedSprite = highlighted;
+                state.pressedSprite = highlighted;
+                button.spriteState = state;
+            }
+            button.onClick.AddListener(callback);
+            return button;
         }
 
         private static Text CreateText(string name, Transform parent, Vector2 position, Vector2 size, int fontSize, TextAnchor alignment)
@@ -263,9 +370,44 @@ namespace MemorialArchive.Framework.UI
             foreach (var slot in slots)
             {
                 var placement = FindPlacement(inventory, slot);
-                var itemName = placement != null ? GetItemName(placement.item.itemId) : string.Empty;
-                slot.Refresh(placement?.item?.instanceId, itemName, placement?.item?.quantity ?? 0, slot == selectedSlot);
+                var config = placement?.item == null ? null : GameRoot.Instance.Context.Configs.GetItem(placement.item.itemId);
+                var itemName = config != null ? config.ItemName : placement != null ? GetItemName(placement.item.itemId) : string.Empty;
+                slot.Refresh(placement?.item?.instanceId, itemName, config != null ? config.Icon : null,
+                    placement?.item?.quantity ?? 0, slot == selectedSlot);
             }
+
+            if (descriptionLabel != null)
+            {
+                var selectedPlacement = selectedSlot != null ? FindPlacement(inventory, selectedSlot) : null;
+                descriptionLabel.text = selectedPlacement?.item == null
+                    ? "选择物品后，这里会显示名称和数量。"
+                    : GetItemName(selectedPlacement.item.itemId) + "  ×" + selectedPlacement.item.quantity;
+            }
+        }
+
+        private void CloseInventory()
+        {
+            var root = GameRoot.Instance;
+            var inventory = root?.GetSystem<InventorySystem>();
+            if (inventory != null && inventory.HasOpenSceneContainer)
+            {
+                root.Context.Events.Publish(new ContainerClosedEvent());
+                return;
+            }
+
+            root?.Context?.UI?.Close(PanelId.Inventory);
+        }
+
+        private void SelectCurrent()
+        {
+            SetStatus(selectedSlot == null ? "请先选择一个物品。" : "已选择，可拖到目标格。", selectedSlot == null);
+        }
+
+        private void CancelSelection()
+        {
+            selectedSlot = null;
+            SetStatus("已取消选择。", false);
+            Refresh();
         }
 
         private static InventoryItemPlacement FindPlacement(InventorySystem inventory, InventorySlotView slot)

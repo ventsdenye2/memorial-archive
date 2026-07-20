@@ -16,8 +16,8 @@ MonoBehaviour:
   displayName: Stage 1 Player
   maxHealth: 3
   maxStamina: 30
-  walkSpeed: 100
-  runSpeed: 300
+  walkSpeed: 120
+  runSpeed: 340
   runStaminaCostPerSecond: 2
   staminaRecoveryPerSecond: 1
   dodgeStaminaCost: 6

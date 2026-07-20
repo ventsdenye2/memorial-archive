@@ -1,5 +1,6 @@
 using MemorialArchive.Framework.Core;
 using MemorialArchive.Framework.Event;
+using MemorialArchive.Gameplay.Stage1;
 using UnityEngine;
 
 namespace MemorialArchive.Framework.UI
@@ -25,6 +26,13 @@ namespace MemorialArchive.Framework.UI
         public void ContinueGame()
         {
             GameRoot.Instance?.Context?.UI?.Close(PanelId.System);
+        }
+
+        public void ReturnToMainMenu()
+        {
+            GameRoot.Instance?.Context?.UI?.CloseAll();
+            GameRoot.Instance?.Context?.Events.Publish(
+                new SceneTransitionRequestedEvent(Stage1Ids.MainMenuSceneName, string.Empty));
         }
 
         public void CloseContainerGroup()

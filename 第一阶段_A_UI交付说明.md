@@ -3,7 +3,7 @@
 ## 已交付内容
 
 - `Assets/Scenes/MainMenu.unity`：启动场景，挂接主菜单和新游戏确认窗口。
-- `Assets/Prefabs/UI/MainMenuPanel.prefab`：新游戏、继续游戏、读取存档、设置、退出五个入口。
+- `Assets/Prefabs/UI/MainMenuPanel.prefab`：正式封面，以及新游戏、读取存档、设置、退出四个入口。
 - `Assets/Prefabs/UI/NewGameConfirmPanel.prefab`：确认与取消按钮。
 - `Assets/Prefabs/UI/GameplayHUD.prefab`：生命、体力、提示、系统/背包/日记/地图入口和三格快捷栏外观。
 - `Assets/Prefabs/UI/DiaryPanel.prefab`：日记/纸条占位页、翻页外观和关闭按钮。
@@ -18,7 +18,7 @@
 - HUD 的三格快捷栏改为 `ShortcutSlot_1`、`ShortcutSlot_2`、`ShortcutSlot_3`。
 - 多余的任务占位按钮和第 4 个快捷栏格保留为禁用占位对象，分别命名为 `TaskPlaceholderButton`、`ExtraShortcutSlot`。
 - `StopTitle` 改为 `Subtitle`，`UnHealth1/2/3` 改为 `EmptyHealth_1/2/3`。
-- 主菜单原本隐藏且位置异常的 `ContinueButton` 已恢复，并按五按钮顺序重新排布。
+- 主菜单按最新要求移除 `ContinueButton`，其余四个入口按封面构图重新排布。
 - `SystemPanel` 中职责实际为“继续游戏”的 `CloseButton` 改名为 `ContinueButton`。
 
 ## 合并边界

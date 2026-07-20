@@ -14,6 +14,7 @@ namespace MemorialArchive.Gameplay.Character.View
         [SerializeField] private Rigidbody2D body;
         private CharacterSystem character;
         private bool dodgeAnimationPlaying;
+        private Vector2 pendingRootMotion;
 
         private void Awake()
         {
@@ -34,6 +35,7 @@ namespace MemorialArchive.Gameplay.Character.View
         {
             character = GameRoot.Instance?.GetSystem<CharacterSystem>();
             GameRoot.Instance?.Context?.Events.Subscribe<DodgeAnimationStateChangedEvent>(HandleDodgeAnimationStateChanged);
+            GameRoot.Instance?.Context?.Events.Subscribe<PlayerRootMotionDeltaEvent>(HandlePlayerRootMotionDelta);
             BindCamera();
         }
 
@@ -67,7 +69,9 @@ namespace MemorialArchive.Gameplay.Character.View
         private void OnDisable()
         {
             GameRoot.Instance?.Context?.Events.Unsubscribe<DodgeAnimationStateChangedEvent>(HandleDodgeAnimationStateChanged);
+            GameRoot.Instance?.Context?.Events.Unsubscribe<PlayerRootMotionDeltaEvent>(HandlePlayerRootMotionDelta);
             dodgeAnimationPlaying = false;
+            pendingRootMotion = Vector2.zero;
         }
 
         private void FixedUpdate()
@@ -81,19 +85,31 @@ namespace MemorialArchive.Gameplay.Character.View
                 }
             }
 
-            // dodge 已经在 Spine 动画中烘焙了整体后移。播放期间不再叠加
-            // Rigidbody 闪避位移或普通 A/D 位移，避免双重位移和方向冲突。
-            var velocity = dodgeAnimationPlaying
-                ? Vector2.zero
-                : character.MoveDirection * character.CurrentMoveSpeed * DesignUnitsToWorldUnits;
+            // Root Motion 在渲染帧提取、在物理帧统一交给 Rigidbody2D。
+            // dodge 播放期间不叠加普通 A/D 位移；结束后才恢复常规速度。
+            var displacement = pendingRootMotion;
+            pendingRootMotion = Vector2.zero;
+            if (!dodgeAnimationPlaying)
+            {
+                displacement += character.MoveDirection
+                    * character.CurrentMoveSpeed
+                    * DesignUnitsToWorldUnits
+                    * Time.fixedDeltaTime;
+            }
 
-            body.MovePosition(body.position + velocity * Time.fixedDeltaTime);
+            body.MovePosition(body.position + displacement);
             character.Data.position = body.position;
         }
 
         private void HandleDodgeAnimationStateChanged(DodgeAnimationStateChangedEvent evt)
         {
             dodgeAnimationPlaying = evt.IsPlaying;
+        }
+
+        private void HandlePlayerRootMotionDelta(PlayerRootMotionDeltaEvent evt)
+        {
+            // 多个渲染帧可能落在同一个物理帧内，因此累计后一次性应用。
+            pendingRootMotion += evt.WorldDelta;
         }
     }
 }

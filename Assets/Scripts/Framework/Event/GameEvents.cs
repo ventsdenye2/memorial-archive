@@ -141,11 +141,18 @@ namespace MemorialArchive.Framework.Event
     }
 
     // View 层同步：Spine dodge 播放期间，PlayerMotor 暂停普通位移，
-    // 让画面中的位移只由动画骨骼自身产生。
+    // 只应用从动画曲线提取出的 Root Motion。
     public readonly struct DodgeAnimationStateChangedEvent
     {
         public DodgeAnimationStateChangedEvent(bool isPlaying) => IsPlaying = isPlaying;
         public bool IsPlaying { get; }
+    }
+
+    // Spine 动画提取出的玩家水平 Root Motion；由 PlayerMotor 在物理帧统一应用。
+    public readonly struct PlayerRootMotionDeltaEvent
+    {
+        public PlayerRootMotionDeltaEvent(Vector2 worldDelta) => WorldDelta = worldDelta;
+        public Vector2 WorldDelta { get; }
     }
 
     public readonly struct Stage1GameplayStartedEvent { }

@@ -26,6 +26,10 @@ namespace MemorialArchive.Gameplay.Character.View
         [SerializeField] private SkeletonDataAsset runData;
         [SerializeField] private SkeletonDataAsset dodgeData;
 
+        // dodge 资源把整个人物的水平位移烘焙在 bone 上。运行时提取该位移交给
+        // PlayerMotor，并把骨骼 X 还原到 setup pose，避免画面与 Rigidbody 双重移动。
+        [SerializeField] private string dodgeRootMotionBoneName = "bone";
+
         // Spine 角色默认 0.01 scale 下高度约 3.56 world unit；
         // 这里让 PlayerVisual 本地缩放。1.0 → 角色最终约 2.5 unit 高（Player 根 scale 0.7）。
         [SerializeField] private float characterScale = 1f;
@@ -40,6 +44,9 @@ namespace MemorialArchive.Gameplay.Character.View
         private bool facingRight = true;
         private float stateEnteredAt;
         private TrackEntry dodgeTrackEntry;
+        private Bone dodgeRootMotionBone;
+        private float previousRootMotionX;
+        private bool dodgeRootMotionActive;
 
         private void Awake()
         {
@@ -60,6 +67,7 @@ namespace MemorialArchive.Gameplay.Character.View
                 return;
             }
 
+            skeletonAnimation.UpdateLocal += HandleSkeletonUpdateLocal;
             InitializeLocomotion();
         }
 
@@ -68,7 +76,12 @@ namespace MemorialArchive.Gameplay.Character.View
             GameRoot.Instance?.Context?.Events.Unsubscribe<DodgeRequestedEvent>(HandleDodgeRequested);
             if (current == LocomotionState.Dodge)
             {
+                EndDodgeRootMotion();
                 PublishDodgeAnimationState(false);
+            }
+            if (skeletonAnimation != null)
+            {
+                skeletonAnimation.UpdateLocal -= HandleSkeletonUpdateLocal;
             }
             UnsubscribeDodgeComplete();
         }
@@ -136,6 +149,7 @@ namespace MemorialArchive.Gameplay.Character.View
 
         private void SwitchToLocomotion()
         {
+            EndDodgeRootMotion();
             PublishDodgeAnimationState(false);
             UnsubscribeDodgeComplete();
             // 重置为 Idle，下一帧 SampleLocomotion 会按 MoveDirection 校正到 Walk/Run。
@@ -150,11 +164,13 @@ namespace MemorialArchive.Gameplay.Character.View
             stateEnteredAt = Time.time;
 
             // 不根据移动方向改变朝向；无论静止还是移动，都按角色当前朝向
-            // 播放动画资产中自带位移的 dodge。
+            // 播放动画资产中自带 Root Motion 的 dodge。
+            EndDodgeRootMotion();
             UnsubscribeDodgeComplete();
             var entry = SwitchSkeleton(dodgeData, "dodge", false);
             if (entry != null)
             {
+                BeginDodgeRootMotion();
                 PublishDodgeAnimationState(true);
                 SubscribeDodgeComplete(entry);
             }
@@ -173,6 +189,58 @@ namespace MemorialArchive.Gameplay.Character.View
             }
 
             SwitchToLocomotion();
+        }
+
+        private void BeginDodgeRootMotion()
+        {
+            var skeleton = skeletonAnimation != null ? skeletonAnimation.skeleton : null;
+            dodgeRootMotionBone = skeleton?.FindBone(dodgeRootMotionBoneName);
+            previousRootMotionX = dodgeRootMotionBone != null
+                ? dodgeRootMotionBone.X - dodgeRootMotionBone.Data.X
+                : 0f;
+            dodgeRootMotionActive = dodgeRootMotionBone != null;
+
+            if (!dodgeRootMotionActive)
+            {
+                Debug.LogWarning($"Dodge root motion bone '{dodgeRootMotionBoneName}' was not found.", this);
+            }
+        }
+
+        private void EndDodgeRootMotion()
+        {
+            dodgeRootMotionActive = false;
+            dodgeRootMotionBone = null;
+            previousRootMotionX = 0f;
+        }
+
+        // UpdateLocal 在 Spine 动画曲线应用之后、世界骨骼矩阵计算之前触发。
+        // 这里读取动画 X 增量后立即还原骨骼 X，因此最终网格只移动一次：
+        // 由 PlayerMotor 推动包含碰撞体和摄像机目标的 Player 根节点。
+        private void HandleSkeletonUpdateLocal(ISkeletonAnimation animated)
+        {
+            if (!dodgeRootMotionActive || current != LocomotionState.Dodge || dodgeRootMotionBone == null)
+            {
+                return;
+            }
+
+            var currentRootMotionX = dodgeRootMotionBone.X - dodgeRootMotionBone.Data.X;
+            var deltaLocalX = currentRootMotionX - previousRootMotionX;
+            previousRootMotionX = currentRootMotionX;
+
+            // 保留 Y 方向的翻滚起伏，只抵消已经转交给 Rigidbody2D 的水平位移。
+            dodgeRootMotionBone.X = dodgeRootMotionBone.Data.X;
+
+            if (Mathf.Abs(deltaLocalX) <= 0.000001f)
+            {
+                return;
+            }
+
+            var skeleton = animated.Skeleton;
+            var facingScale = skeleton != null ? skeleton.ScaleX : 1f;
+            var worldDelta = skeletonAnimation.transform.TransformVector(
+                new Vector3(deltaLocalX * facingScale, 0f, 0f));
+            GameRoot.Instance?.Context?.Events.Publish(
+                new PlayerRootMotionDeltaEvent(new Vector2(worldDelta.x, 0f)));
         }
 
         private static void PublishDodgeAnimationState(bool isPlaying)

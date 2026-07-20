@@ -333,12 +333,20 @@ PrefabInstance:
       value: Player
       objectReference: {fileID: 0}
     - target: {fileID: 6489321317651925394, guid: da52a248997bbc74e8087abd8f32d189, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6489321317651925394, guid: da52a248997bbc74e8087abd8f32d189, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6489321317651925394, guid: da52a248997bbc74e8087abd8f32d189, type: 3}
       propertyPath: m_LocalPosition.x
       value: -3.5
       objectReference: {fileID: 0}
     - target: {fileID: 6489321317651925394, guid: da52a248997bbc74e8087abd8f32d189, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -1.5
+      value: -5.2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -472,9 +480,9 @@ Canvas:
   m_GameObject: {fileID: 661262690}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 0
-  m_Camera: {fileID: 0}
-  m_PlaneDistance: 100
+  m_RenderMode: 1
+  m_Camera: {fileID: 2108408004}
+  m_PlaneDistance: 1
   m_PixelPerfect: 0
   m_ReceivesEvents: 1
   m_OverrideSorting: 0
@@ -483,8 +491,8 @@ Canvas:
   m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 0
   m_UpdateRectTransformForStandalone: 0
-  m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingLayerID: -1615520607
+  m_SortingOrder: 100
   m_TargetDisplay: 0
 --- !u!1001 &692735017
 PrefabInstance:
@@ -2414,9 +2422,9 @@ Canvas:
   m_GameObject: {fileID: 1581136002}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 0
-  m_Camera: {fileID: 0}
-  m_PlaneDistance: 100
+  m_RenderMode: 1
+  m_Camera: {fileID: 2108408004}
+  m_PlaneDistance: 1
   m_PixelPerfect: 0
   m_ReceivesEvents: 1
   m_OverrideSorting: 0
@@ -2425,8 +2433,8 @@ Canvas:
   m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 0
   m_UpdateRectTransformForStandalone: 0
-  m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingLayerID: -1615520607
+  m_SortingOrder: 100
   m_TargetDisplay: 0
 --- !u!1 &1685995664
 GameObject:
@@ -2913,7 +2921,7 @@ Transform:
   m_GameObject: {fileID: 2012057200}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3.5, y: -1.5, z: 0}
+  m_LocalPosition: {x: -3.5, y: -5.2, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3102,6 +3110,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 285c87bc847ace6458404d1dea5c0402, type: 3}
+--- !u!20 &2108408004 stripped
+Camera:
+  m_CorrespondingSourceObject: {fileID: 9037773063371603712, guid: 055236ca97eba284a990b242bd959915, type: 3}
+  m_PrefabInstance: {fileID: 692735017}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

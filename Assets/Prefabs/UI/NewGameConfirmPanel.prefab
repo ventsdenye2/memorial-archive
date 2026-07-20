@@ -209,6 +209,7 @@ GameObject:
   - component: {fileID: 3137191715576662529}
   - component: {fileID: 7553036602059853452}
   - component: {fileID: 9149826668008113660}
+  - component: {fileID: 1755000000000000002}
   m_Layer: 0
   m_Name: CancelButton
   m_TagString: Untagged
@@ -330,6 +331,19 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &1755000000000000002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3973245441017133041}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 64e297920a8b43de8bda0fe88cb2cc66, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  targetImage: {fileID: 7553036602059853452}
 --- !u!1 &4581611314373580168
 GameObject:
   m_ObjectHideFlags: 0
@@ -417,6 +431,7 @@ GameObject:
   - component: {fileID: 8216382234112728941}
   - component: {fileID: 2764304191018108416}
   - component: {fileID: 5558907660749188654}
+  - component: {fileID: 1755000000000000001}
   m_Layer: 0
   m_Name: ConfirmButton
   m_TagString: Untagged
@@ -538,3 +553,16 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &1755000000000000001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7432644571044836525}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 64e297920a8b43de8bda0fe88cb2cc66, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  targetImage: {fileID: 2764304191018108416}

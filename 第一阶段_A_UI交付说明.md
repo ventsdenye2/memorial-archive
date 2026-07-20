@@ -7,6 +7,7 @@
 - `Assets/Prefabs/UI/NewGameConfirmPanel.prefab`：确认与取消按钮。
 - `Assets/Prefabs/UI/GameplayHUD.prefab`：生命、体力、提示、系统/背包/日记/地图入口和三格快捷栏外观。
 - `Assets/Prefabs/UI/DiaryPanel.prefab`：日记/纸条占位页、翻页外观和关闭按钮。
+- `Assets/Art/UI/封面/`：主菜单实际引用的四张按钮图及原始 `.meta`；保留 GUID，避免运行时变成白块。
 
 其余第一阶段 Panel 继续使用 `develop` 上已有 Prefab。`SystemPanel.prefab` 是暂停/系统页的唯一正式资源；不使用 A 分支中命名和职责均错误的 `StopPanel.prefab`。
 
@@ -17,6 +18,8 @@
 - HUD 的三格快捷栏改为 `ShortcutSlot_1`、`ShortcutSlot_2`、`ShortcutSlot_3`。
 - 多余的任务占位按钮和第 4 个快捷栏格保留为禁用占位对象，分别命名为 `TaskPlaceholderButton`、`ExtraShortcutSlot`。
 - `StopTitle` 改为 `Subtitle`，`UnHealth1/2/3` 改为 `EmptyHealth_1/2/3`。
+- 主菜单原本隐藏且位置异常的 `ContinueButton` 已恢复，并按五按钮顺序重新排布。
+- `SystemPanel` 中职责实际为“继续游戏”的 `CloseButton` 改名为 `ContinueButton`。
 
 ## 合并边界
 

@@ -38,9 +38,8 @@ namespace MemorialArchive.Gameplay.Character.View
         private CharacterSystem character;
         private LocomotionState current = LocomotionState.Idle;
         private bool facingRight = true;
-        private float dodgeRemaining;
         private float stateEnteredAt;
-        private bool subscribedToDodgeComplete;
+        private TrackEntry dodgeTrackEntry;
 
         private void Awake()
         {
@@ -81,13 +80,10 @@ namespace MemorialArchive.Gameplay.Character.View
                 }
             }
 
-            if (dodgeRemaining > 0f)
+            // 闪避动画的退出由它自己的 TrackEntry.Complete 驱动，避免再维护一份
+            // 与 Spine 动画时长可能不一致的 View 层计时器。
+            if (current == LocomotionState.Dodge)
             {
-                dodgeRemaining = Mathf.Max(0f, dodgeRemaining - Time.deltaTime);
-                if (dodgeRemaining == 0f)
-                {
-                    SwitchToLocomotion();
-                }
                 return;
             }
 
@@ -145,27 +141,40 @@ namespace MemorialArchive.Gameplay.Character.View
 
         private void HandleDodgeRequested(DodgeRequestedEvent evt)
         {
-            dodgeRemaining = Mathf.Max(0.05f, evt.DurationSeconds);
             facingRight = evt.Direction.x >= 0f;
             current = LocomotionState.Dodge;
             stateEnteredAt = Time.time;
-            SwitchSkeleton(dodgeData, "dodge", false);
-            SubscribeDodgeComplete();
+
+            // DurationSeconds 只描述 PlayerMotor 的闪避位移时间，不参与视觉动画切换。
+            // 动画层只监听本次 dodge TrackEntry，完整播放后再回到 locomotion。
+            UnsubscribeDodgeComplete();
+            var entry = SwitchSkeleton(dodgeData, "dodge", false);
+            if (entry != null)
+            {
+                SubscribeDodgeComplete(entry);
+            }
+            else
+            {
+                SwitchToLocomotion();
+            }
         }
 
-        // 双保险：dodge 动画（0.933s）自然结束时也切回 locomotion，
-        // 防止 dodgeRemaining 计时和动画时长有偏差导致动画卡在最后一帧。
+        // 只响应当前这一次 dodge 的自然结束，其他动画轨道不会触发该回调。
         private void HandleDodgeComplete(TrackEntry trackEntry)
         {
-            dodgeRemaining = 0f;
+            if (trackEntry != dodgeTrackEntry)
+            {
+                return;
+            }
+
             SwitchToLocomotion();
         }
 
-        private void SwitchSkeleton(SkeletonDataAsset data, string animName, bool loop)
+        private TrackEntry SwitchSkeleton(SkeletonDataAsset data, string animName, bool loop)
         {
             if (skeletonAnimation == null || data == null)
             {
-                return;
+                return null;
             }
 
             // 首次进入或 SkeletonAnimation 还没 Awake 完时（典型场景：Stage1DemoRoot 从 inactive 切 active，
@@ -176,8 +185,9 @@ namespace MemorialArchive.Gameplay.Character.View
                 skeletonAnimation.Initialize(true); // 重建 skeleton/state/mesh；内部会自动 LateUpdate
             }
 
-            skeletonAnimation.state.SetAnimation(0, animName, loop);
+            var entry = skeletonAnimation.state.SetAnimation(0, animName, loop);
             ApplyFacing();
+            return entry;
         }
 
         private void UpdateFacing()
@@ -201,25 +211,26 @@ namespace MemorialArchive.Gameplay.Character.View
             }
         }
 
-        private void SubscribeDodgeComplete()
+        private void SubscribeDodgeComplete(TrackEntry entry)
         {
-            if (subscribedToDodgeComplete || skeletonAnimation == null || skeletonAnimation.state == null)
+            if (entry == null)
             {
                 return;
             }
-            skeletonAnimation.state.Complete += HandleDodgeComplete;
-            subscribedToDodgeComplete = true;
+
+            dodgeTrackEntry = entry;
+            dodgeTrackEntry.Complete += HandleDodgeComplete;
         }
 
         private void UnsubscribeDodgeComplete()
         {
-            if (!subscribedToDodgeComplete || skeletonAnimation == null || skeletonAnimation.state == null)
+            if (dodgeTrackEntry == null)
             {
-                subscribedToDodgeComplete = false;
                 return;
             }
-            skeletonAnimation.state.Complete -= HandleDodgeComplete;
-            subscribedToDodgeComplete = false;
+
+            dodgeTrackEntry.Complete -= HandleDodgeComplete;
+            dodgeTrackEntry = null;
         }
     }
 }

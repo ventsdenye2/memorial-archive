@@ -204,6 +204,13 @@ namespace MemorialArchive.Editor
             var walkData = AssetDatabase.LoadAssetAtPath<SkeletonDataAsset>(actionRoot + "/Walk/2player_01_walk_split_SkeletonData.asset");
             var runData = AssetDatabase.LoadAssetAtPath<SkeletonDataAsset>(actionRoot + "/Run/player_01_run_split_SkeletonData.asset");
             var dodgeData = AssetDatabase.LoadAssetAtPath<SkeletonDataAsset>(actionRoot + "/Fight_Throw_Block_Death_Dodge/player_01_fight_split_SkeletonData.asset");
+            var hurtData = AssetDatabase.LoadAssetAtPath<SkeletonDataAsset>(actionRoot + "/Hurt_Action/player_01_hurtwalk_split_SkeletonData.asset");
+            var axe1Data = AssetDatabase.LoadAssetAtPath<SkeletonDataAsset>(actionRoot + "/Act1_BothHands/player_01_fight_split_SkeletonData.asset");
+            var axe2Data = AssetDatabase.LoadAssetAtPath<SkeletonDataAsset>(actionRoot + "/Act2_BothHands/player_01_fight_split_SkeletonData.asset");
+            var axe3Data = AssetDatabase.LoadAssetAtPath<SkeletonDataAsset>(actionRoot + "/Act3_BothHands/player_01_fight_split_SkeletonData.asset");
+            var axeEquipData = AssetDatabase.LoadAssetAtPath<SkeletonDataAsset>(actionRoot + "/Hold_Weapon/player_01_hold_the_weapon_split_SkeletonData.asset");
+            var bayonetEquipData = AssetDatabase.LoadAssetAtPath<SkeletonDataAsset>(actionRoot + "/Equipment/player_01_hold_the_weapon_split_SkeletonData.asset");
+            var shieldData = AssetDatabase.LoadAssetAtPath<SkeletonDataAsset>(actionRoot + "/Block_Shield/player_01_fight_split_SkeletonData.asset");
             if (idleData == null || walkData == null || runData == null || dodgeData == null)
             {
                 UnityEngine.Debug.LogWarning("Stage1ProjectBootstrap: Spine SkeletonDataAsset missing, Player will fall back to placeholder sprite.");
@@ -237,6 +244,14 @@ namespace MemorialArchive.Editor
             so.FindProperty("walkData").objectReferenceValue = walkData;
             so.FindProperty("runData").objectReferenceValue = runData;
             so.FindProperty("dodgeData").objectReferenceValue = dodgeData;
+            so.FindProperty("hurtLocomotionData").objectReferenceValue = hurtData;
+            so.FindProperty("fireAxeAttack1Data").objectReferenceValue = axe1Data;
+            so.FindProperty("fireAxeAttack2Data").objectReferenceValue = axe2Data;
+            so.FindProperty("fireAxeAttack3Data").objectReferenceValue = axe3Data;
+            so.FindProperty("fireAxeEquipData").objectReferenceValue = axeEquipData;
+            so.FindProperty("bayonetEquipData").objectReferenceValue = bayonetEquipData;
+            so.FindProperty("bayonetCombatData").objectReferenceValue = dodgeData;
+            so.FindProperty("shieldBlockData").objectReferenceValue = shieldData;
             so.FindProperty("characterScale").floatValue = 1f;
             so.ApplyModifiedPropertiesWithoutUndo();
         }

@@ -203,7 +203,11 @@ namespace MemorialArchive.Framework.UI
             {
                 if (healthFills[i] != null)
                 {
-                    healthFills[i].enabled = i < character.Data.health && i < maxHealth;
+                    var segment = Mathf.Clamp01(character.Data.health - i);
+                    healthFills[i].enabled = segment > 0f && i < maxHealth;
+                    healthFills[i].type = Image.Type.Filled;
+                    healthFills[i].fillMethod = Image.FillMethod.Horizontal;
+                    healthFills[i].fillAmount = segment;
                 }
             }
 

@@ -90,6 +90,7 @@ namespace MemorialArchive.Gameplay.Character.View
 
             body.MovePosition(body.position + velocity * Time.fixedDeltaTime);
             character.Data.position = body.position;
+            GameRoot.Instance?.Context?.Events.Publish(new PlayerPositionChangedEvent(body.position));
         }
 
         private void HandleDodgeAnimationStateChanged(DodgeAnimationStateChangedEvent evt)
@@ -110,6 +111,7 @@ namespace MemorialArchive.Gameplay.Character.View
             if (character != null)
             {
                 character.Data.position = body.position;
+                GameRoot.Instance?.Context?.Events.Publish(new PlayerPositionChangedEvent(body.position));
             }
         }
     }

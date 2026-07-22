@@ -130,6 +130,7 @@ namespace MemorialArchive.Gameplay.Inventory.Logic
             RemovePlacement(source);
             playerInventory.playerItems.Add(candidate);
             context.Events.Publish(new InventoryChangedEvent());
+            PublishCharacterEquipment();
             return true;
         }
 
@@ -188,6 +189,7 @@ namespace MemorialArchive.Gameplay.Inventory.Logic
             RemovePlacement(source);
             playerInventory.playerItems.Add(candidate);
             context.Events.Publish(new InventoryChangedEvent());
+            PublishCharacterEquipment();
             return true;
         }
 
@@ -371,6 +373,7 @@ namespace MemorialArchive.Gameplay.Inventory.Logic
             var placement = FindPlayerSlot(InventoryContainerKind.ShortcutBar, slotIndex);
             playerInventory.selectedShortcutIndex = slotIndex;
             context.Events.Publish(new SelectedItemChangedEvent(placement?.item));
+            PublishCharacterEquipment();
             return true;
         }
 
@@ -431,6 +434,14 @@ namespace MemorialArchive.Gameplay.Inventory.Logic
         private void HandleShortcutEquipPressed(ShortcutEquipPressedEvent evt)
         {
             TrySelectShortcut(evt.SlotIndex);
+        }
+
+        private void PublishCharacterEquipment()
+        {
+            var selected = FindPlayerSlot(InventoryContainerKind.ShortcutBar, playerInventory.selectedShortcutIndex)?.item;
+            var offhand = FindPlayerSlot(InventoryContainerKind.Offhand, 0)?.item;
+            var offhandConfig = offhand == null ? null : context.Configs.GetItem(offhand.itemId);
+            context.Events.Publish(new CharacterEquipmentChangedEvent(selected?.itemId ?? 0, offhandConfig?.OffhandType ?? OffhandType.None));
         }
 
         private void HandleItemUseRequested(ItemUseRequestedEvent evt)

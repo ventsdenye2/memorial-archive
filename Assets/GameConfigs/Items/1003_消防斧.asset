@@ -14,14 +14,33 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemId: 1003
   itemName: "\u6D88\u9632\u65A7"
+  description: 碳钢消防斧，可砍开障碍物，也可作为强力近战武器。
   icon: {fileID: 21300000, guid: f2c408ac4aa23554b85399ddaab34fe1, type: 3}
   category: 2
+  sourceType: 1
+  isMissionItem: 1
+  isConsumable: 0
+  quickAccessBarType: 1
+  sourcePlaceholder: 2
   backpackFootprint: 1
   maxStack: 1
+  canStack: 0
   canUse: 0
   canEquipToShortcut: 1
   canEquipToOffhand: 0
   offhandType: 0
   canPlaceAmmo: 0
   compatibleWeaponItemId: 0
-  effectId: 
+  effectId: ""
+  effectDescription: 横向占用 2 个背包格。
+  synthesisRule: "0"
+  synthesisTargetItemId: 0
+  synthesisRequiredQuantity: 0
+  spawnRule: ""
+  combatAttackKind: 0
+  damageType: 0
+  damage: 240
+  attackRange: 1.2
+  attackActiveSeconds: 1.1
+  attackCooldownSeconds: 1.1
+  staminaCost: 6

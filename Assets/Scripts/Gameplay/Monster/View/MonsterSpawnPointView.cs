@@ -41,7 +41,10 @@ namespace MemorialArchive.Gameplay.Monster.View
             if (monsterPrefab != null)
             {
                 spawnedInstance = Instantiate(monsterPrefab, transform.position, transform.rotation, spawnParent);
-                return $"{spawnPointId}_{spawnedInstance.GetInstanceID()}";
+                var instanceId = $"{spawnPointId}_{spawnedInstance.GetInstanceID()}";
+                var target = spawnedInstance.GetComponentInChildren<MonsterTargetView>();
+                target?.SetRuntimeIdentity(instanceId, monsterId, initialHealth);
+                return instanceId;
             }
 
             return $"{spawnPointId}_{Guid.NewGuid():N}";

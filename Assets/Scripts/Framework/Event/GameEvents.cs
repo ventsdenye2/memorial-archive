@@ -1,5 +1,8 @@
 using MemorialArchive.Gameplay.Interaction.Data;
 using MemorialArchive.Gameplay.Inventory.Data;
+using MemorialArchive.Gameplay.Combat.Data;
+using MemorialArchive.Gameplay.Character.Data;
+using MemorialArchive.Gameplay.Item.Config;
 using MemorialArchive.Framework.UI;
 using UnityEngine;
 
@@ -21,6 +24,19 @@ namespace MemorialArchive.Framework.Event
     {
         public BlockInputEvent(bool isBlocking) => IsBlocking = isBlocking;
         public bool IsBlocking { get; }
+    }
+
+    // 仅由输入层发布的右键原始意图；CharacterSystem 根据当前装备和状态决定瞄准或格挡。
+    public readonly struct SecondaryActionInputEvent
+    {
+        public SecondaryActionInputEvent(bool isHeld, Vector2 pointerWorldPosition)
+        {
+            IsHeld = isHeld;
+            PointerWorldPosition = pointerWorldPosition;
+        }
+
+        public bool IsHeld { get; }
+        public Vector2 PointerWorldPosition { get; }
     }
 
     public readonly struct AimInputEvent
@@ -195,6 +211,18 @@ namespace MemorialArchive.Framework.Event
         public InventoryItemInstance Item { get; }
     }
 
+    public readonly struct CharacterEquipmentChangedEvent
+    {
+        public CharacterEquipmentChangedEvent(int primaryItemId, OffhandType offhandType)
+        {
+            PrimaryItemId = primaryItemId;
+            OffhandType = offhandType;
+        }
+
+        public int PrimaryItemId { get; }
+        public OffhandType OffhandType { get; }
+    }
+
     public readonly struct ItemUseRequestedEvent
     {
         public ItemUseRequestedEvent(InventoryItemInstance item)
@@ -237,23 +265,172 @@ namespace MemorialArchive.Framework.Event
 
     public readonly struct CharacterStatsChangedEvent { }
 
+    /// <summary>
+    /// Published by the player View after physics movement.  CombatSystem uses
+    /// this snapshot only to freeze an attack origin/direction; it never reads
+    /// or controls the full CharacterSystem directly.
+    /// </summary>
+    public readonly struct PlayerPositionChangedEvent
+    {
+        public PlayerPositionChangedEvent(Vector2 position) => Position = position;
+        public Vector2 Position { get; }
+    }
+
     public readonly struct CharacterDiedEvent
     {
         public CharacterDiedEvent(float deathAnimationSeconds) => DeathAnimationSeconds = deathAnimationSeconds;
         public float DeathAnimationSeconds { get; }
     }
 
-    public readonly struct PlayerAttackRequestedEvent { }
-    public readonly struct DamageAppliedEvent
+    public readonly struct CharacterActionStateChangedEvent
     {
-        public DamageAppliedEvent(string targetId, int amount)
+        public CharacterActionStateChangedEvent(CharacterActionState state) => State = state;
+        public CharacterActionState State { get; }
+    }
+
+    /// <summary>角色动画 View 在非循环动作结束时回传，仅用于角色状态机解锁。</summary>
+    public readonly struct CharacterActionAnimationCompletedEvent
+    {
+        public CharacterActionAnimationCompletedEvent(CharacterActionState state)
         {
-            TargetId = targetId;
-            Amount = amount;
+            State = state;
         }
 
-        public string TargetId { get; }
-        public int Amount { get; }
+        public CharacterActionState State { get; }
+    }
+
+    /// <summary>
+    /// 角色状态机已通过本次攻击的动作与体力校验。CombatSystem 接收此事件
+    /// 创建唯一攻击实例；武器 View 只在收到 AttackStartedEvent 后执行命中检测。
+    /// </summary>
+    public readonly struct CharacterAttackRequestedEvent
+    {
+        public CharacterAttackRequestedEvent(int itemId, int comboStage, Vector2 direction)
+        {
+            ItemId = itemId;
+            ComboStage = comboStage;
+            Direction = direction.sqrMagnitude > 0.0001f ? direction.normalized : Vector2.right;
+        }
+        public int ItemId { get; }
+        public int ComboStage { get; }
+        public Vector2 Direction { get; }
+    }
+
+    public readonly struct CharacterDamageReceivedEvent
+    {
+        public CharacterDamageReceivedEvent(float finalDamage) => FinalDamage = Mathf.Max(0f, finalDamage);
+        public float FinalDamage { get; }
+    }
+
+    public readonly struct PlayerAttackRequestedEvent
+    {
+        public PlayerAttackRequestedEvent(AttackContext attack) => Attack = attack;
+        public AttackContext Attack { get; }
+    }
+
+    /// <summary>Asks CharacterSystem to validate and pay the shared action cost.</summary>
+    public readonly struct CombatActionRequestedEvent
+    {
+        public CombatActionRequestedEvent(int attackInstanceId, float staminaCost)
+        {
+            AttackInstanceId = attackInstanceId;
+            StaminaCost = staminaCost;
+        }
+
+        public int AttackInstanceId { get; }
+        public float StaminaCost { get; }
+    }
+
+    public readonly struct CombatActionApprovedEvent
+    {
+        public CombatActionApprovedEvent(int attackInstanceId) => AttackInstanceId = attackInstanceId;
+        public int AttackInstanceId { get; }
+    }
+
+    public readonly struct CombatActionRejectedEvent
+    {
+        public CombatActionRejectedEvent(int attackInstanceId, string reason)
+        {
+            AttackInstanceId = attackInstanceId;
+            Reason = reason;
+        }
+
+        public int AttackInstanceId { get; }
+        public string Reason { get; }
+    }
+
+    /// <summary>Consumed by a melee, firearm, or throwable View according to AttackKind.</summary>
+    public readonly struct AttackStartedEvent
+    {
+        public AttackStartedEvent(AttackContext attack) => Attack = attack;
+        public AttackContext Attack { get; }
+    }
+
+    public readonly struct AttackFailedEvent
+    {
+        public AttackFailedEvent(int weaponItemId, string reason)
+        {
+            WeaponItemId = weaponItemId;
+            Reason = reason;
+        }
+
+        public int WeaponItemId { get; }
+        public string Reason { get; }
+    }
+
+    /// <summary>Published by any Unity View that has confirmed a hit.</summary>
+    public readonly struct CombatHitReportedEvent
+    {
+        public CombatHitReportedEvent(CombatHitReport report) => Report = report;
+        public CombatHitReport Report { get; }
+    }
+
+    /// <summary>
+    /// 投掷物等异步攻击在开始时延长自己的命中报告有效期。只延长已存在的
+    /// AttackContext，不创建额外伤害入口。
+    /// </summary>
+    public readonly struct CombatAttackLifetimeRequestedEvent
+    {
+        public CombatAttackLifetimeRequestedEvent(int attackInstanceId, float minimumRemainingSeconds)
+        {
+            AttackInstanceId = attackInstanceId;
+            MinimumRemainingSeconds = Mathf.Max(0.01f, minimumRemainingSeconds);
+        }
+
+        public int AttackInstanceId { get; }
+        public float MinimumRemainingSeconds { get; }
+    }
+
+    public readonly struct DamageRequestedEvent
+    {
+        public DamageRequestedEvent(DamageRequest request) => Request = request;
+        public DamageRequest Request { get; }
+    }
+
+    public readonly struct DamageAppliedEvent
+    {
+        public DamageAppliedEvent(string targetId, float amount)
+        {
+            Request = new DamageRequest(0, string.Empty, targetId, 0, DamageType.Physical, amount, Vector2.zero);
+            Result = new DamageResult(amount, false, false);
+        }
+
+        public DamageAppliedEvent(DamageRequest request, DamageResult result)
+        {
+            Request = request;
+            Result = result;
+        }
+
+        public DamageRequest Request { get; }
+        public DamageResult Result { get; }
+        public string TargetId => Request.TargetId;
+        public float Amount => Result.FinalDamage;
+    }
+
+    public readonly struct ReloadRequestedEvent
+    {
+        public ReloadRequestedEvent(InventoryItemInstance weapon) => Weapon = weapon;
+        public InventoryItemInstance Weapon { get; }
     }
 
     public readonly struct MonsterDiedEvent

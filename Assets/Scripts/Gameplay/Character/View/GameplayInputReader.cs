@@ -34,8 +34,8 @@ namespace MemorialArchive.Gameplay.Character.View
             // 当前关卡是横向移动：只读取 A/D（Horizontal），不把 W/S 传入角色逻辑。
             events.Publish(new MoveInputEvent(new Vector2(Input.GetAxisRaw("Horizontal"), 0f)));
             events.Publish(new RunInputEvent(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)));
-            events.Publish(new BlockInputEvent(Input.GetMouseButton(1)));
-            events.Publish(new AimInputEvent(Input.GetMouseButton(1), GetPointerWorldPosition()));
+            // 右键的含义由 CharacterSystem 根据当前装备决定：枪械/投掷物瞄准，近战/盾牌格挡。
+            events.Publish(new SecondaryActionInputEvent(Input.GetMouseButton(1), GetPointerWorldPosition()));
 
             if (Input.GetMouseButtonDown(0))
             {

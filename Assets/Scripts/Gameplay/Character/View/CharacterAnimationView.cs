@@ -1,49 +1,60 @@
 using MemorialArchive.Framework.Core;
 using MemorialArchive.Framework.Event;
 using MemorialArchive.Gameplay.Character.Logic;
+using MemorialArchive.Gameplay.Character.Data;
+using MemorialArchive.Gameplay.Combat.Data;
+using MemorialArchive.Gameplay.Inventory.Data;
+using MemorialArchive.Gameplay.Item.Config;
 using Spine;
 using Spine.Unity;
 using UnityEngine;
 
 namespace MemorialArchive.Gameplay.Character.View
 {
-    // 角色动画 View：监听 CharacterSystem 的运动状态与 DodgeRequestedEvent，
-    // 在 Idle/Walk/Run/Dodge 四套 SkeletonDataAsset 之间切换。
-    // 纯 View：只读 CharacterSystem，不写其状态。生命周期参考 PlayerMotor / MonsterSpawnPointView。
+    /// <summary>
+    /// Player Spine presentation.  This View consumes already-approved gameplay
+    /// events and never owns damage, stamina, or combat-state decisions.
+    /// </summary>
     public sealed class CharacterAnimationView : MonoBehaviour
     {
-        private enum LocomotionState
-        {
-            Idle,
-            Walk,
-            Run,
-            Dodge
-        }
+        private const int FireAxeItemId = 1003;
+
+        private enum LocomotionState { Idle, Walk, Run, Dodge }
+        private enum ActionPresentation { None, Equip, Attack, Block, Aim, Hurt, Reload, Death }
 
         [SerializeField] private SkeletonAnimation skeletonAnimation;
+        [Header("Locomotion")]
         [SerializeField] private SkeletonDataAsset idleData;
         [SerializeField] private SkeletonDataAsset walkData;
         [SerializeField] private SkeletonDataAsset runData;
         [SerializeField] private SkeletonDataAsset dodgeData;
-
-        // dodge 资源把整个人物的水平位移烘焙在 bone 上。动画结束时读取它的
-        // 最终偏移并一次性结算到 Player 坐标，不改写动画骨骼和腿部 IK。
+        [SerializeField] private SkeletonDataAsset hurtLocomotionData;
+        [Header("Fire axe")]
+        [SerializeField] private SkeletonDataAsset fireAxeAttack1Data;
+        [SerializeField] private SkeletonDataAsset fireAxeAttack2Data;
+        [SerializeField] private SkeletonDataAsset fireAxeAttack3Data;
+        [SerializeField] private SkeletonDataAsset fireAxeEquipData;
+        [Header("Shared combat fallback")]
+        [SerializeField] private SkeletonDataAsset bayonetEquipData;
+        [SerializeField] private SkeletonDataAsset bayonetCombatData;
+        [SerializeField] private SkeletonDataAsset shieldBlockData;
         [SerializeField] private string dodgeDisplacementBoneName = "bone";
-
-        // Spine 角色默认 0.01 scale 下高度约 3.56 world unit；
-        // 这里让 PlayerVisual 本地缩放。1.0 → 角色最终约 2.5 unit 高（Player 根 scale 0.7）。
         [SerializeField] private float characterScale = 1f;
-
-        // 进入新状态后的最小持续时间，避免 CharacterSystem 体力边界 isRunning toggle
-        // 导致动画高频切换（CharacterSystem.Tick 把 isRunning 设 false，下一帧 InputReader
-        // 又发 RunInputEvent(true)，stamina CeilToInt 在 0/1 之间反复）。
         [SerializeField] private float stateMinDuration = 0.2f;
 
         private CharacterSystem character;
         private LocomotionState current = LocomotionState.Idle;
+        private ActionPresentation activeAction;
         private bool facingRight = true;
+        private bool isDead;
         private float stateEnteredAt;
+        private int selectedItemId;
+        private OffhandType equippedOffhand;
+        private int sharedMeleeComboStage;
+        private int fireAxeComboStage;
+        private CharacterActionState presentedState = CharacterActionState.Normal;
         private TrackEntry dodgeTrackEntry;
+        private TrackEntry actionTrackEntry;
 
         private void Awake()
         {
@@ -56,7 +67,14 @@ namespace MemorialArchive.Gameplay.Character.View
         private void OnEnable()
         {
             character = GameRoot.Instance?.GetSystem<CharacterSystem>();
-            GameRoot.Instance?.Context?.Events.Subscribe<DodgeRequestedEvent>(HandleDodgeRequested);
+            var events = GameRoot.Instance?.Context?.Events;
+            events?.Subscribe<DodgeRequestedEvent>(HandleDodgeRequested);
+            events?.Subscribe<SelectedItemChangedEvent>(HandleSelectedItemChanged);
+            events?.Subscribe<CharacterActionStateChangedEvent>(HandleCharacterStateChanged);
+            events?.Subscribe<CharacterEquipmentChangedEvent>(HandleCharacterEquipmentChanged);
+            events?.Subscribe<BlockInputEvent>(HandleBlockInput);
+            events?.Subscribe<AimInputEvent>(HandleAimInput);
+            events?.Subscribe<CharacterDiedEvent>(HandleCharacterDied);
 
             if (skeletonAnimation == null)
             {
@@ -69,12 +87,17 @@ namespace MemorialArchive.Gameplay.Character.View
 
         private void OnDisable()
         {
-            GameRoot.Instance?.Context?.Events.Unsubscribe<DodgeRequestedEvent>(HandleDodgeRequested);
-            if (current == LocomotionState.Dodge)
-            {
-                PublishDodgeAnimationState(false);
-            }
+            var events = GameRoot.Instance?.Context?.Events;
+            events?.Unsubscribe<DodgeRequestedEvent>(HandleDodgeRequested);
+            events?.Unsubscribe<SelectedItemChangedEvent>(HandleSelectedItemChanged);
+            events?.Unsubscribe<CharacterActionStateChangedEvent>(HandleCharacterStateChanged);
+            events?.Unsubscribe<CharacterEquipmentChangedEvent>(HandleCharacterEquipmentChanged);
+            events?.Unsubscribe<BlockInputEvent>(HandleBlockInput);
+            events?.Unsubscribe<AimInputEvent>(HandleAimInput);
+            events?.Unsubscribe<CharacterDiedEvent>(HandleCharacterDied);
+            if (current == LocomotionState.Dodge) PublishDodgeAnimationState(false);
             UnsubscribeDodgeComplete();
+            UnsubscribeActionComplete();
         }
 
         private void Update()
@@ -82,102 +105,246 @@ namespace MemorialArchive.Gameplay.Character.View
             if (character == null)
             {
                 character = GameRoot.Instance?.GetSystem<CharacterSystem>();
-                if (character == null)
-                {
-                    return;
-                }
+                if (character == null) return;
             }
 
-            // 闪避动画的退出由它自己的 TrackEntry.Complete 驱动，避免再维护一份
-            // 与 Spine 动画时长可能不一致的 View 层计时器。
-            if (current == LocomotionState.Dodge)
-            {
-                return;
-            }
-
+            if (isDead || current == LocomotionState.Dodge || activeAction != ActionPresentation.None) return;
             SampleLocomotion();
         }
 
         private void SampleLocomotion()
         {
             var moving = character.MoveDirection.sqrMagnitude > 0.0001f;
-            var desired = !moving ? LocomotionState.Idle
-                          : character.IsRunning ? LocomotionState.Run
-                          : LocomotionState.Walk;
-
+            var desired = !moving ? LocomotionState.Idle : character.IsRunning ? LocomotionState.Run : LocomotionState.Walk;
             if (desired != current && CanTransitionTo(desired))
             {
+                var isInjured = character.Data != null && character.Data.health <= 1;
                 switch (desired)
                 {
-                    case LocomotionState.Idle: SwitchSkeleton(idleData, "idle", true); break;
-                    case LocomotionState.Walk: SwitchSkeleton(walkData, "animation", true); break;
-                    case LocomotionState.Run:  SwitchSkeleton(runData, "animation", true); break;
+                    case LocomotionState.Idle:
+                        SwitchSkeleton(idleData, "idle", true);
+                        break;
+                    case LocomotionState.Walk:
+                        SwitchSkeleton(isInjured ? hurtLocomotionData : walkData, isInjured ? "hurt-walk" : "animation", true);
+                        break;
+                    case LocomotionState.Run:
+                        SwitchSkeleton(isInjured ? hurtLocomotionData : runData, isInjured ? "hurt-run" : "animation", true);
+                        break;
                 }
                 current = desired;
                 stateEnteredAt = Time.time;
             }
-
             UpdateFacing();
         }
 
-        // 滞回：当前状态持续不够久就不切，避开 CharacterSystem 在 stamina 边界的 isRunning toggle。
-        // Idle<->Walk 的转换不受限制（玩家停止/启动移动应立即响应）。
         private bool CanTransitionTo(LocomotionState desired)
         {
-            if (desired == LocomotionState.Idle || current == LocomotionState.Idle)
-            {
-                return true;
-            }
-            return Time.time - stateEnteredAt >= stateMinDuration;
+            return desired == LocomotionState.Idle || current == LocomotionState.Idle || Time.time - stateEnteredAt >= stateMinDuration;
         }
 
         private void InitializeLocomotion()
         {
+            isDead = false;
+            activeAction = ActionPresentation.None;
             current = LocomotionState.Idle;
             stateEnteredAt = Time.time;
             SwitchSkeleton(idleData, "idle", true);
         }
 
-        private void SwitchToLocomotion()
+        private void HandleSelectedItemChanged(SelectedItemChangedEvent evt)
         {
-            PublishDodgeAnimationState(false);
+            selectedItemId = evt.Item?.itemId ?? 0;
+            sharedMeleeComboStage = 0;
+            fireAxeComboStage = 0;
+            if (isDead || current == LocomotionState.Dodge) return;
+
+            if (activeAction == ActionPresentation.Block || activeAction == ActionPresentation.Aim) StopActionToLocomotion();
+            if (SelectedItemUses(CombatAttackKind.Melee))
+            {
+                StartOneShot(selectedItemId == FireAxeItemId ? fireAxeEquipData : bayonetEquipData, "chixie", ActionPresentation.Equip);
+            }
+        }
+
+        private void HandleCharacterEquipmentChanged(CharacterEquipmentChangedEvent evt)
+        {
+            selectedItemId = evt.PrimaryItemId;
+            equippedOffhand = evt.OffhandType;
+        }
+
+        private void HandleCharacterStateChanged(CharacterActionStateChangedEvent evt)
+        {
+            presentedState = evt.State;
+            if (evt.State == CharacterActionState.Dead) { HandleCharacterDied(new CharacterDiedEvent(0f)); return; }
+            if (evt.State == CharacterActionState.Staggered) { StartOneShot(bayonetCombatData, "hurt1", ActionPresentation.Hurt); return; }
+            if (evt.State == CharacterActionState.Attack1 || evt.State == CharacterActionState.Attack2 || evt.State == CharacterActionState.Attack3)
+            {
+                PlayStateAttack(evt.State);
+            }
+        }
+
+        private void PlayStateAttack(CharacterActionState state)
+        {
+            var config = GameRoot.Instance?.Context?.Configs.GetItem(selectedItemId);
+            if (config != null && config.CombatAttackKind != CombatAttackKind.Melee) { StartOneShot(bayonetCombatData, "throw", ActionPresentation.Attack); return; }
+            var stage = state == CharacterActionState.Attack1 ? 1 : state == CharacterActionState.Attack2 ? 2 : 3;
+            if (selectedItemId == FireAxeItemId) StartOneShot(stage == 1 ? fireAxeAttack1Data : stage == 2 ? fireAxeAttack2Data : fireAxeAttack3Data, stage == 1 ? "act1_both hands" : stage == 2 ? "act2 both hands" : "act3 both hands", ActionPresentation.Attack);
+            else StartOneShot(bayonetCombatData, stage == 1 ? "act1（single）" : stage == 2 ? "act2（single）" : "act3（single）", ActionPresentation.Attack);
+        }
+
+        private void PlayMeleeAttack(int weaponItemId)
+        {
+            if (weaponItemId == FireAxeItemId)
+            {
+                fireAxeComboStage = fireAxeComboStage % 3 + 1;
+                StartOneShot(
+                    fireAxeComboStage == 1 ? fireAxeAttack1Data : fireAxeComboStage == 2 ? fireAxeAttack2Data : fireAxeAttack3Data,
+                    fireAxeComboStage == 1 ? "act1_both hands" : fireAxeComboStage == 2 ? "act2 both hands" : "act3 both hands",
+                    ActionPresentation.Attack);
+                return;
+            }
+
+            // 匕首、刺刀、军官佩剑等近战武器暂共用刺刀三段动作。
+            sharedMeleeComboStage = sharedMeleeComboStage % 3 + 1;
+            StartOneShot(
+                bayonetCombatData,
+                sharedMeleeComboStage == 1 ? "act1（single）" : sharedMeleeComboStage == 2 ? "act2（single）" : "act3（single）",
+                ActionPresentation.Attack);
+        }
+
+        private void HandleBlockInput(BlockInputEvent evt)
+        {
+            if (isDead || current == LocomotionState.Dodge) return;
+            if (!evt.IsBlocking)
+            {
+                if (activeAction == ActionPresentation.Block) StopActionToLocomotion();
+                return;
+            }
+
+            if (activeAction != ActionPresentation.None && activeAction != ActionPresentation.Block) return;
+            if (equippedOffhand == OffhandType.Shield)
+            {
+                StartLoop(shieldBlockData, "Block_Shield", ActionPresentation.Block);
+            }
+            else if (SelectedItemUses(CombatAttackKind.Melee))
+            {
+                // 消防斧、匕首、佩剑的格挡资源尚未补齐，暂用刺刀格挡。
+                StartLoop(bayonetCombatData, "Block", ActionPresentation.Block);
+            }
+        }
+
+        private void HandleAimInput(AimInputEvent evt)
+        {
+            if (isDead || current == LocomotionState.Dodge) return;
+            if (!evt.IsAiming)
+            {
+                if (activeAction == ActionPresentation.Aim) StopActionToLocomotion();
+                return;
+            }
+
+            if (activeAction != ActionPresentation.None && activeAction != ActionPresentation.Aim) return;
+            if (SelectedItemUses(CombatAttackKind.Throwable) || SelectedItemUses(CombatAttackKind.Firearm))
+            {
+                // 枪械瞄准资源缺失，暂复用投掷瞄准姿势。
+                StartLoop(bayonetCombatData, "throw_aim", ActionPresentation.Aim);
+            }
+        }
+
+        private void HandleCharacterDied(CharacterDiedEvent evt)
+        {
+            isDead = true;
+            CancelCurrentAction();
             UnsubscribeDodgeComplete();
-            // 重置为 Idle，下一帧 SampleLocomotion 会按 MoveDirection 校正到 Walk/Run。
             current = LocomotionState.Idle;
-            stateEnteredAt = Time.time;
-            SwitchSkeleton(idleData, "idle", true);
+            SwitchSkeleton(bayonetCombatData, "death", false);
         }
 
         private void HandleDodgeRequested(DodgeRequestedEvent evt)
         {
+            if (isDead) return;
+            CancelCurrentAction();
             current = LocomotionState.Dodge;
             stateEnteredAt = Time.time;
-
-            // 不根据移动方向改变朝向；无论静止还是移动，都按角色当前朝向
-            // 播放动画资产中自带位移的 dodge。
             UnsubscribeDodgeComplete();
             var entry = SwitchSkeleton(dodgeData, "dodge", false);
-            if (entry != null)
-            {
-                PublishDodgeAnimationState(true);
-                SubscribeDodgeComplete(entry);
-            }
-            else
+            if (entry == null)
             {
                 SwitchToLocomotion();
-            }
-        }
-
-        // 只响应当前这一次 dodge 的自然结束，其他动画轨道不会触发该回调。
-        private void HandleDodgeComplete(TrackEntry trackEntry)
-        {
-            if (trackEntry != dodgeTrackEntry)
-            {
                 return;
             }
 
+            PublishDodgeAnimationState(true);
+            dodgeTrackEntry = entry;
+            dodgeTrackEntry.Complete += HandleDodgeComplete;
+        }
+
+        private void HandleDodgeComplete(TrackEntry trackEntry)
+        {
+            if (trackEntry != dodgeTrackEntry) return;
             CommitDodgePosition();
             SwitchToLocomotion();
+        }
+
+        private void StartOneShot(SkeletonDataAsset data, string animationName, ActionPresentation presentation)
+        {
+            if (data == null || isDead || current == LocomotionState.Dodge) return;
+            CancelCurrentAction();
+            activeAction = presentation;
+            var entry = SwitchSkeleton(data, animationName, false);
+            if (entry == null)
+            {
+                activeAction = ActionPresentation.None;
+                SwitchToLocomotion();
+                return;
+            }
+
+            actionTrackEntry = entry;
+            actionTrackEntry.Complete += HandleActionComplete;
+        }
+
+        private void StartLoop(SkeletonDataAsset data, string animationName, ActionPresentation presentation)
+        {
+            if (data == null || isDead || current == LocomotionState.Dodge) return;
+            if (activeAction == presentation && skeletonAnimation.skeletonDataAsset == data) return;
+            CancelCurrentAction();
+            activeAction = presentation;
+            SwitchSkeleton(data, animationName, true);
+        }
+
+        private void HandleActionComplete(TrackEntry trackEntry)
+        {
+            if (trackEntry != actionTrackEntry) return;
+            GameRoot.Instance?.Context?.Events.Publish(new CharacterActionAnimationCompletedEvent(presentedState));
+            UnsubscribeActionComplete();
+            activeAction = ActionPresentation.None;
+            SwitchToLocomotion();
+        }
+
+        private void StopActionToLocomotion()
+        {
+            CancelCurrentAction();
+            SwitchToLocomotion();
+        }
+
+        private void CancelCurrentAction()
+        {
+            UnsubscribeActionComplete();
+            activeAction = ActionPresentation.None;
+        }
+
+        private bool SelectedItemUses(CombatAttackKind attackKind)
+        {
+            var config = GameRoot.Instance?.Context?.Configs.GetItem(selectedItemId);
+            return config != null && config.CombatAttackKind == attackKind;
+        }
+
+        private void SwitchToLocomotion()
+        {
+            if (isDead) return;
+            if (current == LocomotionState.Dodge) PublishDodgeAnimationState(false);
+            UnsubscribeDodgeComplete();
+            current = LocomotionState.Idle;
+            stateEnteredAt = Time.time;
+            SwitchSkeleton(idleData, "idle", true);
         }
 
         private void CommitDodgePosition()
@@ -192,10 +359,8 @@ namespace MemorialArchive.Gameplay.Character.View
 
             var localOffsetX = displacementBone.X - displacementBone.Data.X;
             var facingScale = skeleton != null ? skeleton.ScaleX : 1f;
-            var worldDelta = skeletonAnimation.transform.TransformVector(
-                new Vector3(localOffsetX * facingScale, 0f, 0f));
-            GameRoot.Instance?.Context?.Events.Publish(
-                new DodgePositionDeltaEvent(new Vector2(worldDelta.x, 0f)));
+            var worldDelta = skeletonAnimation.transform.TransformVector(new Vector3(localOffsetX * facingScale, 0f, 0f));
+            GameRoot.Instance?.Context?.Events.Publish(new DodgePositionDeltaEvent(new Vector2(worldDelta.x, 0f)));
         }
 
         private static void PublishDodgeAnimationState(bool isPlaying)
@@ -203,37 +368,29 @@ namespace MemorialArchive.Gameplay.Character.View
             GameRoot.Instance?.Context?.Events.Publish(new DodgeAnimationStateChangedEvent(isPlaying));
         }
 
-        private TrackEntry SwitchSkeleton(SkeletonDataAsset data, string animName, bool loop)
+        private TrackEntry SwitchSkeleton(SkeletonDataAsset data, string animationName, bool loop)
         {
-            if (skeletonAnimation == null || data == null)
-            {
-                return null;
-            }
-
-            // 首次进入或 SkeletonAnimation 还没 Awake 完时（典型场景：Stage1DemoRoot 从 inactive 切 active，
-            // OnEnable 跑得比 SkeletonAnimation.Awake 早），state 会是 null。这里强制 Initialize 兜底。
+            if (skeletonAnimation == null || data == null) return null;
             if (skeletonAnimation.skeletonDataAsset != data || skeletonAnimation.state == null)
             {
                 skeletonAnimation.skeletonDataAsset = data;
-                skeletonAnimation.Initialize(true); // 重建 skeleton/state/mesh；内部会自动 LateUpdate
+                skeletonAnimation.Initialize(true);
             }
-
-            var entry = skeletonAnimation.state.SetAnimation(0, animName, loop);
+            var entry = skeletonAnimation.state.SetAnimation(0, animationName, loop);
             ApplyFacing();
             return entry;
         }
 
         private void UpdateFacing()
         {
-            if (character.MoveDirection.sqrMagnitude > 0.0001f)
-            {
-                var right = character.MoveDirection.x >= 0f;
-                if (right != facingRight)
-                {
-                    facingRight = right;
-                    ApplyFacing();
-                }
-            }
+            if (character.MoveDirection.sqrMagnitude > 0.0001f) UpdateFacing(character.MoveDirection);
+        }
+
+        private void UpdateFacing(Vector2 direction)
+        {
+            if (Mathf.Abs(direction.x) <= 0.0001f) return;
+            facingRight = direction.x >= 0f;
+            ApplyFacing();
         }
 
         private void ApplyFacing()
@@ -244,26 +401,18 @@ namespace MemorialArchive.Gameplay.Character.View
             }
         }
 
-        private void SubscribeDodgeComplete(TrackEntry entry)
-        {
-            if (entry == null)
-            {
-                return;
-            }
-
-            dodgeTrackEntry = entry;
-            dodgeTrackEntry.Complete += HandleDodgeComplete;
-        }
-
         private void UnsubscribeDodgeComplete()
         {
-            if (dodgeTrackEntry == null)
-            {
-                return;
-            }
-
+            if (dodgeTrackEntry == null) return;
             dodgeTrackEntry.Complete -= HandleDodgeComplete;
             dodgeTrackEntry = null;
+        }
+
+        private void UnsubscribeActionComplete()
+        {
+            if (actionTrackEntry == null) return;
+            actionTrackEntry.Complete -= HandleActionComplete;
+            actionTrackEntry = null;
         }
     }
 }

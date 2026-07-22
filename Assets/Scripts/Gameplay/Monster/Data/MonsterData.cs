@@ -10,7 +10,7 @@ namespace MemorialArchive.Gameplay.Monster.Data
         public string instanceId;
         public int monsterId;
         public string spawnPointId;
-        public int health;
+        public float health;
         public Vector2 position;
         public bool isAlive = true;
     }

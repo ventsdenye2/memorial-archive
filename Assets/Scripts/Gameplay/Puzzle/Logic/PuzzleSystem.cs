@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace MemorialArchive.Gameplay.Puzzle.Logic
 {
-    public sealed class PuzzleSystem : IGameSystem, ISaveModule
+    public sealed class PuzzleSystem : IGameSystem, ISaveModule, INewGameResettable
     {
         private readonly Dictionary<string, PuzzleRuntimeData> puzzles = new Dictionary<string, PuzzleRuntimeData>();
         private GameContext context;
@@ -28,6 +28,11 @@ namespace MemorialArchive.Gameplay.Puzzle.Logic
             }
 
             context = null;
+            puzzles.Clear();
+        }
+
+        public void ResetForNewGame()
+        {
             puzzles.Clear();
         }
 

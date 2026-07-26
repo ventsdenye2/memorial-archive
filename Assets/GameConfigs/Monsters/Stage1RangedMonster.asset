@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ff0cd2d8cf01be4b8ed6d56523fb67d, type: 3}
+  m_Name: Stage1RangedMonster
+  m_EditorClassIdentifier:
+  monsterId: 2002
+  monsterName: "\u602A\u7269 2\uFF08\u8FDC\u7A0B\uFF09"
+  maxHealth: 1000
+  attackDamage: 1
+  moveSpeed: 180
+  detectionRange: 8
+  attackRange: 5
+  attackInterval: 2
+  decisionInterval: 0.15
+  hurtDuration: 0.3
+  hurtCooldown: 1
+  deathPresentationSeconds: 2
+  attackMode: 1

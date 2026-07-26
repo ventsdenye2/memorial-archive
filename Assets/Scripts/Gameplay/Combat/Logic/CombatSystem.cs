@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace MemorialArchive.Gameplay.Combat.Logic
 {
-    public sealed class CombatSystem : IGameSystem, ITickableSystem
+    public sealed class CombatSystem : IGameSystem, ITickableSystem, INewGameResettable
     {
         private sealed class PendingAttack
         {
@@ -63,6 +63,17 @@ namespace MemorialArchive.Gameplay.Combat.Logic
             isAiming = false;
             aimWorldPosition = Vector2.zero;
             playerPosition = Vector2.zero;
+            pendingAttacks.Clear();
+            damageModifiers.Clear();
+        }
+
+        public void ResetForNewGame()
+        {
+            selectedItem = null;
+            isAiming = false;
+            aimWorldPosition = Vector2.zero;
+            playerPosition = Vector2.zero;
+            nextAttackInstanceId = 0;
             pendingAttacks.Clear();
             damageModifiers.Clear();
         }

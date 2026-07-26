@@ -3,6 +3,7 @@ using MemorialArchive.Gameplay.Inventory.Data;
 using MemorialArchive.Gameplay.Combat.Data;
 using MemorialArchive.Gameplay.Character.Data;
 using MemorialArchive.Gameplay.Item.Config;
+using MemorialArchive.Gameplay.Monster.Data;
 using MemorialArchive.Framework.UI;
 using UnityEngine;
 
@@ -437,6 +438,34 @@ namespace MemorialArchive.Framework.Event
     {
         public MonsterDiedEvent(string monsterInstanceId) => MonsterInstanceId = monsterInstanceId;
         public string MonsterInstanceId { get; }
+    }
+
+    public readonly struct MonsterDamagedEvent
+    {
+        public MonsterDamagedEvent(string monsterInstanceId, float amount, float remainingHealth, bool triggersHurt)
+        {
+            MonsterInstanceId = monsterInstanceId;
+            Amount = amount;
+            RemainingHealth = remainingHealth;
+            TriggersHurt = triggersHurt;
+        }
+
+        public string MonsterInstanceId { get; }
+        public float Amount { get; }
+        public float RemainingHealth { get; }
+        public bool TriggersHurt { get; }
+    }
+
+    public readonly struct MonsterStateChangedEvent
+    {
+        public MonsterStateChangedEvent(string monsterInstanceId, MonsterActionState state)
+        {
+            MonsterInstanceId = monsterInstanceId;
+            State = state;
+        }
+
+        public string MonsterInstanceId { get; }
+        public MonsterActionState State { get; }
     }
 
     public readonly struct RoomEnteredEvent

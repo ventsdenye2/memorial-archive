@@ -3,6 +3,7 @@ using MemorialArchive.Framework.Core;
 using MemorialArchive.Framework.UI;
 using MemorialArchive.Gameplay.Interaction.View;
 using MemorialArchive.Gameplay.Inventory.View;
+using MemorialArchive.Gameplay.Monster.View;
 using UnityEngine;
 
 namespace MemorialArchive.Gameplay.Stage1
@@ -68,6 +69,20 @@ namespace MemorialArchive.Gameplay.Stage1
             }
 
             valid &= Require(foundSpawn, $"Required spawn point is missing: {Stage1Ids.SpawnPoint}");
+            var monsterSpawnPoints = FindObjectsOfType<MonsterSpawnPointView>(true);
+            valid &= Require(monsterSpawnPoints.Length == 2, $"Exactly two monster spawn points are required; found {monsterSpawnPoints.Length}.");
+            foreach (var monsterSpawnPoint in monsterSpawnPoints)
+            {
+                var prefab = monsterSpawnPoint.MonsterPrefab;
+                valid &= Require(prefab != null, $"Monster prefab is missing for {monsterSpawnPoint.SpawnPointId}.");
+                if (prefab != null)
+                {
+                    valid &= Require(prefab.GetComponent<MonsterAIView>() != null, $"Monster AI is missing for {monsterSpawnPoint.SpawnPointId}.");
+                    valid &= Require(prefab.GetComponent<MonsterTargetView>() != null && prefab.GetComponent<Collider2D>() != null,
+                        $"MonsterTargetView or Collider2D is missing for {monsterSpawnPoint.SpawnPointId}.");
+                }
+            }
+
             foreach (var itemId in RequiredItemIds)
             {
                 valid &= Require(GameRoot.Instance?.Context?.Configs?.GetItem(itemId) != null,

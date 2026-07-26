@@ -1,4 +1,3 @@
-using System;
 using MemorialArchive.Framework.Core;
 using MemorialArchive.Gameplay.Monster.Logic;
 using UnityEngine;
@@ -20,6 +19,8 @@ namespace MemorialArchive.Gameplay.Monster.View
         public string RoomId => roomId;
         public int MonsterId => monsterId;
         public int InitialHealth => initialHealth;
+        public GameObject MonsterPrefab => monsterPrefab;
+        public GameObject SpawnedInstance => spawnedInstance;
 
         private void OnEnable()
         {
@@ -43,11 +44,20 @@ namespace MemorialArchive.Gameplay.Monster.View
                 spawnedInstance = Instantiate(monsterPrefab, transform.position, transform.rotation, spawnParent);
                 var instanceId = $"{spawnPointId}_{spawnedInstance.GetInstanceID()}";
                 var target = spawnedInstance.GetComponentInChildren<MonsterTargetView>();
-                target?.SetRuntimeIdentity(instanceId, monsterId, initialHealth);
+                if (target == null || target.GetComponent<Collider2D>() == null)
+                {
+                    Debug.LogError($"Monster prefab '{monsterPrefab.name}' must contain MonsterTargetView and Collider2D.", this);
+                    Destroy(spawnedInstance);
+                    spawnedInstance = null;
+                    return string.Empty;
+                }
+
+                target.SetRuntimeIdentity(instanceId, monsterId, initialHealth);
                 return instanceId;
             }
 
-            return $"{spawnPointId}_{Guid.NewGuid():N}";
+            Debug.LogError($"Monster spawn point '{spawnPointId}' has no prefab assigned.", this);
+            return string.Empty;
         }
     }
 }

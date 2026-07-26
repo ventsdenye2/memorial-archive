@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace MemorialArchive.Gameplay.Interaction.Logic
 {
-    public sealed class InteractionSystem : IGameSystem, ISaveModule
+    public sealed class InteractionSystem : IGameSystem, ISaveModule, INewGameResettable
     {
         private readonly Dictionary<string, InteractionRuntimeData> interactions = new Dictionary<string, InteractionRuntimeData>();
         private readonly Dictionary<string, RoomStateData> rooms = new Dictionary<string, RoomStateData>();
@@ -37,6 +37,14 @@ namespace MemorialArchive.Gameplay.Interaction.Logic
             }
 
             context = null;
+            interactions.Clear();
+            rooms.Clear();
+            focusedInteractionId = null;
+            focusedInteractionType = InteractionType.None;
+        }
+
+        public void ResetForNewGame()
+        {
             interactions.Clear();
             rooms.Clear();
             focusedInteractionId = null;

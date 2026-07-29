@@ -12,7 +12,7 @@ using UnityEngine;
 namespace MemorialArchive.Gameplay.Character.Logic
 {
     /// <summary>纯 C# 角色状态规则；不引用 CombatSystem，也不做命中或伤害结算。</summary>
-    public sealed class CharacterSystem : IGameSystem, ITickableSystem, ISaveModule
+    public sealed class CharacterSystem : IGameSystem, ITickableSystem, ISaveModule, INewGameResettable
     {
         private CharacterData data = new CharacterData(); private GameContext context; private CharacterAttributeConfig attributes;
         private Vector2 moveDirection, facingDirection = Vector2.right, aimDirection = Vector2.right;
@@ -28,12 +28,40 @@ namespace MemorialArchive.Gameplay.Character.Logic
         public void Initialize(GameContext value)
         {
             context = value; attributes = context.Configs.GetCharacterAttribute(Stage1Ids.PlayerAttributeId);
-            data.attributeId = Stage1Ids.PlayerAttributeId; data.stateId = Stage1Ids.PlayerNormalStateId; data.health = attributes?.MaxHealth ?? 3; data.stamina = attributes?.MaxStamina ?? 30; exactStamina = data.stamina;
             context.Events.Subscribe<MoveInputEvent>(OnMove); context.Events.Subscribe<RunInputEvent>(OnRun); context.Events.Subscribe<SecondaryActionInputEvent>(OnSecondary);
             context.Events.Subscribe<DodgePressedEvent>(OnDodge); context.Events.Subscribe<PrimaryActionPressedEvent>(OnPrimary);
             context.Events.Subscribe<DodgeAnimationStateChangedEvent>(OnDodgeAnimationState);
             context.Events.Subscribe<CharacterActionAnimationCompletedEvent>(OnAnimationCompleted); context.Events.Subscribe<DamageAppliedEvent>(OnDamageApplied);
-            context.Events.Subscribe<CharacterEquipmentChangedEvent>(OnEquipment); PublishState(); context.Events.Publish(new CharacterStatsChangedEvent());
+            context.Events.Subscribe<CharacterEquipmentChangedEvent>(OnEquipment); ResetForNewGame();
+        }
+
+        public void ResetForNewGame()
+        {
+            data = new CharacterData
+            {
+                attributeId = Stage1Ids.PlayerAttributeId,
+                stateId = Stage1Ids.PlayerNormalStateId,
+                health = attributes?.MaxHealth ?? 3,
+                stamina = attributes?.MaxStamina ?? 30,
+                isDead = false,
+                position = Vector2.zero
+            };
+            moveDirection = Vector2.zero;
+            facingDirection = Vector2.right;
+            aimDirection = Vector2.right;
+            exactStamina = data.stamina;
+            dodgeCooldown = 0f;
+            dodgeInvincible = 0f;
+            staggerRemaining = 0f;
+            staggerCooldown = 0f;
+            weakRemaining = 0f;
+            primaryItemId = 0;
+            comboStage = 0;
+            offhandType = OffhandType.None;
+            IsRunning = false;
+            state = CharacterActionState.Normal;
+            PublishState();
+            context?.Events.Publish(new CharacterStatsChangedEvent());
         }
         public void Dispose()
         {

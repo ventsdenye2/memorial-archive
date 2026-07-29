@@ -28,6 +28,7 @@ namespace MemorialArchive.Framework.Scene
             }
 
             context.UI.CloseAll();
+            GameRoot.Instance.ResetForNewGame();
             context.Events.Publish(new SceneTransitionRequestedEvent(Stage1Ids.GameplaySceneName, Stage1Ids.SpawnPoint));
         }
 

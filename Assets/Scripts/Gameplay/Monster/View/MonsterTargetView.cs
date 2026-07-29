@@ -18,11 +18,18 @@ namespace MemorialArchive.Gameplay.Monster.View
         private string targetId;
 
         public string TargetId => targetId;
+        public int MonsterId => monsterId;
 
         private void Awake()
         {
             // 在美术敌人资源到位前，使用醒目的运行时占位形象，确保碰撞和受击流程可测试。
-            var spriteRenderer = GetComponent<SpriteRenderer>() ?? gameObject.AddComponent<SpriteRenderer>();
+            var spriteRenderer = GetComponent<SpriteRenderer>();
+            if (spriteRenderer == null && GetComponentInChildren<Renderer>(true) != null)
+            {
+                return;
+            }
+
+            spriteRenderer = spriteRenderer != null ? spriteRenderer : gameObject.AddComponent<SpriteRenderer>();
             if (spriteRenderer.sprite == null)
             {
                 spriteRenderer.sprite = Sprite.Create(Texture2D.whiteTexture, new Rect(0f, 0f, 1f, 1f), new Vector2(0.5f, 0.5f));
@@ -56,15 +63,29 @@ namespace MemorialArchive.Gameplay.Monster.View
             targetId = instanceId;
             monsterId = configuredMonsterId;
             initialHealth = Mathf.Max(1, configuredInitialHealth);
+            foreach (var targetCollider in GetComponents<Collider2D>())
+            {
+                targetCollider.enabled = true;
+            }
+
             GameRoot.Instance?.GetSystem<MonsterSystem>()?.RegisterSpawnedMonster(
                 targetId, monsterId, initialHealth, transform.position);
+            GetComponentInParent<MonsterAIView>()?.InitializeRuntime(this);
         }
 
         private void HandleMonsterDied(MonsterDiedEvent evt)
         {
             if (!string.IsNullOrEmpty(targetId) && evt.MonsterInstanceId == targetId)
             {
-                gameObject.SetActive(false);
+                foreach (var targetCollider in GetComponents<Collider2D>())
+                {
+                    targetCollider.enabled = false;
+                }
+
+                if (GetComponentInParent<MonsterAIView>() == null)
+                {
+                    gameObject.SetActive(false);
+                }
             }
         }
     }

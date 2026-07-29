@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace MemorialArchive.Gameplay.Story.Logic
 {
-    public sealed class StorySystem : IGameSystem, ISaveModule
+    public sealed class StorySystem : IGameSystem, ISaveModule, INewGameResettable
     {
         private StorySaveData saveData = new StorySaveData();
         private GameContext context;
@@ -33,6 +33,11 @@ namespace MemorialArchive.Gameplay.Story.Logic
             }
 
             context = null;
+            saveData = new StorySaveData();
+        }
+
+        public void ResetForNewGame()
+        {
             saveData = new StorySaveData();
         }
 

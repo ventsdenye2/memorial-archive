@@ -43,7 +43,9 @@ MonoBehaviour:
   - {fileID: 11400000, guid: c0163246629651847a2548224132a885, type: 2}
   characterStates:
   - {fileID: 11400000, guid: 0e3aa5293af8a2c47a08d83e593baec9, type: 2}
-  monsters: []
+  monsters:
+  - {fileID: 11400000, guid: b9494755c2ce9e842ba06e10a306003b, type: 2}
+  - {fileID: 11400000, guid: e0f9a1cd4b9fde44f91e46c95b439c6d, type: 2}
   interactions:
   - {fileID: 11400000, guid: d54a99a37a81e384c8467482b1e53096, type: 2}
   - {fileID: 11400000, guid: 26b1a2a58e9f4a0499efe430af0c02af, type: 2}

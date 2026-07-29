@@ -42,6 +42,22 @@ namespace MemorialArchive.Framework.Core
             return null;
         }
 
+        public void ResetForNewGame()
+        {
+            if (!initialized)
+            {
+                return;
+            }
+
+            foreach (var system in systems)
+            {
+                if (system is INewGameResettable resettable)
+                {
+                    resettable.ResetForNewGame();
+                }
+            }
+        }
+
         private void Awake()
         {
             if (Instance != null && Instance != this)

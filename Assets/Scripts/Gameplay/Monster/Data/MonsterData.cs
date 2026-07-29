@@ -4,6 +4,15 @@ using UnityEngine;
 
 namespace MemorialArchive.Gameplay.Monster.Data
 {
+    public enum MonsterActionState
+    {
+        Idle,
+        Chasing,
+        Attacking,
+        Hurt,
+        Dead
+    }
+
     [Serializable]
     public sealed class MonsterRuntimeData
     {
@@ -13,6 +22,8 @@ namespace MemorialArchive.Gameplay.Monster.Data
         public float health;
         public Vector2 position;
         public bool isAlive = true;
+        public MonsterActionState state;
+        public float hurtCooldownRemaining;
     }
 
     [Serializable]

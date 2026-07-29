@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace MemorialArchive.Gameplay.Monster.Logic
 {
-    public sealed class MonsterSystem : IGameSystem, ISaveModule
+    public sealed class MonsterSystem : IGameSystem, ITickableSystem, ISaveModule, INewGameResettable
     {
         private readonly List<MonsterSpawnPointView> spawnPoints = new List<MonsterSpawnPointView>();
         private MonsterSaveData saveData = new MonsterSaveData();
@@ -39,11 +39,17 @@ namespace MemorialArchive.Gameplay.Monster.Logic
             saveData = new MonsterSaveData();
         }
 
+        public void ResetForNewGame()
+        {
+            saveData = new MonsterSaveData();
+        }
+
         public void RegisterSpawnPoint(MonsterSpawnPointView spawnPoint)
         {
             if (spawnPoint != null && !spawnPoints.Contains(spawnPoint))
             {
                 spawnPoints.Add(spawnPoint);
+                RefreshSpawnPoint(spawnPoint);
             }
         }
 
@@ -74,6 +80,31 @@ namespace MemorialArchive.Gameplay.Monster.Logic
             runtime.health = Mathf.Max(1, initialHealth);
             runtime.position = position;
             runtime.isAlive = true;
+            runtime.state = MonsterActionState.Idle;
+            runtime.hurtCooldownRemaining = 0f;
+        }
+
+        public void UpdateRuntimeState(string instanceId, Vector2 position, MonsterActionState state)
+        {
+            var runtime = FindMonster(instanceId);
+            if (runtime == null || !runtime.isAlive)
+            {
+                return;
+            }
+
+            runtime.position = position;
+            runtime.state = state;
+        }
+
+        public void Tick(float deltaTime)
+        {
+            foreach (var monster in saveData.monsters)
+            {
+                if (monster != null && monster.hurtCooldownRemaining > 0f)
+                {
+                    monster.hurtCooldownRemaining = Mathf.Max(0f, monster.hurtCooldownRemaining - deltaTime);
+                }
+            }
         }
 
         public object CaptureSaveData()
@@ -120,18 +151,33 @@ namespace MemorialArchive.Gameplay.Monster.Logic
                     continue;
                 }
 
-                var monster = spawnPoint.SpawnOrRefresh();
-                var runtime = saveData.monsters.Find(item => item != null && item.instanceId == monster);
-                if (runtime == null)
-                {
-                    RegisterSpawnedMonster(monster, spawnPoint.MonsterId, spawnPoint.InitialHealth, spawnPoint.transform.position);
-                    runtime = saveData.monsters.Find(item => item != null && item.instanceId == monster);
-                }
+                RefreshSpawnPoint(spawnPoint);
+            }
+        }
 
-                if (runtime != null)
-                {
-                    runtime.spawnPointId = spawnPoint.SpawnPointId;
-                }
+        private void RefreshSpawnPoint(MonsterSpawnPointView spawnPoint)
+        {
+            if (spawnPoint == null)
+            {
+                return;
+            }
+
+            var instanceId = spawnPoint.SpawnOrRefresh();
+            if (string.IsNullOrEmpty(instanceId))
+            {
+                return;
+            }
+
+            var runtime = FindMonster(instanceId);
+            if (runtime == null)
+            {
+                RegisterSpawnedMonster(instanceId, spawnPoint.MonsterId, spawnPoint.InitialHealth, spawnPoint.transform.position);
+                runtime = FindMonster(instanceId);
+            }
+
+            if (runtime != null)
+            {
+                runtime.spawnPointId = spawnPoint.SpawnPointId;
             }
         }
 
@@ -142,20 +188,37 @@ namespace MemorialArchive.Gameplay.Monster.Logic
                 return;
             }
 
-            var target = saveData.monsters.Find(monster => monster != null && monster.instanceId == evt.TargetId);
+            var target = FindMonster(evt.TargetId);
             if (target == null || !target.isAlive)
             {
                 return;
             }
 
             target.health = Mathf.Max(0f, target.health - evt.Amount);
-            if (target.health > 0f)
+            var died = target.health <= 0f;
+            var triggersHurt = false;
+            if (!died && target.hurtCooldownRemaining <= 0f)
             {
-                return;
+                var config = context.Configs.GetMonster(target.monsterId);
+                target.hurtCooldownRemaining = config != null ? config.HurtCooldown : 1f;
+                target.state = MonsterActionState.Hurt;
+                triggersHurt = true;
             }
 
-            target.isAlive = false;
-            context.Events.Publish(new MonsterDiedEvent(target.instanceId));
+            context.Events.Publish(new MonsterDamagedEvent(target.instanceId, evt.Amount, target.health, triggersHurt));
+            if (died)
+            {
+                target.isAlive = false;
+                target.state = MonsterActionState.Dead;
+                context.Events.Publish(new MonsterDiedEvent(target.instanceId));
+            }
+        }
+
+        private MonsterRuntimeData FindMonster(string instanceId)
+        {
+            return string.IsNullOrEmpty(instanceId)
+                ? null
+                : saveData.monsters.Find(monster => monster != null && monster.instanceId == instanceId);
         }
     }
 }

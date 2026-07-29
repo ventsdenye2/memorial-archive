@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace MemorialArchive.Gameplay.Inventory.Logic
 {
-    public sealed class InventorySystem : IGameSystem, ISaveModule
+    public sealed class InventorySystem : IGameSystem, ISaveModule, INewGameResettable
     {
         public const int BackpackWidth = 3;
         public const int BackpackHeight = 3;
@@ -52,6 +52,17 @@ namespace MemorialArchive.Gameplay.Inventory.Logic
             sceneContainers.Clear();
             playerInventory = new InventoryData();
             activeSceneContainerId = null;
+        }
+
+        public void ResetForNewGame()
+        {
+            sceneContainers.Clear();
+            playerInventory = new InventoryData();
+            activeSceneContainerId = null;
+            context?.Events.Publish(new SelectedItemChangedEvent(null));
+            context?.Events.Publish(new CharacterEquipmentChangedEvent(0, OffhandType.None));
+            context?.Events.Publish(new ShortcutChangedEvent());
+            context?.Events.Publish(new InventoryChangedEvent());
         }
 
         public SceneContainerData GetActiveSceneContainer()

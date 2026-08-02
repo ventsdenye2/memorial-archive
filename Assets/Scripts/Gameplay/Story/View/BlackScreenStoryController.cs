@@ -1,67 +1,110 @@
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using MemorialArchive.Framework.Core;
 using MemorialArchive.Framework.Event;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace MemorialArchive.Gameplay.Story.View
 {
+    /// <summary>
+    /// Black-screen story presenter. The configured story uses ▼ as an authored
+    /// paragraph break; each paragraph is revealed and advanced independently.
+    /// </summary>
     public sealed class BlackScreenStoryController : MonoBehaviour, IPointerClickHandler
     {
         [SerializeField] private Text storyText;
-        [SerializeField] private float charactersPerSecond = 18f;
+        [SerializeField] private Text continueHint;
+        [SerializeField] private float charactersPerSecond = 36f;
 
+        private readonly List<string> segments = new List<string>();
         private string activeStoryId;
         private string fullText;
+        private int segmentIndex;
         private bool isRevealing;
         private Coroutine revealRoutine;
         private int lastAdvanceFrame = -1;
 
+        private void Awake()
+        {
+            if (storyText == null)
+            {
+                storyText = GetComponentInChildren<Text>(true);
+            }
+
+            if (continueHint == null)
+            {
+                var hint = transform.Find("StoryFrame/ContinueHint");
+                continueHint = hint != null ? hint.GetComponent<Text>() : null;
+            }
+        }
+
         private void OnEnable()
         {
-            if (GameRoot.Instance != null && GameRoot.Instance.Context != null)
-            {
-                GameRoot.Instance.Context.Events.Subscribe<BlackScreenStoryStartedEvent>(HandleBlackScreenStoryStarted);
-            }
+            GameRoot.Instance?.Context?.Events.Subscribe<BlackScreenStoryStartedEvent>(HandleBlackScreenStoryStarted);
         }
 
         private void OnDisable()
         {
-            if (GameRoot.Instance != null && GameRoot.Instance.Context != null)
-            {
-                GameRoot.Instance.Context.Events.Unsubscribe<BlackScreenStoryStartedEvent>(HandleBlackScreenStoryStarted);
-            }
+            GameRoot.Instance?.Context?.Events.Unsubscribe<BlackScreenStoryStartedEvent>(HandleBlackScreenStoryStarted);
         }
 
         private void Update()
         {
-            if (string.IsNullOrEmpty(activeStoryId) || !Input.anyKeyDown)
+            if (!string.IsNullOrEmpty(activeStoryId) && Input.anyKeyDown)
             {
-                return;
+                Advance();
             }
-
-            Advance();
         }
 
         public void OnPointerClick(PointerEventData eventData) => Advance();
 
         private void HandleBlackScreenStoryStarted(BlackScreenStoryStartedEvent evt)
         {
-            var config = GameRoot.Instance.Context.Configs.GetStory(evt.StoryId);
+            var config = GameRoot.Instance?.Context?.Configs.GetStory(evt.StoryId);
             activeStoryId = evt.StoryId;
-            fullText = config != null ? config.Content : string.Empty;
+            segments.Clear();
+            segmentIndex = 0;
 
-            if (storyText != null)
+            if (config != null && !string.IsNullOrWhiteSpace(config.Content))
             {
-                storyText.text = string.Empty;
+                foreach (var segment in config.Content.Split(new[] { '▼' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    var trimmed = segment.Trim();
+                    if (!string.IsNullOrEmpty(trimmed))
+                    {
+                        segments.Add(trimmed);
+                    }
+                }
             }
 
+            if (segments.Count == 0)
+            {
+                segments.Add("……");
+            }
+
+            BeginCurrentSegment();
+        }
+
+        private void BeginCurrentSegment()
+        {
             if (revealRoutine != null)
             {
                 StopCoroutine(revealRoutine);
             }
 
+            fullText = segments[segmentIndex];
+            isRevealing = false;
+            revealRoutine = null;
+            lastAdvanceFrame = -1;
+            if (storyText != null)
+            {
+                storyText.text = string.Empty;
+            }
+
+            SetContinueHint(false);
             revealRoutine = StartCoroutine(RevealText());
         }
 
@@ -80,10 +123,12 @@ namespace MemorialArchive.Gameplay.Story.View
                 yield return new WaitForSecondsRealtime(1f / Mathf.Max(1f, charactersPerSecond));
             }
 
-            FinishReveal();
+            isRevealing = false;
+            revealRoutine = null;
+            SetContinueHint(true);
         }
 
-        private void FinishReveal()
+        private void FinishRevealImmediately()
         {
             if (revealRoutine != null)
             {
@@ -96,6 +141,32 @@ namespace MemorialArchive.Gameplay.Story.View
             {
                 storyText.text = fullText;
             }
+
+            SetContinueHint(true);
+        }
+
+        private void Advance()
+        {
+            if (string.IsNullOrEmpty(activeStoryId) || lastAdvanceFrame == Time.frameCount)
+            {
+                return;
+            }
+
+            lastAdvanceFrame = Time.frameCount;
+            if (isRevealing)
+            {
+                FinishRevealImmediately();
+                return;
+            }
+
+            if (segmentIndex < segments.Count - 1)
+            {
+                segmentIndex++;
+                BeginCurrentSegment();
+                return;
+            }
+
+            FinishStory();
         }
 
         private void FinishStory()
@@ -103,33 +174,22 @@ namespace MemorialArchive.Gameplay.Story.View
             var finishedStoryId = activeStoryId;
             activeStoryId = null;
             fullText = null;
+            segments.Clear();
             if (storyText != null)
             {
                 storyText.text = string.Empty;
             }
 
-            GameRoot.Instance.Context.Events.Publish(new BlackScreenStoryFinishedEvent(finishedStoryId));
+            SetContinueHint(false);
+            GameRoot.Instance?.Context?.Events.Publish(new BlackScreenStoryFinishedEvent(finishedStoryId));
         }
 
-        private void Advance()
+        private void SetContinueHint(bool visible)
         {
-            // A mouse click is reported both as Input.anyKeyDown and as an
-            // EventSystem pointer click. Consume it only once so one click
-            // cannot reveal and immediately close the story panel.
-            if (string.IsNullOrEmpty(activeStoryId) || lastAdvanceFrame == Time.frameCount)
+            if (continueHint != null)
             {
-                return;
+                continueHint.gameObject.SetActive(visible);
             }
-
-            lastAdvanceFrame = Time.frameCount;
-
-            if (isRevealing)
-            {
-                FinishReveal();
-                return;
-            }
-
-            FinishStory();
         }
     }
 }

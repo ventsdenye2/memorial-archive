@@ -16,6 +16,7 @@ using MemorialArchive.Gameplay.Interaction.View;
 using MemorialArchive.Gameplay.Inventory.View;
 using MemorialArchive.Gameplay.Monster.View;
 using MemorialArchive.Gameplay.Stage3;
+using MemorialArchive.Gameplay.Story.View;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -136,6 +137,7 @@ namespace MemorialArchive.Editor
         {
             EnsureFolders();
             EnsureStairTravelPanelPrefab();
+            EnsureBlackScreenStoryPanelPrefab();
             var database = EnsureDatabase();
             BuildInteractionConfigs(database);
             AssetDatabase.SaveAssets();
@@ -655,6 +657,78 @@ namespace MemorialArchive.Editor
             Object.DestroyImmediate(root);
         }
 
+        private static void EnsureBlackScreenStoryPanelPrefab()
+        {
+            var path = $"{UiPrefabRoot}/BlackScreenStoryPanel.prefab";
+            var root = new GameObject(
+                "BlackScreenStoryPanel",
+                typeof(RectTransform),
+                typeof(CanvasGroup),
+                typeof(Image),
+                typeof(BlackScreenStoryPanel),
+                typeof(BlackScreenStoryController));
+
+            var rootRect = root.GetComponent<RectTransform>();
+            rootRect.anchorMin = Vector2.zero;
+            rootRect.anchorMax = Vector2.one;
+            rootRect.offsetMin = Vector2.zero;
+            rootRect.offsetMax = Vector2.zero;
+            root.GetComponent<Image>().color = new Color(0.012f, 0.014f, 0.022f, 1f);
+
+            var title = NewUiText("ChapterTitle", root.transform, new Vector2(1080f, 70f), new Vector2(0f, 405f), "序章 · 雾中档案馆", 38);
+            title.fontStyle = FontStyle.Bold;
+            title.color = new Color(0.78f, 0.69f, 0.55f, 1f);
+
+            // Future portrait presenters can assign sprites to these reserved slots.
+            MakePortraitSlot("PortraitLeft", root.transform, new Vector2(-590f, 105f));
+            MakePortraitSlot("PortraitRight", root.transform, new Vector2(590f, 105f));
+
+            var frame = NewUiObject("StoryFrame", root.transform, new Vector2(1520f, 360f), new Vector2(0f, -315f));
+            var frameImage = frame.AddComponent<Image>();
+            frameImage.color = new Color(0.045f, 0.052f, 0.072f, 0.96f);
+
+            var frameTop = NewUiText("FrameLabel", frame.transform, new Vector2(1330f, 48f), new Vector2(0f, 128f), "档案馆记录  /  第一夜", 22);
+            frameTop.alignment = TextAnchor.MiddleLeft;
+            frameTop.color = new Color(0.62f, 0.66f, 0.70f, 1f);
+
+            var storyText = NewUiText("StoryText", frame.transform, new Vector2(1330f, 190f), new Vector2(0f, 5f), string.Empty, 32);
+            storyText.alignment = TextAnchor.UpperLeft;
+            storyText.horizontalOverflow = HorizontalWrapMode.Wrap;
+            storyText.verticalOverflow = VerticalWrapMode.Truncate;
+            storyText.lineSpacing = 1.18f;
+            storyText.color = new Color(0.91f, 0.90f, 0.85f, 1f);
+
+            var hint = NewUiText("ContinueHint", frame.transform, new Vector2(800f, 42f), new Vector2(0f, -138f), "单击鼠标或按任意键继续", 20);
+            hint.color = new Color(0.66f, 0.69f, 0.74f, 1f);
+            hint.gameObject.SetActive(false);
+
+            var panel = root.GetComponent<BlackScreenStoryPanel>();
+            var panelSo = new SerializedObject(panel);
+            panelSo.FindProperty("panelId").enumValueIndex = (int)PanelId.BlackScreenStory;
+            panelSo.FindProperty("pausesGame").boolValue = true;
+            panelSo.FindProperty("canvasGroup").objectReferenceValue = root.GetComponent<CanvasGroup>();
+            panelSo.FindProperty("startClosed").boolValue = true;
+            panelSo.ApplyModifiedPropertiesWithoutUndo();
+
+            var controller = root.GetComponent<BlackScreenStoryController>();
+            var controllerSo = new SerializedObject(controller);
+            controllerSo.FindProperty("storyText").objectReferenceValue = storyText;
+            controllerSo.FindProperty("continueHint").objectReferenceValue = hint;
+            controllerSo.FindProperty("charactersPerSecond").floatValue = 36f;
+            controllerSo.ApplyModifiedPropertiesWithoutUndo();
+
+            PrefabUtility.SaveAsPrefabAsset(root, path);
+            Object.DestroyImmediate(root);
+        }
+
+        private static void MakePortraitSlot(string name, Transform parent, Vector2 position)
+        {
+            var slot = NewUiObject(name, parent, new Vector2(520f, 720f), position);
+            var image = slot.AddComponent<Image>();
+            image.color = new Color(0.45f, 0.50f, 0.58f, 0f);
+            image.preserveAspect = true;
+        }
+
         private static GameObject NewUiObject(string name, Transform parent, Vector2 size, Vector2 position)
         {
             var go = new GameObject(name, typeof(RectTransform));
@@ -701,6 +775,14 @@ namespace MemorialArchive.Editor
             {
                 Object.DestroyImmediate(root);
             }
+
+            var cameraGo = new GameObject("StoryCamera", typeof(Camera), typeof(AudioListener));
+            SceneManager.MoveGameObjectToScene(cameraGo, scene);
+            cameraGo.tag = "MainCamera";
+            var storyCamera = cameraGo.GetComponent<Camera>();
+            storyCamera.clearFlags = CameraClearFlags.SolidColor;
+            storyCamera.backgroundColor = new Color(0.012f, 0.014f, 0.022f, 1f);
+            storyCamera.orthographic = true;
 
             var canvasGo = new GameObject("Canvas", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
             SceneManager.MoveGameObjectToScene(canvasGo, scene);

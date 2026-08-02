@@ -1,11 +1,11 @@
-using MemorialArchive.Framework.Scene;
 using UnityEngine;
 
-namespace MemorialArchive.Gameplay.Stage1
+namespace MemorialArchive.Framework.Scene
 {
-    public sealed class Stage1NamedPoint : MonoBehaviour, ISceneSpawnPoint
+    public sealed class SceneSpawnPoint : MonoBehaviour, ISceneSpawnPoint
     {
         [SerializeField] private string pointId;
+
         public string PointId => pointId;
         public Vector3 Position => transform.position;
     }

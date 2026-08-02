@@ -1,5 +1,6 @@
 using MemorialArchive.Framework.Core;
 using MemorialArchive.Framework.Event;
+using MemorialArchive.Framework.Scene;
 using MemorialArchive.Gameplay.Camera.View;
 using MemorialArchive.Gameplay.Character.Logic;
 using UnityEngine;
@@ -7,7 +8,7 @@ using UnityEngine;
 namespace MemorialArchive.Gameplay.Character.View
 {
     [RequireComponent(typeof(Rigidbody2D))]
-    public sealed class PlayerMotor : MonoBehaviour
+    public sealed class PlayerMotor : MonoBehaviour, ISceneSpawnTarget
     {
         public const float DesignUnitsToWorldUnits = 0.01f;
 
@@ -91,6 +92,28 @@ namespace MemorialArchive.Gameplay.Character.View
             body.MovePosition(body.position + velocity * Time.fixedDeltaTime);
             character.Data.position = body.position;
             GameRoot.Instance?.Context?.Events.Publish(new PlayerPositionChangedEvent(body.position));
+        }
+
+        public void MoveToSceneSpawn(Vector3 position)
+        {
+            transform.position = position;
+            if (body != null)
+            {
+                body.position = position;
+                body.velocity = Vector2.zero;
+            }
+
+            if (character == null)
+            {
+                character = GameRoot.Instance?.GetSystem<CharacterSystem>();
+            }
+
+            if (character != null)
+            {
+                character.Data.position = position;
+            }
+
+            GameRoot.Instance?.Context?.Events.Publish(new PlayerPositionChangedEvent(position));
         }
 
         private void HandleDodgeAnimationStateChanged(DodgeAnimationStateChangedEvent evt)

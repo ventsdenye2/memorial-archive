@@ -47,12 +47,17 @@ MonoBehaviour:
   - {fileID: 11400000, guid: b9494755c2ce9e842ba06e10a306003b, type: 2}
   - {fileID: 11400000, guid: e0f9a1cd4b9fde44f91e46c95b439c6d, type: 2}
   interactions:
+  - {fileID: 11400000, guid: 9dbad2ee6e150a94abac3f1ac769a345, type: 2}
+  - {fileID: 11400000, guid: 9f7d5f0b56eaae241baef336f960d389, type: 2}
+  - {fileID: 11400000, guid: 8f569ab3048434845b112384916e6201, type: 2}
+  - {fileID: 11400000, guid: 28d70ed6e6910534b9f8fdf1b1959a5e, type: 2}
+  - {fileID: 11400000, guid: fb07caa6c5310604b9f23fa486cbb57b, type: 2}
   - {fileID: 11400000, guid: d54a99a37a81e384c8467482b1e53096, type: 2}
   - {fileID: 11400000, guid: 26b1a2a58e9f4a0499efe430af0c02af, type: 2}
   - {fileID: 11400000, guid: 2d8eb14760b7ac94593e0e7b881f5307, type: 2}
-  - {fileID: 11400000, guid: bc043f2dcf183934889bd2403acf6534, type: 2}
-  - {fileID: 11400000, guid: b7960496bc0d1ab4497d8856e038a5cb, type: 2}
   - {fileID: 11400000, guid: 2992f3ba3a41632408c824e16d1b5fb1, type: 2}
+  - {fileID: 11400000, guid: b7960496bc0d1ab4497d8856e038a5cb, type: 2}
+  - {fileID: 11400000, guid: bc043f2dcf183934889bd2403acf6534, type: 2}
   puzzles: []
   stories:
   - {fileID: 11400000, guid: 57ad3a19c27d5de43a8544f1e35b4332, type: 2}

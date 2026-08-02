@@ -209,6 +209,31 @@ public readonly struct ContainerClosedEvent { }
         public string SpawnPointId { get; }
     }
 
+    public readonly struct StairTravelRequestedEvent
+    {
+        public StairTravelRequestedEvent(
+            string message,
+            string upSceneId,
+            string upSpawnPointId,
+            string downSceneId,
+            string downSpawnPointId)
+        {
+            Message = message;
+            UpSceneId = upSceneId;
+            UpSpawnPointId = upSpawnPointId;
+            DownSceneId = downSceneId;
+            DownSpawnPointId = downSpawnPointId;
+        }
+
+        public string Message { get; }
+        public string UpSceneId { get; }
+        public string UpSpawnPointId { get; }
+        public string DownSceneId { get; }
+        public string DownSpawnPointId { get; }
+        public bool CanGoUp => !string.IsNullOrEmpty(UpSceneId);
+        public bool CanGoDown => !string.IsNullOrEmpty(DownSceneId);
+    }
+
     public readonly struct InventoryChangedEvent { }
     public readonly struct ShortcutChangedEvent { }
 

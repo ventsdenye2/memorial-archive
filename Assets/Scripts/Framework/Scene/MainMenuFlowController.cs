@@ -1,7 +1,7 @@
 using MemorialArchive.Framework.Core;
 using MemorialArchive.Framework.Event;
 using MemorialArchive.Framework.UI;
-using MemorialArchive.Gameplay.Stage1;
+using MemorialArchive.Gameplay.Stage3;
 using UnityEngine;
 
 namespace MemorialArchive.Framework.Scene
@@ -29,7 +29,7 @@ namespace MemorialArchive.Framework.Scene
 
             context.UI.CloseAll();
             GameRoot.Instance.ResetForNewGame();
-            context.Events.Publish(new SceneTransitionRequestedEvent(Stage1Ids.GameplaySceneName, Stage1Ids.SpawnPoint));
+            context.Events.Publish(new SceneTransitionRequestedEvent(Stage3Ids.OpeningStorySceneName, string.Empty));
         }
 
         public void ContinueGamePlaceholder()

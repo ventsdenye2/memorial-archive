@@ -187,7 +187,16 @@ private void HandleInteractionFocusChanged(InteractionFocusChangedEvent evt)
                     context.UI.Open(PanelId.Save);
                     break;
                 case InteractionType.SceneExit:
-                    if (config != null)
+                    if (config != null && config.HasStairDestinations)
+                    {
+                        context.Events.Publish(new StairTravelRequestedEvent(
+                            config.StairPrompt,
+                            config.StairUpSceneId,
+                            config.StairUpSpawnPointId,
+                            config.StairDownSceneId,
+                            config.StairDownSpawnPointId));
+                    }
+                    else if (config != null)
                     {
                         context.Events.Publish(new SceneTransitionRequestedEvent(config.TransitionSceneId, config.TransitionSpawnPointId));
                     }

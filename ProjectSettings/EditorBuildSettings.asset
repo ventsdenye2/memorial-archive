@@ -11,4 +11,49 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/SampleScene.unity
     guid: 2cda990e2423bbf4892e6590ba056729
+  - enabled: 1
+    path: Assets/Scenes/Corridor_1F_1.unity
+    guid: 8594d8dfd60d82a44aa4e5ca3bc473ba
+  - enabled: 1
+    path: Assets/Scenes/Corridor_1F_2.unity
+    guid: 20aaccbcc81411749b76e7609abf1b6d
+  - enabled: 1
+    path: Assets/Scenes/Corridor_1F_3.unity
+    guid: 56578faeca020d1448ccac1c7ad5edcd
+  - enabled: 1
+    path: Assets/Scenes/Corridor_1F_4.unity
+    guid: 40a5b67b9823a684f959fa1736526184
+  - enabled: 1
+    path: Assets/Scenes/Corridor_2F_1.unity
+    guid: 6e25000c4b952f84d86954ee65a67e82
+  - enabled: 1
+    path: Assets/Scenes/Corridor_2F_2.unity
+    guid: 6c44824b4b4882745aa1f2c62ee4d4e9
+  - enabled: 1
+    path: Assets/Scenes/Corridor_2F_3.unity
+    guid: b965164f563edb444bcb970e56792763
+  - enabled: 1
+    path: Assets/Scenes/Corridor_2F_4.unity
+    guid: d0f2e23d9845b8040a3cf29beec75542
+  - enabled: 1
+    path: Assets/Scenes/Corridor_3F_1.unity
+    guid: 2d5cfa42c4dddb942930184b5037c400
+  - enabled: 1
+    path: Assets/Scenes/Corridor_3F_2.unity
+    guid: 25392c2f79f16094aa10a9450127057e
+  - enabled: 1
+    path: Assets/Scenes/Corridor_3F_3.unity
+    guid: 29c7c79845b10284facfe93833cecc53
+  - enabled: 1
+    path: Assets/Scenes/Corridor_3F_4.unity
+    guid: c03c0a2650391dd4bb8ab72494d2c291
+  - enabled: 1
+    path: Assets/Scenes/Corridor_4F_1.unity
+    guid: a385a180c0807ff43967fda323d62480
+  - enabled: 1
+    path: Assets/Scenes/Corridor_4F_2.unity
+    guid: 22c6c9883f4d86347a3478110b46d046
+  - enabled: 1
+    path: Assets/Scenes/OpeningStory.unity
+    guid: 794587904b56ec44494e1a36c1f67d2f
   m_configObjects: {}

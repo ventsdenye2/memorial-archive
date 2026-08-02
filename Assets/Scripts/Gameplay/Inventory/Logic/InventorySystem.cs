@@ -204,6 +204,19 @@ namespace MemorialArchive.Gameplay.Inventory.Logic
             return true;
         }
 
+public bool TryDiscardPlayerItem(string instanceId)
+{
+    var source = FindPlayerPlacement(instanceId);
+    if (source == null) return Fail(instanceId, "Item instance was not found in the player inventory.");
+    var shortcutChanged = source.containerKind == InventoryContainerKind.ShortcutBar;
+    if (shortcutChanged && playerInventory.selectedShortcutIndex == source.slotIndex) playerInventory.selectedShortcutIndex = -1;
+    playerInventory.playerItems.Remove(source);
+    if (shortcutChanged) context.Events.Publish(new ShortcutChangedEvent());
+    context.Events.Publish(new InventoryChangedEvent());
+    return true;
+}
+
+
         public bool TryMergeStack(string sourceInstanceId, string targetInstanceId)
         {
             var source = FindPlacement(sourceInstanceId);
@@ -440,6 +453,7 @@ namespace MemorialArchive.Gameplay.Inventory.Logic
         private void HandleContainerClosed(ContainerClosedEvent evt)
         {
             activeSceneContainerId = null;
+            context.Events.Publish(new InventoryChangedEvent());
         }
 
         private void HandleShortcutEquipPressed(ShortcutEquipPressedEvent evt)

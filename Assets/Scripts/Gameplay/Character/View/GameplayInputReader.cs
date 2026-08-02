@@ -6,7 +6,7 @@ namespace MemorialArchive.Gameplay.Character.View
 {
     public sealed class GameplayInputReader : MonoBehaviour
     {
-        [SerializeField] private KeyCode interactKey = KeyCode.E;
+        [SerializeField] private KeyCode interactKey = KeyCode.F;
         [SerializeField] private KeyCode dodgeKey = KeyCode.Space;
         [SerializeField] private KeyCode inventoryKey = KeyCode.Tab;
         [SerializeField] private KeyCode diaryKey = KeyCode.I;

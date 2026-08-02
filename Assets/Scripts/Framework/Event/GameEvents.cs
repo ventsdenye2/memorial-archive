@@ -93,7 +93,13 @@ namespace MemorialArchive.Framework.Event
         public string ContainerId { get; }
     }
 
-    public readonly struct ContainerClosedEvent { }
+    public readonly struct ContainerFocusChangedEvent
+    {
+        public ContainerFocusChangedEvent(string containerId) => ContainerId = containerId;
+        public string ContainerId { get; }
+    }
+
+public readonly struct ContainerClosedEvent { }
 
     public readonly struct PanelOpenedEvent
     {

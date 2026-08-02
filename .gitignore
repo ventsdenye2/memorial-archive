@@ -68,3 +68,9 @@ AGENTS.md
 # Local dev screenshots (MCP capture artifacts)
 Assets/Screenshots/
 Assets/Screenshots.meta
+
+# MCP for Unity local config (per-developer)
+.mcp.json
+
+# Third-party compiler DLLs managed by package manager
+Assets/Plugins/

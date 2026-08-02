@@ -116,22 +116,33 @@ namespace MemorialArchive.Gameplay.Interaction.Logic
             }
         }
 
-        private void HandleInteractionFocusChanged(InteractionFocusChangedEvent evt)
+private void HandleInteractionFocusChanged(InteractionFocusChangedEvent evt)
+{
+    if (evt.HasFocus)
+    {
+        focusedInteractionId = evt.InteractionId;
+        focusedInteractionType = evt.InteractionType;
+        RegisterInteraction(evt.InteractionId, evt.InteractionType);
+        if (evt.InteractionType == InteractionType.Container)
         {
-            if (evt.HasFocus)
-            {
-                focusedInteractionId = evt.InteractionId;
-                focusedInteractionType = evt.InteractionType;
-                RegisterInteraction(evt.InteractionId, evt.InteractionType);
-                return;
-            }
-
-            if (focusedInteractionId == evt.InteractionId)
-            {
-                focusedInteractionId = null;
-                focusedInteractionType = InteractionType.None;
-            }
+            var config = context.Configs.GetInteraction(evt.InteractionId);
+            context.Events.Publish(new ContainerFocusChangedEvent(GetContainerId(config, evt.InteractionId)));
         }
+        else
+        {
+            // Only ContainerPoint focus is allowed to expose SceneContainer.
+            context.Events.Publish(new ContainerFocusChangedEvent(null));
+        }
+        return;
+    }
+
+    if (focusedInteractionId == evt.InteractionId)
+    {
+        focusedInteractionId = null;
+        focusedInteractionType = InteractionType.None;
+        context.Events.Publish(new ContainerFocusChangedEvent(null));
+    }
+}
 
         private void HandleInteractPressed(InteractPressedEvent evt)
         {
@@ -157,8 +168,11 @@ namespace MemorialArchive.Gameplay.Interaction.Logic
             switch (type)
             {
                 case InteractionType.Container:
-                case InteractionType.ItemPickup:
                     context.Events.Publish(new OpenContainerRequestedEvent(GetContainerId(config, interactionId)));
+                    break;
+                case InteractionType.ItemPickup:
+                    // ItemPickup is not a scene-container interaction. Its
+                    // dedicated pickup behavior can be added independently.
                     break;
                 case InteractionType.Inspect:
                     context.Events.Publish(new InspectRequestedEvent(interactionId));

@@ -17,16 +17,9 @@ namespace MemorialArchive.Framework.UI
             TryRegister();
         }
 
-        private IEnumerator Start()
+private IEnumerator Start()
         {
-            if (registered)
-            {
-                yield break;
-            }
-
-            // Gameplay scenes normally inherit the persistent GameRoot from the
-            // main menu. Waiting also keeps direct scene loading failure explicit.
-            for (var attempts = 0; attempts < 60; attempts++)
+            while (!registered)
             {
                 if (GameRoot.Instance?.Context?.UI != null)
                 {
@@ -36,8 +29,6 @@ namespace MemorialArchive.Framework.UI
 
                 yield return null;
             }
-
-            Debug.LogError($"ScenePanelRegistry on {name} cannot find the persistent UIManager.");
         }
 
         private void OnDestroy()

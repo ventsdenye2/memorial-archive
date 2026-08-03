@@ -198,8 +198,18 @@ private void HandleInteractionFocusChanged(InteractionFocusChangedEvent evt)
                     }
                     else if (config != null)
                     {
-                        context.Events.Publish(new SceneTransitionRequestedEvent(config.TransitionSceneId, config.TransitionSpawnPointId));
+                        if (config.RequiresConfirmation)
+                        {
+                            context.Events.Publish(new RoomTravelConfirmationRequestedEvent(
+                                config.ConfirmationMessage,
+                                config.TransitionSceneId,
+                                config.TransitionSpawnPointId));
+                        }
+                        else
+                        {
+                            context.Events.Publish(new SceneTransitionRequestedEvent(config.TransitionSceneId, config.TransitionSpawnPointId));
                     }
+                        }
                     break;
                 case InteractionType.NotePickup:
                     context.Events.Publish(new NoteUnlockedEvent(config != null ? config.NoteId : interactionId));

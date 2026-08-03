@@ -25,5 +25,5 @@ MonoBehaviour:
   stairPrompt: "\u8BF7\u9009\u62E9\u524D\u5F80\u697C\u5C42"
   stairUpSceneId: 
   stairUpSpawnPointId: 
-  stairDownSceneId: Corridor_3F_1
+  stairDownSceneId: Floor_3F
   stairDownSpawnPointId: Corridor_3F_1_spawn_stairs

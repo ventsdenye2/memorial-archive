@@ -12,48 +12,48 @@ EditorBuildSettings:
     path: Assets/Scenes/SampleScene.unity
     guid: 2cda990e2423bbf4892e6590ba056729
   - enabled: 1
-    path: Assets/Scenes/Corridor_1F_1.unity
-    guid: 8594d8dfd60d82a44aa4e5ca3bc473ba
-  - enabled: 1
-    path: Assets/Scenes/Corridor_1F_2.unity
-    guid: 20aaccbcc81411749b76e7609abf1b6d
-  - enabled: 1
-    path: Assets/Scenes/Corridor_1F_3.unity
-    guid: 56578faeca020d1448ccac1c7ad5edcd
-  - enabled: 1
-    path: Assets/Scenes/Corridor_1F_4.unity
-    guid: 40a5b67b9823a684f959fa1736526184
-  - enabled: 1
-    path: Assets/Scenes/Corridor_2F_1.unity
-    guid: 6e25000c4b952f84d86954ee65a67e82
-  - enabled: 1
-    path: Assets/Scenes/Corridor_2F_2.unity
-    guid: 6c44824b4b4882745aa1f2c62ee4d4e9
-  - enabled: 1
-    path: Assets/Scenes/Corridor_2F_3.unity
-    guid: b965164f563edb444bcb970e56792763
-  - enabled: 1
-    path: Assets/Scenes/Corridor_2F_4.unity
-    guid: d0f2e23d9845b8040a3cf29beec75542
-  - enabled: 1
-    path: Assets/Scenes/Corridor_3F_1.unity
-    guid: 2d5cfa42c4dddb942930184b5037c400
-  - enabled: 1
-    path: Assets/Scenes/Corridor_3F_2.unity
-    guid: 25392c2f79f16094aa10a9450127057e
-  - enabled: 1
-    path: Assets/Scenes/Corridor_3F_3.unity
-    guid: 29c7c79845b10284facfe93833cecc53
-  - enabled: 1
-    path: Assets/Scenes/Corridor_3F_4.unity
-    guid: c03c0a2650391dd4bb8ab72494d2c291
-  - enabled: 1
-    path: Assets/Scenes/Corridor_4F_1.unity
-    guid: a385a180c0807ff43967fda323d62480
-  - enabled: 1
-    path: Assets/Scenes/Corridor_4F_2.unity
-    guid: 22c6c9883f4d86347a3478110b46d046
-  - enabled: 1
     path: Assets/Scenes/OpeningStory.unity
     guid: 794587904b56ec44494e1a36c1f67d2f
+  - enabled: 1
+    path: Assets/Scenes/Floor_1F.unity
+    guid: 478f03a90bdac664faee416373434f61
+  - enabled: 1
+    path: Assets/Scenes/Floor_2F.unity
+    guid: 989004a7de54856449975c0d08b83af3
+  - enabled: 1
+    path: Assets/Scenes/Floor_3F.unity
+    guid: abd335582da4ee94da157433112a004c
+  - enabled: 1
+    path: Assets/Scenes/Floor_4F.unity
+    guid: ec9755f8475a68f48b0d56d141aad344
+  - enabled: 1
+    path: Assets/Scenes/FrontHall.unity
+    guid: 85c45a1bebd6f304f899af96166b68f6
+  - enabled: 1
+    path: Assets/Scenes/Room_Toilet.unity
+    guid: 487282de92b7c2d48a3946d39872374f
+  - enabled: 1
+    path: Assets/Scenes/Room_Office.unity
+    guid: 54294eabb6f77b34bb0fdbf5fce7912f
+  - enabled: 1
+    path: Assets/Scenes/Room_ArchiveA.unity
+    guid: 7302be0914628564aaf1d5ffb19995bf
+  - enabled: 1
+    path: Assets/Scenes/Room_ArchiveB.unity
+    guid: 9a0077e1c370eff43b015d07368a9022
+  - enabled: 1
+    path: Assets/Scenes/Room_TreatmentA.unity
+    guid: 695e5190b73f21846b688c38d3dc4a48
+  - enabled: 1
+    path: Assets/Scenes/Room_Reception.unity
+    guid: 22169ecc502840e4b978c832bfd14d56
+  - enabled: 1
+    path: Assets/Scenes/Room_TreatmentB.unity
+    guid: b06ec0f41a206a44484a38570eb395e0
+  - enabled: 1
+    path: Assets/Scenes/Room_Director.unity
+    guid: 4447522d6e0414c409cb2ddbfbacd0c6
+  - enabled: 1
+    path: Assets/Scenes/Room_ArchiveC.unity
+    guid: 6ddae424f771fe94ea663b77edd7e662
   m_configObjects: {}

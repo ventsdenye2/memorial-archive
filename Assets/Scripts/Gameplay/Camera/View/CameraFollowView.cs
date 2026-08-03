@@ -9,8 +9,51 @@ namespace MemorialArchive.Gameplay.Camera.View
     // 实际相机跟随逻辑由 MainCamera 上的 CinemachineBrain + CM_vcam_Player 子 GO 完成。
     public sealed class CameraFollowView : MonoBehaviour
     {
+        [SerializeField] private float segmentWidth = 19.2f;
+
+        private int segmentCount;
+
         public Transform Target { get; private set; }
 
-        public void SetTarget(Transform value) => Target = value;
+        private void Awake()
+        {
+            var brain = GetComponent<Cinemachine.CinemachineBrain>();
+            if (brain != null)
+            {
+                brain.enabled = false;
+            }
+
+            segmentCount = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "Floor_4F" ? 2 : 4;
+        }
+
+        private void Start()
+        {
+            if (Target == null)
+            {
+                var player = GameObject.FindGameObjectWithTag("Player");
+                Target = player != null ? player.transform : null;
+            }
+        }
+
+        private void LateUpdate()
+        {
+            if (Target == null)
+            {
+                return;
+            }
+
+            var segmentIndex = Mathf.Clamp(
+                Mathf.FloorToInt((Target.position.x + segmentWidth * 0.5f) / segmentWidth),
+                0,
+                segmentCount - 1);
+            var cameraPosition = transform.position;
+            cameraPosition.x = segmentIndex * segmentWidth;
+            transform.position = cameraPosition;
+        }
+
+        public void SetTarget(Transform value)
+        {
+            Target = value;
+        }
     }
 }

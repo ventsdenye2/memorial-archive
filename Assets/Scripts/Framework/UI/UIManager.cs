@@ -40,6 +40,7 @@ namespace MemorialArchive.Framework.UI
             context.Events.Subscribe<OpenContainerRequestedEvent>(HandleOpenContainerRequested);
             context.Events.Subscribe<ContainerClosedEvent>(HandleContainerClosed);
             context.Events.Subscribe<StairTravelRequestedEvent>(HandleStairTravelRequested);
+            context.Events.Subscribe<RoomTravelConfirmationRequestedEvent>(HandleRoomTravelConfirmationRequested);
             context.Events.Subscribe<CharacterDiedEvent>(HandleCharacterDied);
         }
 
@@ -55,6 +56,7 @@ namespace MemorialArchive.Framework.UI
                 context.Events.Unsubscribe<OpenContainerRequestedEvent>(HandleOpenContainerRequested);
                 context.Events.Unsubscribe<ContainerClosedEvent>(HandleContainerClosed);
                 context.Events.Unsubscribe<StairTravelRequestedEvent>(HandleStairTravelRequested);
+                context.Events.Unsubscribe<RoomTravelConfirmationRequestedEvent>(HandleRoomTravelConfirmationRequested);
                 context.Events.Unsubscribe<CharacterDiedEvent>(HandleCharacterDied);
             }
 
@@ -358,6 +360,17 @@ namespace MemorialArchive.Framework.UI
             }
 
             var panel = Open(PanelId.StairTravel) as StairTravelPanel;
+            panel?.Show(evt);
+        }
+
+        private void HandleRoomTravelConfirmationRequested(RoomTravelConfirmationRequestedEvent evt)
+        {
+            if (IsOpen(PanelId.System))
+            {
+                return;
+            }
+
+            var panel = Open(PanelId.RoomTravelConfirm) as RoomTravelConfirmPanel;
             panel?.Show(evt);
         }
 

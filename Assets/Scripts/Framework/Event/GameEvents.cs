@@ -209,6 +209,20 @@ public readonly struct ContainerClosedEvent { }
         public string SpawnPointId { get; }
     }
 
+    public readonly struct RoomTravelConfirmationRequestedEvent
+    {
+        public RoomTravelConfirmationRequestedEvent(string message, string sceneId, string spawnPointId)
+        {
+            Message = message;
+            SceneId = sceneId;
+            SpawnPointId = spawnPointId;
+        }
+
+        public string Message { get; }
+        public string SceneId { get; }
+        public string SpawnPointId { get; }
+    }
+
     public readonly struct StairTravelRequestedEvent
     {
         public StairTravelRequestedEvent(

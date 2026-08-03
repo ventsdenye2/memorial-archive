@@ -61,6 +61,9 @@ namespace MemorialArchive.Framework.Event
     public readonly struct OpenMapPressedEvent { }
     public readonly struct PausePressedEvent { }
 
+    // 当前版本的临时调试入口；正式版发布前移除。
+    public readonly struct DebugModeToggledEvent { }
+
     public readonly struct ShortcutEquipPressedEvent
     {
         public ShortcutEquipPressedEvent(int slotIndex) => SlotIndex = slotIndex;

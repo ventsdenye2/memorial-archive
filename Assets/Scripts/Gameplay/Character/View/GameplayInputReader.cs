@@ -23,6 +23,12 @@ namespace MemorialArchive.Gameplay.Character.View
 
             var events = root.Context.Events;
 
+
+            // 当前版本的临时调试模式；正式版发布前移除。
+            if (Input.GetKeyDown(KeyCode.F2))
+            {
+                events.Publish(new DebugModeToggledEvent());
+            }
             PublishUiKeys(events);
             if (root.Context.UI != null && root.Context.UI.IsGameplayInputBlocked)
             {

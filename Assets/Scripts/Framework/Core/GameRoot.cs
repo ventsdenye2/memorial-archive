@@ -17,6 +17,7 @@ using UnityEngine;
 
 namespace MemorialArchive.Framework.Core
 {
+    [DefaultExecutionOrder(-10000)]
     public sealed class GameRoot : MonoBehaviour
     {
         [SerializeField] private GameConfigDatabase configDatabase;

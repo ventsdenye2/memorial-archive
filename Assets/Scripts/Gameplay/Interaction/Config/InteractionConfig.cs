@@ -16,7 +16,7 @@ namespace MemorialArchive.Gameplay.Interaction.Config
         [SerializeField] private string noteId;
         [SerializeField] private string transitionSceneId;
         [SerializeField] private string transitionSpawnPointId;
-        [SerializeField] private string stairPrompt = "请选择前往楼层";
+        [SerializeField] private string stairPrompt = "请选择目的楼层";
         [SerializeField] private bool requiresConfirmation;
         [SerializeField] private string confirmationMessage = "确认前往该房间？";
         [SerializeField] private string stairUpSceneId;

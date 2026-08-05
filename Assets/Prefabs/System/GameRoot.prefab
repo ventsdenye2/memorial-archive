@@ -785,7 +785,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c495f8c91dd72044bb9150c729ebdf1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  panelId: 14
+  panelId: 15
   pausesGame: 1
   canvasGroup: {fileID: 4164469781229940978}
   startClosed: 1

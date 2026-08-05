@@ -636,7 +636,7 @@ namespace MemorialArchive.Editor
             var bodyImage = body.AddComponent<Image>();
             bodyImage.color = new Color(0.22f, 0.14f, 0.11f, 1f);
 
-            var message = NewUiText("Message", body.transform, new Vector2(500f, 100f), new Vector2(0f, 75f), "请选择前往楼层", 30);
+            var message = NewUiText("Message", body.transform, new Vector2(500f, 100f), new Vector2(0f, 75f), "请选择目的楼层", 30);
             var up = NewUiButton("UpButton", body.transform, new Vector2(150f, 64f), new Vector2(-170f, -70f), "上楼");
             var down = NewUiButton("DownButton", body.transform, new Vector2(150f, 64f), new Vector2(0f, -70f), "下楼");
             var cancel = NewUiButton("CancelButton", body.transform, new Vector2(150f, 64f), new Vector2(170f, -70f), "取消");

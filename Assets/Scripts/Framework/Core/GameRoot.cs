@@ -12,6 +12,7 @@ using MemorialArchive.Gameplay.Item.Logic;
 using MemorialArchive.Gameplay.Monster.Logic;
 using MemorialArchive.Gameplay.Puzzle.Logic;
 using MemorialArchive.Gameplay.Story.Logic;
+using MemorialArchive.Gameplay.Dialogue.Logic;
 using UnityEngine;
 
 namespace MemorialArchive.Framework.Core
@@ -143,6 +144,7 @@ namespace MemorialArchive.Framework.Core
             RegisterSystem(new MonsterSystem());
             RegisterSystem(new PuzzleSystem());
             RegisterSystem(new StorySystem());
+            RegisterSystem(new DialogueSystem());
 
             foreach (var system in systems)
             {

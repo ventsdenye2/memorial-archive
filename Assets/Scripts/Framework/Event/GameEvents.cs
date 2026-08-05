@@ -581,4 +581,67 @@ public readonly struct ContainerClosedEvent { }
         public BlackScreenStoryFinishedEvent(string storyId) => StoryId = storyId;
         public string StoryId { get; }
     }
+
+    public readonly struct DialoguePlayRequestedEvent
+    {
+        public DialoguePlayRequestedEvent(string dialogueId) => DialogueId = dialogueId;
+        public string DialogueId { get; }
+    }
+
+    public readonly struct DialogueAdvancePressedEvent { }
+
+    public readonly struct DialogueTypewriterStateChangedEvent
+    {
+        public DialogueTypewriterStateChangedEvent(string dialogueId, int nodeIndex, bool isTyping)
+        {
+            DialogueId = dialogueId;
+            NodeIndex = nodeIndex;
+            IsTyping = isTyping;
+        }
+
+        public string DialogueId { get; }
+        public int NodeIndex { get; }
+        public bool IsTyping { get; }
+    }
+
+    public readonly struct DialogueNodePresentedEvent
+    {
+        public DialogueNodePresentedEvent(MemorialArchive.Gameplay.Dialogue.Data.DialogueNodeData node) => Node = node;
+        public MemorialArchive.Gameplay.Dialogue.Data.DialogueNodeData Node { get; }
+    }
+
+    public readonly struct DialogueBlockingEffectFinishedEvent
+    {
+        public DialogueBlockingEffectFinishedEvent(string dialogueId, int nodeIndex)
+        {
+            DialogueId = dialogueId;
+            NodeIndex = nodeIndex;
+        }
+
+        public string DialogueId { get; }
+        public int NodeIndex { get; }
+    }
+
+    public readonly struct DialogueFinishedEvent
+    {
+        public DialogueFinishedEvent(string dialogueId) => DialogueId = dialogueId;
+        public string DialogueId { get; }
+    }
+
+    public readonly struct DialoguePlaybackStateChangedEvent
+    {
+        public DialoguePlaybackStateChangedEvent(
+            string dialogueId,
+            MemorialArchive.Gameplay.Dialogue.Data.DialoguePlaybackState state,
+            bool canAdvance)
+        {
+            DialogueId = dialogueId;
+            State = state;
+            CanAdvance = canAdvance;
+        }
+
+        public string DialogueId { get; }
+        public MemorialArchive.Gameplay.Dialogue.Data.DialoguePlaybackState State { get; }
+        public bool CanAdvance { get; }
+    }
 }

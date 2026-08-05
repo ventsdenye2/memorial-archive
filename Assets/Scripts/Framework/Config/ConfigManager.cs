@@ -6,6 +6,7 @@ using MemorialArchive.Gameplay.Item.Config;
 using MemorialArchive.Gameplay.Monster.Config;
 using MemorialArchive.Gameplay.Puzzle.Config;
 using MemorialArchive.Gameplay.Story.Config;
+using MemorialArchive.Gameplay.Dialogue.Config;
 
 namespace MemorialArchive.Framework.Config
 {
@@ -19,6 +20,8 @@ namespace MemorialArchive.Framework.Config
         private readonly Dictionary<string, InteractionConfig> interactions = new Dictionary<string, InteractionConfig>();
         private readonly Dictionary<string, PuzzleConfig> puzzles = new Dictionary<string, PuzzleConfig>();
         private readonly Dictionary<string, StoryEntryConfig> stories = new Dictionary<string, StoryEntryConfig>();
+        private readonly Dictionary<string, DialogueSequenceConfig> dialogueSequences = new Dictionary<string, DialogueSequenceConfig>();
+        private readonly Dictionary<string, DialogueEffectConfig> dialogueEffects = new Dictionary<string, DialogueEffectConfig>();
 
         public ConfigManager(GameConfigDatabase database)
         {
@@ -39,6 +42,8 @@ namespace MemorialArchive.Framework.Config
             interactions.Clear();
             puzzles.Clear();
             stories.Clear();
+            dialogueSequences.Clear();
+            dialogueEffects.Clear();
         }
 
         public ItemConfig GetItem(int itemId) => items.TryGetValue(itemId, out var config) ? config : null;
@@ -48,6 +53,8 @@ namespace MemorialArchive.Framework.Config
         public InteractionConfig GetInteraction(string id) => !string.IsNullOrEmpty(id) && interactions.TryGetValue(id, out var config) ? config : null;
         public PuzzleConfig GetPuzzle(string id) => !string.IsNullOrEmpty(id) && puzzles.TryGetValue(id, out var config) ? config : null;
         public StoryEntryConfig GetStory(string id) => !string.IsNullOrEmpty(id) && stories.TryGetValue(id, out var config) ? config : null;
+        public DialogueSequenceConfig GetDialogueSequence(string id) => !string.IsNullOrEmpty(id) && dialogueSequences.TryGetValue(id, out var config) ? config : null;
+        public DialogueEffectConfig GetDialogueEffect(string id) => !string.IsNullOrEmpty(id) && dialogueEffects.TryGetValue(id, out var config) ? config : null;
 
         private void RebuildIndexes()
         {
@@ -58,6 +65,8 @@ namespace MemorialArchive.Framework.Config
             interactions.Clear();
             puzzles.Clear();
             stories.Clear();
+            dialogueSequences.Clear();
+            dialogueEffects.Clear();
 
             if (database == null)
             {
@@ -71,6 +80,8 @@ namespace MemorialArchive.Framework.Config
             AddAll(database.Interactions, interactions, interaction => interaction.InteractionId, "InteractionConfig");
             AddAll(database.Puzzles, puzzles, puzzle => puzzle.PuzzleId, "PuzzleConfig");
             AddAll(database.Stories, stories, story => story.StoryId, "StoryEntryConfig");
+            AddAll(database.DialogueSequences, dialogueSequences, sequence => sequence.DialogueId, "DialogueSequenceConfig");
+            AddAll(database.DialogueEffects, dialogueEffects, effect => effect.EffectId, "DialogueEffectConfig");
         }
 
         private static void AddAll<TKey, TValue>(IEnumerable<TValue> values, IDictionary<TKey, TValue> target, System.Func<TValue, TKey> keySelector, string label)

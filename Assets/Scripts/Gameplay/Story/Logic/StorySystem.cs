@@ -21,6 +21,7 @@ namespace MemorialArchive.Gameplay.Story.Logic
             context.Events.Subscribe<StoryUnlockedEvent>(HandleStoryUnlocked);
             context.Events.Subscribe<NoteUnlockedEvent>(HandleNoteUnlocked);
             context.Events.Subscribe<BlackScreenStoryFinishedEvent>(HandleBlackScreenStoryFinished);
+            context.Events.Subscribe<DialogueFinishedEvent>(HandleDialogueFinished);
         }
 
         public void Dispose()
@@ -30,6 +31,7 @@ namespace MemorialArchive.Gameplay.Story.Logic
                 context.Events.Unsubscribe<StoryUnlockedEvent>(HandleStoryUnlocked);
                 context.Events.Unsubscribe<NoteUnlockedEvent>(HandleNoteUnlocked);
                 context.Events.Unsubscribe<BlackScreenStoryFinishedEvent>(HandleBlackScreenStoryFinished);
+                context.Events.Unsubscribe<DialogueFinishedEvent>(HandleDialogueFinished);
             }
 
             context = null;
@@ -64,6 +66,19 @@ namespace MemorialArchive.Gameplay.Story.Logic
                 context.UI.Open(PanelId.BlackScreenStory);
                 context.Events.Publish(new BlackScreenStoryStartedEvent(storyId));
             }
+            else if (config.PresentationType == StoryPresentationType.DialogueScene)
+            {
+                if (string.IsNullOrEmpty(config.DialogueId) || string.IsNullOrEmpty(config.DialogueSceneId))
+                {
+                    Debug.LogError($"Story '{storyId}' is missing dialogueId or dialogueSceneId.");
+                    return;
+                }
+
+                context.Events.Publish(new SceneTransitionRequestedEvent(
+                    config.DialogueSceneId,
+                    config.DialogueSceneSpawnPointId));
+            }
+
         }
 
         public object CaptureSaveData()
@@ -111,5 +126,13 @@ namespace MemorialArchive.Gameplay.Story.Logic
                 context.UI.Open(PanelId.MainMenu);
             }
         }
+        private void HandleDialogueFinished(DialogueFinishedEvent evt)
+        {
+            if (!string.IsNullOrEmpty(evt.DialogueId) && !saveData.playedDialogueIds.Contains(evt.DialogueId))
+            {
+                saveData.playedDialogueIds.Add(evt.DialogueId);
+            }
+        }
+
     }
 }

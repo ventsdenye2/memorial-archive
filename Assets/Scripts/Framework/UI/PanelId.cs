@@ -15,6 +15,7 @@ namespace MemorialArchive.Framework.UI
         Load,
         ConfirmDialog,
         BlackScreenStory,
+        Dialogue,
         StairTravel,
         RoomTravelConfirm
     }

@@ -1,5 +1,6 @@
 using MemorialArchive.Framework.Core;
 using MemorialArchive.Framework.Event;
+using MemorialArchive.Gameplay.Dialogue.Logic;
 using UnityEngine;
 
 namespace MemorialArchive.Gameplay.Character.View
@@ -29,6 +30,12 @@ namespace MemorialArchive.Gameplay.Character.View
             {
                 events.Publish(new DebugModeToggledEvent());
             }
+            if (root.GetSystem<DialogueSystem>()?.IsInputModeActive == true)
+            {
+                PublishDialogueAdvance(events);
+                return;
+            }
+
             PublishUiKeys(events);
             if (root.Context.UI != null && root.Context.UI.IsGameplayInputBlocked)
             {
@@ -104,6 +111,14 @@ namespace MemorialArchive.Gameplay.Character.View
             if (Input.GetKeyDown(KeyCode.Alpha3))
             {
                 events.Publish(new ShortcutEquipPressedEvent(2));
+            }
+        }
+
+        private static void PublishDialogueAdvance(EventBus events)
+        {
+            if (Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Space))
+            {
+                events.Publish(new DialogueAdvancePressedEvent());
             }
         }
 

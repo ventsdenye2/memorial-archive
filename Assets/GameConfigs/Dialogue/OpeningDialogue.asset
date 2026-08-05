@@ -1,0 +1,461 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b5e828866df4fe3a4380a0c52f90681, type: 3}
+  m_Name: OpeningDialogue
+  m_EditorClassIdentifier: 
+  dialogueId: opening_dialogue
+  nodes:
+  - nodeId: opening_001
+    speakerId: 
+    text: "在终年大雾笼罩的伦敦旧城区深处，矗立着一栋沉默的建筑。"
+    cgCommand: 1
+    cgSprite: {fileID: 21300000, guid: 3264dbc9806adef4ca749cce7ba0f7ae, type: 3}
+    portraits:
+    - characterId: andre
+      portrait: {fileID: 0}
+      slotId: left
+      visible: 0
+      placeholderColor: {r: 0.25, g: 0.45, b: 0.8, a: 1}
+    - characterId: father
+      portrait: {fileID: 0}
+      slotId: right
+      visible: 0
+      placeholderColor: {r: 0.45, g: 0.32, b: 0.2, a: 1}
+    - characterId: mother
+      portrait: {fileID: 0}
+      slotId: right
+      visible: 0
+      placeholderColor: {r: 0.62, g: 0.28, b: 0.35, a: 1}
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_002
+    speakerId: 
+    text: "在市政厅的公开地图上，它只是一座普通的私人档案馆。在官方的描述中，那不过是用来堆放霉烂旧书、过期病历与废弃信件的荒凉处所。"
+    cgCommand: 0
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_003
+    speakerId: 
+    text: "然而，"
+    cgCommand: 0
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_004
+    speakerId: 
+    text: "在旧城区的暗巷里，关于它的传闻从未停止过。"
+    cgCommand: 0
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_005
+    speakerId: 
+    text: "那些神色惊恐的巡夜人发誓，他们曾隔着铁窗，看到成群穿着苍白病号服的怪人，用一种近乎折断关节的诡异姿态，神色癫狂地向后倒着跑。"
+    cgCommand: 0
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_006
+    speakerId: 
+    text: "有人在酒馆里低声散布，说那座档案馆是一座活人囚笼。深夜里，总有密不透风的黑色马车从西区驶来，车里抬下的不是疯掉的伯爵，就是穿着丝绸长裙却满头鲜血的贵族小姐。"
+    cgCommand: 0
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_007
+    speakerId: 
+    text: "当然，大不列颠的法律需要真凭实据，而这些传言，早就随着知情者的失踪而无处可查了。"
+    cgCommand: 0
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_008
+    speakerId: 
+    text: "直到多年前的某个夜晚，那栋大楼里似乎爆发了一场无法挽回的变故。"
+    cgCommand: 0
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_009
+    speakerId: 
+    text: "传言说里面所有的人都在那一夜凭空蒸发了，随后政府便永久关停了这里，像躲避瘟疫一样抹掉了它在官方的所有记录。"
+    cgCommand: 0
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_010
+    speakerId: 
+    text: "一堵冰冷的青砖墙彻底砌死了它的正门，自那以后，那座档案馆沦为雾都人人避之不及的禁忌。"
+    cgCommand: 0
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_011
+    speakerId: 
+    text: "人们说，每当深夜路过那栋建筑，湿冷的墙壁后面会传来不属于活人的细碎低语、冰冷的翻书声、还有……"
+    cgCommand: 0
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_012
+    speakerId: 
+    text: "那栋楼在雾夜里，所有人都被吃掉了。"
+    cgCommand: 0
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_013
+    speakerId: 
+    text: "政府砌死了大门，抹去名讳。"
+    cgCommand: 0
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_014
+    speakerId: 
+    text: "雾都的深夜里，时至今日。"
+    cgCommand: 0
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_015
+    speakerId: 
+    text: "歇斯底里的人们，总在废墟外听到长廊尽头的呼唤。"
+    cgCommand: 0
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_016
+    speakerId: 
+    text: "……"
+    cgCommand: 1
+    cgSprite: {fileID: 21300000, guid: 3523a3f3c77fb95448961dcebc930631, type: 3}
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_017
+    speakerId: andre
+    text: "我叫安德·比尔，一名私家侦探。"
+    cgCommand: 0
+    portraits:
+    - characterId: andre
+      portrait: {fileID: 0}
+      slotId: left
+      visible: 1
+      placeholderColor: {r: 0.25, g: 0.45, b: 0.8, a: 1}
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_018
+    speakerId: andre
+    text: "最近一个月，伦敦有八个热衷于冒险的年轻人在那座废弃的档案馆附近失踪。"
+    cgCommand: 0
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_019
+    speakerId: andre
+    text: "没有人知道那群年轻人是怎么消失的。苏格兰场那些高高在上的巡警们甚至懒得去现场勘验。"
+    cgCommand: 0
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_020
+    speakerId: andre
+    text: "在一叠叠被草草归档的失踪报告里，唯一的线索，是一句被认为是在梦呓的模糊证言："
+    cgCommand: 0
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_021
+    speakerId: andre
+    text: "在深夜死寂的浓雾里，那些年轻人像提线木偶般推门走入大楼，只留下一个似人非人的模糊背影。随后，他们便人间蒸发，如同被那栋黑色的建筑生吞一般，再无音讯。"
+    cgCommand: 1
+    cgSprite: {fileID: 21300000, guid: 5c049d0cba7e4ba4db252da0185767e3, type: 3}
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_022
+    speakerId: andre
+    text: "今晚，雷雨交加，第九个委托人敲响了我的房门。那是一对濒临崩溃的父母。他们身上的大衣被暴雨彻底浇透，湿漉漉地站在门廊里。"
+    cgCommand: 0
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_023
+    speakerId: andre
+    text: "那位母亲脸色惨白，浑身颤抖，连一句完整的话都说不出来。"
+    cgCommand: 0
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_024
+    speakerId: andre
+    text: "父亲则摘下礼帽，甚至来不及擦掉脸上的雨水，用一种近乎哀求的绝望眼神望着我。他将一本边缘磨损的旧日记递了过来。"
+    cgCommand: 0
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_025
+    speakerId: father
+    text: "比尔先生……求您。"
+    cgCommand: 0
+    portraits:
+    - characterId: father
+      portrait: {fileID: 0}
+      slotId: right
+      visible: 1
+      placeholderColor: {r: 0.45, g: 0.32, b: 0.2, a: 1}
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_026
+    speakerId: father
+    text: "父亲的声音沙哑得像两块砂纸在摩擦。"
+    cgCommand: 0
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_027
+    speakerId: father
+    text: "苏格兰场的那帮蠢货，声称我的儿子是和下等阶层的无名女子私奔了！但我们做父母的清楚，阿尔伯特绝没有那样自甘堕落，他是去那栋该死的大楼了！……他在写字台留下了这个！……比尔先生，他在日记中提到了您。"
+    cgCommand: 0
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_028
+    speakerId: mother
+    text: "母亲终于无法抑制地抽泣起来，用手绢捂住嘴。"
+    cgCommand: 0
+    portraits:
+    - characterId: mother
+      portrait: {fileID: 0}
+      slotId: right
+      visible: 1
+      placeholderColor: {r: 0.62, g: 0.28, b: 0.35, a: 1}
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_029
+    speakerId: mother
+    text: "求求您！比尔先生……我们不知道该找谁了！……"
+    cgCommand: 0
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_030
+    speakerId: andre
+    text: "轰。"
+    cgCommand: 1
+    cgSprite: {fileID: 21300000, guid: 095d40aaa446a014e91fa113e8c88471, type: 3}
+    portraits: []
+    effectIds:
+    - opening_thunder
+    blocksAdvance: 1
+  - nodeId: opening_031
+    speakerId: andre
+    text: "10月13日，大雨。它又在呼喊我了。我听到有人在档案馆深处喊我的名字！……和安德侦探以前提过的那个声音，一模一样……"
+    cgCommand: 0
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_032
+    speakerId: andre
+    text: "一道闪电劈开夜空，照亮了办公桌上散乱的调查笔记。"
+    cgCommand: 1
+    cgSprite: {fileID: 21300000, guid: 5c049d0cba7e4ba4db252da0185767e3, type: 3}
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_033
+    speakerId: andre
+    text: "我认识日记的主人。"
+    cgCommand: 1
+    cgSprite: {fileID: 21300000, guid: 3523a3f3c77fb95448961dcebc930631, type: 3}
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_034
+    speakerId: andre
+    text: "阿尔伯特，一个经常来我这儿兜售旧报纸和小道消息的年轻人。半个月前，他曾神色古怪地向我打听那些失踪者的下落。"
+    cgCommand: 0
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_035
+    speakerId: andre
+    text: "那时我喝醉了。在酒精的作用下，我向他讲述了反复折磨我十年的那个梦魇：档案馆黑暗的走廊、堆到天花板的病历、忽明忽暗的煤气灯……深渊里那个模糊的声音，一直在叫着我的名字。"
+    cgCommand: 0
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_036
+    speakerId: andre
+    text: "“安德……安德……”"
+    cgCommand: 0
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_037
+    speakerId: andre
+    text: "像是两块滑腻的、饱含水分的腐肉在阴冷的岩石上反复摩擦。它毫无抑扬顿挫的声调可言，音节之间生硬地黏连在一起，干瘪、空洞，却带着一种近乎恶意的、不属于活人的狂热。"
+    cgCommand: 0
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_038
+    speakerId: andre
+    text: "当时我想借着酒意吓退这个好奇心过剩的年轻人。可他不仅没被吓退，反而循着我的噩梦，走向了那片黑色的阴影。"
+    cgCommand: 0
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_039
+    speakerId: andre
+    text: "我盯着办公桌上那本湿冷的日记。"
+    cgCommand: 0
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_040
+    speakerId: andre
+    text: "一个受过严格思维训练的私家侦探，绝不该被一个荒诞的梦魇牵着鼻子走，更不该在毫无准备的深夜，只身闯入一栋让九个人间蒸发的建筑。"
+    cgCommand: 0
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_041
+    speakerId: andre
+    text: "理智在疯狂叫嚣。这是个致命的精神圈套，可内心深处的矛盾与不安，却疯狂地催促着我去直面那个蚕食我十年的梦魇。"
+    cgCommand: 0
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_042
+    speakerId: andre
+    text: "我没有再给自己犹豫的时间。我拿上那把制式格斗匕首，提上黄铜手提灯，穿过被雨水与浓雾浸透的伦敦街区。"
+    cgCommand: 0
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_043
+    speakerId: andre
+    text: "当我推开外围那座虚掩的黑色哥特式铁门，档案馆的轮廓在夜色中像一具巨大的黑色棺椁。"
+    cgCommand: 1
+    cgSprite: {fileID: 21300000, guid: b8a02d68f1be6b243ba332f6bee81597, type: 3}
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_044
+    speakerId: andre
+    text: "来到近前，原本的大门早就被一堵厚重的青砖墙砌死。但在墙角一侧，原本坚固的砖石不知何时被人强行砸开了一道仅容一人通过的缺口。"
+    cgCommand: 0
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_045
+    speakerId: andre
+    text: "断裂的砖缝里，还残留着干涸的黑色抓痕。一股带着霉烂和冰冷药水味的陈旧气息，正顺着那道黑暗的缝隙缓缓往外吐着寒气。"
+    cgCommand: 0
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_046
+    speakerId: andre
+    text: "寂静中，雨水拍打着破碎的露台。"
+    cgCommand: 0
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_047
+    speakerId: andre
+    text: "我听见墙壁后面传来了犹如无数纸页在黑暗中摩擦的沙沙声，以及沉重的、拖沓的、一步步朝大门走来的……脚步声。"
+    cgCommand: 1
+    cgSprite: {fileID: 21300000, guid: 3523a3f3c77fb95448961dcebc930631, type: 3}
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_048
+    speakerId: andre
+    text: "我确信那绝不是活人发出的声音。"
+    cgCommand: 0
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_049
+    speakerId: andre
+    text: "我侧身跨过了缺口。"
+    cgCommand: 0
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_050
+    speakerId: andre
+    text: "脚步落地的刹那，一股剧烈的恶寒从我的脊椎尾端直冲大脑，耳边的暴雨声骤然消失。我猛地回头，手提灯的光晕照过去。"
+    cgCommand: 0
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_051
+    speakerId: andre
+    text: "没有缺口，没有雷雨。我的身后，只有一堵冰冷、干燥、连一丝缝隙都没有的青砖死墙。"
+    cgCommand: 0
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_052
+    speakerId: andre
+    text: "三秒钟前，我侧身跨过缺口时，暴雨夹杂着泥土的腥味还扑在我的风衣领口。但现在，那面墙平滑得令人发指，如自百年前起便如此严整，不曾有过让我佝偻通过的痕迹。"
+    cgCommand: 0
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_053
+    speakerId: andre
+    text: "我走上前，摘下右手的手套，指关节抵上冰冷的砖石，用力叩击。"
+    cgCommand: 0
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_054
+    speakerId: andre
+    text: "深处传来骨骼撞击石块的钝响。要是留在这里用蛮力破墙，恐怕不等苏格兰场的人找到这，现场就会躺着一具满手墙粉、指甲翻裂的尸体。"
+    cgCommand: 0
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_055
+    speakerId: andre
+    text: "冷静下来，安德。恐慌也没用，后路被堵死，现在唯一的选择就是向前探索。这么大的档案馆，总得有个后门或者暗道吧。"
+    cgCommand: 0
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_056
+    speakerId: andre
+    text: "我转过身，重新戴上手套，提亮煤气灯的阀门，勉强照亮了小范围黑暗。"
+    cgCommand: 0
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_057
+    speakerId: andre
+    text: "依据官方的资料，此处区域应当是前厅展览馆。空间比从外面看要庞大得多。"
+    cgCommand: 0
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0
+  - nodeId: opening_058
+    speakerId: andre
+    text: "我深吸一口气，迈出了第一步。"
+    cgCommand: 0
+    portraits: []
+    effectIds: []
+    blocksAdvance: 0

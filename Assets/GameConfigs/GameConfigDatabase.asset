@@ -81,3 +81,7 @@ MonoBehaviour:
   puzzles: []
   stories:
   - {fileID: 11400000, guid: 57ad3a19c27d5de43a8544f1e35b4332, type: 2}
+  dialogueSequences:
+  - {fileID: 11400000, guid: 5ce1565c6b4e4a2eb04c83594f6c5a6f, type: 2}
+  dialogueEffects:
+  - {fileID: 11400000, guid: 7ea1a8af57b846dc81c6fb6640c7ce92, type: 2}

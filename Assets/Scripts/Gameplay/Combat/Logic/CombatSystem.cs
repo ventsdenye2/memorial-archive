@@ -25,6 +25,7 @@ namespace MemorialArchive.Gameplay.Combat.Logic
         private Vector2 aimWorldPosition;
         private Vector2 playerPosition;
         private int nextAttackInstanceId;
+        private float meleeDamageMultiplier = 1f;
 
         public bool IsAiming => isAiming;
         public Vector2 AimWorldPosition => aimWorldPosition;
@@ -41,6 +42,7 @@ namespace MemorialArchive.Gameplay.Combat.Logic
             context.Events.Subscribe<CombatAttackLifetimeRequestedEvent>(HandleCombatAttackLifetimeRequested);
             context.Events.Subscribe<DamageRequestedEvent>(HandleDamageRequested);
             context.Events.Subscribe<PlayerPositionChangedEvent>(HandlePlayerPositionChanged);
+            context.Events.Subscribe<CharacterCombatModifiersChangedEvent>(HandleCharacterCombatModifiersChanged);
         }
 
         public void Dispose()
@@ -56,6 +58,7 @@ namespace MemorialArchive.Gameplay.Combat.Logic
                 context.Events.Unsubscribe<CombatAttackLifetimeRequestedEvent>(HandleCombatAttackLifetimeRequested);
                 context.Events.Unsubscribe<DamageRequestedEvent>(HandleDamageRequested);
                 context.Events.Unsubscribe<PlayerPositionChangedEvent>(HandlePlayerPositionChanged);
+                context.Events.Unsubscribe<CharacterCombatModifiersChangedEvent>(HandleCharacterCombatModifiersChanged);
             }
 
             context = null;
@@ -63,6 +66,7 @@ namespace MemorialArchive.Gameplay.Combat.Logic
             isAiming = false;
             aimWorldPosition = Vector2.zero;
             playerPosition = Vector2.zero;
+            meleeDamageMultiplier = 1f;
             pendingAttacks.Clear();
             damageModifiers.Clear();
         }
@@ -73,6 +77,7 @@ namespace MemorialArchive.Gameplay.Combat.Logic
             isAiming = false;
             aimWorldPosition = Vector2.zero;
             playerPosition = Vector2.zero;
+            meleeDamageMultiplier = 1f;
             nextAttackInstanceId = 0;
             pendingAttacks.Clear();
             damageModifiers.Clear();
@@ -130,6 +135,11 @@ namespace MemorialArchive.Gameplay.Combat.Logic
             playerPosition = evt.Position;
         }
 
+        private void HandleCharacterCombatModifiersChanged(CharacterCombatModifiersChangedEvent evt)
+        {
+            meleeDamageMultiplier = evt.MeleeDamageMultiplier;
+        }
+
         private void HandleCharacterAttackRequested(CharacterAttackRequestedEvent evt)
         {
             if (selectedItem == null || selectedItem.itemId != evt.ItemId)
@@ -153,7 +163,7 @@ namespace MemorialArchive.Gameplay.Combat.Logic
                 config.ItemId,
                 config.CombatAttackKind,
                 config.DamageType,
-                config.Damage,
+                config.Damage * (config.CombatAttackKind == CombatAttackKind.Melee ? meleeDamageMultiplier : 1f),
                 config.AttackRange,
                 playerPosition,
                 evt.Direction,

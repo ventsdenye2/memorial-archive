@@ -373,6 +373,10 @@ namespace MemorialArchive.Gameplay.Character.View
             if (skeletonAnimation == null || data == null) return null;
             if (skeletonAnimation.skeletonDataAsset != data || skeletonAnimation.state == null)
             {
+                // Spine's renderer performs a LateUpdate while rebuilding the skeleton.
+                // Clear tracks first so timelines from the previous skeleton are not
+                // evaluated against the new skeleton's bone/slot layout.
+                skeletonAnimation.ClearState();
                 skeletonAnimation.skeletonDataAsset = data;
                 skeletonAnimation.Initialize(true);
             }

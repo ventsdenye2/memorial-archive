@@ -7,12 +7,13 @@ namespace MemorialArchive.Gameplay.Character.View
 {
     public sealed class GameplayInputReader : MonoBehaviour
     {
-        [SerializeField] private KeyCode interactKey = KeyCode.F;
         [SerializeField] private KeyCode dodgeKey = KeyCode.Space;
         [SerializeField] private KeyCode inventoryKey = KeyCode.Tab;
         [SerializeField] private KeyCode diaryKey = KeyCode.I;
         [SerializeField] private KeyCode mapKey = KeyCode.M;
         [SerializeField] private KeyCode reloadKey = KeyCode.R;
+        [SerializeField] private KeyCode interactKey = KeyCode.E;
+        [SerializeField] private KeyCode sceneTransitionKey = KeyCode.F;
 
         private void Update()
         {
@@ -55,7 +56,7 @@ namespace MemorialArchive.Gameplay.Character.View
                 events.Publish(new PrimaryActionPressedEvent());
             }
 
-            if (Input.GetKeyDown(interactKey))
+            if (Input.GetKeyDown(interactKey) || Input.GetKeyDown(sceneTransitionKey))
             {
                 events.Publish(new InteractPressedEvent());
             }

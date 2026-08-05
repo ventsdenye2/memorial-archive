@@ -3,6 +3,7 @@ using MemorialArchive.Gameplay.Inventory.Data;
 using MemorialArchive.Gameplay.Combat.Data;
 using MemorialArchive.Gameplay.Character.Data;
 using MemorialArchive.Gameplay.Item.Config;
+using MemorialArchive.Gameplay.Item.Data;
 using MemorialArchive.Gameplay.Monster.Data;
 using MemorialArchive.Framework.UI;
 using UnityEngine;
@@ -282,6 +283,21 @@ public readonly struct ContainerClosedEvent { }
         public InventoryItemInstance Item { get; }
     }
 
+    /// <summary>Requests consumption of one concrete inventory item instance.</summary>
+    public readonly struct InventoryItemConsumeRequestedEvent
+    {
+        public InventoryItemConsumeRequestedEvent(string instanceId, int itemId = 0, string effectId = null)
+        {
+            InstanceId = instanceId;
+            ItemId = itemId;
+            EffectId = effectId;
+        }
+
+        public string InstanceId { get; }
+        public int ItemId { get; }
+        public string EffectId { get; }
+    }
+
     public readonly struct ItemUseFailedEvent
     {
         public ItemUseFailedEvent(int itemId, string reason)
@@ -304,6 +320,43 @@ public readonly struct ContainerClosedEvent { }
 
         public int ItemId { get; }
         public string EffectId { get; }
+    }
+
+    /// <summary>Typed character effect created by ItemEffectSystem from an item configuration.</summary>
+    public readonly struct CharacterItemEffectRequestedEvent
+    {
+        public CharacterItemEffectRequestedEvent(int itemId, ItemEffectData effect)
+        {
+            ItemId = itemId;
+            Effect = effect;
+        }
+
+        public int ItemId { get; }
+        public ItemEffectData Effect { get; }
+    }
+
+    /// <summary>Notifies presentation after a consumable instance was actually removed from inventory.</summary>
+    public readonly struct ConsumableUsedEvent
+    {
+        public ConsumableUsedEvent(int itemId, string effectId)
+        {
+            ItemId = itemId;
+            EffectId = effectId;
+        }
+
+        public int ItemId { get; }
+        public string EffectId { get; }
+    }
+
+    /// <summary>Character-owned temporary modifiers consumed by CombatSystem.</summary>
+    public readonly struct CharacterCombatModifiersChangedEvent
+    {
+        public CharacterCombatModifiersChangedEvent(float meleeDamageMultiplier)
+        {
+            MeleeDamageMultiplier = Mathf.Max(0f, meleeDamageMultiplier);
+        }
+
+        public float MeleeDamageMultiplier { get; }
     }
 
     public readonly struct AmmoReloadRequestedEvent

@@ -40,7 +40,7 @@ namespace MemorialArchive.Gameplay.Combat.Data
             int weaponItemId,
             CombatAttackKind attackKind,
             DamageType damageType,
-            int baseDamage,
+            float baseDamage,
             float range,
             Vector2 origin,
             Vector2 direction,
@@ -67,7 +67,7 @@ namespace MemorialArchive.Gameplay.Combat.Data
         public int WeaponItemId { get; }
         public CombatAttackKind AttackKind { get; }
         public DamageType DamageType { get; }
-        public int BaseDamage { get; }
+        public float BaseDamage { get; }
         public float Range { get; }
         public Vector2 Origin { get; }
         public Vector2 Direction { get; }

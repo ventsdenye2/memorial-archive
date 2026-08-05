@@ -78,6 +78,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 2992f3ba3a41632408c824e16d1b5fb1, type: 2}
   - {fileID: 11400000, guid: b7960496bc0d1ab4497d8856e038a5cb, type: 2}
   - {fileID: 11400000, guid: bc043f2dcf183934889bd2403acf6534, type: 2}
+  - {fileID: 11400000, guid: fcfb8ea924841d24da2df150f86c145e, type: 2}
   puzzles: []
   stories:
   - {fileID: 11400000, guid: 57ad3a19c27d5de43a8544f1e35b4332, type: 2}

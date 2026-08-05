@@ -11,15 +11,36 @@ namespace MemorialArchive.Framework.UI
 
         private readonly Stack<BasePanel> panelStack = new Stack<BasePanel>();
         private GameContext context;
+        private string focusedContainerId;
 
-        public void Initialize(GameContext context)
+        public bool IsGameplayInputBlocked
         {
-            this.context = context;
+            get
+            {
+                foreach (var panel in panelStack)
+                {
+                    if (panel != null && panel.IsOpen && panel.PanelId != PanelId.Hud)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+        }
+
+        public void Initialize(GameContext gameContext)
+        {
+            context = gameContext;
             context.Events.Subscribe<OpenInventoryPressedEvent>(HandleOpenInventoryPressed);
             context.Events.Subscribe<OpenDiaryPressedEvent>(HandleOpenDiaryPressed);
             context.Events.Subscribe<OpenMapPressedEvent>(HandleOpenMapPressed);
             context.Events.Subscribe<PausePressedEvent>(HandlePausePressed);
+            context.Events.Subscribe<ContainerFocusChangedEvent>(HandleContainerFocusChanged);
             context.Events.Subscribe<OpenContainerRequestedEvent>(HandleOpenContainerRequested);
+            context.Events.Subscribe<ContainerClosedEvent>(HandleContainerClosed);
+            context.Events.Subscribe<StairTravelRequestedEvent>(HandleStairTravelRequested);
+            context.Events.Subscribe<RoomTravelConfirmationRequestedEvent>(HandleRoomTravelConfirmationRequested);
             context.Events.Subscribe<CharacterDiedEvent>(HandleCharacterDied);
         }
 
@@ -31,15 +52,91 @@ namespace MemorialArchive.Framework.UI
                 context.Events.Unsubscribe<OpenDiaryPressedEvent>(HandleOpenDiaryPressed);
                 context.Events.Unsubscribe<OpenMapPressedEvent>(HandleOpenMapPressed);
                 context.Events.Unsubscribe<PausePressedEvent>(HandlePausePressed);
+                context.Events.Unsubscribe<ContainerFocusChangedEvent>(HandleContainerFocusChanged);
                 context.Events.Unsubscribe<OpenContainerRequestedEvent>(HandleOpenContainerRequested);
+                context.Events.Unsubscribe<ContainerClosedEvent>(HandleContainerClosed);
+                context.Events.Unsubscribe<StairTravelRequestedEvent>(HandleStairTravelRequested);
+                context.Events.Unsubscribe<RoomTravelConfirmationRequestedEvent>(HandleRoomTravelConfirmationRequested);
                 context.Events.Unsubscribe<CharacterDiedEvent>(HandleCharacterDied);
             }
 
+            CloseAll();
+            focusedContainerId = null;
             context = null;
+        }
+
+        public void RegisterScenePanels(IEnumerable<BasePanel> scenePanels)
+        {
+            if (scenePanels == null)
+            {
+                return;
+            }
+
+            foreach (var panel in scenePanels)
+            {
+                if (panel == null)
+                {
+                    continue;
+                }
+
+                foreach (var existing in panels.ToArray())
+                {
+                    if (existing == null || existing == panel || existing.PanelId != panel.PanelId)
+                    {
+                        continue;
+                    }
+
+                    existing.Close();
+                    RebuildStackWithout(existing);
+                }
+
+                panels.RemoveAll(existing => existing == null || existing.PanelId == panel.PanelId);
+                panels.Add(panel);
+            }
+
+            ApplyPauseState();
+        }
+
+        public void UnregisterScenePanels(IEnumerable<BasePanel> scenePanels)
+        {
+            if (scenePanels == null)
+            {
+                return;
+            }
+
+            foreach (var panel in scenePanels)
+            {
+                if (panel == null)
+                {
+                    continue;
+                }
+
+                if (panel.IsOpen)
+                {
+                    panel.Close();
+                    RebuildStackWithout(panel);
+                    context?.Events.Publish(new PanelClosedEvent(panel.PanelId));
+                }
+
+                panels.Remove(panel);
+            }
+
+            ApplyPauseState();
         }
 
         public BasePanel Open(PanelId panelId)
         {
+            if (panelId == PanelId.Inventory && !string.IsNullOrEmpty(focusedContainerId))
+            {
+                context?.Events.Publish(new OpenContainerRequestedEvent(focusedContainerId));
+                return FindPanel(PanelId.Inventory);
+            }
+
+            if (panelId == PanelId.Inventory)
+            {
+                context?.Events.Publish(new ContainerClosedEvent());
+            }
+
             var panel = FindPanel(panelId);
             if (panel == null)
             {
@@ -52,14 +149,29 @@ namespace MemorialArchive.Framework.UI
                 return panel;
             }
 
-            panel.Open();
-            panelStack.Push(panel);
-            ApplyPauseState();
-            return panel;
+            if (panelId == PanelId.Hud)
+            {
+                return OpenDirect(panel);
+            }
+
+            // Esc is a hard modal. It must be closed before any other panel opens.
+            if (IsOpen(PanelId.System) && panelId != PanelId.System)
+            {
+                return null;
+            }
+
+            CloseForExclusiveOpen(panelId);
+            return OpenDirect(panel);
         }
 
         public void Close(PanelId panelId)
         {
+            if (panelId == PanelId.Inventory && IsContainerGroupOpen())
+            {
+                CloseContainerGroup();
+                return;
+            }
+
             var panel = FindPanel(panelId);
             if (panel == null)
             {
@@ -68,11 +180,63 @@ namespace MemorialArchive.Framework.UI
 
             panel.Close();
             RebuildStackWithout(panel);
+            context?.Events.Publish(new PanelClosedEvent(panelId));
+            ApplyPauseState();
+        }
+
+        public void Toggle(PanelId panelId)
+        {
+            if (IsOpen(panelId))
+            {
+                Close(panelId);
+            }
+            else
+            {
+                Open(panelId);
+            }
+        }
+
+        public bool IsOpen(PanelId panelId)
+        {
+            var panel = FindPanel(panelId);
+            return panel != null && panel.IsOpen;
+        }
+
+        public void CloseAll()
+        {
+            var hadContainerGroup = IsContainerGroupOpen();
+            while (panelStack.Count > 0)
+            {
+                var panel = panelStack.Pop();
+                if (panel != null && panel.IsOpen)
+                {
+                    panel.Close();
+                }
+            }
+
+            var hud = FindPanel(PanelId.Hud);
+            if (hud != null && hud.IsOpen)
+            {
+                hud.Close();
+                context?.Events.Publish(new PanelClosedEvent(PanelId.Hud));
+            }
+
+            if (hadContainerGroup)
+            {
+                context?.Events.Publish(new ContainerClosedEvent());
+            }
+
             ApplyPauseState();
         }
 
         public void CloseTop()
         {
+            if (IsContainerGroupOpen())
+            {
+                CloseContainerGroup();
+                return;
+            }
+
             if (panelStack.Count == 0)
             {
                 return;
@@ -80,12 +244,56 @@ namespace MemorialArchive.Framework.UI
 
             var panel = panelStack.Pop();
             panel.Close();
+            context?.Events.Publish(new PanelClosedEvent(panel.PanelId));
             ApplyPauseState();
         }
 
-        private BasePanel FindPanel(PanelId panelId)
+        private BasePanel FindPanel(PanelId panelId) =>
+            panels.Find(panel => panel != null && panel.PanelId == panelId);
+
+        private BasePanel OpenDirect(BasePanel panel)
         {
-            return panels.Find(panel => panel != null && panel.PanelId == panelId);
+            if (panel == null)
+            {
+                return null;
+            }
+
+            panel.Open();
+            if (panel.PanelId != PanelId.Hud)
+            {
+                panelStack.Push(panel);
+            }
+
+            context?.Events.Publish(new PanelOpenedEvent(panel.PanelId));
+            ApplyPauseState();
+            return panel;
+        }
+
+        private void CloseForExclusiveOpen(PanelId openingPanelId)
+        {
+            if (openingPanelId == PanelId.Hud)
+            {
+                return;
+            }
+
+            if (IsContainerGroupOpen())
+            {
+                CloseContainerGroup();
+            }
+
+            foreach (var openPanel in panelStack.ToArray())
+            {
+                if (openPanel == null || !openPanel.IsOpen || openPanel.PanelId == openingPanelId)
+                {
+                    continue;
+                }
+
+                openPanel.Close();
+                context?.Events.Publish(new PanelClosedEvent(openPanel.PanelId));
+            }
+
+            panelStack.Clear();
+            ApplyPauseState();
         }
 
         private void RebuildStackWithout(BasePanel removedPanel)
@@ -110,7 +318,7 @@ namespace MemorialArchive.Framework.UI
         {
             foreach (var panel in panelStack)
             {
-                if (panel != null && panel.IsOpen && panel.PausesGame)
+                if (panel != null && panel.IsOpen && panel.PanelId != PanelId.Hud)
                 {
                     Time.timeScale = 0f;
                     return;
@@ -120,36 +328,88 @@ namespace MemorialArchive.Framework.UI
             Time.timeScale = 1f;
         }
 
-        private void HandleOpenInventoryPressed(OpenInventoryPressedEvent evt)
-        {
-            Open(PanelId.Inventory);
-        }
+        private void HandleOpenInventoryPressed(OpenInventoryPressedEvent evt) => Toggle(PanelId.Inventory);
+        private void HandleOpenDiaryPressed(OpenDiaryPressedEvent evt) => Toggle(PanelId.Diary);
+        private void HandleOpenMapPressed(OpenMapPressedEvent evt) => Toggle(PanelId.Map);
+        private void HandlePausePressed(PausePressedEvent evt) => Toggle(PanelId.System);
+        private void HandleCharacterDied(CharacterDiedEvent evt) => Open(PanelId.Load);
 
-        private void HandleOpenDiaryPressed(OpenDiaryPressedEvent evt)
+        private void HandleContainerFocusChanged(ContainerFocusChangedEvent evt)
         {
-            Open(PanelId.Diary);
-        }
-
-        private void HandleOpenMapPressed(OpenMapPressedEvent evt)
-        {
-            Open(PanelId.Map);
-        }
-
-        private void HandlePausePressed(PausePressedEvent evt)
-        {
-            Open(PanelId.System);
+            focusedContainerId = evt.ContainerId;
         }
 
         private void HandleOpenContainerRequested(OpenContainerRequestedEvent evt)
         {
-            Open(PanelId.Container);
-            Open(PanelId.Inventory);
-            Open(PanelId.ShortcutBar);
+            if (!IsOpen(PanelId.System))
+            {
+                OpenContainerGroup();
+            }
         }
 
-        private void HandleCharacterDied(CharacterDiedEvent evt)
+        private void HandleContainerClosed(ContainerClosedEvent evt)
         {
-            Open(PanelId.Load);
+            CloseContainerGroup(false);
+        }
+
+        private void HandleStairTravelRequested(StairTravelRequestedEvent evt)
+        {
+            if (IsOpen(PanelId.System))
+            {
+                return;
+            }
+
+            var panel = Open(PanelId.StairTravel) as StairTravelPanel;
+            panel?.Show(evt);
+        }
+
+        private void HandleRoomTravelConfirmationRequested(RoomTravelConfirmationRequestedEvent evt)
+        {
+            if (IsOpen(PanelId.System))
+            {
+                return;
+            }
+
+            var panel = Open(PanelId.RoomTravelConfirm) as RoomTravelConfirmPanel;
+            panel?.Show(evt);
+        }
+
+        private void OpenContainerGroup()
+        {
+            if (IsContainerGroupOpen())
+            {
+                return;
+            }
+
+            // InventoryPanel owns the SceneContainer, backpack and shortcut bar.
+            CloseForExclusiveOpen(PanelId.Inventory);
+            OpenDirect(FindPanel(PanelId.Inventory));
+        }
+
+        private bool IsContainerGroupOpen() =>
+            !string.IsNullOrEmpty(focusedContainerId) && IsOpen(PanelId.Inventory);
+
+        private void CloseContainerGroup(bool notifyInventorySystem = true)
+        {
+            foreach (var panelId in new[] { PanelId.Container, PanelId.Inventory, PanelId.ShortcutBar })
+            {
+                var panel = FindPanel(panelId);
+                if (panel == null || !panel.IsOpen)
+                {
+                    continue;
+                }
+
+                panel.Close();
+                RebuildStackWithout(panel);
+                context?.Events.Publish(new PanelClosedEvent(panelId));
+            }
+
+            if (notifyInventorySystem)
+            {
+                context?.Events.Publish(new ContainerClosedEvent());
+            }
+
+            ApplyPauseState();
         }
     }
 }

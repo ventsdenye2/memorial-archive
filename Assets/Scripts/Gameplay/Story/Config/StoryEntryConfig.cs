@@ -6,7 +6,8 @@ namespace MemorialArchive.Gameplay.Story.Config
     {
         BlackScreen,
         GalgameTextBox,
-        Note
+        Note,
+        DialogueScene
     }
 
     [CreateAssetMenu(menuName = "Memorial Archive/Config/Story Entry")]
@@ -17,10 +18,16 @@ namespace MemorialArchive.Gameplay.Story.Config
         [TextArea(3, 8)]
         [SerializeField] private string content;
         [SerializeField] private bool returnToMainMenuWhenFinished;
+        [SerializeField] private string dialogueId;
+        [SerializeField] private string dialogueSceneId;
+        [SerializeField] private string dialogueSceneSpawnPointId;
 
         public string StoryId => storyId;
         public StoryPresentationType PresentationType => presentationType;
         public string Content => content;
         public bool ReturnToMainMenuWhenFinished => returnToMainMenuWhenFinished;
+        public string DialogueId => dialogueId;
+        public string DialogueSceneId => dialogueSceneId;
+        public string DialogueSceneSpawnPointId => dialogueSceneSpawnPointId;
     }
 }

@@ -1,0 +1,118 @@
+
+player_02_Idle_split.png
+size: 1180,404
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Player_01_Arm_Left
+  rotate: true
+  xy: 604, 6
+  size: 72, 107
+  orig: 72, 107
+  offset: 0, 0
+  index: -1
+Player_01_Arm_Right 拷贝
+  rotate: false
+  xy: 789, 15
+  size: 95, 75
+  orig: 97, 77
+  offset: 1, 1
+  index: -1
+Player_01_Arm_Right 拷贝 2
+  rotate: false
+  xy: 1052, 325
+  size: 90, 77
+  orig: 92, 77
+  offset: 0, 0
+  index: -1
+Player_01_Body_back
+  rotate: true
+  xy: 789, 92
+  size: 70, 162
+  orig: 79, 162
+  offset: 9, 0
+  index: -1
+Player_01_Body_front
+  rotate: false
+  xy: 962, 41
+  size: 86, 267
+  orig: 86, 267
+  offset: 0, 0
+  index: -1
+Player_01_Hair
+  rotate: true
+  xy: 1144, 361
+  size: 41, 30
+  orig: 41, 30
+  offset: 0, 0
+  index: -1
+Player_01_Tail
+  rotate: true
+  xy: 1050, 62
+  size: 59, 128
+  orig: 59, 128
+  offset: 0, 0
+  index: -1
+Player_01_cape
+  rotate: false
+  xy: 962, 310
+  size: 88, 92
+  orig: 88, 92
+  offset: 0, 0
+  index: -1
+Player_01_ear_Left
+  rotate: false
+  xy: 1138, 283
+  size: 33, 40
+  orig: 34, 40
+  offset: 1, 0
+  index: -1
+Player_01_ear_Right
+  rotate: true
+  xy: 1128, 10
+  size: 50, 43
+  orig: 50, 43
+  offset: 0, 0
+  index: -1
+Player_01_face
+  rotate: true
+  xy: 886, 5
+  size: 85, 54
+  orig: 85, 54
+  offset: 0, 0
+  index: -1
+Player_01_hat
+  rotate: false
+  xy: 1050, 2
+  size: 76, 58
+  orig: 76, 58
+  offset: 0, 0
+  index: -1
+Player_01_leg_Right
+  rotate: false
+  xy: 1050, 123
+  size: 86, 185
+  orig: 86, 185
+  offset: 0, 0
+  index: -1
+Player_01_leg_left
+  rotate: true
+  xy: 604, 80
+  size: 82, 183
+  orig: 82, 183
+  offset: 0, 0
+  index: -1
+矩形 1 拷贝
+  rotate: true
+  xy: 604, 164
+  size: 238, 356
+  orig: 240, 358
+  offset: 1, 1
+  index: -1
+背景 拷贝
+  rotate: true
+  xy: 2, 2
+  size: 400, 600
+  orig: 402, 602
+  offset: 1, 1
+  index: -1

@@ -16,6 +16,13 @@ namespace MemorialArchive.Gameplay.Interaction.Config
         [SerializeField] private string noteId;
         [SerializeField] private string transitionSceneId;
         [SerializeField] private string transitionSpawnPointId;
+        [SerializeField] private string stairPrompt = "请选择目的楼层";
+        [SerializeField] private bool requiresConfirmation;
+        [SerializeField] private string confirmationMessage = "确认前往该房间？";
+        [SerializeField] private string stairUpSceneId;
+        [SerializeField] private string stairUpSpawnPointId;
+        [SerializeField] private string stairDownSceneId;
+        [SerializeField] private string stairDownSpawnPointId;
 
         public string InteractionId => interactionId;
         public InteractionType InteractionType => interactionType;
@@ -27,5 +34,14 @@ namespace MemorialArchive.Gameplay.Interaction.Config
         public string NoteId => noteId;
         public string TransitionSceneId => transitionSceneId;
         public string TransitionSpawnPointId => transitionSpawnPointId;
+        public string StairPrompt => stairPrompt;
+        public bool RequiresConfirmation => requiresConfirmation;
+        public string ConfirmationMessage => confirmationMessage;
+        public string StairUpSceneId => stairUpSceneId;
+        public string StairUpSpawnPointId => stairUpSpawnPointId;
+        public string StairDownSceneId => stairDownSceneId;
+        public string StairDownSpawnPointId => stairDownSpawnPointId;
+        public bool HasStairDestinations =>
+            !string.IsNullOrEmpty(stairUpSceneId) || !string.IsNullOrEmpty(stairDownSceneId);
     }
 }

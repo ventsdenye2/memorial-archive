@@ -14,6 +14,9 @@ namespace MemorialArchive.Framework.UI
         Save,
         Load,
         ConfirmDialog,
-        BlackScreenStory
+        BlackScreenStory,
+        Dialogue,
+        StairTravel,
+        RoomTravelConfirm
     }
 }

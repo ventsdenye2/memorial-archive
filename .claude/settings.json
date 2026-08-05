@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir *)",
+      "Bash(ls *)",
+      "Bash(file *)",
+      "Bash(find *)",
+      "Bash(grep *)",
+      "Bash(python *)",
+      "Bash(cp *)",
+      "Bash(cat *)",
+      "Bash(echo *)",
+      "mcp__unity__manage_scene(get_hierarchy *)",
+      "mcp__unity__manage_scene(get_active *)",
+      "mcp__unity__manage_scene(load *)",
+      "mcp__unity__manage_scene(create *)",
+      "mcp__unity__manage_camera(*)",
+      "mcp__unity__read_console(*)",
+      "mcp__unity__refresh_unity(*)",
+      "mcp__unity__execute_code(*)",
+      "mcp__unity__find_gameobjects(*)",
+      "mcp__unity__manage_editor(*)",
+      "mcp__unity__execute_menu_item(*)",
+      "mcp__unity__set_active_instance(*)",
+      "mcp__unity__manage_components(*)",
+      "mcp__unity__manage_gameobject(*)",
+      "mcp__unity__manage_prefabs(*)",
+      "mcp__unity__manage_ui(*)",
+      "ReadMcpResourceDirTool(*)",
+      "ReadMcpResourceTool(*)"
+    ]
+  }
+}

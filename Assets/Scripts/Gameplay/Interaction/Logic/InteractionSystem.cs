@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace MemorialArchive.Gameplay.Interaction.Logic
 {
-    public sealed class InteractionSystem : IGameSystem, ISaveModule
+    public sealed class InteractionSystem : IGameSystem, ISaveModule, INewGameResettable
     {
         private readonly Dictionary<string, InteractionRuntimeData> interactions = new Dictionary<string, InteractionRuntimeData>();
         private readonly Dictionary<string, RoomStateData> rooms = new Dictionary<string, RoomStateData>();
@@ -37,6 +37,14 @@ namespace MemorialArchive.Gameplay.Interaction.Logic
             }
 
             context = null;
+            interactions.Clear();
+            rooms.Clear();
+            focusedInteractionId = null;
+            focusedInteractionType = InteractionType.None;
+        }
+
+        public void ResetForNewGame()
+        {
             interactions.Clear();
             rooms.Clear();
             focusedInteractionId = null;
@@ -108,22 +116,33 @@ namespace MemorialArchive.Gameplay.Interaction.Logic
             }
         }
 
-        private void HandleInteractionFocusChanged(InteractionFocusChangedEvent evt)
+private void HandleInteractionFocusChanged(InteractionFocusChangedEvent evt)
+{
+    if (evt.HasFocus)
+    {
+        focusedInteractionId = evt.InteractionId;
+        focusedInteractionType = evt.InteractionType;
+        RegisterInteraction(evt.InteractionId, evt.InteractionType);
+        if (evt.InteractionType == InteractionType.Container)
         {
-            if (evt.HasFocus)
-            {
-                focusedInteractionId = evt.InteractionId;
-                focusedInteractionType = evt.InteractionType;
-                RegisterInteraction(evt.InteractionId, evt.InteractionType);
-                return;
-            }
-
-            if (focusedInteractionId == evt.InteractionId)
-            {
-                focusedInteractionId = null;
-                focusedInteractionType = InteractionType.None;
-            }
+            var config = context.Configs.GetInteraction(evt.InteractionId);
+            context.Events.Publish(new ContainerFocusChangedEvent(GetContainerId(config, evt.InteractionId)));
         }
+        else
+        {
+            // Only ContainerPoint focus is allowed to expose SceneContainer.
+            context.Events.Publish(new ContainerFocusChangedEvent(null));
+        }
+        return;
+    }
+
+    if (focusedInteractionId == evt.InteractionId)
+    {
+        focusedInteractionId = null;
+        focusedInteractionType = InteractionType.None;
+        context.Events.Publish(new ContainerFocusChangedEvent(null));
+    }
+}
 
         private void HandleInteractPressed(InteractPressedEvent evt)
         {
@@ -149,8 +168,11 @@ namespace MemorialArchive.Gameplay.Interaction.Logic
             switch (type)
             {
                 case InteractionType.Container:
-                case InteractionType.ItemPickup:
                     context.Events.Publish(new OpenContainerRequestedEvent(GetContainerId(config, interactionId)));
+                    break;
+                case InteractionType.ItemPickup:
+                    // ItemPickup is not a scene-container interaction. Its
+                    // dedicated pickup behavior can be added independently.
                     break;
                 case InteractionType.Inspect:
                     context.Events.Publish(new InspectRequestedEvent(interactionId));
@@ -165,10 +187,29 @@ namespace MemorialArchive.Gameplay.Interaction.Logic
                     context.UI.Open(PanelId.Save);
                     break;
                 case InteractionType.SceneExit:
-                    if (config != null)
+                    if (config != null && config.HasStairDestinations)
                     {
-                        context.Events.Publish(new SceneTransitionRequestedEvent(config.TransitionSceneId, config.TransitionSpawnPointId));
+                        context.Events.Publish(new StairTravelRequestedEvent(
+                            config.StairPrompt,
+                            config.StairUpSceneId,
+                            config.StairUpSpawnPointId,
+                            config.StairDownSceneId,
+                            config.StairDownSpawnPointId));
                     }
+                    else if (config != null)
+                    {
+                        if (config.RequiresConfirmation)
+                        {
+                            context.Events.Publish(new RoomTravelConfirmationRequestedEvent(
+                                config.ConfirmationMessage,
+                                config.TransitionSceneId,
+                                config.TransitionSpawnPointId));
+                        }
+                        else
+                        {
+                            context.Events.Publish(new SceneTransitionRequestedEvent(config.TransitionSceneId, config.TransitionSpawnPointId));
+                    }
+                        }
                     break;
                 case InteractionType.NotePickup:
                     context.Events.Publish(new NoteUnlockedEvent(config != null ? config.NoteId : interactionId));

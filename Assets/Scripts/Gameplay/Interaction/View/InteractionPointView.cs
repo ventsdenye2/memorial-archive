@@ -11,6 +11,9 @@ namespace MemorialArchive.Gameplay.Interaction.View
         [SerializeField] private InteractionType interactionType = InteractionType.Inspect;
         [SerializeField] private string playerTag = "Player";
 
+        public string InteractionId => interactionId;
+        public InteractionType InteractionType => interactionType;
+
         private void OnTriggerEnter2D(Collider2D other)
         {
             if (other.CompareTag(playerTag))

@@ -7,6 +7,7 @@ namespace MemorialArchive.Framework.UI
         [SerializeField] private PanelId panelId;
         [SerializeField] private bool pausesGame;
         [SerializeField] private CanvasGroup canvasGroup;
+        [SerializeField] private bool startClosed = true;
 
         public PanelId PanelId => panelId;
         public bool PausesGame => pausesGame;
@@ -29,6 +30,17 @@ namespace MemorialArchive.Framework.UI
             if (canvasGroup == null)
             {
                 canvasGroup = GetComponent<CanvasGroup>();
+            }
+
+            if (startClosed)
+            {
+                IsOpen = false;
+                SetVisible(false);
+            }
+            else
+            {
+                IsOpen = true;
+                SetVisible(true);
             }
         }
 

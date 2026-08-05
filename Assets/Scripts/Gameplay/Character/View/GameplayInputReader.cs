@@ -1,17 +1,19 @@
 using MemorialArchive.Framework.Core;
 using MemorialArchive.Framework.Event;
+using MemorialArchive.Gameplay.Dialogue.Logic;
 using UnityEngine;
 
 namespace MemorialArchive.Gameplay.Character.View
 {
     public sealed class GameplayInputReader : MonoBehaviour
     {
-        [SerializeField] private KeyCode interactKey = KeyCode.E;
         [SerializeField] private KeyCode dodgeKey = KeyCode.Space;
         [SerializeField] private KeyCode inventoryKey = KeyCode.Tab;
         [SerializeField] private KeyCode diaryKey = KeyCode.I;
         [SerializeField] private KeyCode mapKey = KeyCode.M;
         [SerializeField] private KeyCode reloadKey = KeyCode.R;
+        [SerializeField] private KeyCode interactKey = KeyCode.E;
+        [SerializeField] private KeyCode sceneTransitionKey = KeyCode.F;
 
         private void Update()
         {
@@ -22,17 +24,39 @@ namespace MemorialArchive.Gameplay.Character.View
             }
 
             var events = root.Context.Events;
-            events.Publish(new MoveInputEvent(new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"))));
+
+
+            // 当前版本的临时调试模式；正式版发布前移除。
+            if (Input.GetKeyDown(KeyCode.F2))
+            {
+                events.Publish(new DebugModeToggledEvent());
+            }
+            if (root.GetSystem<DialogueSystem>()?.IsInputModeActive == true)
+            {
+                PublishDialogueAdvance(events);
+                return;
+            }
+
+            PublishUiKeys(events);
+            if (root.Context.UI != null && root.Context.UI.IsGameplayInputBlocked)
+            {
+                events.Publish(new MoveInputEvent(Vector2.zero));
+                events.Publish(new RunInputEvent(false));
+                return;
+            }
+
+            // 当前关卡是横向移动：只读取 A/D（Horizontal），不把 W/S 传入角色逻辑。
+            events.Publish(new MoveInputEvent(new Vector2(Input.GetAxisRaw("Horizontal"), 0f)));
             events.Publish(new RunInputEvent(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)));
-            events.Publish(new BlockInputEvent(Input.GetMouseButton(1)));
-            events.Publish(new AimInputEvent(Input.GetMouseButton(1), GetPointerWorldPosition()));
+            // 右键的含义由 CharacterSystem 根据当前装备决定：枪械/投掷物瞄准，近战/盾牌格挡。
+            events.Publish(new SecondaryActionInputEvent(Input.GetMouseButton(1), GetPointerWorldPosition()));
 
             if (Input.GetMouseButtonDown(0))
             {
                 events.Publish(new PrimaryActionPressedEvent());
             }
 
-            if (Input.GetKeyDown(interactKey))
+            if (Input.GetKeyDown(interactKey) || Input.GetKeyDown(sceneTransitionKey))
             {
                 events.Publish(new InteractPressedEvent());
             }
@@ -47,6 +71,11 @@ namespace MemorialArchive.Gameplay.Character.View
                 events.Publish(new ReloadPressedEvent());
             }
 
+            PublishShortcutKeys(events);
+        }
+
+        private void PublishUiKeys(EventBus events)
+        {
             if (Input.GetKeyDown(inventoryKey))
             {
                 events.Publish(new OpenInventoryPressedEvent());
@@ -66,8 +95,6 @@ namespace MemorialArchive.Gameplay.Character.View
             {
                 events.Publish(new PausePressedEvent());
             }
-
-            PublishShortcutKeys(events);
         }
 
         private static void PublishShortcutKeys(EventBus events)
@@ -85,6 +112,14 @@ namespace MemorialArchive.Gameplay.Character.View
             if (Input.GetKeyDown(KeyCode.Alpha3))
             {
                 events.Publish(new ShortcutEquipPressedEvent(2));
+            }
+        }
+
+        private static void PublishDialogueAdvance(EventBus events)
+        {
+            if (Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Space))
+            {
+                events.Publish(new DialogueAdvancePressedEvent());
             }
         }
 

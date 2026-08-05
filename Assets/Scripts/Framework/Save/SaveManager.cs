@@ -8,7 +8,10 @@ namespace MemorialArchive.Framework.Save
 {
     public sealed class SaveManager : IGameSystem
     {
+        public const int Stage1SlotCount = 3;
+
         private readonly List<ISaveModule> modules = new List<ISaveModule>();
+        private readonly Dictionary<int, SaveData> inMemorySlots = new Dictionary<int, SaveData>();
         private GameContext context;
 
         public void Initialize(GameContext context)
@@ -25,7 +28,16 @@ namespace MemorialArchive.Framework.Save
             }
 
             modules.Clear();
+            inMemorySlots.Clear();
             context = null;
+        }
+
+        public bool HasSlot(int slotIndex) => inMemorySlots.ContainsKey(slotIndex);
+
+        public SaveData GetSlot(int slotIndex)
+        {
+            inMemorySlots.TryGetValue(slotIndex, out var saveData);
+            return saveData;
         }
 
         public void RegisterModule(ISaveModule module)
@@ -75,8 +87,19 @@ namespace MemorialArchive.Framework.Save
 
         private void HandleSaveRequested(SaveRequestedEvent saveRequested)
         {
+            if (saveRequested.SlotIndex < 0 || saveRequested.SlotIndex >= Stage1SlotCount)
+            {
+                var reason = $"Slot index must be between 0 and {Stage1SlotCount - 1}.";
+                Debug.LogWarning(reason);
+                context.Events.Publish(new SaveFailedEvent(saveRequested.SlotIndex, reason));
+                return;
+            }
+
+            var overwroteExisting = inMemorySlots.ContainsKey(saveRequested.SlotIndex);
             var saveData = CaptureSaveData();
-            Debug.Log($"Save requested for slot {saveRequested.SlotIndex}. Captured {saveData.modules.Count} modules.");
+            inMemorySlots[saveRequested.SlotIndex] = saveData;
+            Debug.Log($"Save requested for slot {saveRequested.SlotIndex}. Captured {saveData.modules.Count} modules. Overwrite={overwroteExisting}.");
+            context.Events.Publish(new SaveCompletedEvent(saveRequested.SlotIndex, overwroteExisting));
         }
     }
 }

@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f5e3ba4677810d49bb01d860c9a9091, type: 3}
+  m_Name: "1001_\u683C\u6597\u5315\u9996"
+  m_EditorClassIdentifier: 
+  itemId: 1001
+  itemName: "\u683C\u6597\u5315\u9996"
+  description: "\u5236\u5F0F\u683C\u6597\u5315\u9996\uFF0C\u519B\u8B66\u4E0E\u63A2\u9669\u8005\u5E38\u7528\u7684\u8FD1\u6218\u6B66\u5668\u3002"
+  icon: {fileID: 21300000, guid: 32e2218a32cebc74e91a986f6d65f323, type: 3}
+  category: 2
+  sourceType: 1
+  isMissionItem: 1
+  isConsumable: 0
+  quickAccessBarType: 1
+  sourcePlaceholder: 1
+  backpackFootprint: 0
+  maxStack: 1
+  canStack: 0
+  canUse: 0
+  canEquipToShortcut: 1
+  canEquipToOffhand: 0
+  offhandType: 0
+  canPlaceAmmo: 0
+  compatibleWeaponItemId: 0
+  effectId: 
+  effectDescription: 
+  synthesisRule: 0
+  synthesisTargetItemId: 0
+  synthesisRequiredQuantity: 0
+  spawnRule: 
+  combatAttackKind: 0
+  damageType: 0
+  damage: 80
+  attackRange: 0.8
+  attackActiveSeconds: 0.5
+  attackCooldownSeconds: 0.5
+  staminaCost: 6

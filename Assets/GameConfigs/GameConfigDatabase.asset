@@ -1,0 +1,88 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 857456e5fe03e374a9faa55bb0908d9c, type: 3}
+  m_Name: GameConfigDatabase
+  m_EditorClassIdentifier: 
+  items:
+  - {fileID: 11400000, guid: a1001000000000000000000000000001, type: 2}
+  - {fileID: 11400000, guid: aec40bb02297b6a44b11636b5099faf8, type: 2}
+  - {fileID: 11400000, guid: aa577e7849cfdee4f9fa4ed4eb6dd7fa, type: 2}
+  - {fileID: 11400000, guid: a1004000000000000000000000000004, type: 2}
+  - {fileID: 11400000, guid: a1005000000000000000000000000005, type: 2}
+  - {fileID: 11400000, guid: c39893f3b6178af448ef005f8b275272, type: 2}
+  - {fileID: 11400000, guid: a1007000000000000000000000000007, type: 2}
+  - {fileID: 11400000, guid: a1008000000000000000000000000008, type: 2}
+  - {fileID: 11400000, guid: a1009000000000000000000000000009, type: 2}
+  - {fileID: 11400000, guid: a1010000000000000000000000000010, type: 2}
+  - {fileID: 11400000, guid: a1011000000000000000000000000011, type: 2}
+  - {fileID: 11400000, guid: 49e507c4faa27ab4aa7faa8f6ad98cd5, type: 2}
+  - {fileID: 11400000, guid: a1013000000000000000000000000013, type: 2}
+  - {fileID: 11400000, guid: a1014000000000000000000000000014, type: 2}
+  - {fileID: 11400000, guid: a1015000000000000000000000000015, type: 2}
+  - {fileID: 11400000, guid: a1016000000000000000000000000016, type: 2}
+  - {fileID: 11400000, guid: a1017000000000000000000000000017, type: 2}
+  - {fileID: 11400000, guid: a1018000000000000000000000000018, type: 2}
+  - {fileID: 11400000, guid: a1019000000000000000000000000019, type: 2}
+  - {fileID: 11400000, guid: fd2de9d7f9a356a4e9616c03b93aaa24, type: 2}
+  - {fileID: 11400000, guid: a1021000000000000000000000000021, type: 2}
+  - {fileID: 11400000, guid: a1022000000000000000000000000022, type: 2}
+  - {fileID: 11400000, guid: a1023000000000000000000000000023, type: 2}
+  - {fileID: 11400000, guid: a87eed6ec834b274ca5ebb27a57b914c, type: 2}
+  - {fileID: 11400000, guid: a1025000000000000000000000000025, type: 2}
+  - {fileID: 11400000, guid: a1026000000000000000000000000026, type: 2}
+  characterAttributes:
+  - {fileID: 11400000, guid: c0163246629651847a2548224132a885, type: 2}
+  characterStates:
+  - {fileID: 11400000, guid: 0e3aa5293af8a2c47a08d83e593baec9, type: 2}
+  monsters:
+  - {fileID: 11400000, guid: b9494755c2ce9e842ba06e10a306003b, type: 2}
+  - {fileID: 11400000, guid: e0f9a1cd4b9fde44f91e46c95b439c6d, type: 2}
+  interactions:
+  - {fileID: 11400000, guid: 9dbad2ee6e150a94abac3f1ac769a345, type: 2}
+  - {fileID: 11400000, guid: 9f7d5f0b56eaae241baef336f960d389, type: 2}
+  - {fileID: 11400000, guid: 8f569ab3048434845b112384916e6201, type: 2}
+  - {fileID: 11400000, guid: 28d70ed6e6910534b9f8fdf1b1959a5e, type: 2}
+  - {fileID: 11400000, guid: fb07caa6c5310604b9f23fa486cbb57b, type: 2}
+  - {fileID: 11400000, guid: cc67931d5afe99f42830f92ecfac01e3, type: 2}
+  - {fileID: 11400000, guid: a6766cd64b1ae7543a7ff4bfbc291e2d, type: 2}
+  - {fileID: 11400000, guid: c76c3d4328a0c224a8747a029ab0d8ba, type: 2}
+  - {fileID: 11400000, guid: 3336f0bcb77ec0448ba259adf865e782, type: 2}
+  - {fileID: 11400000, guid: 7f23173eee2da524a9f22f0fac92c105, type: 2}
+  - {fileID: 11400000, guid: 9bf1a55a3afaef04e952ab7e85e59401, type: 2}
+  - {fileID: 11400000, guid: 1af5a8e31959652499e92a762439878a, type: 2}
+  - {fileID: 11400000, guid: 5b9fef9e7f206d1499381122696381f9, type: 2}
+  - {fileID: 11400000, guid: debe66050cb27bb46b6f1ee9b915a3cb, type: 2}
+  - {fileID: 11400000, guid: c45794cf5e91f4e459c66b9deb2b1962, type: 2}
+  - {fileID: 11400000, guid: 42a72063caecdd54c8c42e5ad1c10276, type: 2}
+  - {fileID: 11400000, guid: 5e00a70ea788c0d4398dbff561cc1e00, type: 2}
+  - {fileID: 11400000, guid: b43fb48158f6c524bb7bf0699159b1a7, type: 2}
+  - {fileID: 11400000, guid: 634991005930f154990be0484f9cdc1d, type: 2}
+  - {fileID: 11400000, guid: 6d093da80845c6c48a4c79504cca395b, type: 2}
+  - {fileID: 11400000, guid: e748d5cd97242ee40ac88fb1c14daac9, type: 2}
+  - {fileID: 11400000, guid: 42fc85b7931351e4b854be9ea88b1542, type: 2}
+  - {fileID: 11400000, guid: 06f9e360c4e388047af76c23185604e7, type: 2}
+  - {fileID: 11400000, guid: e33c51e7988048a40ba452412a6e590b, type: 2}
+  - {fileID: 11400000, guid: 0cadd88d168eab5459fc7ee4d3062e1f, type: 2}
+  - {fileID: 11400000, guid: d54a99a37a81e384c8467482b1e53096, type: 2}
+  - {fileID: 11400000, guid: 26b1a2a58e9f4a0499efe430af0c02af, type: 2}
+  - {fileID: 11400000, guid: 2d8eb14760b7ac94593e0e7b881f5307, type: 2}
+  - {fileID: 11400000, guid: 2992f3ba3a41632408c824e16d1b5fb1, type: 2}
+  - {fileID: 11400000, guid: b7960496bc0d1ab4497d8856e038a5cb, type: 2}
+  - {fileID: 11400000, guid: bc043f2dcf183934889bd2403acf6534, type: 2}
+  - {fileID: 11400000, guid: fcfb8ea924841d24da2df150f86c145e, type: 2}
+  puzzles: []
+  stories:
+  - {fileID: 11400000, guid: 57ad3a19c27d5de43a8544f1e35b4332, type: 2}
+  dialogueSequences:
+  - {fileID: 11400000, guid: 5ce1565c6b4e4a2eb04c83594f6c5a6f, type: 2}
+  dialogueEffects:
+  - {fileID: 11400000, guid: 7ea1a8af57b846dc81c6fb6640c7ce92, type: 2}

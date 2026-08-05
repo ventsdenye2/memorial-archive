@@ -12,10 +12,12 @@ using MemorialArchive.Gameplay.Item.Logic;
 using MemorialArchive.Gameplay.Monster.Logic;
 using MemorialArchive.Gameplay.Puzzle.Logic;
 using MemorialArchive.Gameplay.Story.Logic;
+using MemorialArchive.Gameplay.Dialogue.Logic;
 using UnityEngine;
 
 namespace MemorialArchive.Framework.Core
 {
+    [DefaultExecutionOrder(-10000)]
     public sealed class GameRoot : MonoBehaviour
     {
         [SerializeField] private GameConfigDatabase configDatabase;
@@ -40,6 +42,22 @@ namespace MemorialArchive.Framework.Core
             }
 
             return null;
+        }
+
+        public void ResetForNewGame()
+        {
+            if (!initialized)
+            {
+                return;
+            }
+
+            foreach (var system in systems)
+            {
+                if (system is INewGameResettable resettable)
+                {
+                    resettable.ResetForNewGame();
+                }
+            }
         }
 
         private void Awake()
@@ -127,6 +145,7 @@ namespace MemorialArchive.Framework.Core
             RegisterSystem(new MonsterSystem());
             RegisterSystem(new PuzzleSystem());
             RegisterSystem(new StorySystem());
+            RegisterSystem(new DialogueSystem());
 
             foreach (var system in systems)
             {

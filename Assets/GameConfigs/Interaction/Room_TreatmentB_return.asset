@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04e91c37f4f6db44f8acc346aeda0225, type: 3}
+  m_Name: Room_TreatmentB_return
+  m_EditorClassIdentifier: 
+  interactionId: Room_TreatmentB_return
+  interactionType: 6
+  displayName: "\u8FD4\u56DE\u8D70\u5ECA"
+  sceneId: 
+  containerId: 
+  puzzleId: 
+  storyId: 
+  noteId: 
+  transitionSceneId: Floor_3F
+  transitionSpawnPointId: Floor3_spawn_from_Room_TreatmentB
+  stairPrompt: "\u8BF7\u9009\u62E9\u524D\u5F80\u697C\u5C42"
+  requiresConfirmation: 1
+  confirmationMessage: "\u786E\u8BA4\u79BB\u5F00\u6CBB\u7597\u5BA4 B\uFF1F"
+  stairUpSceneId: 
+  stairUpSpawnPointId: 
+  stairDownSceneId: 
+  stairDownSpawnPointId: 

@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f5e3ba4677810d49bb01d860c9a9091, type: 3}
+  m_Name: "1009_\u76FE\u9632\u706B\u76FE"
+  m_EditorClassIdentifier: 
+  itemId: 1009
+  itemName: "\u76FE/\u9632\u706B\u76FE"
+  description: "\u7528\u4E8E\u683C\u6321\u7684\u526F\u624B\u76FE\u724C\u3002"
+  icon: {fileID: 21300000, guid: 92d093c0ef0e5d244bd1145524fd585e, type: 3}
+  category: 8
+  sourceType: 1
+  isMissionItem: 0
+  isConsumable: 1
+  quickAccessBarType: 2
+  sourcePlaceholder: 2
+  backpackFootprint: 1
+  maxStack: 1
+  canStack: 0
+  canUse: 0
+  canEquipToShortcut: 0
+  canEquipToOffhand: 1
+  offhandType: 3
+  canPlaceAmmo: 0
+  compatibleWeaponItemId: 0
+  effectId: shield
+  effectDescription: "\u683C\u6321\u53EF\u62B5\u6D88\u4E09\u6B21\u666E\u901A\u4F24\u5BB3\uFF0C\u4E09\u6B21\u540E\u62A5\u5E9F\u5E76\u81EA\u52A8\u79FB\u9664\uFF1B\u706B\u7130\u4F24\u5BB3\u4E0D\u6D88\u8017\u6B21\u6570\u3002"
+  synthesisRule: 0
+  synthesisTargetItemId: 0
+  synthesisRequiredQuantity: 0
+  spawnRule: 0.06
+  combatAttackKind: 0
+  damageType: 0
+  damage: 0
+  attackRange: 0
+  attackActiveSeconds: 0.01
+  attackCooldownSeconds: 0
+  staminaCost: 0

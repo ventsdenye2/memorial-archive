@@ -9,5 +9,6 @@ namespace MemorialArchive.Gameplay.Story.Data
         public List<string> unlockedStoryIds = new List<string>();
         public List<string> unlockedNoteIds = new List<string>();
         public List<string> playedStoryIds = new List<string>();
+        public List<string> playedDialogueIds = new List<string>();
     }
 }

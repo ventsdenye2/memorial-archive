@@ -79,6 +79,13 @@ MonoBehaviour:
   - {fileID: 11400000, guid: b7960496bc0d1ab4497d8856e038a5cb, type: 2}
   - {fileID: 11400000, guid: bc043f2dcf183934889bd2403acf6534, type: 2}
   - {fileID: 11400000, guid: fcfb8ea924841d24da2df150f86c145e, type: 2}
+  - {fileID: 11400000, guid: c0ec4a33b9ac2f841a12ec547918a059, type: 2}
+  - {fileID: 11400000, guid: 70a9a3f1f34b77348b098e2e33c8e999, type: 2}
+  - {fileID: 11400000, guid: fc99cd3c512b6c246876fe3fc7981617, type: 2}
+  - {fileID: 11400000, guid: 5bb27cdab2c9c8b45bbf9f1f90154228, type: 2}
+  - {fileID: 11400000, guid: 7bff663eb2d11004b8be120ec8a37018, type: 2}
+  - {fileID: 11400000, guid: 0b52a176d83927b44bb0662b1c90690c, type: 2}
+  - {fileID: 11400000, guid: d407caeef1ef6fd4aa5dd0d6aab191cb, type: 2}
   puzzles: []
   stories:
   - {fileID: 11400000, guid: 57ad3a19c27d5de43a8544f1e35b4332, type: 2}

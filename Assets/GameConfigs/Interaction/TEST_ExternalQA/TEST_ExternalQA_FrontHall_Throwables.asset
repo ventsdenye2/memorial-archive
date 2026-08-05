@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04e91c37f4f6db44f8acc346aeda0225, type: 3}
+  m_Name: TEST_ExternalQA_FrontHall_Throwables
+  m_EditorClassIdentifier: 
+  interactionId: TEST_ExternalQA_FrontHall_Throwables
+  interactionType: 1
+  displayName: 'TEST: Melee + Throwables'
+  sceneId: FrontHall
+  containerId: TEST_ExternalQA_FrontHall_Throwables
+  puzzleId: 
+  storyId: 
+  noteId: 
+  transitionSceneId: 
+  transitionSpawnPointId: 
+  stairPrompt: "\u8BF7\u9009\u62E9\u76EE\u7684\u697C\u5C42"
+  requiresConfirmation: 0
+  confirmationMessage: "\u786E\u8BA4\u524D\u5F80\u8BE5\u623F\u95F4\uFF1F"
+  stairUpSceneId: 
+  stairUpSpawnPointId: 
+  stairDownSceneId: 
+  stairDownSpawnPointId: 

@@ -113,7 +113,9 @@ namespace MemorialArchive.Gameplay.Character.Logic
         {
             if (BlocksActions()) { PublishSecondary(false, false, e.PointerWorldPosition); return; }
             var config = context.Configs.GetItem(primaryItemId); var aim = e.IsHeld && config != null && (config.CombatAttackKind == CombatAttackKind.Firearm || config.CombatAttackKind == CombatAttackKind.Throwable);
-            var block = e.IsHeld && !aim && ((config != null && config.CombatAttackKind == CombatAttackKind.Melee) || offhandType == OffhandType.Shield);
+            // 除枪械/投掷物的右键瞄准外，角色始终可以格挡：
+            // 空手、持近战武器、持非武器道具和装备盾牌时都不应被装备条件拒绝。
+            var block = e.IsHeld && !aim;
             SetState(aim ? CharacterActionState.Aiming : block ? CharacterActionState.Blocking : CharacterActionState.Normal); PublishSecondary(block, aim, e.PointerWorldPosition);
             if (aim) { var d = e.PointerWorldPosition - data.position; if (d.sqrMagnitude > 0) aimDirection = d.normalized; }
         }
@@ -304,9 +306,36 @@ namespace MemorialArchive.Gameplay.Character.Logic
             }
             context.Events.Publish(new CharacterStatsChangedEvent());
         }
-        private bool BlocksActions() => data.isDead || state == CharacterActionState.Staggered || state == CharacterActionState.Dodging || state == CharacterActionState.Weak || state == CharacterActionState.Attack3;
-        private bool BlocksMovement() => data.isDead || state == CharacterActionState.Staggered || state == CharacterActionState.Dodging;
-        private void SetState(CharacterActionState value) { if (state == value) return; state = value; PublishState(); }
+        private bool BlocksActions() =>
+            data.isDead ||
+            state == CharacterActionState.Staggered ||
+            state == CharacterActionState.Dodging ||
+            state == CharacterActionState.Weak ||
+            IsAttackState(state);
+
+        private bool BlocksMovement() =>
+            data.isDead ||
+            state == CharacterActionState.Staggered ||
+            state == CharacterActionState.Dodging ||
+            state == CharacterActionState.Blocking ||
+            IsAttackState(state);
+
+        private static bool IsAttackState(CharacterActionState value) =>
+            value == CharacterActionState.Attack1 ||
+            value == CharacterActionState.Attack2 ||
+            value == CharacterActionState.Attack3;
+
+        private void SetState(CharacterActionState value)
+        {
+            if (state == value) return;
+            state = value;
+            if (BlocksMovement())
+            {
+                moveDirection = Vector2.zero;
+                IsRunning = false;
+            }
+            PublishState();
+        }
         private void PublishState() => context?.Events.Publish(new CharacterActionStateChangedEvent(state));
         private void PublishSecondary(bool block, bool aim, Vector2 point) { context.Events.Publish(new BlockInputEvent(block)); context.Events.Publish(new AimInputEvent(aim, point)); }
         public object CaptureSaveData() => data;

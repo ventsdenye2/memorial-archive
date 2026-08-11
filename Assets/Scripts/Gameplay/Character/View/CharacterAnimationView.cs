@@ -225,9 +225,9 @@ namespace MemorialArchive.Gameplay.Character.View
             {
                 StartLoop(shieldBlockData, "Block_Shield", ActionPresentation.Block);
             }
-            else if (SelectedItemUses(CombatAttackKind.Melee))
+            else
             {
-                // 消防斧、匕首、佩剑的格挡资源尚未补齐，暂用刺刀格挡。
+                // 空手及非盾牌格挡动作资源尚未分别补齐，统一使用刺刀格挡作为表现回退。
                 StartLoop(bayonetCombatData, "Block", ActionPresentation.Block);
             }
         }

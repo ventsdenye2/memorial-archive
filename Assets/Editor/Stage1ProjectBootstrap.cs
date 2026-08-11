@@ -271,7 +271,7 @@ namespace MemorialArchive.Editor
             camera.backgroundColor = Color.black;
             root.transform.position = new Vector3(0f, 0f, -10f);
             root.AddComponent<AudioListener>();
-            // CameraFollowView 保留为空壳（Validator 要求恰好 1 个），实际跟随交给 Cinemachine。
+            // CameraFollowView 负责平滑跟随和场景边界限制。
             root.AddComponent<CameraFollowView>();
             AttachCinemachineRig(root);
             return SavePrefab(root, path);

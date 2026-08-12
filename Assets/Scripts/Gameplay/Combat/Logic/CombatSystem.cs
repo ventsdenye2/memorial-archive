@@ -10,6 +10,27 @@ namespace MemorialArchive.Gameplay.Combat.Logic
 {
     public sealed class CombatSystem : IGameSystem, ITickableSystem, INewGameResettable
     {
+        private sealed class PlayerBlockDamageModifier : IDamageModifier
+        {
+            private const float SuccessfulBlockStaminaCost = 5f;
+            private readonly ICharacterCombatStateProvider character;
+
+            public PlayerBlockDamageModifier(ICharacterCombatStateProvider character) => this.character = character;
+            public bool AppliesTo(string targetId) => targetId == CombatTargetIds.Player;
+
+            public DamageResult Modify(DamageRequest request, DamageResult currentResult)
+            {
+                if (character == null || !character.IsBlocking || currentResult.FinalDamage <= 0f)
+                {
+                    return currentResult;
+                }
+
+                var finalDamage = character.HasShieldEquipped ? 0f : currentResult.FinalDamage * 0.5f;
+                character.ConsumeSuccessfulBlockStamina(SuccessfulBlockStaminaCost);
+                return new DamageResult(finalDamage, true, currentResult.KilledTarget);
+            }
+        }
+
         private sealed class PendingAttack
         {
             public AttackContext Context;
@@ -26,6 +47,15 @@ namespace MemorialArchive.Gameplay.Combat.Logic
         private Vector2 playerPosition;
         private int nextAttackInstanceId;
         private float meleeDamageMultiplier = 1f;
+        private readonly IDamageModifier playerBlockDamageModifier;
+
+        public CombatSystem(ICharacterCombatStateProvider characterCombatState = null)
+        {
+            if (characterCombatState != null)
+            {
+                playerBlockDamageModifier = new PlayerBlockDamageModifier(characterCombatState);
+            }
+        }
 
         public bool IsAiming => isAiming;
         public Vector2 AimWorldPosition => aimWorldPosition;
@@ -43,6 +73,7 @@ namespace MemorialArchive.Gameplay.Combat.Logic
             context.Events.Subscribe<DamageRequestedEvent>(HandleDamageRequested);
             context.Events.Subscribe<PlayerPositionChangedEvent>(HandlePlayerPositionChanged);
             context.Events.Subscribe<CharacterCombatModifiersChangedEvent>(HandleCharacterCombatModifiersChanged);
+            EnsureBuiltInDamageModifiers();
         }
 
         public void Dispose()
@@ -81,6 +112,7 @@ namespace MemorialArchive.Gameplay.Combat.Logic
             nextAttackInstanceId = 0;
             pendingAttacks.Clear();
             damageModifiers.Clear();
+            EnsureBuiltInDamageModifiers();
         }
 
         public void RegisterDamageModifier(IDamageModifier modifier)
@@ -94,6 +126,14 @@ namespace MemorialArchive.Gameplay.Combat.Logic
         public void UnregisterDamageModifier(IDamageModifier modifier)
         {
             damageModifiers.Remove(modifier);
+        }
+
+        private void EnsureBuiltInDamageModifiers()
+        {
+            if (playerBlockDamageModifier != null && !damageModifiers.Contains(playerBlockDamageModifier))
+            {
+                damageModifiers.Add(playerBlockDamageModifier);
+            }
         }
 
         public void Tick(float deltaTime)

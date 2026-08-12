@@ -25,6 +25,7 @@ namespace MemorialArchive.Gameplay.Monster.View
         private float decisionRemaining;
         private float attackCooldownRemaining;
         private float actionLockRemaining;
+        private bool attackAwaitingHit;
 
         public MonsterActionState State => state;
         public MonsterConfig Config => config;
@@ -43,6 +44,7 @@ namespace MemorialArchive.Gameplay.Monster.View
             events?.Subscribe<CharacterDiedEvent>(HandlePlayerDied);
             events?.Subscribe<MonsterDamagedEvent>(HandleMonsterDamaged);
             events?.Subscribe<MonsterDiedEvent>(HandleMonsterDied);
+            if (animationView != null) animationView.AttackHit += HandleAttackHit;
         }
 
         private void Start()
@@ -60,6 +62,8 @@ namespace MemorialArchive.Gameplay.Monster.View
             events?.Unsubscribe<CharacterDiedEvent>(HandlePlayerDied);
             events?.Unsubscribe<MonsterDamagedEvent>(HandleMonsterDamaged);
             events?.Unsubscribe<MonsterDiedEvent>(HandleMonsterDied);
+            if (animationView != null) animationView.AttackHit -= HandleAttackHit;
+            attackAwaitingHit = false;
             CancelInvoke();
         }
 
@@ -85,6 +89,7 @@ namespace MemorialArchive.Gameplay.Monster.View
             decisionRemaining = 0f;
             attackCooldownRemaining = 0f;
             actionLockRemaining = 0f;
+            attackAwaitingHit = false;
             SetState(MonsterActionState.Idle, true);
         }
 
@@ -167,11 +172,37 @@ namespace MemorialArchive.Gameplay.Monster.View
 
         private void PerformAttack()
         {
+            attackAwaitingHit = true;
             SetState(MonsterActionState.Attacking);
             actionLockRemaining = config.AttackInterval;
             attackCooldownRemaining = config.AttackInterval;
             animationView?.SetFacing(playerPosition.x - body.position.x);
 
+            // 没有可用动画组件时仍保持一次安全回退，避免怪物永久无法造成伤害。
+            if (animationView == null)
+            {
+                CommitAttackHit();
+            }
+        }
+
+        private void HandleAttackHit()
+        {
+            if (state == MonsterActionState.Attacking)
+            {
+                CommitAttackHit();
+            }
+        }
+
+        private void CommitAttackHit()
+        {
+            if (!attackAwaitingHit || config == null || targetView == null) return;
+            attackAwaitingHit = false;
+            if (!playerAlive || !hasPlayerPosition) return;
+            if (config.AttackMode == MonsterAttackMode.Melee &&
+                Mathf.Abs(playerPosition.x - body.position.x) > config.AttackRange)
+            {
+                return;
+            }
             var request = new DamageRequest(
                 0,
                 targetView.TargetId,
@@ -192,6 +223,7 @@ namespace MemorialArchive.Gameplay.Monster.View
         private void HandlePlayerDied(CharacterDiedEvent evt)
         {
             playerAlive = false;
+            attackAwaitingHit = false;
             actionLockRemaining = 0f;
             SetState(MonsterActionState.Idle);
         }
@@ -205,6 +237,7 @@ namespace MemorialArchive.Gameplay.Monster.View
 
             if (evt.TriggersHurt)
             {
+                attackAwaitingHit = false;
                 actionLockRemaining = config.HurtDuration;
                 SetState(MonsterActionState.Hurt);
             }
@@ -218,6 +251,7 @@ namespace MemorialArchive.Gameplay.Monster.View
             }
 
             SetState(MonsterActionState.Dead);
+            attackAwaitingHit = false;
             if (body != null)
             {
                 body.simulated = false;
@@ -239,6 +273,10 @@ namespace MemorialArchive.Gameplay.Monster.View
             }
 
             state = nextState;
+            if (state != MonsterActionState.Attacking)
+            {
+                attackAwaitingHit = false;
+            }
             animationView?.PlayState(state);
             if (targetView != null && !string.IsNullOrEmpty(targetView.TargetId))
             {

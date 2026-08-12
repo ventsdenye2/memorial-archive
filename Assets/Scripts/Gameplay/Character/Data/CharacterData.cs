@@ -15,7 +15,8 @@ namespace MemorialArchive.Gameplay.Character.Data
         Dodging,
         Staggered,
         Weak,
-        Dead
+        Dead,
+        Equipping
     }
 
     [Serializable]

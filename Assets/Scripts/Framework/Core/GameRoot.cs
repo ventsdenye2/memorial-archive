@@ -137,10 +137,11 @@ namespace MemorialArchive.Framework.Core
                 RegisterSystem(uiManager);
             }
 
-            RegisterSystem(new CharacterSystem());
+            var character = new CharacterSystem();
+            RegisterSystem(character);
             RegisterSystem(new InventorySystem());
             RegisterSystem(new ItemEffectSystem());
-            RegisterSystem(new CombatSystem());
+            RegisterSystem(new CombatSystem(character));
             RegisterSystem(new InteractionSystem());
             RegisterSystem(new MonsterSystem());
             RegisterSystem(new PuzzleSystem());

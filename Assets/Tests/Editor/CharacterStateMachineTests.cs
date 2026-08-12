@@ -3,6 +3,8 @@ using MemorialArchive.Framework.Core;
 using MemorialArchive.Framework.Event;
 using MemorialArchive.Gameplay.Character.Data;
 using MemorialArchive.Gameplay.Character.Logic;
+using MemorialArchive.Gameplay.Combat.Data;
+using MemorialArchive.Gameplay.Combat.Logic;
 using MemorialArchive.Gameplay.Item.Config;
 using NUnit.Framework;
 using UnityEditor;
@@ -13,9 +15,94 @@ namespace MemorialArchive.Tests.Editor
     public sealed class CharacterStateMachineTests
     {
         private const int FireAxeItemId = 1003;
+        [Test]
+        public void EquipAnimation_BlocksMovementOnlyWhileAnimationIsPlaying()
+        {
+            var character = CreateCharacterSystem(out var events);
+            events.Publish(new MoveInputEvent(Vector2.right));
+            Assert.That(character.MoveDirection, Is.EqualTo(Vector2.right));
+
+            events.Publish(new CharacterEquipmentChangedEvent(FireAxeItemId, OffhandType.None));
+            events.Publish(new MoveInputEvent(Vector2.left));
+            Assert.That(character.MoveDirection, Is.EqualTo(Vector2.left), "Holding an equipped weapon must not block movement.");
+
+            events.Publish(new CharacterEquipAnimationStateChangedEvent(true));
+            events.Publish(new MoveInputEvent(Vector2.left));
+
+            Assert.That(character.ActionState, Is.EqualTo(CharacterActionState.Equipping));
+            Assert.That(character.MoveDirection, Is.EqualTo(Vector2.zero));
+            Assert.That(character.IsRunning, Is.False);
+
+            events.Publish(new CharacterEquipAnimationStateChangedEvent(false));
+            events.Publish(new MoveInputEvent(Vector2.right));
+            Assert.That(character.ActionState, Is.EqualTo(CharacterActionState.Normal));
+            Assert.That(character.MoveDirection, Is.EqualTo(Vector2.right));
+            character.Dispose();
+        }
 
         [Test]
-        public void PrimaryAction_DoesNotRestartUntilCurrentAttackAnimationCompletes()
+        public void PrimaryAction_BuffersOneComboAndStartsItDirectlyWhenCurrentAnimationCompletes()
+        {
+            var character = CreateCharacterSystem(out var events);
+            var requestedComboStages = new System.Collections.Generic.List<int>();
+            var publishedStates = new System.Collections.Generic.List<CharacterActionState>();
+            events.Subscribe<CharacterAttackRequestedEvent>(evt => requestedComboStages.Add(evt.ComboStage));
+            events.Subscribe<CharacterActionStateChangedEvent>(evt => publishedStates.Add(evt.State));
+            events.Publish(new CharacterEquipmentChangedEvent(FireAxeItemId, OffhandType.None));
+
+            events.Publish(new PrimaryActionPressedEvent());
+            var activeAttackState = character.ActionState;
+            events.Publish(new PrimaryActionPressedEvent());
+            events.Publish(new PrimaryActionPressedEvent());
+
+            Assert.That(activeAttackState, Is.EqualTo(CharacterActionState.Attack1));
+            Assert.That(character.ActionState, Is.EqualTo(activeAttackState));
+            Assert.That(requestedComboStages, Is.EqualTo(new[] { 1 }));
+
+            events.Publish(new CharacterActionAnimationCompletedEvent(activeAttackState));
+
+            Assert.That(requestedComboStages, Is.EqualTo(new[] { 1, 2 }), "The chained attack must create its own combat request for hit detection and damage.");
+            Assert.That(character.ActionState, Is.EqualTo(CharacterActionState.Attack2));
+            Assert.That(publishedStates, Is.EqualTo(new[]
+            {
+                CharacterActionState.Attack1,
+                CharacterActionState.Attack2
+            }), "A buffered combo must transition directly without publishing an intermediate idle state.");
+            character.Dispose();
+        }
+
+        [Test]
+        public void PrimaryAction_ThirdComboCannotBufferAFourthAttack()
+        {
+            var character = CreateCharacterSystem(out var events);
+            var requestedComboStages = new System.Collections.Generic.List<int>();
+            var publishedStates = new System.Collections.Generic.List<CharacterActionState>();
+            events.Subscribe<CharacterAttackRequestedEvent>(evt => requestedComboStages.Add(evt.ComboStage));
+            events.Subscribe<CharacterActionStateChangedEvent>(evt => publishedStates.Add(evt.State));
+            events.Publish(new CharacterEquipmentChangedEvent(FireAxeItemId, OffhandType.None));
+
+            events.Publish(new PrimaryActionPressedEvent());
+            events.Publish(new PrimaryActionPressedEvent());
+            events.Publish(new CharacterActionAnimationCompletedEvent(CharacterActionState.Attack1));
+            events.Publish(new PrimaryActionPressedEvent());
+            events.Publish(new CharacterActionAnimationCompletedEvent(CharacterActionState.Attack2));
+            events.Publish(new PrimaryActionPressedEvent());
+            events.Publish(new CharacterActionAnimationCompletedEvent(CharacterActionState.Attack3));
+
+            Assert.That(requestedComboStages, Is.EqualTo(new[] { 1, 2, 3 }));
+            Assert.That(character.ActionState, Is.EqualTo(CharacterActionState.Normal));
+            Assert.That(publishedStates, Is.EqualTo(new[]
+            {
+                CharacterActionState.Attack1,
+                CharacterActionState.Attack2,
+                CharacterActionState.Attack3,
+                CharacterActionState.Normal
+            }));
+            character.Dispose();
+        }
+
+        [Test]
+        public void BufferedCombo_IsDiscardedWhenAttackIsInterrupted()
         {
             var character = CreateCharacterSystem(out var events);
             var attackRequestCount = 0;
@@ -23,16 +110,12 @@ namespace MemorialArchive.Tests.Editor
             events.Publish(new CharacterEquipmentChangedEvent(FireAxeItemId, OffhandType.None));
 
             events.Publish(new PrimaryActionPressedEvent());
-            var activeAttackState = character.ActionState;
             events.Publish(new PrimaryActionPressedEvent());
+            events.Publish(new CharacterEquipAnimationStateChangedEvent(true));
+            events.Publish(new CharacterActionAnimationCompletedEvent(CharacterActionState.Attack1));
 
-            Assert.That(activeAttackState, Is.EqualTo(CharacterActionState.Attack1));
-            Assert.That(character.ActionState, Is.EqualTo(activeAttackState));
             Assert.That(attackRequestCount, Is.EqualTo(1));
-
-            events.Publish(new CharacterActionAnimationCompletedEvent(activeAttackState));
-            events.Publish(new PrimaryActionPressedEvent());
-            Assert.That(attackRequestCount, Is.EqualTo(2));
+            Assert.That(character.ActionState, Is.EqualTo(CharacterActionState.Equipping));
             character.Dispose();
         }
 
@@ -48,6 +131,47 @@ namespace MemorialArchive.Tests.Editor
             Assert.That(character.IsBlocking, Is.True);
             Assert.That(character.ActionState, Is.EqualTo(CharacterActionState.Blocking));
             Assert.That(blockPublished, Is.True);
+            character.Dispose();
+        }
+
+        [Test]
+        public void EmptyHandBlock_ReducesDamageToHalfAndConsumesFiveStaminaWithoutStagger()
+        {
+            var character = CreateCharacterSystem(out var events);
+            var combat = new CombatSystem(character);
+            combat.Initialize(CreateContext(events));
+            events.Publish(new SecondaryActionInputEvent(true, Vector2.zero));
+
+            var result = combat.ResolveDamage(new DamageRequest(
+                0, "monster", CombatTargetIds.Player, 0, DamageType.Physical, 1f, Vector2.zero));
+
+            Assert.That(result.WasBlocked, Is.True);
+            Assert.That(result.FinalDamage, Is.EqualTo(0.5f));
+            Assert.That(character.Data.health, Is.EqualTo(2.5f));
+            Assert.That(character.Data.stamina, Is.EqualTo(25));
+            Assert.That(character.ActionState, Is.EqualTo(CharacterActionState.Blocking));
+            combat.Dispose();
+            character.Dispose();
+        }
+
+        [Test]
+        public void ShieldBlock_NegatesDamageAndConsumesFiveStamina()
+        {
+            var character = CreateCharacterSystem(out var events);
+            var combat = new CombatSystem(character);
+            combat.Initialize(CreateContext(events));
+            events.Publish(new CharacterEquipmentChangedEvent(0, OffhandType.Shield));
+            events.Publish(new SecondaryActionInputEvent(true, Vector2.zero));
+
+            var result = combat.ResolveDamage(new DamageRequest(
+                0, "monster", CombatTargetIds.Player, 0, DamageType.Physical, 1f, Vector2.zero));
+
+            Assert.That(result.WasBlocked, Is.True);
+            Assert.That(result.FinalDamage, Is.Zero);
+            Assert.That(character.Data.health, Is.EqualTo(3f));
+            Assert.That(character.Data.stamina, Is.EqualTo(25));
+            Assert.That(character.ActionState, Is.EqualTo(CharacterActionState.Blocking));
+            combat.Dispose();
             character.Dispose();
         }
 
@@ -94,6 +218,16 @@ namespace MemorialArchive.Tests.Editor
             var character = new CharacterSystem();
             character.Initialize(context);
             return character;
+        }
+
+        private static GameContext CreateContext(EventBus events)
+        {
+            var database = AssetDatabase.LoadAssetAtPath<GameConfigDatabase>("Assets/GameConfigs/GameConfigDatabase.asset");
+            Assert.That(database, Is.Not.Null);
+            var configs = new ConfigManager(database);
+            var context = new GameContext(events, configs, null, null, null);
+            configs.Initialize(context);
+            return context;
         }
     }
 }

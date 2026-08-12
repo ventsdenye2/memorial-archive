@@ -87,6 +87,7 @@ namespace MemorialArchive.Gameplay.Character.View
 
         private void OnDisable()
         {
+            CancelCurrentAction();
             var events = GameRoot.Instance?.Context?.Events;
             events?.Unsubscribe<DodgeRequestedEvent>(HandleDodgeRequested);
             events?.Unsubscribe<SelectedItemChangedEvent>(HandleSelectedItemChanged);
@@ -158,10 +159,13 @@ namespace MemorialArchive.Gameplay.Character.View
             fireAxeComboStage = 0;
             if (isDead || current == LocomotionState.Dodge) return;
 
-            if (activeAction == ActionPresentation.Block || activeAction == ActionPresentation.Aim) StopActionToLocomotion();
+            if (activeAction == ActionPresentation.Block || activeAction == ActionPresentation.Aim || activeAction == ActionPresentation.Equip) StopActionToLocomotion();
             if (SelectedItemUses(CombatAttackKind.Melee))
             {
-                StartOneShot(selectedItemId == FireAxeItemId ? fireAxeEquipData : bayonetEquipData, "chixie", ActionPresentation.Equip);
+                if (StartOneShot(selectedItemId == FireAxeItemId ? fireAxeEquipData : bayonetEquipData, "chixie", ActionPresentation.Equip))
+                {
+                    PublishEquipAnimationState(true);
+                }
             }
         }
 
@@ -284,9 +288,9 @@ namespace MemorialArchive.Gameplay.Character.View
             SwitchToLocomotion();
         }
 
-        private void StartOneShot(SkeletonDataAsset data, string animationName, ActionPresentation presentation)
+        private bool StartOneShot(SkeletonDataAsset data, string animationName, ActionPresentation presentation)
         {
-            if (data == null || isDead || current == LocomotionState.Dodge) return;
+            if (data == null || isDead || current == LocomotionState.Dodge) return false;
             CancelCurrentAction();
             activeAction = presentation;
             var entry = SwitchSkeleton(data, animationName, false);
@@ -294,11 +298,12 @@ namespace MemorialArchive.Gameplay.Character.View
             {
                 activeAction = ActionPresentation.None;
                 SwitchToLocomotion();
-                return;
+                return false;
             }
 
             actionTrackEntry = entry;
             actionTrackEntry.Complete += HandleActionComplete;
+            return true;
         }
 
         private void StartLoop(SkeletonDataAsset data, string animationName, ActionPresentation presentation)
@@ -313,10 +318,26 @@ namespace MemorialArchive.Gameplay.Character.View
         private void HandleActionComplete(TrackEntry trackEntry)
         {
             if (trackEntry != actionTrackEntry) return;
-            GameRoot.Instance?.Context?.Events.Publish(new CharacterActionAnimationCompletedEvent(presentedState));
+            var completedAction = activeAction;
+            var completedState = presentedState;
             UnsubscribeActionComplete();
             activeAction = ActionPresentation.None;
-            SwitchToLocomotion();
+
+            if (completedAction == ActionPresentation.Equip)
+            {
+                PublishEquipAnimationState(false);
+            }
+            else
+            {
+                GameRoot.Instance?.Context?.Events.Publish(new CharacterActionAnimationCompletedEvent(completedState));
+            }
+
+            // 完成事件会同步驱动状态机。若状态机消费了缓冲输入并开始下一段攻击，
+            // PlayStateAttack 已直接换好动画，此处不可再用 Idle 覆盖它。
+            if (activeAction == ActionPresentation.None)
+            {
+                SwitchToLocomotion();
+            }
         }
 
         private void StopActionToLocomotion()
@@ -327,8 +348,17 @@ namespace MemorialArchive.Gameplay.Character.View
 
         private void CancelCurrentAction()
         {
+            if (activeAction == ActionPresentation.Equip)
+            {
+                PublishEquipAnimationState(false);
+            }
             UnsubscribeActionComplete();
             activeAction = ActionPresentation.None;
+        }
+
+        private static void PublishEquipAnimationState(bool isPlaying)
+        {
+            GameRoot.Instance?.Context?.Events.Publish(new CharacterEquipAnimationStateChangedEvent(isPlaying));
         }
 
         private bool SelectedItemUses(CombatAttackKind attackKind)

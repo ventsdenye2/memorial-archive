@@ -158,4 +158,15 @@ namespace MemorialArchive.Gameplay.Combat.Data
         bool AppliesTo(string targetId);
         DamageResult Modify(DamageRequest request, DamageResult currentResult);
     }
+
+    /// <summary>
+    /// CombatSystem 查询角色战斗快照的窄接口。角色仍拥有状态与体力，
+    /// CombatSystem 不引用完整 CharacterSystem。
+    /// </summary>
+    public interface ICharacterCombatStateProvider
+    {
+        bool IsBlocking { get; }
+        bool HasShieldEquipped { get; }
+        void ConsumeSuccessfulBlockStamina(float amount);
+    }
 }

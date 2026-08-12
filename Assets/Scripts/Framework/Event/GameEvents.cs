@@ -390,6 +390,13 @@ public readonly struct ContainerClosedEvent { }
         public CharacterActionState State { get; }
     }
 
+    /// <summary>角色动画 View 回报装备武器动画的实际播放生命周期。</summary>
+    public readonly struct CharacterEquipAnimationStateChangedEvent
+    {
+        public CharacterEquipAnimationStateChangedEvent(bool isPlaying) => IsPlaying = isPlaying;
+        public bool IsPlaying { get; }
+    }
+
     /// <summary>角色动画 View 在非循环动作结束时回传，仅用于角色状态机解锁。</summary>
     public readonly struct CharacterActionAnimationCompletedEvent
     {

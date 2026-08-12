@@ -53,6 +53,33 @@ namespace MemorialArchive.Framework.Event
         public Vector2 PointerWorldPosition { get; }
     }
 
+    public enum PrimaryActionPhase { Started, Updated, Released, Canceled }
+
+    /// <summary>左键完整生命周期；投掷物用它实现按住瞄准、松开投掷。</summary>
+    public readonly struct PrimaryActionPhaseEvent
+    {
+        public PrimaryActionPhaseEvent(PrimaryActionPhase phase, Vector2 pointerWorldPosition)
+        {
+            Phase = phase;
+            PointerWorldPosition = pointerWorldPosition;
+        }
+        public PrimaryActionPhase Phase { get; }
+        public Vector2 PointerWorldPosition { get; }
+    }
+
+    public readonly struct ThrowableAimChangedEvent
+    {
+        public ThrowableAimChangedEvent(bool isAiming, int itemId, Vector2 targetWorldPosition)
+        {
+            IsAiming = isAiming;
+            ItemId = itemId;
+            TargetWorldPosition = targetWorldPosition;
+        }
+        public bool IsAiming { get; }
+        public int ItemId { get; }
+        public Vector2 TargetWorldPosition { get; }
+    }
+
     public readonly struct DodgePressedEvent { }
     public readonly struct InteractPressedEvent { }
     public readonly struct PrimaryActionPressedEvent { }
@@ -415,14 +442,24 @@ public readonly struct ContainerClosedEvent { }
     public readonly struct CharacterAttackRequestedEvent
     {
         public CharacterAttackRequestedEvent(int itemId, int comboStage, Vector2 direction)
+            : this(itemId, comboStage, direction, false, Vector2.zero) { }
+
+        public CharacterAttackRequestedEvent(int itemId, int comboStage, Vector2 direction, Vector2 targetWorldPosition)
+            : this(itemId, comboStage, direction, true, targetWorldPosition) { }
+
+        private CharacterAttackRequestedEvent(int itemId, int comboStage, Vector2 direction, bool hasTargetWorldPosition, Vector2 targetWorldPosition)
         {
             ItemId = itemId;
             ComboStage = comboStage;
             Direction = direction.sqrMagnitude > 0.0001f ? direction.normalized : Vector2.right;
+            HasTargetWorldPosition = hasTargetWorldPosition;
+            TargetWorldPosition = targetWorldPosition;
         }
         public int ItemId { get; }
         public int ComboStage { get; }
         public Vector2 Direction { get; }
+        public bool HasTargetWorldPosition { get; }
+        public Vector2 TargetWorldPosition { get; }
     }
 
     public readonly struct CharacterDamageReceivedEvent

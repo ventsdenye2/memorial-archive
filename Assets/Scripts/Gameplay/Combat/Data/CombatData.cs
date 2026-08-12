@@ -45,7 +45,9 @@ namespace MemorialArchive.Gameplay.Combat.Data
             Vector2 origin,
             Vector2 direction,
             float activeSeconds,
-            int comboStage = 0)
+            int comboStage = 0,
+            bool hasTargetWorldPosition = false,
+            Vector2 targetWorldPosition = default)
         {
             AttackInstanceId = attackInstanceId;
             AttackerId = attackerId;
@@ -59,6 +61,8 @@ namespace MemorialArchive.Gameplay.Combat.Data
             Direction = direction.sqrMagnitude > 0.0001f ? direction.normalized : Vector2.right;
             ActiveSeconds = Mathf.Max(0.01f, activeSeconds);
             ComboStage = Mathf.Clamp(comboStage, 0, 3);
+            HasTargetWorldPosition = hasTargetWorldPosition;
+            TargetWorldPosition = targetWorldPosition;
         }
 
         public int AttackInstanceId { get; }
@@ -72,6 +76,8 @@ namespace MemorialArchive.Gameplay.Combat.Data
         public Vector2 Origin { get; }
         public Vector2 Direction { get; }
         public float ActiveSeconds { get; }
+        public bool HasTargetWorldPosition { get; }
+        public Vector2 TargetWorldPosition { get; }
         /// <summary>近战为 1~3；枪械与投掷物为 0。</summary>
         public int ComboStage { get; }
     }

@@ -15,6 +15,7 @@ namespace MemorialArchive.Tests.Editor
     public sealed class CharacterStateMachineTests
     {
         private const int FireAxeItemId = 1003;
+        private const int GrenadeItemId = 1010;
         [Test]
         public void EquipAnimation_BlocksMovementOnlyWhileAnimationIsPlaying()
         {
@@ -203,6 +204,62 @@ namespace MemorialArchive.Tests.Editor
             Assert.That(character.ActionState, Is.EqualTo(CharacterActionState.Attack1));
             Assert.That(character.MoveDirection, Is.EqualTo(Vector2.zero));
             Assert.That(character.IsRunning, Is.False);
+            character.Dispose();
+        }
+
+        [Test]
+        public void Throwable_HoldsToAimAndReleasesExactlyOneAttackWithoutMovement()
+        {
+            var character = CreateCharacterSystem(out var events);
+            var attacks = new System.Collections.Generic.List<CharacterAttackRequestedEvent>();
+            events.Subscribe<CharacterAttackRequestedEvent>(attacks.Add);
+            events.Publish(new CharacterEquipmentChangedEvent(GrenadeItemId, OffhandType.None));
+            events.Publish(new MoveInputEvent(Vector2.right));
+
+            var target = new Vector2(5f, 1f);
+            events.Publish(new PrimaryActionPhaseEvent(PrimaryActionPhase.Started, target));
+            events.Publish(new PrimaryActionPressedEvent());
+            events.Publish(new MoveInputEvent(Vector2.left));
+            events.Publish(new PrimaryActionPhaseEvent(PrimaryActionPhase.Updated, target));
+
+            Assert.That(character.ActionState, Is.EqualTo(CharacterActionState.ThrowAiming));
+            Assert.That(character.MoveDirection, Is.EqualTo(Vector2.zero));
+            Assert.That(attacks, Is.Empty, "按住瞄准期间不能生成攻击实例或消耗手雷。");
+
+            events.Publish(new PrimaryActionPhaseEvent(PrimaryActionPhase.Released, target));
+            events.Publish(new PrimaryActionPhaseEvent(PrimaryActionPhase.Released, target));
+
+            Assert.That(character.ActionState, Is.EqualTo(CharacterActionState.Throwing));
+            Assert.That(attacks.Count, Is.EqualTo(1));
+            Assert.That(attacks[0].HasTargetWorldPosition, Is.True);
+            Assert.That(attacks[0].TargetWorldPosition, Is.EqualTo(target));
+            character.Dispose();
+        }
+
+        [Test]
+        public void Throwable_CancelReturnsToNormalWithoutCreatingAttack()
+        {
+            var character = CreateCharacterSystem(out var events);
+            var attackCount = 0;
+            events.Subscribe<CharacterAttackRequestedEvent>(_ => attackCount++);
+            events.Publish(new CharacterEquipmentChangedEvent(GrenadeItemId, OffhandType.None));
+            events.Publish(new PrimaryActionPhaseEvent(PrimaryActionPhase.Started, new Vector2(4f, 0f)));
+            events.Publish(new PrimaryActionPhaseEvent(PrimaryActionPhase.Canceled, Vector2.zero));
+
+            Assert.That(character.ActionState, Is.EqualTo(CharacterActionState.Normal));
+            Assert.That(attackCount, Is.Zero);
+            character.Dispose();
+        }
+
+        [Test]
+        public void Throwable_RightMouseUsesBlockInsteadOfLegacyAim()
+        {
+            var character = CreateCharacterSystem(out var events);
+            events.Publish(new CharacterEquipmentChangedEvent(GrenadeItemId, OffhandType.None));
+            events.Publish(new SecondaryActionInputEvent(true, Vector2.right));
+
+            Assert.That(character.ActionState, Is.EqualTo(CharacterActionState.Blocking));
+            Assert.That(character.IsBlocking, Is.True);
             character.Dispose();
         }
 

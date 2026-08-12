@@ -208,7 +208,9 @@ namespace MemorialArchive.Gameplay.Combat.Logic
                 playerPosition,
                 evt.Direction,
                 config.AttackActiveSeconds,
-                evt.ComboStage);
+                evt.ComboStage,
+                evt.HasTargetWorldPosition,
+                evt.TargetWorldPosition);
 
             pendingAttacks.Add(attackId, new PendingAttack
             {

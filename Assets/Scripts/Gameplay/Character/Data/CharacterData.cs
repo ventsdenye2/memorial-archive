@@ -16,7 +16,9 @@ namespace MemorialArchive.Gameplay.Character.Data
         Staggered,
         Weak,
         Dead,
-        Equipping
+        Equipping,
+        ThrowAiming,
+        Throwing
     }
 
     [Serializable]

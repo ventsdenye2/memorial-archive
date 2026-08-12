@@ -16,7 +16,7 @@ namespace MemorialArchive.Gameplay.Character.Logic
     public sealed class CharacterSystem : IGameSystem, ITickableSystem, ISaveModule, INewGameResettable, ICharacterCombatStateProvider
     {
         private CharacterData data = new CharacterData(); private GameContext context; private CharacterAttributeConfig attributes;
-        private Vector2 moveDirection, facingDirection = Vector2.right, aimDirection = Vector2.right;
+        private Vector2 moveDirection, facingDirection = Vector2.right, aimDirection = Vector2.right, throwAimTarget;
         private float exactStamina, dodgeCooldown, dodgeInvincible, staggerRemaining, staggerCooldown, weakRemaining;
         private int primaryItemId, comboStage; private OffhandType offhandType;
         private bool bufferedPrimaryAction;
@@ -25,7 +25,7 @@ namespace MemorialArchive.Gameplay.Character.Logic
         // 当前版本的临时调试状态；不写入存档，正式版发布前移除。
         private bool debugModeEnabled;
         public bool IsRunning { get; private set; } public CharacterActionState ActionState => state;
-        public bool IsBlocking => state == CharacterActionState.Blocking; public bool IsAiming => state == CharacterActionState.Aiming;
+        public bool IsBlocking => state == CharacterActionState.Blocking; public bool IsAiming => state == CharacterActionState.Aiming || state == CharacterActionState.ThrowAiming;
         public bool HasShieldEquipped => offhandType == OffhandType.Shield;
         public Vector2 AimDirection => aimDirection;
         public float StaminaCostMultiplier => GetStaminaCostMultiplier();
@@ -37,6 +37,7 @@ namespace MemorialArchive.Gameplay.Character.Logic
             context = value; attributes = context.Configs.GetCharacterAttribute(Stage1Ids.PlayerAttributeId);
             context.Events.Subscribe<MoveInputEvent>(OnMove); context.Events.Subscribe<RunInputEvent>(OnRun); context.Events.Subscribe<SecondaryActionInputEvent>(OnSecondary);
             context.Events.Subscribe<DodgePressedEvent>(OnDodge); context.Events.Subscribe<PrimaryActionPressedEvent>(OnPrimary);
+            context.Events.Subscribe<PrimaryActionPhaseEvent>(OnPrimaryPhase);
             context.Events.Subscribe<DodgeAnimationStateChangedEvent>(OnDodgeAnimationState);
             context.Events.Subscribe<CharacterEquipAnimationStateChangedEvent>(OnEquipAnimationStateChanged);
             context.Events.Subscribe<CharacterActionAnimationCompletedEvent>(OnAnimationCompleted); context.Events.Subscribe<DamageAppliedEvent>(OnDamageApplied);
@@ -57,6 +58,7 @@ namespace MemorialArchive.Gameplay.Character.Logic
             moveDirection = Vector2.zero;
             facingDirection = Vector2.right;
             aimDirection = Vector2.right;
+            throwAimTarget = Vector2.zero;
             exactStamina = data.stamina;
             dodgeCooldown = 0f;
             dodgeInvincible = 0f;
@@ -80,6 +82,7 @@ namespace MemorialArchive.Gameplay.Character.Logic
             {
                 context.Events.Unsubscribe<MoveInputEvent>(OnMove); context.Events.Unsubscribe<RunInputEvent>(OnRun); context.Events.Unsubscribe<SecondaryActionInputEvent>(OnSecondary);
                 context.Events.Unsubscribe<DodgePressedEvent>(OnDodge); context.Events.Unsubscribe<PrimaryActionPressedEvent>(OnPrimary); context.Events.Unsubscribe<DodgeAnimationStateChangedEvent>(OnDodgeAnimationState);
+                context.Events.Unsubscribe<PrimaryActionPhaseEvent>(OnPrimaryPhase);
                 context.Events.Unsubscribe<CharacterEquipAnimationStateChangedEvent>(OnEquipAnimationStateChanged);
                 context.Events.Unsubscribe<CharacterActionAnimationCompletedEvent>(OnAnimationCompleted); context.Events.Unsubscribe<DamageAppliedEvent>(OnDamageApplied); context.Events.Unsubscribe<CharacterEquipmentChangedEvent>(OnEquipment); context.Events.Unsubscribe<CharacterItemEffectRequestedEvent>(OnItemEffectRequested); context.Events.Unsubscribe<DebugModeToggledEvent>(OnDebugModeToggled);
             }
@@ -115,6 +118,8 @@ namespace MemorialArchive.Gameplay.Character.Logic
         private void OnRun(RunInputEvent e) { IsRunning = e.IsRunning && !BlocksMovement() && state == CharacterActionState.Normal && exactStamina > 0; }
         private void OnEquipment(CharacterEquipmentChangedEvent e)
         {
+            if ((state == CharacterActionState.ThrowAiming || state == CharacterActionState.Throwing) && e.PrimaryItemId != primaryItemId)
+                SetState(weakRemaining > 0 ? CharacterActionState.Weak : CharacterActionState.Normal);
             primaryItemId = e.PrimaryItemId;
             offhandType = e.OffhandType;
             comboStage = 0;
@@ -139,8 +144,8 @@ namespace MemorialArchive.Gameplay.Character.Logic
         private void OnSecondary(SecondaryActionInputEvent e)
         {
             if (BlocksActions()) { PublishSecondary(false, false, e.PointerWorldPosition); return; }
-            var config = context.Configs.GetItem(primaryItemId); var aim = e.IsHeld && config != null && (config.CombatAttackKind == CombatAttackKind.Firearm || config.CombatAttackKind == CombatAttackKind.Throwable);
-            // 除枪械/投掷物的右键瞄准外，角色始终可以格挡：
+            var config = context.Configs.GetItem(primaryItemId); var aim = e.IsHeld && config != null && config.CombatAttackKind == CombatAttackKind.Firearm;
+            // 除枪械的右键瞄准外，角色始终可以格挡：
             // 空手、持近战武器、持非武器道具和装备盾牌时都不应被装备条件拒绝。
             var block = e.IsHeld && !aim;
             SetState(aim ? CharacterActionState.Aiming : block ? CharacterActionState.Blocking : CharacterActionState.Normal); PublishSecondary(block, aim, e.PointerWorldPosition);
@@ -148,6 +153,8 @@ namespace MemorialArchive.Gameplay.Character.Logic
         }
         private void OnPrimary(PrimaryActionPressedEvent e)
         {
+            var selectedConfig = context.Configs.GetItem(primaryItemId);
+            if (state == CharacterActionState.ThrowAiming || selectedConfig != null && selectedConfig.CombatAttackKind == CombatAttackKind.Throwable) return;
             if (IsAttackState(state))
             {
                 BufferMeleeComboInput();
@@ -155,6 +162,64 @@ namespace MemorialArchive.Gameplay.Character.Logic
             }
 
             TryStartPrimaryAttack(false);
+        }
+
+        private void OnPrimaryPhase(PrimaryActionPhaseEvent e)
+        {
+            if (e.Phase == PrimaryActionPhase.Started) { TryBeginThrowableAim(e.PointerWorldPosition); return; }
+            if (state != CharacterActionState.ThrowAiming) return;
+            if (e.Phase == PrimaryActionPhase.Canceled)
+            {
+                SetState(weakRemaining > 0 ? CharacterActionState.Weak : CharacterActionState.Normal);
+                return;
+            }
+            UpdateThrowableAim(e.PointerWorldPosition);
+            if (e.Phase == PrimaryActionPhase.Released) TryReleaseThrowable();
+        }
+
+        private void TryBeginThrowableAim(Vector2 pointerWorldPosition)
+        {
+            if (BlocksActions() || IsBlocking || primaryItemId <= 0) return;
+            var config = context.Configs.GetItem(primaryItemId);
+            if (config == null || config.Category != ItemCategory.Weapon || config.CombatAttackKind != CombatAttackKind.Throwable) return;
+            PublishSecondary(false, false, pointerWorldPosition);
+            UpdateThrowableAim(pointerWorldPosition);
+            SetState(CharacterActionState.ThrowAiming);
+            context.Events.Publish(new ThrowableAimChangedEvent(true, primaryItemId, throwAimTarget));
+        }
+
+        private void UpdateThrowableAim(Vector2 pointerWorldPosition)
+        {
+            throwAimTarget = pointerWorldPosition;
+            var direction = pointerWorldPosition - data.position;
+            if (direction.sqrMagnitude > 0.0001f)
+            {
+                aimDirection = direction.normalized;
+                if (Mathf.Abs(direction.x) > 0.0001f) facingDirection = new Vector2(Mathf.Sign(direction.x), 0f);
+            }
+            if (state == CharacterActionState.ThrowAiming)
+                context.Events.Publish(new ThrowableAimChangedEvent(true, primaryItemId, throwAimTarget));
+        }
+
+        private void TryReleaseThrowable()
+        {
+            var config = context.Configs.GetItem(primaryItemId);
+            if (config == null || config.Category != ItemCategory.Weapon || config.CombatAttackKind != CombatAttackKind.Throwable)
+            {
+                SetState(weakRemaining > 0 ? CharacterActionState.Weak : CharacterActionState.Normal);
+                return;
+            }
+            var staminaCost = config.StaminaCost * StaminaCostMultiplier;
+            if (exactStamina < staminaCost)
+            {
+                SetState(weakRemaining > 0 ? CharacterActionState.Weak : CharacterActionState.Normal);
+                return;
+            }
+            if (!debugModeEnabled) exactStamina -= staminaCost;
+            var direction = throwAimTarget - data.position;
+            if (direction.sqrMagnitude <= 0.0001f) direction = facingDirection;
+            SetState(CharacterActionState.Throwing);
+            context.Events.Publish(new CharacterAttackRequestedEvent(primaryItemId, 0, direction, throwAimTarget));
         }
         private void BufferMeleeComboInput()
         {
@@ -182,6 +247,12 @@ namespace MemorialArchive.Gameplay.Character.Logic
         private void OnAnimationCompleted(CharacterActionAnimationCompletedEvent e)
         {
             if (e.State != state) return;
+
+            if (state == CharacterActionState.Throwing)
+            {
+                SetState(weakRemaining > 0 ? CharacterActionState.Weak : CharacterActionState.Normal);
+                return;
+            }
 
             if (bufferedPrimaryAction && state != CharacterActionState.Attack3)
             {
@@ -414,6 +485,8 @@ namespace MemorialArchive.Gameplay.Character.Logic
             state == CharacterActionState.Dodging ||
             state == CharacterActionState.Weak ||
             state == CharacterActionState.Equipping ||
+            state == CharacterActionState.ThrowAiming ||
+            state == CharacterActionState.Throwing ||
             IsAttackState(state);
 
         private bool BlocksMovement() =>
@@ -422,6 +495,8 @@ namespace MemorialArchive.Gameplay.Character.Logic
             state == CharacterActionState.Dodging ||
             state == CharacterActionState.Blocking ||
             state == CharacterActionState.Equipping ||
+            state == CharacterActionState.ThrowAiming ||
+            state == CharacterActionState.Throwing ||
             IsAttackState(state);
 
         private static bool IsAttackState(CharacterActionState value) =>
@@ -434,6 +509,8 @@ namespace MemorialArchive.Gameplay.Character.Logic
             if (state == value) return;
             var previousState = state;
             state = value;
+            if (previousState == CharacterActionState.ThrowAiming && value != CharacterActionState.ThrowAiming)
+                context?.Events.Publish(new ThrowableAimChangedEvent(false, primaryItemId, throwAimTarget));
             if (IsAttackState(previousState) && !IsAttackState(value))
             {
                 bufferedPrimaryAction = false;

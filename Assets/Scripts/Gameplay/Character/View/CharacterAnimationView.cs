@@ -109,6 +109,7 @@ namespace MemorialArchive.Gameplay.Character.View
                 if (character == null) return;
             }
 
+            if (activeAction == ActionPresentation.Aim && character.IsAiming) UpdateFacing(character.AimDirection);
             if (isDead || current == LocomotionState.Dodge || activeAction != ActionPresentation.None) return;
             SampleLocomotion();
         }
@@ -178,8 +179,21 @@ namespace MemorialArchive.Gameplay.Character.View
         private void HandleCharacterStateChanged(CharacterActionStateChangedEvent evt)
         {
             presentedState = evt.State;
+            if (activeAction == ActionPresentation.Aim && evt.State != CharacterActionState.Aiming && evt.State != CharacterActionState.ThrowAiming)
+                StopActionToLocomotion();
             if (evt.State == CharacterActionState.Dead) { HandleCharacterDied(new CharacterDiedEvent(0f)); return; }
             if (evt.State == CharacterActionState.Staggered) { StartOneShot(bayonetCombatData, "hurt1", ActionPresentation.Hurt); return; }
+            if (evt.State == CharacterActionState.ThrowAiming)
+            {
+                StartLoop(bayonetCombatData, "throw_aim", ActionPresentation.Aim);
+                if (character != null) UpdateFacing(character.AimDirection);
+                return;
+            }
+            if (evt.State == CharacterActionState.Throwing)
+            {
+                StartOneShot(bayonetCombatData, "throw", ActionPresentation.Attack);
+                return;
+            }
             if (evt.State == CharacterActionState.Attack1 || evt.State == CharacterActionState.Attack2 || evt.State == CharacterActionState.Attack3)
             {
                 PlayStateAttack(evt.State);

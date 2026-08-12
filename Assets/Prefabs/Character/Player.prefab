@@ -168,8 +168,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7a3445f8162f6e428692d92c5638578, type: 3}
   m_Name:
   m_EditorClassIdentifier:
-  interactKey: 101
-  sceneTransitionKey: 102
+  interactKey: 102
   dodgeKey: 32
   inventoryKey: 9
   diaryKey: 105
@@ -228,8 +227,7 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   promptRoot: {fileID: 800000000}
   promptText: {fileID: 800000005}
-  interactKey: E
-  sceneExitKey: F
+  interactKey: F
 --- !u!114 &9100000000000000001
 MonoBehaviour:
   m_ObjectHideFlags: 0

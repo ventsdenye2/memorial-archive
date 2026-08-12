@@ -12,8 +12,7 @@ namespace MemorialArchive.Gameplay.Character.View
         [SerializeField] private KeyCode diaryKey = KeyCode.I;
         [SerializeField] private KeyCode mapKey = KeyCode.M;
         [SerializeField] private KeyCode reloadKey = KeyCode.R;
-        [SerializeField] private KeyCode interactKey = KeyCode.E;
-        [SerializeField] private KeyCode sceneTransitionKey = KeyCode.F;
+        [SerializeField] private KeyCode interactKey = KeyCode.F;
 
         private void Update()
         {
@@ -56,7 +55,7 @@ namespace MemorialArchive.Gameplay.Character.View
                 events.Publish(new PrimaryActionPressedEvent());
             }
 
-            if (Input.GetKeyDown(interactKey) || Input.GetKeyDown(sceneTransitionKey))
+            if (Input.GetKeyDown(interactKey))
             {
                 events.Publish(new InteractPressedEvent());
             }

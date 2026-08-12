@@ -10,8 +10,7 @@ namespace MemorialArchive.Framework.UI
     {
         [SerializeField] private GameObject promptRoot;
         [SerializeField] private Text promptText;
-        [SerializeField] private string interactKey = "E";
-        [SerializeField] private string sceneExitKey = "F";
+        [SerializeField] private string interactKey = "F";
 
         private bool isInitialized;
         private EventBus boundEvents;
@@ -77,9 +76,10 @@ namespace MemorialArchive.Framework.UI
 
             if (evt.HasFocus)
             {
-                promptText.text = evt.InteractionType == InteractionType.SceneExit
-                    ? $"[{sceneExitKey}] 前往"
-                    : $"[{interactKey}] {GetActionName(evt.InteractionType)}";
+                var actionName = evt.InteractionType == InteractionType.SceneExit
+                    ? "前往"
+                    : GetActionName(evt.InteractionType);
+                promptText.text = $"[{interactKey}] {actionName}";
                 promptRoot.SetActive(true);
             }
             else

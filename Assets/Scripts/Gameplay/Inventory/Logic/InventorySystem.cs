@@ -206,17 +206,85 @@ namespace MemorialArchive.Gameplay.Inventory.Logic
             return true;
         }
 
-public bool TryDiscardPlayerItem(string instanceId)
-{
-    var source = FindPlayerPlacement(instanceId);
-    if (source == null) return Fail(instanceId, "Item instance was not found in the player inventory.");
-    var shortcutChanged = source.containerKind == InventoryContainerKind.ShortcutBar;
-    if (shortcutChanged && playerInventory.selectedShortcutIndex == source.slotIndex) playerInventory.selectedShortcutIndex = -1;
-    playerInventory.playerItems.Remove(source);
-    if (shortcutChanged) context.Events.Publish(new ShortcutChangedEvent());
-    context.Events.Publish(new InventoryChangedEvent());
-    return true;
-}
+        /// <summary>
+        /// Moves a backpack item to the first legal empty equipment slot selected
+        /// by its configured quick-access type. A full or incompatible target is
+        /// intentionally a silent no-op because the Equip button must never swap
+        /// or discard an already equipped item.
+        /// </summary>
+        public bool TryEquipToFirstAvailableSlot(string instanceId)
+        {
+            var source = FindPlayerPlacement(instanceId);
+            if (source == null || source.item == null || source.containerKind != InventoryContainerKind.Backpack)
+            {
+                return false;
+            }
+
+            var config = context.Configs.GetItem(source.item.itemId);
+            if (config == null)
+            {
+                return false;
+            }
+
+            if (config.QuickAccessBarType == 2)
+            {
+                return config.CanEquipToOffhand &&
+                       config.OffhandType != OffhandType.None &&
+                       FindPlayerSlot(InventoryContainerKind.Offhand, 0) == null &&
+                       TryMoveToOffhand(instanceId);
+            }
+
+            if (config.QuickAccessBarType != 1 || !config.CanEquipToShortcut)
+            {
+                return false;
+            }
+
+            for (var slotIndex = 0; slotIndex < ShortcutSlotCount; slotIndex++)
+            {
+                if (FindPlayerSlot(InventoryContainerKind.ShortcutBar, slotIndex) == null)
+                {
+                    return TryMoveToShortcut(instanceId, slotIndex);
+                }
+            }
+
+            return false;
+        }
+
+        public bool TryDiscardPlayerItem(string instanceId)
+        {
+            var source = FindPlayerPlacement(instanceId);
+            if (source == null)
+            {
+                return Fail(instanceId, "Item instance was not found in the player inventory.");
+            }
+
+            var shortcutChanged = source.containerKind == InventoryContainerKind.ShortcutBar;
+            var selectedShortcutChanged = shortcutChanged && playerInventory.selectedShortcutIndex == source.slotIndex;
+            var equipmentChanged = selectedShortcutChanged || source.containerKind == InventoryContainerKind.Offhand;
+            if (selectedShortcutChanged)
+            {
+                playerInventory.selectedShortcutIndex = -1;
+            }
+
+            playerInventory.playerItems.Remove(source);
+            if (shortcutChanged)
+            {
+                context.Events.Publish(new ShortcutChangedEvent());
+            }
+
+            if (selectedShortcutChanged)
+            {
+                context.Events.Publish(new SelectedItemChangedEvent(null));
+            }
+
+            context.Events.Publish(new InventoryChangedEvent());
+            if (equipmentChanged)
+            {
+                PublishCharacterEquipment();
+            }
+
+            return true;
+        }
 
         public bool TryConsumePlayerItem(string instanceId)
         {

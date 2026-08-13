@@ -5,9 +5,9 @@ namespace MemorialArchive.Framework.UI
 {
     public enum InventoryPanelButtonActionType
     {
-        Close,
-        Select,
-        Cancel
+        Close = 0,
+        Equip = 1,
+        Discard = 2
     }
 
     [RequireComponent(typeof(Button))]
@@ -15,6 +15,8 @@ namespace MemorialArchive.Framework.UI
     {
         [SerializeField] private InventoryPanel panel;
         [SerializeField] private InventoryPanelButtonActionType actionType;
+
+        public InventoryPanelButtonActionType ActionType => actionType;
 
         public void Configure(InventoryPanel owner, InventoryPanelButtonActionType action)
         {
@@ -48,11 +50,11 @@ namespace MemorialArchive.Framework.UI
                 case InventoryPanelButtonActionType.Close:
                     panel?.CloseFromButton();
                     break;
-                case InventoryPanelButtonActionType.Select:
-                    panel?.SelectFromButton();
+                case InventoryPanelButtonActionType.Equip:
+                    panel?.EquipFromButton();
                     break;
-                case InventoryPanelButtonActionType.Cancel:
-                    panel?.CancelFromButton();
+                case InventoryPanelButtonActionType.Discard:
+                    panel?.DiscardFromButton();
                     break;
             }
         }

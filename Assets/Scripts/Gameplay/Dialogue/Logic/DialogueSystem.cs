@@ -13,6 +13,7 @@ namespace MemorialArchive.Gameplay.Dialogue.Logic
         private DialogueSequenceConfig sequence;
         private int nodeIndex = -1;
         private int lastAdvanceFrame = -1;
+        private bool isTypewriterPlaying;
         private DialoguePlaybackState state = DialoguePlaybackState.Idle;
 
         public bool IsPlaying => sequence != null && state != DialoguePlaybackState.Idle && state != DialoguePlaybackState.Finished;
@@ -26,6 +27,7 @@ namespace MemorialArchive.Gameplay.Dialogue.Logic
             context.Events.Subscribe<DialoguePlayRequestedEvent>(HandlePlayRequested);
             context.Events.Subscribe<DialogueAdvancePressedEvent>(HandleAdvancePressed);
             context.Events.Subscribe<DialogueBlockingEffectFinishedEvent>(HandleBlockingEffectFinished);
+            context.Events.Subscribe<DialogueTypewriterStateChangedEvent>(HandleTypewriterStateChanged);
         }
 
         public void Dispose()
@@ -35,6 +37,7 @@ namespace MemorialArchive.Gameplay.Dialogue.Logic
                 context.Events.Unsubscribe<DialoguePlayRequestedEvent>(HandlePlayRequested);
                 context.Events.Unsubscribe<DialogueAdvancePressedEvent>(HandleAdvancePressed);
                 context.Events.Unsubscribe<DialogueBlockingEffectFinishedEvent>(HandleBlockingEffectFinished);
+                context.Events.Unsubscribe<DialogueTypewriterStateChangedEvent>(HandleTypewriterStateChanged);
             }
 
             ResetPlayback();
@@ -70,6 +73,13 @@ namespace MemorialArchive.Gameplay.Dialogue.Logic
 
             lastAdvanceFrame = Time.frameCount;
 
+            if (isTypewriterPlaying)
+            {
+                context.Events.Publish(
+                    new DialogueTypewriterCompletionRequestedEvent(CurrentDialogueId, nodeIndex));
+                return;
+            }
+
             if (nodeIndex >= sequence.Nodes.Length - 1)
             {
                 FinishPlayback();
@@ -89,6 +99,16 @@ namespace MemorialArchive.Gameplay.Dialogue.Logic
 
             state = DialoguePlaybackState.Presenting;
             PublishPlaybackState();
+        }
+
+        private void HandleTypewriterStateChanged(DialogueTypewriterStateChangedEvent evt)
+        {
+            if (evt.DialogueId != CurrentDialogueId || evt.NodeIndex != nodeIndex)
+            {
+                return;
+            }
+
+            isTypewriterPlaying = evt.IsTyping;
         }
 
         private void PresentCurrentNode()
@@ -153,6 +173,7 @@ namespace MemorialArchive.Gameplay.Dialogue.Logic
             sequence = null;
             nodeIndex = -1;
             lastAdvanceFrame = -1;
+            isTypewriterPlaying = false;
             state = DialoguePlaybackState.Idle;
         }
 

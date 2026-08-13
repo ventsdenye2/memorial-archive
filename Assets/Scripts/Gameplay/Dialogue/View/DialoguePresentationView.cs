@@ -31,19 +31,33 @@ namespace MemorialArchive.Gameplay.Dialogue.View
         [SerializeField] private PortraitSlot[] portraitSlots = Array.Empty<PortraitSlot>();
         [SerializeField, Range(0f, 1f)] private float inactivePortraitOverlayAlpha = 0.55f;
         [SerializeField] private bool dimAllPortraitsForNarration;
+        [Header("Dialogue text")]
+        [SerializeField, Min(1)] private int dialogueFontSize = 30;
         [SerializeField] private bool useTypewriter = true;
         [SerializeField, Min(1f)] private float charactersPerSecond = 36f;
 
         private bool subscribed;
         private Coroutine typewriterRoutine;
-        private Coroutine releaseTypewriterRoutine;
         private bool isTyping;
         private string typewriterText;
         private string typewriterDialogueId;
         private int typewriterNodeIndex = -1;
 
+        private void Awake()
+        {
+            ApplyDialogueTextStyle();
+        }
+
+#if UNITY_EDITOR
+        private void OnValidate()
+        {
+            ApplyDialogueTextStyle();
+        }
+#endif
+
         private void OnEnable()
         {
+            ApplyDialogueTextStyle();
             subscribed = false;
             StartCoroutine(SubscribeWhenReady());
         }
@@ -53,13 +67,12 @@ namespace MemorialArchive.Gameplay.Dialogue.View
             if (subscribed)
             {
                 GameRoot.Instance?.Context?.Events.Unsubscribe<DialogueNodePresentedEvent>(HandleNodePresented);
-                GameRoot.Instance?.Context?.Events.Unsubscribe<DialogueAdvancePressedEvent>(HandleAdvancePressed);
+                GameRoot.Instance?.Context?.Events.Unsubscribe<DialogueTypewriterCompletionRequestedEvent>(HandleTypewriterCompletionRequested);
                 subscribed = false;
             }
 
             StopAllCoroutines();
             typewriterRoutine = null;
-            releaseTypewriterRoutine = null;
             isTyping = false;
             SetFlashAlpha(0f);
         }
@@ -72,7 +85,7 @@ namespace MemorialArchive.Gameplay.Dialogue.View
             }
 
             GameRoot.Instance.Context.Events.Subscribe<DialogueNodePresentedEvent>(HandleNodePresented);
-            GameRoot.Instance.Context.Events.Subscribe<DialogueAdvancePressedEvent>(HandleAdvancePressed);
+            GameRoot.Instance.Context.Events.Subscribe<DialogueTypewriterCompletionRequestedEvent>(HandleTypewriterCompletionRequested);
             subscribed = true;
         }
 
@@ -226,18 +239,15 @@ namespace MemorialArchive.Gameplay.Dialogue.View
             SetFlashAlpha(to);
         }
 
-        private void HandleAdvancePressed(DialogueAdvancePressedEvent evt)
+        private void HandleTypewriterCompletionRequested(DialogueTypewriterCompletionRequestedEvent evt)
         {
-            if (!isTyping)
+            if (!isTyping || evt.DialogueId != typewriterDialogueId || evt.NodeIndex != typewriterNodeIndex)
             {
                 return;
             }
 
             CompleteTypewriter();
-            if (releaseTypewriterRoutine == null)
-            {
-                releaseTypewriterRoutine = StartCoroutine(ReleaseTypewriterState());
-            }
+            PublishTypewriterState(false);
         }
 
         private void StartTypewriter(DialogueNodeData node)
@@ -246,12 +256,6 @@ namespace MemorialArchive.Gameplay.Dialogue.View
             {
                 StopCoroutine(typewriterRoutine);
                 typewriterRoutine = null;
-            }
-
-            if (releaseTypewriterRoutine != null)
-            {
-                StopCoroutine(releaseTypewriterRoutine);
-                releaseTypewriterRoutine = null;
             }
 
             typewriterText = node.Text ?? string.Empty;
@@ -280,6 +284,7 @@ namespace MemorialArchive.Gameplay.Dialogue.View
         private IEnumerator TypewriterRoutine()
         {
             var visibleCount = 0;
+            var characterDelay = new WaitForSecondsRealtime(1f / Mathf.Max(1f, charactersPerSecond));
             while (visibleCount < typewriterText.Length && isTyping)
             {
                 visibleCount++;
@@ -287,11 +292,13 @@ namespace MemorialArchive.Gameplay.Dialogue.View
                 {
                     dialogueText.text = typewriterText.Substring(0, visibleCount);
                 }
-                yield return new WaitForSecondsRealtime(1f / Mathf.Max(1f, charactersPerSecond));
+                yield return characterDelay;
             }
 
-            CompleteTypewriter();
+            // Clear the coroutine reference before completing naturally so
+            // CompleteTypewriter does not attempt to stop its own coroutine.
             typewriterRoutine = null;
+            CompleteTypewriter();
             PublishTypewriterState(false);
         }
 
@@ -310,11 +317,20 @@ namespace MemorialArchive.Gameplay.Dialogue.View
             }
         }
 
-        private IEnumerator ReleaseTypewriterState()
+        private void ApplyDialogueTextStyle()
         {
-            yield return null;
-            releaseTypewriterRoutine = null;
-            PublishTypewriterState(false);
+            if (dialogueText == null)
+            {
+                return;
+            }
+
+            // Dialogue content controls wording and explicit line breaks only.
+            // Font sizing belongs to this View and remains identical for every node.
+            dialogueText.resizeTextForBestFit = false;
+            dialogueText.fontSize = Mathf.Max(1, dialogueFontSize);
+            dialogueText.supportRichText = false;
+            dialogueText.horizontalOverflow = HorizontalWrapMode.Wrap;
+            dialogueText.verticalOverflow = VerticalWrapMode.Overflow;
         }
 
         private void PublishTypewriterState(bool typing)

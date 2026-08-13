@@ -687,6 +687,18 @@ public readonly struct ContainerClosedEvent { }
 
     public readonly struct DialogueAdvancePressedEvent { }
 
+    public readonly struct DialogueTypewriterCompletionRequestedEvent
+    {
+        public DialogueTypewriterCompletionRequestedEvent(string dialogueId, int nodeIndex)
+        {
+            DialogueId = dialogueId;
+            NodeIndex = nodeIndex;
+        }
+
+        public string DialogueId { get; }
+        public int NodeIndex { get; }
+    }
+
     public readonly struct DialogueTypewriterStateChangedEvent
     {
         public DialogueTypewriterStateChangedEvent(string dialogueId, int nodeIndex, bool isTyping)

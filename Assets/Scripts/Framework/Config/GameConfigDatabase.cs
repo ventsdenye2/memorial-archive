@@ -5,6 +5,7 @@ using MemorialArchive.Gameplay.Item.Config;
 using MemorialArchive.Gameplay.Monster.Config;
 using MemorialArchive.Gameplay.Puzzle.Config;
 using MemorialArchive.Gameplay.Story.Config;
+using MemorialArchive.Gameplay.Dialogue.Config;
 using UnityEngine;
 
 namespace MemorialArchive.Framework.Config
@@ -20,6 +21,8 @@ namespace MemorialArchive.Framework.Config
         [SerializeField] private PuzzleConfig[] puzzles;
         [SerializeField] private StoryEntryConfig[] stories;
         [SerializeField] private GuideSequenceConfig[] guideSequences;
+        [SerializeField] private DialogueSequenceConfig[] dialogueSequences;
+        [SerializeField] private DialogueEffectConfig[] dialogueEffects;
 
         public ItemConfig[] Items => items;
         public CharacterAttributeConfig[] CharacterAttributes => characterAttributes;
@@ -29,5 +32,7 @@ namespace MemorialArchive.Framework.Config
         public PuzzleConfig[] Puzzles => puzzles;
         public StoryEntryConfig[] Stories => stories;
         public GuideSequenceConfig[] GuideSequences => guideSequences;
+        public DialogueSequenceConfig[] DialogueSequences => dialogueSequences;
+        public DialogueEffectConfig[] DialogueEffects => dialogueEffects;
     }
 }

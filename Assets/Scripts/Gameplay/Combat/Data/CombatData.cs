@@ -40,12 +40,14 @@ namespace MemorialArchive.Gameplay.Combat.Data
             int weaponItemId,
             CombatAttackKind attackKind,
             DamageType damageType,
-            int baseDamage,
+            float baseDamage,
             float range,
             Vector2 origin,
             Vector2 direction,
             float activeSeconds,
-            int comboStage = 0)
+            int comboStage = 0,
+            bool hasTargetWorldPosition = false,
+            Vector2 targetWorldPosition = default)
         {
             AttackInstanceId = attackInstanceId;
             AttackerId = attackerId;
@@ -59,6 +61,8 @@ namespace MemorialArchive.Gameplay.Combat.Data
             Direction = direction.sqrMagnitude > 0.0001f ? direction.normalized : Vector2.right;
             ActiveSeconds = Mathf.Max(0.01f, activeSeconds);
             ComboStage = Mathf.Clamp(comboStage, 0, 3);
+            HasTargetWorldPosition = hasTargetWorldPosition;
+            TargetWorldPosition = targetWorldPosition;
         }
 
         public int AttackInstanceId { get; }
@@ -67,11 +71,13 @@ namespace MemorialArchive.Gameplay.Combat.Data
         public int WeaponItemId { get; }
         public CombatAttackKind AttackKind { get; }
         public DamageType DamageType { get; }
-        public int BaseDamage { get; }
+        public float BaseDamage { get; }
         public float Range { get; }
         public Vector2 Origin { get; }
         public Vector2 Direction { get; }
         public float ActiveSeconds { get; }
+        public bool HasTargetWorldPosition { get; }
+        public Vector2 TargetWorldPosition { get; }
         /// <summary>近战为 1~3；枪械与投掷物为 0。</summary>
         public int ComboStage { get; }
     }
@@ -157,5 +163,16 @@ namespace MemorialArchive.Gameplay.Combat.Data
     {
         bool AppliesTo(string targetId);
         DamageResult Modify(DamageRequest request, DamageResult currentResult);
+    }
+
+    /// <summary>
+    /// CombatSystem 查询角色战斗快照的窄接口。角色仍拥有状态与体力，
+    /// CombatSystem 不引用完整 CharacterSystem。
+    /// </summary>
+    public interface ICharacterCombatStateProvider
+    {
+        bool IsBlocking { get; }
+        bool HasShieldEquipped { get; }
+        void ConsumeSuccessfulBlockStamina(float amount);
     }
 }

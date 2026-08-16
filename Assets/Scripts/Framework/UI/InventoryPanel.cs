@@ -42,9 +42,9 @@ namespace MemorialArchive.Framework.UI
         private RectTransform dragVisual;
         private Canvas dragCanvas;
         private GameObject discardConfirmationRoot;
-private Text discardPrompt;
-private string pendingDiscardInstanceId;
-private bool dragDroppedOnSlot;
+        private Text discardPrompt;
+        private string pendingDiscardInstanceId;
+        private bool dragDroppedOnSlot;
 
         protected override void Awake()
         {
@@ -53,6 +53,8 @@ private bool dragDroppedOnSlot;
             {
                 Debug.LogError("InventoryPanel has no authored slot views. Rebuild its prefab layout from Tools/Memorial Archive.", this);
             }
+
+            ConfigureActionButtons();
         }
 
         private void OnEnable()
@@ -65,6 +67,7 @@ private bool dragDroppedOnSlot;
         {
             Unsubscribe();
             DestroyDragVisual();
+            HideDiscardConfirmation();
         }
 
         public override void Open()
@@ -79,6 +82,7 @@ private bool dragDroppedOnSlot;
             selectedSlot = null;
             dragSource = null;
             DestroyDragVisual();
+            HideDiscardConfirmation();
             base.Close();
         }
 
@@ -176,16 +180,45 @@ private bool dragDroppedOnSlot;
             root?.Context?.UI?.Close(PanelId.Inventory);
         }
 
-        public void SelectFromButton()
+        public void EquipFromButton()
         {
-            SetStatus(selectedSlot == null ? "请先选择一个物品。" : "已选择，可拖到目标格。", selectedSlot == null);
+            var inventory = GameRoot.Instance?.GetSystem<InventorySystem>();
+            var placement = inventory != null && selectedSlot != null &&
+                            selectedSlot.ContainerKind == InventoryContainerKind.Backpack
+                ? FindPlacement(inventory, selectedSlot)
+                : null;
+            if (placement?.item == null)
+            {
+                SetStatus("请先选择背包中的物品。", true);
+                return;
+            }
+
+            // Full or incompatible equipment targets deliberately leave the
+            // selection and inventory unchanged.
+            if (!inventory.TryEquipToFirstAvailableSlot(placement.item.instanceId))
+            {
+                return;
+            }
+
+            selectedSlot = null;
+            SetStatus("物品已装备到空闲栏位。", false);
+            Refresh();
         }
 
-        public void CancelFromButton()
+        public void DiscardFromButton()
         {
-            selectedSlot = null;
-            SetStatus("已取消选择。", false);
-            Refresh();
+            var inventory = GameRoot.Instance?.GetSystem<InventorySystem>();
+            var placement = inventory != null && selectedSlot != null &&
+                            selectedSlot.ContainerKind == InventoryContainerKind.Backpack
+                ? FindPlacement(inventory, selectedSlot)
+                : null;
+            if (placement?.item == null)
+            {
+                SetStatus("请先选择背包中的物品。", true);
+                return;
+            }
+
+            ShowDiscardConfirmation(placement.item.instanceId, GetItemName(placement.item.itemId));
         }
 
 #if UNITY_EDITOR
@@ -221,8 +254,8 @@ private bool dragDroppedOnSlot;
             descriptionLabel.text = "选择物品后，这里会显示名称和数量。";
 
             CreateButton("CloseButton", transform, new Vector2(650f, 385f), new Vector2(54f, 54f), closeSprite, null, InventoryPanelButtonActionType.Close);
-            CreateButton("SelectButton", transform, new Vector2(230f, -275f), new Vector2(126f, 66f), selectSprite, selectHighlightedSprite, InventoryPanelButtonActionType.Select);
-            CreateButton("CancelButton", transform, new Vector2(390f, -275f), new Vector2(126f, 66f), cancelSprite, cancelHighlightedSprite, InventoryPanelButtonActionType.Cancel);
+            CreateButton("EquipButton", transform, new Vector2(230f, -275f), new Vector2(126f, 66f), descriptionSprite, null, InventoryPanelButtonActionType.Equip);
+            CreateButton("DiscardButton", transform, new Vector2(390f, -275f), new Vector2(126f, 66f), descriptionSprite, null, InventoryPanelButtonActionType.Discard);
 
             CreateGrid(InventoryContainerKind.ShortcutBar, 0, new Vector2(-45f, -455f), 3, 1,
                 new Vector2(75f, 73f), new Vector2(16f, 0f), hudSlotSprite, hudSelectedSlotSprite);
@@ -281,27 +314,36 @@ private bool dragDroppedOnSlot;
             Refresh();
         }
 
-private void DropOutsidePlayerInventory(InventorySlotView source)
-{
-    var inventory = GameRoot.Instance?.GetSystem<InventorySystem>();
-    if (inventory == null) return;
-    if (!inventory.HasOpenSceneContainer)
-    {
-        ShowDiscardConfirmation(source.ItemInstanceId, GetItemName(GetItemId(source)));
-        return;
-    }
+        private void DropOutsidePlayerInventory(InventorySlotView source)
+        {
+            var inventory = GameRoot.Instance?.GetSystem<InventorySystem>();
+            if (inventory == null)
+            {
+                return;
+            }
 
-    foreach (var slot in slots)
-    {
-        if (slot == null || slot.ContainerKind != InventoryContainerKind.SceneContainer || FindPlacement(inventory, slot) != null) continue;
-        var success = inventory.TryDropToSceneContainer(source.ItemInstanceId, null, slot.X, slot.Y);
-        SetStatus(success ? "物品已放入场景物品栏。" : "无法放入场景物品栏。", !success);
-        Refresh();
-        return;
-    }
+            if (!inventory.HasOpenSceneContainer)
+            {
+                ShowDiscardConfirmation(source.ItemInstanceId, GetItemName(GetItemId(source)));
+                return;
+            }
 
-    SetStatus("场景物品栏已满，物品保留在原位置。", true);
-}
+            foreach (var slot in slots)
+            {
+                if (slot == null || slot.ContainerKind != InventoryContainerKind.SceneContainer ||
+                    FindPlacement(inventory, slot) != null)
+                {
+                    continue;
+                }
+
+                var success = inventory.TryDropToSceneContainer(source.ItemInstanceId, null, slot.X, slot.Y);
+                SetStatus(success ? "物品已放入场景物品栏。" : "无法放入场景物品栏。", !success);
+                Refresh();
+                return;
+            }
+
+            SetStatus("场景物品栏已满，物品保留在原位置。", true);
+        }
 
         private static bool IsPlayerSlot(InventorySlotView slot)
         {
@@ -382,6 +424,7 @@ private void DropOutsidePlayerInventory(InventorySlotView source)
             }
 
             buttonObject.GetComponent<InventoryPanelButtonAction>().Configure(this, actionType);
+            ConfigureActionButton(buttonObject.transform, actionType);
         }
 
         private static Text CreateText(string name, Transform parent, Vector2 position, Vector2 size, int fontSize, TextAnchor alignment)
@@ -402,25 +445,37 @@ private void DropOutsidePlayerInventory(InventorySlotView source)
         }
 #endif
 
-private void Refresh()
-{
-    var inventory = GameRoot.Instance?.GetSystem<InventorySystem>();
-    if (inventory == null) return;
-    SetSceneContainerVisible(inventory.HasOpenSceneContainer);
-    foreach (var slot in slots)
-    {
-        if (slot == null) continue;
-        var placement = FindPlacement(inventory, slot);
-        var config = placement?.item == null ? null : GameRoot.Instance.Context.Configs.GetItem(placement.item.itemId);
-        var itemName = config != null ? config.ItemName : placement != null ? GetItemName(placement.item.itemId) : string.Empty;
-        slot.Refresh(placement?.item?.instanceId, itemName, config != null ? config.Icon : null, placement?.item?.quantity ?? 0, slot == selectedSlot);
-    }
-    if (descriptionLabel != null)
-    {
-        var selectedPlacement = selectedSlot != null ? FindPlacement(inventory, selectedSlot) : null;
-        descriptionLabel.text = selectedPlacement?.item == null ? "选择物品后，这里会显示名称和数量。" : GetItemName(selectedPlacement.item.itemId) + "  ×" + selectedPlacement.item.quantity;
-    }
-}
+        private void Refresh()
+        {
+            var inventory = GameRoot.Instance?.GetSystem<InventorySystem>();
+            if (inventory == null)
+            {
+                return;
+            }
+
+            SetSceneContainerVisible(inventory.HasOpenSceneContainer);
+            foreach (var slot in slots)
+            {
+                if (slot == null)
+                {
+                    continue;
+                }
+
+                var placement = FindPlacement(inventory, slot);
+                var config = placement?.item == null ? null : GameRoot.Instance.Context.Configs.GetItem(placement.item.itemId);
+                var itemName = config != null ? config.ItemName : placement != null ? GetItemName(placement.item.itemId) : string.Empty;
+                slot.Refresh(placement?.item?.instanceId, itemName, config != null ? config.Icon : null,
+                    placement?.item?.quantity ?? 0, slot == selectedSlot);
+            }
+
+            if (descriptionLabel != null)
+            {
+                var selectedPlacement = selectedSlot != null ? FindPlacement(inventory, selectedSlot) : null;
+                descriptionLabel.text = selectedPlacement?.item == null
+                    ? "选择物品后，这里会显示名称和数量。"
+                    : GetItemName(selectedPlacement.item.itemId) + "  ×" + selectedPlacement.item.quantity;
+            }
+        }
 
         private static InventoryItemPlacement FindPlacement(InventorySystem inventory, InventorySlotView slot)
         {
@@ -492,6 +547,74 @@ private void Refresh()
             statusLabel.color = isError ? new Color(1f, 0.48f, 0.42f, 1f) : new Color(0.7f, 0.94f, 0.75f, 1f);
         }
 
+        private void ConfigureActionButtons()
+        {
+            foreach (var action in GetComponentsInChildren<InventoryPanelButtonAction>(true))
+            {
+                if (action != null)
+                {
+                    ConfigureActionButton(action.transform, action.ActionType);
+                }
+            }
+        }
+
+        private void ConfigureActionButton(Transform buttonTransform, InventoryPanelButtonActionType actionType)
+        {
+            if (buttonTransform == null || actionType == InventoryPanelButtonActionType.Close)
+            {
+                return;
+            }
+
+            var labelText = actionType == InventoryPanelButtonActionType.Equip ? "装备" : "丢弃";
+            buttonTransform.name = actionType == InventoryPanelButtonActionType.Equip ? "EquipButton" : "DiscardButton";
+
+            // The original button art has the old captions baked into the PNG.
+            // Use the caption-free parchment artwork and author the new caption
+            // as UI text so future wording changes do not require new textures.
+            var image = buttonTransform.GetComponent<Image>();
+            if (image != null)
+            {
+                image.sprite = descriptionSprite;
+                image.type = Image.Type.Simple;
+                image.color = Color.white;
+            }
+
+            var button = buttonTransform.GetComponent<Button>();
+            if (button != null)
+            {
+                button.transition = Selectable.Transition.ColorTint;
+                var colors = button.colors;
+                colors.normalColor = Color.white;
+                colors.highlightedColor = new Color(1f, 0.9f, 0.72f, 1f);
+                colors.pressedColor = new Color(0.84f, 0.68f, 0.5f, 1f);
+                colors.selectedColor = colors.highlightedColor;
+                button.colors = colors;
+            }
+
+            var label = buttonTransform.Find("ActionLabel")?.GetComponent<Text>();
+            if (label == null)
+            {
+                var labelObject = new GameObject("ActionLabel", typeof(RectTransform), typeof(Text));
+                labelObject.transform.SetParent(buttonTransform, false);
+                var rect = labelObject.GetComponent<RectTransform>();
+                rect.anchorMin = Vector2.zero;
+                rect.anchorMax = Vector2.one;
+                rect.offsetMin = Vector2.zero;
+                rect.offsetMax = Vector2.zero;
+                label = labelObject.GetComponent<Text>();
+            }
+
+            label.text = labelText;
+            label.font = descriptionLabel != null && descriptionLabel.font != null
+                ? descriptionLabel.font
+                : Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            label.fontSize = 26;
+            label.fontStyle = FontStyle.Bold;
+            label.alignment = TextAnchor.MiddleCenter;
+            label.color = new Color(0.18f, 0.11f, 0.08f, 1f);
+            label.raycastTarget = false;
+        }
+
         private void CreateDragVisual(InventorySlotView source)
         {
             DestroyDragVisual();
@@ -559,77 +682,129 @@ private void Refresh()
             dragCanvas = null;
         }
 
-private void SetSceneContainerVisible(bool visible)
-{
-    // The authored prefab uses SceneContainer. Keep the old generated-layout
-    // name as a fallback so both layouts follow the same visibility rule.
-    var panel = transform.Find("SceneContainer") ?? transform.Find("SceneContainerPanel");
-    if (panel != null) panel.gameObject.SetActive(visible);
-    foreach (var slot in slots)
-    {
-        if (slot != null && slot.ContainerKind == InventoryContainerKind.SceneContainer) slot.gameObject.SetActive(visible);
-    }
-}
+        private void SetSceneContainerVisible(bool visible)
+        {
+            // The authored prefab uses SceneContainer. Keep the old generated-layout
+            // name as a fallback so both layouts follow the same visibility rule.
+            var panel = transform.Find("SceneContainer") ?? transform.Find("SceneContainerPanel");
+            if (panel != null)
+            {
+                panel.gameObject.SetActive(visible);
+            }
 
-private void ShowDiscardConfirmation(string instanceId, string itemName)
-{
-    if (string.IsNullOrEmpty(instanceId)) return;
-    BuildDiscardConfirmationIfNeeded();
-    pendingDiscardInstanceId = instanceId;
-    discardPrompt.text = "确定丢弃“" + itemName + "”吗？\n丢弃后物品将直接消失，无法找回。";
-    discardConfirmationRoot.SetActive(true);
-}
+            foreach (var slot in slots)
+            {
+                if (slot != null && slot.ContainerKind == InventoryContainerKind.SceneContainer)
+                {
+                    slot.gameObject.SetActive(visible);
+                }
+            }
+        }
 
-private void ConfirmDiscard()
-{
-    var inventory = GameRoot.Instance?.GetSystem<InventorySystem>();
-    var ok = inventory != null && !string.IsNullOrEmpty(pendingDiscardInstanceId) && inventory.TryDiscardPlayerItem(pendingDiscardInstanceId);
-    pendingDiscardInstanceId = null;
-    discardConfirmationRoot.SetActive(false);
-    SetStatus(ok ? "物品已丢弃。" : "物品丢弃失败。", !ok);
-    Refresh();
-}
+        private void ShowDiscardConfirmation(string instanceId, string itemName)
+        {
+            if (string.IsNullOrEmpty(instanceId))
+            {
+                return;
+            }
 
-private void CancelDiscard()
-{
-    pendingDiscardInstanceId = null;
-    if (discardConfirmationRoot != null) discardConfirmationRoot.SetActive(false);
-    SetStatus("已取消丢弃。", false);
-}
+            BuildDiscardConfirmationIfNeeded();
+            pendingDiscardInstanceId = instanceId;
+            discardPrompt.text = "确定丢弃“" + itemName + "”吗？\n丢弃后物品将直接消失，无法找回。";
+            discardConfirmationRoot.SetActive(true);
+            discardConfirmationRoot.transform.SetAsLastSibling();
+        }
 
-private void BuildDiscardConfirmationIfNeeded()
-{
-    if (discardConfirmationRoot != null) return;
-    discardConfirmationRoot = new GameObject("DiscardConfirmation", typeof(RectTransform), typeof(Image));
-    discardConfirmationRoot.transform.SetParent(transform, false);
-    var overlay = discardConfirmationRoot.GetComponent<RectTransform>();
-    overlay.anchorMin = Vector2.zero; overlay.anchorMax = Vector2.one; overlay.offsetMin = Vector2.zero; overlay.offsetMax = Vector2.zero;
-    discardConfirmationRoot.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.72f);
-    var dialog = new GameObject("Dialog", typeof(RectTransform), typeof(Image));
-    dialog.transform.SetParent(discardConfirmationRoot.transform, false);
-    var dialogRect = dialog.GetComponent<RectTransform>();
-    dialogRect.anchorMin = dialogRect.anchorMax = new Vector2(0.5f, 0.5f); dialogRect.sizeDelta = new Vector2(520f, 250f);
-    dialog.GetComponent<Image>().color = new Color(0.12f, 0.14f, 0.18f, 1f);
-    discardPrompt = CreateRuntimeText(dialog.transform, "Prompt", new Vector2(0f, 48f), new Vector2(470f, 110f), 18);
-    CreateDiscardButton(dialog.transform, "Confirm", "确认丢弃", new Vector2(-115f, -75f), ConfirmDiscard);
-    CreateDiscardButton(dialog.transform, "Cancel", "取消", new Vector2(115f, -75f), CancelDiscard);
-    discardConfirmationRoot.SetActive(false);
-}
+        private void ConfirmDiscard()
+        {
+            var inventory = GameRoot.Instance?.GetSystem<InventorySystem>();
+            var instanceId = pendingDiscardInstanceId;
+            HideDiscardConfirmation();
+            var success = inventory != null && !string.IsNullOrEmpty(instanceId) &&
+                          inventory.TryDiscardPlayerItem(instanceId);
+            selectedSlot = null;
+            SetStatus(success ? "物品已丢弃。" : "物品丢弃失败。", !success);
+            Refresh();
+        }
 
-private static Text CreateRuntimeText(Transform parent, string name, Vector2 position, Vector2 size, int fontSize)
-{
-    var root = new GameObject(name, typeof(RectTransform), typeof(Text)); root.transform.SetParent(parent, false);
-    var rect = root.GetComponent<RectTransform>(); rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f); rect.anchoredPosition = position; rect.sizeDelta = size;
-    var text = root.GetComponent<Text>(); text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf"); text.fontSize = fontSize; text.alignment = TextAnchor.MiddleCenter; text.color = Color.white; return text;
-}
+        private void CancelDiscard()
+        {
+            HideDiscardConfirmation();
+            SetStatus("已取消丢弃。", false);
+        }
 
-private static void CreateDiscardButton(Transform parent, string name, string label, Vector2 position, UnityEngine.Events.UnityAction action)
-{
-    var root = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button)); root.transform.SetParent(parent, false);
-    var rect = root.GetComponent<RectTransform>(); rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f); rect.anchoredPosition = position; rect.sizeDelta = new Vector2(180f, 44f);
-    root.GetComponent<Image>().color = new Color(0.36f, 0.24f, 0.16f, 1f); root.GetComponent<Button>().onClick.AddListener(action);
-    var text = CreateRuntimeText(root.transform, "Label", Vector2.zero, rect.sizeDelta, 16); text.text = label;
-}
+        private void HideDiscardConfirmation()
+        {
+            pendingDiscardInstanceId = null;
+            if (discardConfirmationRoot != null)
+            {
+                discardConfirmationRoot.SetActive(false);
+            }
+        }
+
+        private void BuildDiscardConfirmationIfNeeded()
+        {
+            if (discardConfirmationRoot != null)
+            {
+                return;
+            }
+
+            discardConfirmationRoot = new GameObject("DiscardConfirmation", typeof(RectTransform), typeof(Image));
+            discardConfirmationRoot.transform.SetParent(transform, false);
+            var overlay = discardConfirmationRoot.GetComponent<RectTransform>();
+            overlay.anchorMin = Vector2.zero;
+            overlay.anchorMax = Vector2.one;
+            overlay.offsetMin = Vector2.zero;
+            overlay.offsetMax = Vector2.zero;
+            discardConfirmationRoot.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.72f);
+
+            var dialog = new GameObject("Dialog", typeof(RectTransform), typeof(Image));
+            dialog.transform.SetParent(discardConfirmationRoot.transform, false);
+            var dialogRect = dialog.GetComponent<RectTransform>();
+            dialogRect.anchorMin = dialogRect.anchorMax = new Vector2(0.5f, 0.5f);
+            dialogRect.sizeDelta = new Vector2(520f, 250f);
+            dialog.GetComponent<Image>().color = new Color(0.12f, 0.14f, 0.18f, 1f);
+
+            discardPrompt = CreateRuntimeText(dialog.transform, "Prompt", new Vector2(0f, 48f),
+                new Vector2(470f, 110f), 18);
+            CreateDiscardButton(dialog.transform, "Confirm", "确认丢弃", new Vector2(-115f, -75f), ConfirmDiscard);
+            CreateDiscardButton(dialog.transform, "Cancel", "取消", new Vector2(115f, -75f), CancelDiscard);
+            discardConfirmationRoot.SetActive(false);
+        }
+
+        private Text CreateRuntimeText(Transform parent, string name, Vector2 position, Vector2 size, int fontSize)
+        {
+            var root = new GameObject(name, typeof(RectTransform), typeof(Text));
+            root.transform.SetParent(parent, false);
+            var rect = root.GetComponent<RectTransform>();
+            rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition = position;
+            rect.sizeDelta = size;
+            var text = root.GetComponent<Text>();
+            text.font = descriptionLabel != null && descriptionLabel.font != null
+                ? descriptionLabel.font
+                : Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            text.fontSize = fontSize;
+            text.alignment = TextAnchor.MiddleCenter;
+            text.color = Color.white;
+            text.raycastTarget = false;
+            return text;
+        }
+
+        private void CreateDiscardButton(Transform parent, string name, string label, Vector2 position,
+            UnityEngine.Events.UnityAction action)
+        {
+            var root = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button));
+            root.transform.SetParent(parent, false);
+            var rect = root.GetComponent<RectTransform>();
+            rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition = position;
+            rect.sizeDelta = new Vector2(180f, 44f);
+            root.GetComponent<Image>().color = new Color(0.36f, 0.24f, 0.16f, 1f);
+            root.GetComponent<Button>().onClick.AddListener(action);
+            var text = CreateRuntimeText(root.transform, "Label", Vector2.zero, rect.sizeDelta, 16);
+            text.text = label;
+        }
 
     }
 }

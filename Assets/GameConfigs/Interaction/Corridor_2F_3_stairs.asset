@@ -22,7 +22,7 @@ MonoBehaviour:
   noteId: 
   transitionSceneId: 
   transitionSpawnPointId: 
-  stairPrompt: "\u8BF7\u9009\u62E9\u524D\u5F80\u697C\u5C42"
+  stairPrompt: "\u8BF7\u9009\u62E9\u76EE\u7684\u697C\u5C42"
   stairUpSceneId: 
   stairUpSpawnPointId: 
   stairDownSceneId: Floor_1F

@@ -13,10 +13,12 @@ using MemorialArchive.Gameplay.Item.Logic;
 using MemorialArchive.Gameplay.Monster.Logic;
 using MemorialArchive.Gameplay.Puzzle.Logic;
 using MemorialArchive.Gameplay.Story.Logic;
+using MemorialArchive.Gameplay.Dialogue.Logic;
 using UnityEngine;
 
 namespace MemorialArchive.Framework.Core
 {
+    [DefaultExecutionOrder(-10000)]
     public sealed class GameRoot : MonoBehaviour
     {
         [SerializeField] private GameConfigDatabase configDatabase;
@@ -136,15 +138,17 @@ namespace MemorialArchive.Framework.Core
                 RegisterSystem(uiManager);
             }
 
-            RegisterSystem(new CharacterSystem());
+            var character = new CharacterSystem();
+            RegisterSystem(character);
             RegisterSystem(new InventorySystem());
             RegisterSystem(new ItemEffectSystem());
-            RegisterSystem(new CombatSystem());
+            RegisterSystem(new CombatSystem(character));
             RegisterSystem(new InteractionSystem());
             RegisterSystem(new MonsterSystem());
             RegisterSystem(new PuzzleSystem());
             RegisterSystem(new StorySystem());
             RegisterSystem(new GuideSystem());
+            RegisterSystem(new DialogueSystem());
 
             foreach (var system in systems)
             {

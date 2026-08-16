@@ -3,6 +3,7 @@ using MemorialArchive.Gameplay.Inventory.Data;
 using MemorialArchive.Gameplay.Combat.Data;
 using MemorialArchive.Gameplay.Character.Data;
 using MemorialArchive.Gameplay.Item.Config;
+using MemorialArchive.Gameplay.Item.Data;
 using MemorialArchive.Gameplay.Monster.Data;
 using MemorialArchive.Framework.UI;
 using UnityEngine;
@@ -50,6 +51,33 @@ namespace MemorialArchive.Framework.Event
 
         public bool IsAiming { get; }
         public Vector2 PointerWorldPosition { get; }
+    }
+
+    public enum PrimaryActionPhase { Started, Updated, Released, Canceled }
+
+    /// <summary>左键完整生命周期；投掷物用它实现按住瞄准、松开投掷。</summary>
+    public readonly struct PrimaryActionPhaseEvent
+    {
+        public PrimaryActionPhaseEvent(PrimaryActionPhase phase, Vector2 pointerWorldPosition)
+        {
+            Phase = phase;
+            PointerWorldPosition = pointerWorldPosition;
+        }
+        public PrimaryActionPhase Phase { get; }
+        public Vector2 PointerWorldPosition { get; }
+    }
+
+    public readonly struct ThrowableAimChangedEvent
+    {
+        public ThrowableAimChangedEvent(bool isAiming, int itemId, Vector2 targetWorldPosition)
+        {
+            IsAiming = isAiming;
+            ItemId = itemId;
+            TargetWorldPosition = targetWorldPosition;
+        }
+        public bool IsAiming { get; }
+        public int ItemId { get; }
+        public Vector2 TargetWorldPosition { get; }
     }
 
     public readonly struct DodgePressedEvent { }
@@ -282,6 +310,21 @@ public readonly struct ContainerClosedEvent { }
         public InventoryItemInstance Item { get; }
     }
 
+    /// <summary>Requests consumption of one concrete inventory item instance.</summary>
+    public readonly struct InventoryItemConsumeRequestedEvent
+    {
+        public InventoryItemConsumeRequestedEvent(string instanceId, int itemId = 0, string effectId = null)
+        {
+            InstanceId = instanceId;
+            ItemId = itemId;
+            EffectId = effectId;
+        }
+
+        public string InstanceId { get; }
+        public int ItemId { get; }
+        public string EffectId { get; }
+    }
+
     public readonly struct ItemUseFailedEvent
     {
         public ItemUseFailedEvent(int itemId, string reason)
@@ -304,6 +347,43 @@ public readonly struct ContainerClosedEvent { }
 
         public int ItemId { get; }
         public string EffectId { get; }
+    }
+
+    /// <summary>Typed character effect created by ItemEffectSystem from an item configuration.</summary>
+    public readonly struct CharacterItemEffectRequestedEvent
+    {
+        public CharacterItemEffectRequestedEvent(int itemId, ItemEffectData effect)
+        {
+            ItemId = itemId;
+            Effect = effect;
+        }
+
+        public int ItemId { get; }
+        public ItemEffectData Effect { get; }
+    }
+
+    /// <summary>Notifies presentation after a consumable instance was actually removed from inventory.</summary>
+    public readonly struct ConsumableUsedEvent
+    {
+        public ConsumableUsedEvent(int itemId, string effectId)
+        {
+            ItemId = itemId;
+            EffectId = effectId;
+        }
+
+        public int ItemId { get; }
+        public string EffectId { get; }
+    }
+
+    /// <summary>Character-owned temporary modifiers consumed by CombatSystem.</summary>
+    public readonly struct CharacterCombatModifiersChangedEvent
+    {
+        public CharacterCombatModifiersChangedEvent(float meleeDamageMultiplier)
+        {
+            MeleeDamageMultiplier = Mathf.Max(0f, meleeDamageMultiplier);
+        }
+
+        public float MeleeDamageMultiplier { get; }
     }
 
     public readonly struct AmmoReloadRequestedEvent
@@ -337,6 +417,13 @@ public readonly struct ContainerClosedEvent { }
         public CharacterActionState State { get; }
     }
 
+    /// <summary>角色动画 View 回报装备武器动画的实际播放生命周期。</summary>
+    public readonly struct CharacterEquipAnimationStateChangedEvent
+    {
+        public CharacterEquipAnimationStateChangedEvent(bool isPlaying) => IsPlaying = isPlaying;
+        public bool IsPlaying { get; }
+    }
+
     /// <summary>角色动画 View 在非循环动作结束时回传，仅用于角色状态机解锁。</summary>
     public readonly struct CharacterActionAnimationCompletedEvent
     {
@@ -355,14 +442,24 @@ public readonly struct ContainerClosedEvent { }
     public readonly struct CharacterAttackRequestedEvent
     {
         public CharacterAttackRequestedEvent(int itemId, int comboStage, Vector2 direction)
+            : this(itemId, comboStage, direction, false, Vector2.zero) { }
+
+        public CharacterAttackRequestedEvent(int itemId, int comboStage, Vector2 direction, Vector2 targetWorldPosition)
+            : this(itemId, comboStage, direction, true, targetWorldPosition) { }
+
+        private CharacterAttackRequestedEvent(int itemId, int comboStage, Vector2 direction, bool hasTargetWorldPosition, Vector2 targetWorldPosition)
         {
             ItemId = itemId;
             ComboStage = comboStage;
             Direction = direction.sqrMagnitude > 0.0001f ? direction.normalized : Vector2.right;
+            HasTargetWorldPosition = hasTargetWorldPosition;
+            TargetWorldPosition = targetWorldPosition;
         }
         public int ItemId { get; }
         public int ComboStage { get; }
         public Vector2 Direction { get; }
+        public bool HasTargetWorldPosition { get; }
+        public Vector2 TargetWorldPosition { get; }
     }
 
     public readonly struct CharacterDamageReceivedEvent
@@ -598,5 +695,80 @@ public readonly struct ContainerClosedEvent { }
     {
         public GuideStepHiddenEvent(string stepId) => StepId = stepId;
         public string StepId { get; }
+    }
+
+    public readonly struct DialoguePlayRequestedEvent
+    {
+        public DialoguePlayRequestedEvent(string dialogueId) => DialogueId = dialogueId;
+        public string DialogueId { get; }
+    }
+
+    public readonly struct DialogueAdvancePressedEvent { }
+
+    public readonly struct DialogueTypewriterCompletionRequestedEvent
+    {
+        public DialogueTypewriterCompletionRequestedEvent(string dialogueId, int nodeIndex)
+        {
+            DialogueId = dialogueId;
+            NodeIndex = nodeIndex;
+        }
+
+        public string DialogueId { get; }
+        public int NodeIndex { get; }
+    }
+
+    public readonly struct DialogueTypewriterStateChangedEvent
+    {
+        public DialogueTypewriterStateChangedEvent(string dialogueId, int nodeIndex, bool isTyping)
+        {
+            DialogueId = dialogueId;
+            NodeIndex = nodeIndex;
+            IsTyping = isTyping;
+        }
+
+        public string DialogueId { get; }
+        public int NodeIndex { get; }
+        public bool IsTyping { get; }
+    }
+
+    public readonly struct DialogueNodePresentedEvent
+    {
+        public DialogueNodePresentedEvent(MemorialArchive.Gameplay.Dialogue.Data.DialogueNodeData node) => Node = node;
+        public MemorialArchive.Gameplay.Dialogue.Data.DialogueNodeData Node { get; }
+    }
+
+    public readonly struct DialogueBlockingEffectFinishedEvent
+    {
+        public DialogueBlockingEffectFinishedEvent(string dialogueId, int nodeIndex)
+        {
+            DialogueId = dialogueId;
+            NodeIndex = nodeIndex;
+        }
+
+        public string DialogueId { get; }
+        public int NodeIndex { get; }
+    }
+
+    public readonly struct DialogueFinishedEvent
+    {
+        public DialogueFinishedEvent(string dialogueId) => DialogueId = dialogueId;
+        public string DialogueId { get; }
+    }
+
+    public readonly struct DialoguePlaybackStateChangedEvent
+    {
+        public DialoguePlaybackStateChangedEvent(
+            string dialogueId,
+            MemorialArchive.Gameplay.Dialogue.Data.DialoguePlaybackState state,
+            bool canAdvance)
+        {
+            DialogueId = dialogueId;
+            State = state;
+            CanAdvance = canAdvance;
+        }
+
+        public string DialogueId { get; }
+        public MemorialArchive.Gameplay.Dialogue.Data.DialoguePlaybackState State { get; }
+        public bool CanAdvance { get; }
     }
 }

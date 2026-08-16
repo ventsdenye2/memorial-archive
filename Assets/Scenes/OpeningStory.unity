@@ -214,6 +214,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: BlackScreenStoryPanel
       objectReference: {fileID: 0}
+    - target: {fileID: 2965510565998573324, guid: 3ba46d3eb5b2e204eb596728bba6b147, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -378,10 +382,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 953399162}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c606a3405c0341946a22aa9602671838, type: 3}
+  m_Script: {fileID: 11500000, guid: b852ec36cf5999e4980557c0009145da, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  storyId: 1
+  dialogueId: opening_dialogue
+  nextSceneId: FrontHall
+  nextSpawnPointId: FrontHall_1_spawn_initial
 --- !u!4 &953399164
 Transform:
   m_ObjectHideFlags: 0
@@ -557,6 +563,30 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &208000000
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications: []
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 285c87bc847ace6458404d1dea5c0402, type: 3}
+--- !u!1001 &208000100
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications: []
+    m_RemovedComponents: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: d42c7a9a3e1f4e6b8c0d5a7f9b2c6e18, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -565,3 +595,5 @@ SceneRoots:
   - {fileID: 874386829}
   - {fileID: 953399164}
   - {fileID: 2144259908}
+  - {fileID: 208000000}
+  - {fileID: 208000100}

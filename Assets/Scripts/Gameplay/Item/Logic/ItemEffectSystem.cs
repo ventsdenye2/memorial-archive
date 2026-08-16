@@ -1,6 +1,6 @@
 using MemorialArchive.Framework.Core;
 using MemorialArchive.Framework.Event;
-using UnityEngine;
+using MemorialArchive.Gameplay.Item.Data;
 
 namespace MemorialArchive.Gameplay.Item.Logic
 {
@@ -11,22 +11,51 @@ namespace MemorialArchive.Gameplay.Item.Logic
         public void Initialize(GameContext context)
         {
             this.context = context;
-            context.Events.Subscribe<ItemEffectAppliedEvent>(HandleItemEffectApplied);
+            context.Events.Subscribe<ItemUseRequestedEvent>(HandleItemUseRequested);
         }
 
         public void Dispose()
         {
             if (context != null)
             {
-                context.Events.Unsubscribe<ItemEffectAppliedEvent>(HandleItemEffectApplied);
+                context.Events.Unsubscribe<ItemUseRequestedEvent>(HandleItemUseRequested);
             }
 
             context = null;
         }
 
-        private void HandleItemEffectApplied(ItemEffectAppliedEvent evt)
+        private void HandleItemUseRequested(ItemUseRequestedEvent evt)
         {
-            Debug.Log($"Item effect applied. itemId={evt.ItemId}, effectId={evt.EffectId}");
+            if (evt.Item == null)
+            {
+                return;
+            }
+
+            var config = context.Configs.GetItem(evt.Item.itemId);
+            if (config == null || !config.CanUse)
+            {
+                context.Events.Publish(new ItemUseFailedEvent(evt.Item.itemId, "This item cannot be used."));
+                return;
+            }
+
+            if (config.CanPlaceAmmo)
+            {
+                context.Events.Publish(new AmmoReloadRequestedEvent(config.ItemId));
+                return;
+            }
+
+            if (!ItemEffectData.TryCreate(config.EffectId, out var effect))
+            {
+                context.Events.Publish(new ItemUseFailedEvent(config.ItemId, "This item has no implemented runtime effect."));
+                return;
+            }
+
+            context.Events.Publish(new ItemEffectAppliedEvent(config.ItemId, config.EffectId));
+            context.Events.Publish(new CharacterItemEffectRequestedEvent(config.ItemId, effect));
+            if (config.IsConsumable)
+            {
+                context.Events.Publish(new InventoryItemConsumeRequestedEvent(evt.Item.instanceId, config.ItemId, config.EffectId));
+            }
         }
     }
 }

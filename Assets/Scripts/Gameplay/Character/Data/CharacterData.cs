@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace MemorialArchive.Gameplay.Character.Data
@@ -14,7 +15,22 @@ namespace MemorialArchive.Gameplay.Character.Data
         Dodging,
         Staggered,
         Weak,
-        Dead
+        Dead,
+        Equipping,
+        ThrowAiming,
+        Throwing
+    }
+
+    [Serializable]
+    public sealed class CharacterTimedEffectData
+    {
+        public string effectId;
+        public float remainingSeconds;
+        public float staminaCostMultiplier = 1f;
+        public float meleeDamageMultiplier = 1f;
+        public bool restoreHealthAtExpiry;
+        public float healthBeforeUse;
+        public bool exhaustAtExpiry;
     }
 
     [Serializable]
@@ -27,5 +43,8 @@ namespace MemorialArchive.Gameplay.Character.Data
         public string currentRoomId;
         public Vector2 position;
         public bool isDead;
+        public bool isBleeding;
+        public bool isPoisoned;
+        public List<CharacterTimedEffectData> activeEffects = new List<CharacterTimedEffectData>();
     }
 }

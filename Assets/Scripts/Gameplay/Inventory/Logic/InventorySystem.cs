@@ -35,7 +35,8 @@ namespace MemorialArchive.Gameplay.Inventory.Logic
             context.Events.Subscribe<OpenContainerRequestedEvent>(HandleOpenContainerRequested);
             context.Events.Subscribe<ContainerClosedEvent>(HandleContainerClosed);
             context.Events.Subscribe<ShortcutEquipPressedEvent>(HandleShortcutEquipPressed);
-            context.Events.Subscribe<ItemUseRequestedEvent>(HandleItemUseRequested);
+            context.Events.Subscribe<PrimaryActionPressedEvent>(HandlePrimaryActionPressed);
+            context.Events.Subscribe<InventoryItemConsumeRequestedEvent>(HandleInventoryItemConsumeRequested);
         }
 
         public void Dispose()
@@ -45,7 +46,8 @@ namespace MemorialArchive.Gameplay.Inventory.Logic
                 context.Events.Unsubscribe<OpenContainerRequestedEvent>(HandleOpenContainerRequested);
                 context.Events.Unsubscribe<ContainerClosedEvent>(HandleContainerClosed);
                 context.Events.Unsubscribe<ShortcutEquipPressedEvent>(HandleShortcutEquipPressed);
-                context.Events.Unsubscribe<ItemUseRequestedEvent>(HandleItemUseRequested);
+                context.Events.Unsubscribe<PrimaryActionPressedEvent>(HandlePrimaryActionPressed);
+                context.Events.Unsubscribe<InventoryItemConsumeRequestedEvent>(HandleInventoryItemConsumeRequested);
             }
 
             context = null;
@@ -204,17 +206,126 @@ namespace MemorialArchive.Gameplay.Inventory.Logic
             return true;
         }
 
-public bool TryDiscardPlayerItem(string instanceId)
-{
-    var source = FindPlayerPlacement(instanceId);
-    if (source == null) return Fail(instanceId, "Item instance was not found in the player inventory.");
-    var shortcutChanged = source.containerKind == InventoryContainerKind.ShortcutBar;
-    if (shortcutChanged && playerInventory.selectedShortcutIndex == source.slotIndex) playerInventory.selectedShortcutIndex = -1;
-    playerInventory.playerItems.Remove(source);
-    if (shortcutChanged) context.Events.Publish(new ShortcutChangedEvent());
-    context.Events.Publish(new InventoryChangedEvent());
-    return true;
-}
+        /// <summary>
+        /// Moves a backpack item to the first legal empty equipment slot selected
+        /// by its configured quick-access type. A full or incompatible target is
+        /// intentionally a silent no-op because the Equip button must never swap
+        /// or discard an already equipped item.
+        /// </summary>
+        public bool TryEquipToFirstAvailableSlot(string instanceId)
+        {
+            var source = FindPlayerPlacement(instanceId);
+            if (source == null || source.item == null || source.containerKind != InventoryContainerKind.Backpack)
+            {
+                return false;
+            }
+
+            var config = context.Configs.GetItem(source.item.itemId);
+            if (config == null)
+            {
+                return false;
+            }
+
+            if (config.QuickAccessBarType == 2)
+            {
+                return config.CanEquipToOffhand &&
+                       config.OffhandType != OffhandType.None &&
+                       FindPlayerSlot(InventoryContainerKind.Offhand, 0) == null &&
+                       TryMoveToOffhand(instanceId);
+            }
+
+            if (config.QuickAccessBarType != 1 || !config.CanEquipToShortcut)
+            {
+                return false;
+            }
+
+            for (var slotIndex = 0; slotIndex < ShortcutSlotCount; slotIndex++)
+            {
+                if (FindPlayerSlot(InventoryContainerKind.ShortcutBar, slotIndex) == null)
+                {
+                    return TryMoveToShortcut(instanceId, slotIndex);
+                }
+            }
+
+            return false;
+        }
+
+        public bool TryDiscardPlayerItem(string instanceId)
+        {
+            var source = FindPlayerPlacement(instanceId);
+            if (source == null)
+            {
+                return Fail(instanceId, "Item instance was not found in the player inventory.");
+            }
+
+            var shortcutChanged = source.containerKind == InventoryContainerKind.ShortcutBar;
+            var selectedShortcutChanged = shortcutChanged && playerInventory.selectedShortcutIndex == source.slotIndex;
+            var equipmentChanged = selectedShortcutChanged || source.containerKind == InventoryContainerKind.Offhand;
+            if (selectedShortcutChanged)
+            {
+                playerInventory.selectedShortcutIndex = -1;
+            }
+
+            playerInventory.playerItems.Remove(source);
+            if (shortcutChanged)
+            {
+                context.Events.Publish(new ShortcutChangedEvent());
+            }
+
+            if (selectedShortcutChanged)
+            {
+                context.Events.Publish(new SelectedItemChangedEvent(null));
+            }
+
+            context.Events.Publish(new InventoryChangedEvent());
+            if (equipmentChanged)
+            {
+                PublishCharacterEquipment();
+            }
+
+            return true;
+        }
+
+        public bool TryConsumePlayerItem(string instanceId)
+        {
+            var source = FindPlayerPlacement(instanceId);
+            if (source == null || source.item == null)
+            {
+                return Fail(instanceId, "Item instance was not found in the player inventory.");
+            }
+
+            var config = context.Configs.GetItem(source.item.itemId);
+            if (config == null || !config.IsConsumable)
+            {
+                return Fail(instanceId, "Only consumable item instances can be consumed.");
+            }
+
+            var shortcutChanged = source.containerKind == InventoryContainerKind.ShortcutBar;
+            var selectedChanged = shortcutChanged && playerInventory.selectedShortcutIndex == source.slotIndex;
+            if (source.item.quantity > 1)
+            {
+                source.item.quantity--;
+            }
+            else
+            {
+                playerInventory.playerItems.Remove(source);
+            }
+
+            if (shortcutChanged)
+            {
+                context.Events.Publish(new ShortcutChangedEvent());
+            }
+
+            context.Events.Publish(new InventoryChangedEvent());
+            if (selectedChanged)
+            {
+                var selected = FindPlayerSlot(InventoryContainerKind.ShortcutBar, playerInventory.selectedShortcutIndex)?.item;
+                context.Events.Publish(new SelectedItemChangedEvent(selected));
+                PublishCharacterEquipment();
+            }
+
+            return true;
+        }
 
 
         public bool TryMergeStack(string sourceInstanceId, string targetInstanceId)
@@ -469,59 +580,29 @@ public bool TryDiscardPlayerItem(string instanceId)
             context.Events.Publish(new CharacterEquipmentChangedEvent(selected?.itemId ?? 0, offhandConfig?.OffhandType ?? OffhandType.None));
         }
 
-        private void HandleItemUseRequested(ItemUseRequestedEvent evt)
+        private void HandlePrimaryActionPressed(PrimaryActionPressedEvent evt)
         {
-            if (evt.Item == null)
+            var selected = FindPlayerSlot(InventoryContainerKind.ShortcutBar, playerInventory.selectedShortcutIndex)?.item;
+            if (selected == null)
             {
                 return;
             }
 
-            var config = context.Configs.GetItem(evt.Item.itemId);
-            if (config == null)
+            var config = context.Configs.GetItem(selected.itemId);
+            if (config == null || !config.CanUse || config.Category == ItemCategory.Weapon)
             {
                 return;
             }
 
-            if (config.CanPlaceAmmo)
-            {
-                if (HasCompatibleWeaponInShortcut(config))
-                {
-                    context.Events.Publish(new AmmoReloadRequestedEvent(config.ItemId));
-                    return;
-                }
-
-                context.Events.Publish(new ItemUseFailedEvent(config.ItemId, "No compatible weapon in shortcut bar."));
-                return;
-            }
-
-            if (config.CanUse)
-            {
-                context.Events.Publish(new ItemEffectAppliedEvent(config.ItemId, config.EffectId));
-            }
+            context.Events.Publish(new ItemUseRequestedEvent(selected));
         }
 
-        private bool HasCompatibleWeaponInShortcut(ItemConfig ammoConfig)
+        private void HandleInventoryItemConsumeRequested(InventoryItemConsumeRequestedEvent evt)
         {
-            foreach (var placement in playerInventory.playerItems)
+            if (TryConsumePlayerItem(evt.InstanceId) && evt.ItemId > 0)
             {
-                if (placement == null || placement.containerKind != InventoryContainerKind.ShortcutBar)
-                {
-                    continue;
-                }
-
-                var weaponConfig = context.Configs.GetItem(placement.item.itemId);
-                if (weaponConfig == null || weaponConfig.Category != ItemCategory.Weapon)
-                {
-                    continue;
-                }
-
-                if (ammoConfig.CompatibleWeaponItemId <= 0 || ammoConfig.CompatibleWeaponItemId == weaponConfig.ItemId)
-                {
-                    return true;
-                }
+                context.Events.Publish(new ConsumableUsedEvent(evt.ItemId, evt.EffectId));
             }
-
-            return false;
         }
 
         private IEnumerable<InventoryItemPlacement> GetPlayerItems(InventoryContainerKind kind)

@@ -557,7 +557,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\u8BF7\u9009\u62E9\u524D\u5F80\u697C\u5C42"
+  m_Text: "\u8BF7\u9009\u62E9\u76EE\u7684\u697C\u5C42"
 --- !u!1 &7634949899688168917
 GameObject:
   m_ObjectHideFlags: 0
@@ -660,7 +660,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b209d14739c1a5419cfe3b25ded7701, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  panelId: 13
+  panelId: 14
   pausesGame: 1
   canvasGroup: {fileID: 3159978039149273091}
   startClosed: 1

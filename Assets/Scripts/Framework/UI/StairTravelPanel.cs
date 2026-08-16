@@ -17,34 +17,41 @@ namespace MemorialArchive.Framework.UI
         protected override void Awake()
         {
             base.Awake();
-            upButton?.onClick.AddListener(GoUp);
-            downButton?.onClick.AddListener(GoDown);
-            cancelButton?.onClick.AddListener(Cancel);
+            BindButtons();
         }
 
         private void OnDestroy()
         {
-            upButton?.onClick.RemoveListener(GoUp);
-            downButton?.onClick.RemoveListener(GoDown);
-            cancelButton?.onClick.RemoveListener(Cancel);
+            UnbindButtons();
+        }
+
+        public override void Open()
+        {
+            base.Open();
+            transform.SetAsLastSibling();
+            BindButtons();
         }
 
         public void Show(StairTravelRequestedEvent value)
         {
             request = value;
+            transform.SetAsLastSibling();
+            BindButtons();
             if (messageText != null)
             {
-                messageText.text = string.IsNullOrEmpty(value.Message) ? "请选择前往楼层" : value.Message;
+                messageText.text = string.IsNullOrEmpty(value.Message) ? "请选择目的楼层" : value.Message;
             }
 
             if (upButton != null)
             {
                 upButton.gameObject.SetActive(value.CanGoUp);
+                SetButtonLabel(upButton, BuildDestinationLabel(value.UpSceneId, "上楼"));
             }
 
             if (downButton != null)
             {
                 downButton.gameObject.SetActive(value.CanGoDown);
+                SetButtonLabel(downButton, BuildDestinationLabel(value.DownSceneId, "下楼"));
             }
 
             ArrangeButtons(value.CanGoUp, value.CanGoDown);
@@ -55,7 +62,7 @@ namespace MemorialArchive.Framework.UI
 
         private void Cancel()
         {
-            GameRoot.Instance?.Context?.UI?.Close(PanelId.StairTravel);
+            ClosePanel();
         }
 
         private void Travel(string sceneId, string spawnPointId)
@@ -71,8 +78,59 @@ namespace MemorialArchive.Framework.UI
                 return;
             }
 
-            context.UI.Close(PanelId.StairTravel);
+            ClosePanel();
             context.Events.Publish(new SceneTransitionRequestedEvent(sceneId, spawnPointId));
+        }
+
+        private void ClosePanel()
+        {
+            var ui = GameRoot.Instance?.Context?.UI;
+            if (ui != null)
+            {
+                ui.Close(PanelId.StairTravel);
+            }
+            else
+            {
+                Close();
+            }
+        }
+
+        private void BindButtons()
+        {
+            UnbindButtons();
+            upButton?.onClick.AddListener(GoUp);
+            downButton?.onClick.AddListener(GoDown);
+            cancelButton?.onClick.AddListener(Cancel);
+        }
+
+        private void UnbindButtons()
+        {
+            upButton?.onClick.RemoveListener(GoUp);
+            downButton?.onClick.RemoveListener(GoDown);
+            cancelButton?.onClick.RemoveListener(Cancel);
+        }
+
+        private static void SetButtonLabel(Button button, string label)
+        {
+            var text = button != null ? button.GetComponentInChildren<Text>(true) : null;
+            if (text != null)
+            {
+                text.text = label;
+            }
+        }
+
+        private static string BuildDestinationLabel(string sceneId, string fallback)
+        {
+            if (string.IsNullOrEmpty(sceneId))
+            {
+                return fallback;
+            }
+
+            if (sceneId.Contains("1F")) return "前往一楼";
+            if (sceneId.Contains("2F")) return "前往二楼";
+            if (sceneId.Contains("3F")) return "前往三楼";
+            if (sceneId.Contains("4F")) return "前往四楼";
+            return fallback;
         }
 
         private void ArrangeButtons(bool canGoUp, bool canGoDown)

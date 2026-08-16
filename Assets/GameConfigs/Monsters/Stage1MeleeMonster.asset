@@ -23,5 +23,5 @@ MonoBehaviour:
   decisionInterval: 0.15
   hurtDuration: 0.3
   hurtCooldown: 1
-  deathPresentationSeconds: 2.5
+  deathPresentationSeconds: 3
   attackMode: 0

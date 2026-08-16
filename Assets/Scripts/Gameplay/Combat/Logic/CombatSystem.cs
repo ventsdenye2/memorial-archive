@@ -10,6 +10,27 @@ namespace MemorialArchive.Gameplay.Combat.Logic
 {
     public sealed class CombatSystem : IGameSystem, ITickableSystem, INewGameResettable
     {
+        private sealed class PlayerBlockDamageModifier : IDamageModifier
+        {
+            private const float SuccessfulBlockStaminaCost = 5f;
+            private readonly ICharacterCombatStateProvider character;
+
+            public PlayerBlockDamageModifier(ICharacterCombatStateProvider character) => this.character = character;
+            public bool AppliesTo(string targetId) => targetId == CombatTargetIds.Player;
+
+            public DamageResult Modify(DamageRequest request, DamageResult currentResult)
+            {
+                if (character == null || !character.IsBlocking || currentResult.FinalDamage <= 0f)
+                {
+                    return currentResult;
+                }
+
+                var finalDamage = character.HasShieldEquipped ? 0f : currentResult.FinalDamage * 0.5f;
+                character.ConsumeSuccessfulBlockStamina(SuccessfulBlockStaminaCost);
+                return new DamageResult(finalDamage, true, currentResult.KilledTarget);
+            }
+        }
+
         private sealed class PendingAttack
         {
             public AttackContext Context;
@@ -25,6 +46,16 @@ namespace MemorialArchive.Gameplay.Combat.Logic
         private Vector2 aimWorldPosition;
         private Vector2 playerPosition;
         private int nextAttackInstanceId;
+        private float meleeDamageMultiplier = 1f;
+        private readonly IDamageModifier playerBlockDamageModifier;
+
+        public CombatSystem(ICharacterCombatStateProvider characterCombatState = null)
+        {
+            if (characterCombatState != null)
+            {
+                playerBlockDamageModifier = new PlayerBlockDamageModifier(characterCombatState);
+            }
+        }
 
         public bool IsAiming => isAiming;
         public Vector2 AimWorldPosition => aimWorldPosition;
@@ -41,6 +72,8 @@ namespace MemorialArchive.Gameplay.Combat.Logic
             context.Events.Subscribe<CombatAttackLifetimeRequestedEvent>(HandleCombatAttackLifetimeRequested);
             context.Events.Subscribe<DamageRequestedEvent>(HandleDamageRequested);
             context.Events.Subscribe<PlayerPositionChangedEvent>(HandlePlayerPositionChanged);
+            context.Events.Subscribe<CharacterCombatModifiersChangedEvent>(HandleCharacterCombatModifiersChanged);
+            EnsureBuiltInDamageModifiers();
         }
 
         public void Dispose()
@@ -56,6 +89,7 @@ namespace MemorialArchive.Gameplay.Combat.Logic
                 context.Events.Unsubscribe<CombatAttackLifetimeRequestedEvent>(HandleCombatAttackLifetimeRequested);
                 context.Events.Unsubscribe<DamageRequestedEvent>(HandleDamageRequested);
                 context.Events.Unsubscribe<PlayerPositionChangedEvent>(HandlePlayerPositionChanged);
+                context.Events.Unsubscribe<CharacterCombatModifiersChangedEvent>(HandleCharacterCombatModifiersChanged);
             }
 
             context = null;
@@ -63,6 +97,7 @@ namespace MemorialArchive.Gameplay.Combat.Logic
             isAiming = false;
             aimWorldPosition = Vector2.zero;
             playerPosition = Vector2.zero;
+            meleeDamageMultiplier = 1f;
             pendingAttacks.Clear();
             damageModifiers.Clear();
         }
@@ -73,9 +108,11 @@ namespace MemorialArchive.Gameplay.Combat.Logic
             isAiming = false;
             aimWorldPosition = Vector2.zero;
             playerPosition = Vector2.zero;
+            meleeDamageMultiplier = 1f;
             nextAttackInstanceId = 0;
             pendingAttacks.Clear();
             damageModifiers.Clear();
+            EnsureBuiltInDamageModifiers();
         }
 
         public void RegisterDamageModifier(IDamageModifier modifier)
@@ -89,6 +126,14 @@ namespace MemorialArchive.Gameplay.Combat.Logic
         public void UnregisterDamageModifier(IDamageModifier modifier)
         {
             damageModifiers.Remove(modifier);
+        }
+
+        private void EnsureBuiltInDamageModifiers()
+        {
+            if (playerBlockDamageModifier != null && !damageModifiers.Contains(playerBlockDamageModifier))
+            {
+                damageModifiers.Add(playerBlockDamageModifier);
+            }
         }
 
         public void Tick(float deltaTime)
@@ -130,6 +175,11 @@ namespace MemorialArchive.Gameplay.Combat.Logic
             playerPosition = evt.Position;
         }
 
+        private void HandleCharacterCombatModifiersChanged(CharacterCombatModifiersChangedEvent evt)
+        {
+            meleeDamageMultiplier = evt.MeleeDamageMultiplier;
+        }
+
         private void HandleCharacterAttackRequested(CharacterAttackRequestedEvent evt)
         {
             if (selectedItem == null || selectedItem.itemId != evt.ItemId)
@@ -153,12 +203,14 @@ namespace MemorialArchive.Gameplay.Combat.Logic
                 config.ItemId,
                 config.CombatAttackKind,
                 config.DamageType,
-                config.Damage,
+                config.Damage * (config.CombatAttackKind == CombatAttackKind.Melee ? meleeDamageMultiplier : 1f),
                 config.AttackRange,
                 playerPosition,
                 evt.Direction,
                 config.AttackActiveSeconds,
-                evt.ComboStage);
+                evt.ComboStage,
+                evt.HasTargetWorldPosition,
+                evt.TargetWorldPosition);
 
             pendingAttacks.Add(attackId, new PendingAttack
             {

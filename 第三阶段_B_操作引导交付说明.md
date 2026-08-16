@@ -70,7 +70,7 @@
 1. 打开 `Assets/Scenes/FrontHall.unity`。
 2. 把 `GuideOverlayPanel.prefab` 实例化到场景持久 Canvas 下（与 HUD 同级）。
 3. 确认其 `GuideOverlayPanel` 组件：`panelId=GuideOverlay`、`pausesGame=false`、`startClosed=true`，`entryPrefab`/`entryContainer` 已在预制体内连好。
-4. 无需在 UIManager.panels 手动登记（它走非模态特例，Open 时不入栈）；若希望随场景注册，可在该场景的 `ScenePanelRegistry.panels` 加入它。
+4. 面板实例必须加入该场景 `ScenePanelRegistry.panels`（UIManager 只打开已注册的面板，不注册则 Open 只会刷 `Panel not registered: GuideOverlay` 警告、UI 不显示）。FrontHall 已接入并注册。它走非模态特例，Open 时不入模态栈。
 5. GameRoot 已自动注册 `GuideSystem`，无需额外接线。
 
 ## 七、已知问题（按类型分类）
@@ -84,7 +84,7 @@
 
 ### 核心代码
 - 无已知问题。完成条件一律判断真实结果（移动输入/奔跑/背包打开/装备事件），不依赖按钮点击。
-- 笔记/地图图标隐藏：当前 HUD 的日记/地图按钮显隐未与引导联动。需求第 8 点「该阶段笔记和地图图标不出现」需 A 或 C 在 HUDPanel 加一个由引导事件驱动的显隐开关（建议 GuideSystem 在序列开始/结束时发布一个 `GuideSequenceActiveChangedEvent`，HUD 订阅）。**本轮未改 HUDPanel**（属 A 的 HudChromeRoot 边界），列为后续对接项。
+- 笔记/地图图标隐藏：已实现。`GuideSystem` 在序列开始/结束时发布 `GuideSequenceActiveChangedEvent`，`GameplayHUD.prefab` 根节点挂了 `GuideHudVisibility` 组件订阅该事件，引导期间隐藏 `DiaryButton` / `MapButton`，未改 HUD 面板逻辑。
 
 ### 视觉占位
 - 提示条目用 Unity 内置 `LegacyRuntime.ttf` + 默认 Image 占位，无美术样式。

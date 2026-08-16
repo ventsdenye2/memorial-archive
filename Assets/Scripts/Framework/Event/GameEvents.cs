@@ -697,6 +697,12 @@ public readonly struct ContainerClosedEvent { }
         public string StepId { get; }
     }
 
+    public readonly struct GuideSequenceActiveChangedEvent
+    {
+        public GuideSequenceActiveChangedEvent(bool isActive) => IsActive = isActive;
+        public bool IsActive { get; }
+    }
+
     public readonly struct DialoguePlayRequestedEvent
     {
         public DialoguePlayRequestedEvent(string dialogueId) => DialogueId = dialogueId;

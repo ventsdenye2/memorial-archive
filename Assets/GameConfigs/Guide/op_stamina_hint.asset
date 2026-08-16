@@ -17,6 +17,7 @@ MonoBehaviour:
   description: "\u8FD0\u52A8\u65F6\u6D88\u8017\u4F53\u529B\uFF0C\u8BF7\u9002\u5F53\u4F11\u606F\uFF0C\u907F\u514D\u4F53\u529B\u6D88\u8017\u6B86\u5C3D"
   sprite: {fileID: 0}
   parallelGroupId: 
+  displayCondition: 2
   displayDelay: 0
   autoHideDelay: 3
   sortOrder: 40

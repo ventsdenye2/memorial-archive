@@ -17,9 +17,9 @@ MonoBehaviour:
   description: "\u957F\u6309 Shift \u53EF\u4EE5\u8FDB\u884C\u5954\u8DD1"
   sprite: {fileID: 0}
   parallelGroupId: 
-  displayDelay: 1
+  displayDelay: 3
   autoHideDelay: 3
   sortOrder: 30
   required: 0
-  completeCondition: 0
+  completeCondition: 2
   completeConditionArg: 0

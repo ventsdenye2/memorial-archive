@@ -19,6 +19,7 @@ MonoBehaviour:
   parallelGroupId: entry_hints
   displayDelay: 1
   autoHideDelay: 3
+  hideTiming: 1
   sortOrder: 10
   required: 1
   completeCondition: 1

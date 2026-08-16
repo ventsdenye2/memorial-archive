@@ -28,6 +28,18 @@ namespace MemorialArchive.Gameplay.Guide.Config
     }
 
     /// <summary>
+    /// 自动隐藏的计时时机，搭配 <see cref="autoHideDelay"/> 使用。
+    /// </summary>
+    public enum GuideHideTiming
+    {
+        /// <summary>从提示显示开始倒计时，到点隐藏（如奔跑提示显示 3 秒后消失）。</summary>
+        Display,
+
+        /// <summary>等完成条件满足后再倒计时隐藏（如需求「玩家移动后 3 秒消失」的移动/背包提示）。</summary>
+        AfterComplete
+    }
+
+    /// <summary>
     /// 单个引导步骤的配置。所有数值必须来自配置，不得在 View 里硬编码。
     /// 同一 <see cref="parallelGroupId"/>（非空）的步骤会同时显示；空字符串表示独占顺序步骤。
     /// </summary>
@@ -43,8 +55,14 @@ namespace MemorialArchive.Gameplay.Guide.Config
         [Tooltip("进入该步骤后延时多少秒再发 GuideStepStartedEvent。0 = 立即。")]
         [SerializeField] private float displayDelay;
 
-        [Tooltip("发完 Started 后多少秒自动发 GuideStepHiddenEvent。0 = 不自动隐藏，需完成或后续步骤触发。")]
+        [Tooltip("发完 Started 后多少秒自动隐藏。0 = 不自动隐藏，需完成或后续步骤触发。")]
         [SerializeField] private float autoHideDelay;
+
+        [Tooltip("自动隐藏计时时机：Display=从显示开始倒计时；AfterComplete=完成条件满足后再倒计时（如玩家移动后 3 秒消失）。")]
+        [SerializeField] private GuideHideTiming hideTiming = GuideHideTiming.Display;
+
+        [Tooltip("触发式显示：条件首次满足时才显示（如体力提示在触发奔跑时弹出）。None=按序列顺序显示。")]
+        [SerializeField] private GuideCompleteCondition displayCondition = GuideCompleteCondition.None;
 
         [Tooltip("同一序列内的排序权重，升序处理。")]
         [SerializeField] private int sortOrder;
@@ -64,6 +82,8 @@ namespace MemorialArchive.Gameplay.Guide.Config
         public string ParallelGroupId => parallelGroupId ?? string.Empty;
         public float DisplayDelay => Mathf.Max(0f, displayDelay);
         public float AutoHideDelay => Mathf.Max(0f, autoHideDelay);
+        public GuideHideTiming HideTiming => hideTiming;
+        public GuideCompleteCondition DisplayCondition => displayCondition;
         public int SortOrder => sortOrder;
         public bool Required => required;
         public GuideCompleteCondition CompleteCondition => completeCondition;

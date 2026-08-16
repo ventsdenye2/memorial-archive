@@ -19,7 +19,7 @@ namespace MemorialArchive.Framework.UI
             {
                 foreach (var panel in panelStack)
                 {
-                    if (panel != null && panel.IsOpen && panel.PanelId != PanelId.Hud)
+                    if (panel != null && panel.IsOpen && !IsNonModalOverlay(panel.PanelId))
                     {
                         return true;
                     }
@@ -149,7 +149,7 @@ namespace MemorialArchive.Framework.UI
                 return panel;
             }
 
-            if (panelId == PanelId.Hud)
+            if (IsNonModalOverlay(panelId))
             {
                 return OpenDirect(panel);
             }
@@ -259,7 +259,7 @@ namespace MemorialArchive.Framework.UI
             }
 
             panel.Open();
-            if (panel.PanelId != PanelId.Hud)
+            if (!IsNonModalOverlay(panel.PanelId))
             {
                 panelStack.Push(panel);
             }
@@ -271,7 +271,7 @@ namespace MemorialArchive.Framework.UI
 
         private void CloseForExclusiveOpen(PanelId openingPanelId)
         {
-            if (openingPanelId == PanelId.Hud)
+            if (IsNonModalOverlay(openingPanelId))
             {
                 return;
             }
@@ -318,7 +318,7 @@ namespace MemorialArchive.Framework.UI
         {
             foreach (var panel in panelStack)
             {
-                if (panel != null && panel.IsOpen && panel.PanelId != PanelId.Hud)
+                if (panel != null && panel.IsOpen && !IsNonModalOverlay(panel.PanelId))
                 {
                     Time.timeScale = 0f;
                     return;
@@ -326,6 +326,15 @@ namespace MemorialArchive.Framework.UI
             }
 
             Time.timeScale = 1f;
+        }
+
+        /// <summary>
+        /// 非模态覆盖层：不进入模态栈、不暂停游戏、不阻塞游戏输入、不被其它面板顶掉。
+        /// HUD 与 GuideOverlay 属于此类。
+        /// </summary>
+        private static bool IsNonModalOverlay(PanelId panelId)
+        {
+            return panelId == PanelId.Hud || panelId == PanelId.GuideOverlay;
         }
 
         private void HandleOpenInventoryPressed(OpenInventoryPressedEvent evt) => Toggle(PanelId.Inventory);

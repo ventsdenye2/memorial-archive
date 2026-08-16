@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 49aa7e7bf4e128e4d8017b50eeab36bc, type: 3}
+  m_Name: "\u64CD\u4F5C\u5F15\u5BFC"
+  m_EditorClassIdentifier: 
+  sequenceId: operation
+  triggerSceneId: FrontHall
+  steps:
+  - {fileID: 11400000, guid: d57fe1e9bb0f20c4bbca79a0788b2d37, type: 2}
+  - {fileID: 11400000, guid: 1af4e473e46ce9c48a8440b37b3bafdf, type: 2}
+  - {fileID: 11400000, guid: f3dc1d077f0034d4c9862718a2de9b5d, type: 2}
+  - {fileID: 11400000, guid: 528cc936f6d4f0c45a87c859b0a585c4, type: 2}
+  - {fileID: 11400000, guid: 66534e4a6e439d84fae056764109c23a, type: 2}

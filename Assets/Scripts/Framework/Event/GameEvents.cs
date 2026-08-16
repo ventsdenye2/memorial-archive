@@ -581,4 +581,22 @@ public readonly struct ContainerClosedEvent { }
         public BlackScreenStoryFinishedEvent(string storyId) => StoryId = storyId;
         public string StoryId { get; }
     }
+
+    public readonly struct GuideStepStartedEvent
+    {
+        public GuideStepStartedEvent(string stepId) => StepId = stepId;
+        public string StepId { get; }
+    }
+
+    public readonly struct GuideStepCompletedEvent
+    {
+        public GuideStepCompletedEvent(string stepId) => StepId = stepId;
+        public string StepId { get; }
+    }
+
+    public readonly struct GuideStepHiddenEvent
+    {
+        public GuideStepHiddenEvent(string stepId) => StepId = stepId;
+        public string StepId { get; }
+    }
 }

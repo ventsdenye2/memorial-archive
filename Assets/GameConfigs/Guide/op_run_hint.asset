@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1927d455b2d663944982c20b3603e4e2, type: 3}
+  m_Name: op_run_hint
+  m_EditorClassIdentifier: 
+  stepId: op_run_hint
+  title: "\u5954\u8DD1"
+  description: "\u957F\u6309 Shift \u53EF\u4EE5\u8FDB\u884C\u5954\u8DD1"
+  sprite: {fileID: 0}
+  parallelGroupId: 
+  displayDelay: 1
+  autoHideDelay: 3
+  sortOrder: 30
+  required: 0
+  completeCondition: 0
+  completeConditionArg: 0

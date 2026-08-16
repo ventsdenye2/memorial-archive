@@ -6,6 +6,7 @@ using MemorialArchive.Framework.Scene;
 using MemorialArchive.Framework.UI;
 using MemorialArchive.Gameplay.Character.Logic;
 using MemorialArchive.Gameplay.Combat.Logic;
+using MemorialArchive.Gameplay.Guide.Logic;
 using MemorialArchive.Gameplay.Interaction.Logic;
 using MemorialArchive.Gameplay.Inventory.Logic;
 using MemorialArchive.Gameplay.Item.Logic;
@@ -143,6 +144,7 @@ namespace MemorialArchive.Framework.Core
             RegisterSystem(new MonsterSystem());
             RegisterSystem(new PuzzleSystem());
             RegisterSystem(new StorySystem());
+            RegisterSystem(new GuideSystem());
 
             foreach (var system in systems)
             {

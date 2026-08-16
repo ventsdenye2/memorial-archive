@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1927d455b2d663944982c20b3603e4e2, type: 3}
+  m_Name: op_lantern_equip
+  m_EditorClassIdentifier: 
+  stepId: op_lantern_equip
+  title: "\u88C5\u5907\u624B\u63D0\u706F"
+  description: "\u6253\u5F00\u80CC\u5305\uFF0C\u5C06\u624B\u63D0\u706F\u62D6\u5165\u526F\u624B\u69FD\u4EE5\u7167\u4EAE\u9ED1\u6697"
+  sprite: {fileID: 0}
+  parallelGroupId: 
+  displayDelay: 0.5
+  autoHideDelay: 0
+  sortOrder: 20
+  required: 1
+  completeCondition: 4
+  completeConditionArg: 1006

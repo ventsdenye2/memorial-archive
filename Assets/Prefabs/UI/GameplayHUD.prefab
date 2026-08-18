@@ -586,6 +586,7 @@ GameObject:
   - component: {fileID: 9025060941498861205}
   - component: {fileID: 8566858978490100088}
   - component: {fileID: 852774938656615368}
+  - component: {fileID: 1140009901}
   m_Layer: 0
   m_Name: GameplayHUD
   m_TagString: Untagged
@@ -2067,3 +2068,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &1140009901
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1559376254746702432}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 040fc0544c7a47d58000f196cd2b519b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hiddenDuringGuide:
+  - {fileID: 249771674940328837}
+  - {fileID: 2934982442567070916}

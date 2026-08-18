@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using MemorialArchive.Framework.Core;
 using MemorialArchive.Gameplay.Character.Config;
+using MemorialArchive.Gameplay.Guide.Config;
 using MemorialArchive.Gameplay.Interaction.Config;
 using MemorialArchive.Gameplay.Item.Config;
 using MemorialArchive.Gameplay.Monster.Config;
@@ -20,6 +21,7 @@ namespace MemorialArchive.Framework.Config
         private readonly Dictionary<string, InteractionConfig> interactions = new Dictionary<string, InteractionConfig>();
         private readonly Dictionary<string, PuzzleConfig> puzzles = new Dictionary<string, PuzzleConfig>();
         private readonly Dictionary<string, StoryEntryConfig> stories = new Dictionary<string, StoryEntryConfig>();
+        private readonly Dictionary<string, GuideSequenceConfig> guideSequences = new Dictionary<string, GuideSequenceConfig>();
         private readonly Dictionary<string, DialogueSequenceConfig> dialogueSequences = new Dictionary<string, DialogueSequenceConfig>();
         private readonly Dictionary<string, DialogueEffectConfig> dialogueEffects = new Dictionary<string, DialogueEffectConfig>();
 
@@ -42,11 +44,13 @@ namespace MemorialArchive.Framework.Config
             interactions.Clear();
             puzzles.Clear();
             stories.Clear();
+            guideSequences.Clear();
             dialogueSequences.Clear();
             dialogueEffects.Clear();
         }
 
         public ItemConfig GetItem(int itemId) => items.TryGetValue(itemId, out var config) ? config : null;
+        public GuideSequenceConfig GetGuideSequence(string id) => !string.IsNullOrEmpty(id) && guideSequences.TryGetValue(id, out var config) ? config : null;
         public CharacterAttributeConfig GetCharacterAttribute(int id) => characterAttributes.TryGetValue(id, out var config) ? config : null;
         public CharacterStateConfig GetCharacterState(int id) => characterStates.TryGetValue(id, out var config) ? config : null;
         public MonsterConfig GetMonster(int monsterId) => monsters.TryGetValue(monsterId, out var config) ? config : null;
@@ -65,6 +69,7 @@ namespace MemorialArchive.Framework.Config
             interactions.Clear();
             puzzles.Clear();
             stories.Clear();
+            guideSequences.Clear();
             dialogueSequences.Clear();
             dialogueEffects.Clear();
 
@@ -80,6 +85,7 @@ namespace MemorialArchive.Framework.Config
             AddAll(database.Interactions, interactions, interaction => interaction.InteractionId, "InteractionConfig");
             AddAll(database.Puzzles, puzzles, puzzle => puzzle.PuzzleId, "PuzzleConfig");
             AddAll(database.Stories, stories, story => story.StoryId, "StoryEntryConfig");
+            AddAll(database.GuideSequences, guideSequences, sequence => sequence.SequenceId, "GuideSequenceConfig");
             AddAll(database.DialogueSequences, dialogueSequences, sequence => sequence.DialogueId, "DialogueSequenceConfig");
             AddAll(database.DialogueEffects, dialogueEffects, effect => effect.EffectId, "DialogueEffectConfig");
         }

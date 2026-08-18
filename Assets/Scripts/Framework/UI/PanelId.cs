@@ -17,6 +17,7 @@ namespace MemorialArchive.Framework.UI
         BlackScreenStory,
         Dialogue,
         StairTravel,
-        RoomTravelConfirm
+        RoomTravelConfirm,
+        GuideOverlay
     }
 }

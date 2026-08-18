@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1927d455b2d663944982c20b3603e4e2, type: 3}
+  m_Name: op_inventory_hint
+  m_EditorClassIdentifier: 
+  stepId: op_inventory_hint
+  title: "\u80CC\u5305"
+  description: "\u80CC\u5305\u4E2D\u50A8\u5B58\u7740\u4F60\u7684\u7269\u54C1\uFF0C\u70B9\u51FB\u6216\u6309\u4E0B
+    TAB \u952E\u6253\u5F00"
+  sprite: {fileID: 0}
+  parallelGroupId: entry_hints
+  displayDelay: 1
+  autoHideDelay: 3
+  hideTiming: 1
+  sortOrder: 11
+  required: 1
+  completeCondition: 3
+  completeConditionArg: 0

@@ -11,6 +11,9 @@ namespace MemorialArchive.Gameplay.Inventory.Logic
 {
     public sealed class InventorySystem : IGameSystem, ISaveModule, INewGameResettable
     {
+        private const int StartingDaggerItemId = 1001;
+        private const int StartingLanternItemId = 1006;
+
         public const int BackpackWidth = 3;
         public const int BackpackHeight = 3;
         public const int ShortcutSlotCount = 3;
@@ -37,6 +40,7 @@ namespace MemorialArchive.Gameplay.Inventory.Logic
             context.Events.Subscribe<ShortcutEquipPressedEvent>(HandleShortcutEquipPressed);
             context.Events.Subscribe<PrimaryActionPressedEvent>(HandlePrimaryActionPressed);
             context.Events.Subscribe<InventoryItemConsumeRequestedEvent>(HandleInventoryItemConsumeRequested);
+            ResetForNewGame();
         }
 
         public void Dispose()
@@ -61,10 +65,17 @@ namespace MemorialArchive.Gameplay.Inventory.Logic
             sceneContainers.Clear();
             playerInventory = new InventoryData();
             activeSceneContainerId = null;
+            AddStartingInventory();
             context?.Events.Publish(new SelectedItemChangedEvent(null));
             context?.Events.Publish(new CharacterEquipmentChangedEvent(0, OffhandType.None));
             context?.Events.Publish(new ShortcutChangedEvent());
             context?.Events.Publish(new InventoryChangedEvent());
+        }
+
+        private void AddStartingInventory()
+        {
+            TryAddToBackpack(new InventoryItemInstance { itemId = StartingDaggerItemId });
+            TryAddToBackpack(new InventoryItemInstance { itemId = StartingLanternItemId });
         }
 
         public SceneContainerData GetActiveSceneContainer()

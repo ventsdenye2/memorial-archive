@@ -118,6 +118,12 @@ namespace MemorialArchive.Framework.Event
         public int SlotIndex { get; }
     }
 
+    public readonly struct LoadRequestedEvent
+    {
+        public LoadRequestedEvent(int slotIndex) => SlotIndex = slotIndex;
+        public int SlotIndex { get; }
+    }
+
     public readonly struct OpenContainerRequestedEvent
     {
         public OpenContainerRequestedEvent(string containerId) => ContainerId = containerId;
@@ -159,6 +165,24 @@ public readonly struct ContainerClosedEvent { }
     public readonly struct SaveFailedEvent
     {
         public SaveFailedEvent(int slotIndex, string reason)
+        {
+            SlotIndex = slotIndex;
+            Reason = reason;
+        }
+
+        public int SlotIndex { get; }
+        public string Reason { get; }
+    }
+
+    public readonly struct LoadCompletedEvent
+    {
+        public LoadCompletedEvent(int slotIndex) => SlotIndex = slotIndex;
+        public int SlotIndex { get; }
+    }
+
+    public readonly struct LoadFailedEvent
+    {
+        public LoadFailedEvent(int slotIndex, string reason)
         {
             SlotIndex = slotIndex;
             Reason = reason;

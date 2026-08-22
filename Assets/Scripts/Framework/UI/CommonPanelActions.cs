@@ -43,10 +43,18 @@ namespace MemorialArchive.Framework.UI
         public void SaveSlot0() => RequestSave(0);
         public void SaveSlot1() => RequestSave(1);
         public void SaveSlot2() => RequestSave(2);
+        public void LoadSlot0() => RequestLoad(0);
+        public void LoadSlot1() => RequestLoad(1);
+        public void LoadSlot2() => RequestLoad(2);
 
         private static void RequestSave(int slotIndex)
         {
             GameRoot.Instance?.Context?.Events.Publish(new SaveRequestedEvent(slotIndex));
+        }
+
+        private static void RequestLoad(int slotIndex)
+        {
+            GameRoot.Instance?.Context?.Events.Publish(new LoadRequestedEvent(slotIndex));
         }
     }
 }

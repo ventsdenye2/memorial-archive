@@ -9,6 +9,8 @@ namespace MemorialArchive.Framework.Scene
     {
         private GameContext context;
         private string pendingSpawnPointId;
+        private bool hasPendingSavedPosition;
+        private Vector3 pendingSavedPosition;
         private bool isLoading;
 
         public void Initialize(GameContext gameContext)
@@ -27,6 +29,7 @@ namespace MemorialArchive.Framework.Scene
 
             SceneManager.sceneLoaded -= HandleUnitySceneLoaded;
             pendingSpawnPointId = null;
+            hasPendingSavedPosition = false;
             isLoading = false;
             context = null;
         }
@@ -58,6 +61,34 @@ namespace MemorialArchive.Framework.Scene
             }
         }
 
+        public void LoadSavedScene(string sceneId, Vector3 savedPosition)
+        {
+            if (isLoading)
+            {
+                throw new System.InvalidOperationException("A scene transition is already in progress.");
+            }
+
+            if (string.IsNullOrEmpty(sceneId) || !Application.CanStreamedLevelBeLoaded(sceneId))
+            {
+                throw new System.ArgumentException($"Scene is not available in build settings: {sceneId}", nameof(sceneId));
+            }
+
+            isLoading = true;
+            pendingSpawnPointId = null;
+            pendingSavedPosition = savedPosition;
+            hasPendingSavedPosition = true;
+            try
+            {
+                SceneManager.LoadScene(sceneId);
+            }
+            catch
+            {
+                hasPendingSavedPosition = false;
+                isLoading = false;
+                throw;
+            }
+        }
+
         private void HandleUnitySceneLoaded(UnityEngine.SceneManagement.Scene scene, LoadSceneMode mode)
         {
             if (!string.IsNullOrEmpty(pendingSpawnPointId))
@@ -65,7 +96,13 @@ namespace MemorialArchive.Framework.Scene
                 ResolveSpawnPoint(pendingSpawnPointId);
             }
 
+            if (hasPendingSavedPosition)
+            {
+                ResolveSavedPosition(pendingSavedPosition);
+            }
+
             pendingSpawnPointId = null;
+            hasPendingSavedPosition = false;
             isLoading = false;
             context?.Events.Publish(new SceneLoadedEvent(scene.name));
         }
@@ -97,6 +134,19 @@ namespace MemorialArchive.Framework.Scene
             }
 
             spawnTarget.MoveToSceneSpawn(targetPoint.Position);
+        }
+
+        private static void ResolveSavedPosition(Vector3 savedPosition)
+        {
+            var player = GameObject.FindGameObjectWithTag("Player");
+            var spawnTarget = player != null ? player.GetComponent<ISceneSpawnTarget>() : null;
+            if (spawnTarget == null)
+            {
+                Debug.LogError("No ISceneSpawnTarget found while restoring a saved position.");
+                return;
+            }
+
+            spawnTarget.MoveToSceneSpawn(savedPosition);
         }
     }
 }

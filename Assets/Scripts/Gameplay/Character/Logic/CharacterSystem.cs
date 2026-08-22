@@ -13,7 +13,7 @@ using UnityEngine;
 namespace MemorialArchive.Gameplay.Character.Logic
 {
     /// <summary>纯 C# 角色状态规则；不引用 CombatSystem，也不做命中或伤害结算。</summary>
-    public sealed class CharacterSystem : IGameSystem, ITickableSystem, ISaveModule, INewGameResettable, ICharacterCombatStateProvider
+    public sealed class CharacterSystem : IGameSystem, ITickableSystem, ISaveModule, ISaveScenePositionProvider, INewGameResettable, ICharacterCombatStateProvider
     {
         private CharacterData data = new CharacterData(); private GameContext context; private CharacterAttributeConfig attributes;
         private Vector2 moveDirection, facingDirection = Vector2.right, aimDirection = Vector2.right, throwAimTarget;
@@ -22,6 +22,7 @@ namespace MemorialArchive.Gameplay.Character.Logic
         private bool bufferedPrimaryAction;
         private CharacterActionState state = CharacterActionState.Normal;
         public string ModuleKey => "character"; public CharacterData Data => data; public Vector2 MoveDirection => moveDirection;
+        public Vector3 SavedScenePosition => data.position;
         // 当前版本的临时调试状态；不写入存档，正式版发布前移除。
         private bool debugModeEnabled;
         public bool IsRunning { get; private set; } public CharacterActionState ActionState => state;

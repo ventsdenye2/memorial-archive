@@ -12,6 +12,7 @@ namespace MemorialArchive.Gameplay.Interaction.Data
         HideSpot,
         Npc,
         NotePickup,
-        ItemPickup
+        ItemPickup,
+        LightSource
     }
 }

@@ -31,7 +31,7 @@ namespace MemorialArchive.Gameplay.Character.Logic
         public Vector2 AimDirection => aimDirection;
         public float StaminaCostMultiplier => GetStaminaCostMultiplier();
         public float MeleeDamageMultiplier => GetMeleeDamageMultiplier();
-        public float CurrentMoveSpeed { get { if (attributes == null) return 0; var speed = IsRunning ? attributes.RunSpeed : attributes.WalkSpeed; if (data.health <= 1) speed *= .8f; if (offhandType == OffhandType.Splint) speed *= .8f; return Mathf.Clamp(speed, 60, 300); } }
+        public float CurrentMoveSpeed { get { if (attributes == null) return 0; var speed = IsRunning ? attributes.RunSpeed : attributes.WalkSpeed; if (data.health <= 1) speed *= .8f; if (offhandType == OffhandType.Splint) speed *= .8f; return speed; } }
 
         public void Initialize(GameContext value)
         {
@@ -116,7 +116,7 @@ namespace MemorialArchive.Gameplay.Character.Logic
             var before = data.stamina; data.stamina = Mathf.CeilToInt(exactStamina); if (before != data.stamina) context.Events.Publish(new CharacterStatsChangedEvent());
         }
         private void OnMove(MoveInputEvent e) { if (BlocksMovement()) { moveDirection = Vector2.zero; return; } moveDirection = new Vector2(Mathf.Clamp(e.Direction.x, -1, 1), 0); if (moveDirection.sqrMagnitude > 0) facingDirection = moveDirection.normalized; }
-        private void OnRun(RunInputEvent e) { IsRunning = e.IsRunning && !BlocksMovement() && state == CharacterActionState.Normal && exactStamina > 0; }
+        private void OnRun(RunInputEvent e) { IsRunning = e.IsRunning && !BlocksMovement() && (state == CharacterActionState.Normal || state == CharacterActionState.Equipping) && exactStamina > 0; }
         private void OnEquipment(CharacterEquipmentChangedEvent e)
         {
             if ((state == CharacterActionState.ThrowAiming || state == CharacterActionState.Throwing) && e.PrimaryItemId != primaryItemId)
@@ -495,7 +495,6 @@ namespace MemorialArchive.Gameplay.Character.Logic
             state == CharacterActionState.Staggered ||
             state == CharacterActionState.Dodging ||
             state == CharacterActionState.Blocking ||
-            state == CharacterActionState.Equipping ||
             state == CharacterActionState.ThrowAiming ||
             state == CharacterActionState.Throwing ||
             IsAttackState(state);

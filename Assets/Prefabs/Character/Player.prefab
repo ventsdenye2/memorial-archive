@@ -204,14 +204,19 @@ MonoBehaviour:
   walkData: {fileID: 11400000, guid: d7963a9e5fd299d41b98adf96ad9988f, type: 2}
   runData: {fileID: 11400000, guid: 5e71c39b91f1a2e459ac3097bc8b40c2, type: 2}
   dodgeData: {fileID: 11400000, guid: 9704f717f65a4e4439ea419f9d3713e7, type: 2}
+  lanternDodgeData: {fileID: 11400000, guid: 72438896567655f40a8b36d260274819, type: 2}
   hurtLocomotionData: {fileID: 11400000, guid: d19876581ffc09c4ebd4f95005b48279, type: 2}
   fireAxeAttack1Data: {fileID: 11400000, guid: 7b962e861b573064aa71d6d4a0b9f9af, type: 2}
   fireAxeAttack2Data: {fileID: 11400000, guid: ee39985078baf3844a24dcc9cb0caff5, type: 2}
   fireAxeAttack3Data: {fileID: 11400000, guid: 275259c19fe7f574890933c22277061d, type: 2}
-  fireAxeEquipData: {fileID: 11400000, guid: 7dffd15e146e22c4093e1159bc264d71, type: 2}
-  bayonetEquipData: {fileID: 11400000, guid: 8d146d1637c21f14eba258f4ee3d4f1c, type: 2}
+  oneHandedAttackData: {fileID: 11400000, guid: 9e2d81fa1ed9c414881078d448b89858, type: 2}
+  weaponEquipData: {fileID: 11400000, guid: 05a2626e964c0fe459b1b15853b0e061, type: 2}
   bayonetCombatData: {fileID: 11400000, guid: 9704f717f65a4e4439ea419f9d3713e7, type: 2}
   shieldBlockData: {fileID: 11400000, guid: d22e10daf14bf8245a6fbc24ea7f9538, type: 2}
+  firearmActionData: {fileID: 11400000, guid: 9d54fe9a84accb645bc8bc06c66b0929, type: 2}
+  armedHurtData: {fileID: 11400000, guid: 273c574a8a6c96e45b1a56e0e342d5c4, type: 2}
+  firearmAimBoneName: rotate-weapon
+  firearmAimAngleOffset: 0
   characterScale: 1
 --- !u!114 &800000010
 MonoBehaviour:

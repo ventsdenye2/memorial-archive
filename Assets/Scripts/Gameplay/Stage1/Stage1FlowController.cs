@@ -12,6 +12,7 @@ namespace MemorialArchive.Gameplay.Stage1
         [SerializeField] private GameObject blackScreenStoryRoot;
         [SerializeField] private GameObject stage1DemoRoot;
         [SerializeField] private string openingStoryId = Stage1Ids.OpeningStory;
+        [SerializeField] private bool startDirectlyForDebug;
 
         private bool started;
 
@@ -46,6 +47,12 @@ namespace MemorialArchive.Gameplay.Stage1
             started = true;
             GameRoot.Instance.Context.Events.Subscribe<BlackScreenStoryFinishedEvent>(HandleStoryFinished);
 
+            if (startDirectlyForDebug)
+            {
+                StartGameplay();
+                yield break;
+            }
+
             if (stage1DemoRoot != null)
             {
                 stage1DemoRoot.SetActive(false);
@@ -74,6 +81,11 @@ namespace MemorialArchive.Gameplay.Stage1
                 return;
             }
 
+            StartGameplay();
+        }
+
+        private void StartGameplay()
+        {
             GameRoot.Instance.Context.UI.Close(PanelId.BlackScreenStory);
             if (blackScreenStoryRoot != null)
             {

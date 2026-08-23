@@ -1,111 +1,111 @@
 
-player_01_run_split.png
-size: 339,520
+player_01_hold_the_weapon_split.png
+size: 974,327
 format: RGBA8888
 filter: Linear,Linear
 repeat: none
 Player_01_Arm_Left
-  rotate: false
-  xy: 267, 361
+  rotate: true
+  xy: 499, 16
   size: 70, 157
   orig: 402, 602
   offset: 160, 241
   index: -1
 Player_01_Arm_Right
   rotate: true
-  xy: 98, 124
-  size: 55, 157
+  xy: 617, 92
+  size: 60, 162
   orig: 402, 602
-  offset: 151, 240
+  offset: 146, 235
   index: -1
 Player_01_Body_back
   rotate: true
-  xy: 120, 240
+  xy: 781, 120
   size: 108, 147
   orig: 402, 602
   offset: 143, 162
   index: -1
 Player_01_Body_front
   rotate: false
-  xy: 2, 281
+  xy: 499, 88
   size: 116, 237
   orig: 402, 602
   offset: 118, 161
   index: -1
 Player_01_Hair
-  rotate: false
-  xy: 217, 2
+  rotate: true
+  xy: 940, 216
   size: 48, 32
   orig: 402, 602
   offset: 205, 404
   index: -1
 Player_01_Tail
   rotate: false
-  xy: 104, 36
-  size: 119, 86
+  xy: 658, 4
+  size: 118, 86
   orig: 402, 602
-  offset: 69, 211
+  offset: 70, 211
+  index: -1
+Player_01_Weapon_Left
+  rotate: true
+  xy: 930, 115
+  size: 99, 38
+  orig: 402, 602
+  offset: 146, 239
   index: -1
 Player_01_cape
   rotate: false
-  xy: 225, 36
-  size: 74, 86
+  xy: 778, 2
+  size: 74, 88
   orig: 402, 602
-  offset: 163, 306
+  offset: 163, 304
   index: -1
 Player_01_ear_Left
   rotate: true
-  xy: 165, 6
+  xy: 854, 4
   size: 28, 50
   orig: 402, 602
   offset: 192, 421
   index: -1
 Player_01_ear_Right
-  rotate: true
-  xy: 104, 5
+  rotate: false
+  xy: 940, 266
   size: 29, 59
   orig: 402, 602
   offset: 190, 420
   index: -1
 Player_01_face
   rotate: true
-  xy: 269, 182
-  size: 84, 58
+  xy: 854, 34
+  size: 84, 57
   orig: 402, 602
   offset: 184, 377
   index: -1
 Player_01_hat
   rotate: true
-  xy: 269, 268
-  size: 91, 53
+  xy: 913, 24
+  size: 89, 53
   orig: 402, 602
-  offset: 168, 413
+  offset: 170, 413
   index: -1
 Player_01_leg_Right
   rotate: false
-  xy: 120, 350
-  size: 145, 168
+  xy: 617, 154
+  size: 146, 171
   orig: 402, 602
-  offset: 189, 128
+  offset: 188, 126
   index: -1
 Player_01_leg_left
-  rotate: false
-  xy: 2, 107
-  size: 94, 172
-  orig: 402, 602
-  offset: 127, 123
-  index: -1
-player_01_Arm_Right2
   rotate: true
-  xy: 98, 181
-  size: 57, 168
-  orig: 400, 600
-  offset: 149, 228
+  xy: 765, 230
+  size: 95, 173
+  orig: 402, 602
+  offset: 126, 122
   index: -1
-煤油灯
-  rotate: false
-  xy: 2, 5
-  size: 100, 100
-  orig: 100, 100
-  offset: 0, 0
+dagger
+  rotate: true
+  xy: 2, 11
+  size: 314, 495
+  orig: 437, 600
+  offset: 56, 51
   index: -1

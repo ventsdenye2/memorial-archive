@@ -71,7 +71,7 @@ namespace MemorialArchive.Gameplay.Lighting.View
             for (var index = 0; index < lightCount; index++)
             {
                 var light = activeLights[index];
-                lightData[index] = new Vector4(light.Position.x, light.Position.y, light.Radius, 1f);
+                lightData[index] = new Vector4(light.Position.x, light.Position.y, light.Radius, light.Intensity);
             }
 
             propertyBlock.SetVectorArray("_LightData", lightData);

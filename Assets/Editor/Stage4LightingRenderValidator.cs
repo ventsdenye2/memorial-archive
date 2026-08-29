@@ -17,6 +17,7 @@ namespace MemorialArchive.Editor
         private const string MaterialPath = "Assets/GameConfigs/Lighting/DarknessOverlayMaterial.mat";
         private const string GlobalConfigPath = "Assets/GameConfigs/Lighting/LightingGlobalConfig.asset";
         private const int RenderSize = 256;
+        private const int ValidationLayer = 31;
 
         [MenuItem("Tools/Memorial Archive/Validate Stage 4 Lighting Render")]
         public static void Validate()
@@ -98,6 +99,13 @@ namespace MemorialArchive.Editor
                 throw new InvalidOperationException("LightingGlobalConfig.darknessMaterial 未赋值。");
             }
 
+            if (config.PlayerSafetyLightRadius <= 0f || config.PlayerSafetyLightIntensity <= 0f ||
+                config.PlayerSafetyLightIntensity >= 1f)
+            {
+                throw new InvalidOperationException(
+                    $"角色微光配置无效：radius={config.PlayerSafetyLightRadius}, intensity={config.PlayerSafetyLightIntensity}");
+            }
+
             Debug.Log("[Stage4LightingRenderValidator] 材质与全局配置引用检查通过。");
         }
 
@@ -113,7 +121,8 @@ namespace MemorialArchive.Editor
                 camera.clearFlags = CameraClearFlags.SolidColor;
                 camera.backgroundColor = Color.white;
                 camera.transform.position = new Vector3(0f, 0f, -10f);
-                camera.cullingMask = ~0;
+                // 只渲染验证用四边形，避免当前打开场景里的 Sprite/Canvas 干扰离屏取样。
+                camera.cullingMask = 1 << ValidationLayer;
 
                 var collider = quad.GetComponent<Collider>();
                 if (collider != null)
@@ -123,6 +132,7 @@ namespace MemorialArchive.Editor
 
                 quad.transform.position = Vector3.zero;
                 quad.transform.localScale = new Vector3(40f, 40f, 1f);
+                quad.layer = ValidationLayer;
                 var renderer = quad.GetComponent<MeshRenderer>();
                 renderer.sharedMaterial = material;
                 renderer.sortingOrder = 50;
@@ -150,9 +160,26 @@ namespace MemorialArchive.Editor
 
                 var center = SamplePixel(pixels, RenderSize / 2, RenderSize / 2);
                 var corner = SamplePixel(pixels, 8, 8);
+
+                var config = AssetDatabase.LoadAssetAtPath<LightingGlobalConfig>(GlobalConfigPath);
+                lightData[0] = new Vector4(0f, 0f, config.PlayerSafetyLightRadius, config.PlayerSafetyLightIntensity);
+                propertyBlock.SetVectorArray("_LightData", lightData);
+                renderer.SetPropertyBlock(propertyBlock);
+                camera.Render();
+
+                RenderTexture.active = texture;
+                var weakPixels = ReadAllPixels();
+                var weakCenter = SamplePixel(weakPixels, RenderSize / 2, RenderSize / 2);
+                var weakCorner = SamplePixel(weakPixels, 8, 8);
+                var fullBrightest = FindBrightestPixel(pixels, out var fullBrightestX, out var fullBrightestY);
+                var weakBrightest = FindBrightestPixel(weakPixels, out var weakBrightestX, out var weakBrightestY);
                 RenderTexture.active = previous;
                 camera.targetTexture = null;
                 texture.Release();
+
+                Debug.Log(
+                    $"[Stage4LightingRenderValidator] 取样诊断：full center={center.r}, max={fullBrightest.r}@({fullBrightestX},{fullBrightestY}); " +
+                    $"weak center={weakCenter.r}, max={weakBrightest.r}@({weakBrightestX},{weakBrightestY}); far={corner.r}。");
 
                 // 光源中心（半径 2、强度 1）应完全透出白色背景；远处应为白底叠 95% 黑。
                 if (center.r < 200)
@@ -165,7 +192,20 @@ namespace MemorialArchive.Editor
                     throw new InvalidOperationException($"远离光源的像素过亮，暗幕未生效：r={corner.r}");
                 }
 
-                Debug.Log($"[Stage4LightingRenderValidator] 像素断言通过：光源中心 r={center.r}，远处 r={corner.r}。");
+                if (weakCenter.r <= weakCorner.r + 45)
+                {
+                    throw new InvalidOperationException(
+                        $"角色微光中心仍不可辨认：center={weakCenter.r}, corner={weakCorner.r}");
+                }
+
+                if (weakCenter.r >= center.r - 20)
+                {
+                    throw new InvalidOperationException(
+                        $"角色微光过亮，与完整光源缺少层级：weak={weakCenter.r}, full={center.r}");
+                }
+
+                Debug.Log(
+                    $"[Stage4LightingRenderValidator] 像素断言通过：完整光源 r={center.r}，角色微光 r={weakCenter.r}，远处 r={corner.r}。");
             }
             finally
             {
@@ -187,6 +227,22 @@ namespace MemorialArchive.Editor
         private static Color32 SamplePixel(Color32[] pixels, int x, int y)
         {
             return pixels[y * RenderSize + x];
+        }
+
+        private static Color32 FindBrightestPixel(Color32[] pixels, out int x, out int y)
+        {
+            var brightestIndex = 0;
+            for (var index = 1; index < pixels.Length; index++)
+            {
+                if (pixels[index].r > pixels[brightestIndex].r)
+                {
+                    brightestIndex = index;
+                }
+            }
+
+            x = brightestIndex % RenderSize;
+            y = brightestIndex / RenderSize;
+            return pixels[brightestIndex];
         }
     }
 }

@@ -26,6 +26,10 @@ namespace MemorialArchive.Editor
         private const string DatabasePath = "Assets/GameConfigs/GameConfigDatabase.asset";
         private const string LightingConfigFolder = "Assets/GameConfigs/Lighting";
         private const string LightSourceConfigFolder = "Assets/GameConfigs/Lighting/LightSources";
+        private const string LightingPrefabFolder = "Assets/Prefabs/Lighting";
+        private const string LightFixturePrefabPath = LightingPrefabFolder + "/LightFixture.prefab";
+        private const string LightingPlaceholderFolder = "Assets/Art/Placeholders";
+        private const string LightFixturePlaceholderPath = LightingPlaceholderFolder + "/LightFixturePlaceholder.png";
         private const string DarknessMaterialPath = "Assets/GameConfigs/Lighting/DarknessOverlayMaterial.mat";
         private const string GlobalConfigPath = "Assets/GameConfigs/Lighting/LightingGlobalConfig.asset";
         private const string DarknessShaderName = "Memorial Archive/Lighting/Darkness Overlay";
@@ -69,8 +73,10 @@ namespace MemorialArchive.Editor
         {
             EnsureFolder(LightingConfigFolder);
             EnsureFolder(LightSourceConfigFolder);
+            EnsureFolder(LightingPrefabFolder);
 
             var globalConfig = BuildGlobalConfig();
+            BuildLightFixturePrefab();
             ClearLightSourceConfigs();
 
             var createdConfigs = new List<LightSourceConfig>();
@@ -85,6 +91,18 @@ namespace MemorialArchive.Editor
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             Debug.Log($"Stage 4 lighting built. Light source configs: {createdConfigs.Count}.");
+        }
+
+        [MenuItem("Tools/Memorial Archive/Build Light Fixture Prefab")]
+        public static void BuildLightFixturePrefabAsset()
+        {
+            EnsureFolder(LightingPrefabFolder);
+            var prefab = BuildLightFixturePrefab();
+            var migratedCount = MigrateGeneratedFixturesToPrefab(prefab);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            Selection.activeObject = prefab;
+            Debug.Log($"Light fixture prefab built: {LightFixturePrefabPath}; migrated scene fixtures: {migratedCount}.");
         }
 
         public static void BuildStage4LightingBatch()
@@ -303,12 +321,20 @@ namespace MemorialArchive.Editor
             var fixture = GameObject.Find(lightId);
             if (fixture == null)
             {
-                fixture = new GameObject(lightId);
-                UnityEditor.SceneManagement.EditorSceneManager.MoveGameObjectToScene(
-                    fixture, SceneManager.GetActiveScene());
+                var fixturePrefab = AssetDatabase.LoadAssetAtPath<GameObject>(LightFixturePrefabPath) ??
+                                    BuildLightFixturePrefab();
+                fixture = (GameObject)PrefabUtility.InstantiatePrefab(
+                    fixturePrefab,
+                    SceneManager.GetActiveScene());
+                fixture.name = lightId;
                 fixture.transform.position = position;
             }
 
+            ConfigureFixture(fixture, lightId, isSpecial);
+        }
+
+        private static void ConfigureFixture(GameObject fixture, string lightId, bool isSpecial)
+        {
             var spriteRenderer = fixture.GetComponent<SpriteRenderer>();
             if (spriteRenderer == null)
             {
@@ -349,6 +375,179 @@ namespace MemorialArchive.Editor
             interactionSerialized.FindProperty("interactionId").stringValue = lightId;
             interactionSerialized.FindProperty("interactionType").intValue = (int)InteractionType.LightSource;
             interactionSerialized.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        private static int MigrateGeneratedFixturesToPrefab(GameObject prefab)
+        {
+            for (var index = 0; index < SceneManager.sceneCount; index++)
+            {
+                if (SceneManager.GetSceneAt(index).isDirty)
+                {
+                    throw new InvalidOperationException("存在未保存的场景修改，请先保存后再迁移灯具预制体。");
+                }
+            }
+
+            var originalSetup = EditorSceneManager.GetSceneManagerSetup();
+            var migratedCount = 0;
+            try
+            {
+                var visitedScenes = new HashSet<string>();
+                foreach (var plan in ScenePlans)
+                {
+                    if (!visitedScenes.Add(plan.SceneName))
+                    {
+                        continue;
+                    }
+
+                    var scenePath = $"Assets/Scenes/{plan.SceneName}.unity";
+                    if (!File.Exists(scenePath))
+                    {
+                        continue;
+                    }
+
+                    var scene = EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Single);
+                    var fixtures = new List<LightSourceView>();
+                    foreach (var rootObject in scene.GetRootGameObjects())
+                    {
+                        fixtures.AddRange(rootObject.GetComponentsInChildren<LightSourceView>(true));
+                    }
+
+                    var sceneChanged = false;
+                    foreach (var lightView in fixtures)
+                    {
+                        var fixture = lightView.gameObject;
+                        if (PrefabUtility.IsPartOfPrefabInstance(fixture) || !IsGeneratedPlaceholderFixture(fixture))
+                        {
+                            continue;
+                        }
+
+                        var interactionPoint = fixture.GetComponent<InteractionPointView>();
+                        var lightId = interactionPoint != null && !string.IsNullOrEmpty(interactionPoint.InteractionId)
+                            ? interactionPoint.InteractionId
+                            : fixture.name;
+                        var lightConfig = AssetDatabase.LoadAssetAtPath<LightSourceConfig>(
+                            $"{LightSourceConfigFolder}/{lightId}.asset");
+                        var isSpecial = lightConfig != null
+                            ? lightConfig.IsSpecial
+                            : fixture.transform.localScale.x > 1.1f;
+
+                        var parent = fixture.transform.parent;
+                        var siblingIndex = fixture.transform.GetSiblingIndex();
+                        var localPosition = fixture.transform.localPosition;
+                        var localRotation = fixture.transform.localRotation;
+                        var localScale = fixture.transform.localScale;
+                        var activeSelf = fixture.activeSelf;
+
+                        var replacement = (GameObject)PrefabUtility.InstantiatePrefab(prefab, scene);
+                        replacement.name = fixture.name;
+                        replacement.transform.SetParent(parent, false);
+                        replacement.transform.SetSiblingIndex(siblingIndex);
+                        replacement.transform.localPosition = localPosition;
+                        replacement.transform.localRotation = localRotation;
+                        replacement.transform.localScale = localScale;
+                        replacement.SetActive(activeSelf);
+                        ConfigureFixture(replacement, lightId, isSpecial);
+
+                        UnityEngine.Object.DestroyImmediate(fixture);
+                        migratedCount++;
+                        sceneChanged = true;
+                    }
+
+                    if (sceneChanged)
+                    {
+                        EditorSceneManager.SaveScene(scene);
+                    }
+                }
+            }
+            finally
+            {
+                EditorSceneManager.RestoreSceneManagerSetup(originalSetup);
+            }
+
+            return migratedCount;
+        }
+
+        private static bool IsGeneratedPlaceholderFixture(GameObject fixture)
+        {
+            var spriteRenderer = fixture.GetComponent<SpriteRenderer>();
+            return fixture.transform.childCount == 0 &&
+                   spriteRenderer != null &&
+                   spriteRenderer.sprite == LoadPlaceholderSprite() &&
+                   fixture.GetComponent<BoxCollider2D>() != null &&
+                   fixture.GetComponent<InteractionPointView>() != null;
+        }
+
+        private static GameObject BuildLightFixturePrefab()
+        {
+            EnsureFolder(LightingPrefabFolder);
+            var existingPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(LightFixturePrefabPath);
+            var editingExisting = existingPrefab != null;
+            var root = editingExisting
+                ? PrefabUtility.LoadPrefabContents(LightFixturePrefabPath)
+                : new GameObject("LightFixture");
+
+            try
+            {
+                root.name = "LightFixture";
+                root.transform.localPosition = Vector3.zero;
+                root.transform.localRotation = Quaternion.identity;
+                root.transform.localScale = Vector3.one;
+
+                var spriteRenderer = root.GetComponent<SpriteRenderer>();
+                if (spriteRenderer == null)
+                {
+                    spriteRenderer = root.AddComponent<SpriteRenderer>();
+                }
+
+                // 使用项目内生成的简单灯具图标，避免依赖不同 Unity 发行版的内置资源。
+                // 美术资源接入后只需替换预制体上的 Sprite。
+                spriteRenderer.sprite = LoadPlaceholderSprite();
+                spriteRenderer.sortingOrder = 10;
+                spriteRenderer.drawMode = SpriteDrawMode.Simple;
+                spriteRenderer.color = new Color(0.35f, 0.35f, 0.35f, 1f);
+
+                var collider = root.GetComponent<BoxCollider2D>();
+                if (collider == null)
+                {
+                    collider = root.AddComponent<BoxCollider2D>();
+                }
+
+                collider.isTrigger = true;
+                collider.size = new Vector2(1.6f, 12f);
+                collider.offset = new Vector2(0f, -2f);
+
+                var lightView = root.GetComponent<LightSourceView>();
+                if (lightView == null)
+                {
+                    lightView = root.AddComponent<LightSourceView>();
+                }
+
+                SetSerializedString(lightView, "lightId", string.Empty);
+
+                var interactionPoint = root.GetComponent<InteractionPointView>();
+                if (interactionPoint == null)
+                {
+                    interactionPoint = root.AddComponent<InteractionPointView>();
+                }
+
+                var interactionSerialized = new SerializedObject(interactionPoint);
+                interactionSerialized.FindProperty("interactionId").stringValue = string.Empty;
+                interactionSerialized.FindProperty("interactionType").intValue = (int)InteractionType.LightSource;
+                interactionSerialized.ApplyModifiedPropertiesWithoutUndo();
+
+                return PrefabUtility.SaveAsPrefabAsset(root, LightFixturePrefabPath);
+            }
+            finally
+            {
+                if (editingExisting)
+                {
+                    PrefabUtility.UnloadPrefabContents(root);
+                }
+                else
+                {
+                    UnityEngine.Object.DestroyImmediate(root);
+                }
+            }
         }
 
         private static LightSourceConfig GetOrCreateLightConfig(string lightId, string regionId, bool isSpecial, float radius)
@@ -416,13 +615,83 @@ namespace MemorialArchive.Editor
 
         private static Sprite LoadPlaceholderSprite()
         {
-            var sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("Square.png");
+            var sprite = AssetDatabase.LoadAssetAtPath<Sprite>(LightFixturePlaceholderPath);
             if (sprite != null)
             {
                 return sprite;
             }
 
-            return AssetDatabase.GetBuiltinExtraResource<Sprite>("4-Sprite.png");
+            EnsureFolder(LightingPlaceholderFolder);
+
+            const int size = 32;
+            var pixels = new Color32[size * size];
+            var clear = new Color32(255, 255, 255, 0);
+            var solid = new Color32(255, 255, 255, 255);
+            for (var index = 0; index < pixels.Length; index++)
+            {
+                pixels[index] = clear;
+            }
+
+            // 纯白轮廓由 SpriteRenderer 着色：上方吊线、梯形灯罩和下方灯泡。
+            FillRect(pixels, size, 15, 25, 2, 6, solid);
+            for (var y = 12; y <= 24; y++)
+            {
+                var halfWidth = 3 + (24 - y) / 2;
+                FillRect(pixels, size, 16 - halfWidth, y, halfWidth * 2 + 1, 1, solid);
+            }
+
+            FillRect(pixels, size, 13, 9, 7, 3, solid);
+            FillRect(pixels, size, 11, 7, 11, 2, solid);
+
+            var texture = new Texture2D(size, size, TextureFormat.RGBA32, false);
+            try
+            {
+                texture.name = "LightFixturePlaceholder";
+                texture.SetPixels32(pixels);
+                texture.Apply(false, false);
+
+                var fullPath = Path.GetFullPath(LightFixturePlaceholderPath);
+                Directory.CreateDirectory(Path.GetDirectoryName(fullPath));
+                File.WriteAllBytes(fullPath, texture.EncodeToPNG());
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(texture);
+            }
+
+            AssetDatabase.ImportAsset(LightFixturePlaceholderPath, ImportAssetOptions.ForceSynchronousImport);
+            var importer = AssetImporter.GetAtPath(LightFixturePlaceholderPath) as TextureImporter;
+            if (importer == null)
+            {
+                throw new InvalidOperationException($"无法导入灯具占位贴图：{LightFixturePlaceholderPath}");
+            }
+
+            importer.textureType = TextureImporterType.Sprite;
+            importer.spriteImportMode = SpriteImportMode.Single;
+            importer.spritePixelsPerUnit = size;
+            importer.alphaIsTransparency = true;
+            importer.filterMode = FilterMode.Point;
+            importer.textureCompression = TextureImporterCompression.Uncompressed;
+            importer.SaveAndReimport();
+
+            sprite = AssetDatabase.LoadAssetAtPath<Sprite>(LightFixturePlaceholderPath);
+            if (sprite == null)
+            {
+                throw new InvalidOperationException($"灯具占位贴图未生成 Sprite：{LightFixturePlaceholderPath}");
+            }
+
+            return sprite;
+        }
+
+        private static void FillRect(Color32[] pixels, int textureWidth, int x, int y, int width, int height, Color32 color)
+        {
+            for (var row = 0; row < height; row++)
+            {
+                for (var column = 0; column < width; column++)
+                {
+                    pixels[(y + row) * textureWidth + x + column] = color;
+                }
+            }
         }
 
         private static void SetSerializedString(Component component, string propertyName, string value)

@@ -19,6 +19,15 @@ namespace MemorialArchive.Gameplay.Lighting.Config
         [Range(1f, 6f)]
         [SerializeField] private float lightFalloffExponent = 2f;
 
+        [Header("角色微光")]
+        [Tooltip("全黑且手提灯未点亮时，角色周围仅用于保证可读性的微弱光圈半径。该光不计入交互门禁或黑暗失败判定。")]
+        [SerializeField, Min(0.1f)] private float playerSafetyLightRadius = 1.6f;
+        [Tooltip("角色微光中心亮度。1 为完全挖开暗幕，0 为不产生微光。")]
+        [Range(0f, 1f)]
+        [SerializeField] private float playerSafetyLightIntensity = 0.45f;
+        [Tooltip("角色位置事件位于脚底，微光向上抬升后才能覆盖躯干。")]
+        [SerializeField] private float playerSafetyLightYOffset = 0.9f;
+
         [Header("手提灯")]
         [SerializeField] private float lanternTotalFuelSeconds = 60f;
         [Tooltip("剩余燃料高于该值时为强光（默认 40 秒，即消耗前 20 秒）。")]
@@ -48,6 +57,9 @@ namespace MemorialArchive.Gameplay.Lighting.Config
         public int MaxSimultaneousLights => Mathf.Max(1, maxSimultaneousLights);
         public Material DarknessMaterial => darknessMaterial;
         public float LightFalloffExponent => lightFalloffExponent;
+        public float PlayerSafetyLightRadius => Mathf.Max(0.1f, playerSafetyLightRadius);
+        public float PlayerSafetyLightIntensity => Mathf.Clamp01(playerSafetyLightIntensity);
+        public float PlayerSafetyLightYOffset => playerSafetyLightYOffset;
 
         public float LanternTotalFuelSeconds => Mathf.Max(1f, lanternTotalFuelSeconds);
         public float LanternStrongThresholdSeconds => lanternStrongThresholdSeconds;

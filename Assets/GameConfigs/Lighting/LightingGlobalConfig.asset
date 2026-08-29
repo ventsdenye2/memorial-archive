@@ -18,6 +18,9 @@ MonoBehaviour:
   maxSimultaneousLights: 32
   darknessMaterial: {fileID: 2100000, guid: fc20d5a99814b124abbc2032b8545b22, type: 2}
   lightFalloffExponent: 2
+  playerSafetyLightRadius: 1.6
+  playerSafetyLightIntensity: 0.45
+  playerSafetyLightYOffset: 0.9
   lanternTotalFuelSeconds: 60
   lanternStrongThresholdSeconds: 40
   lanternWeakThresholdSeconds: 10

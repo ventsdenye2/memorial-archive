@@ -32,6 +32,12 @@ namespace MemorialArchive.Gameplay.Character.View
             {
                 events.Publish(new DebugModeToggledEvent());
             }
+
+            if (Input.GetKeyDown(KeyCode.F3))
+            {
+                events.Publish(new DebugSpecialLightInteractRequestedEvent());
+            }
+
             if (root.GetSystem<DialogueSystem>()?.IsInputModeActive == true)
             {
                 CancelPrimaryAction(events);

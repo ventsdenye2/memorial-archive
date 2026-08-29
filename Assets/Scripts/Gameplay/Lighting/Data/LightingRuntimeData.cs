@@ -23,17 +23,19 @@ namespace MemorialArchive.Gameplay.Lighting.Data
         public string sceneName;
     }
 
-    /// <summary>黑暗层每帧拉取的活跃光源（手提灯与临时灯）。</summary>
+    /// <summary>黑暗层每帧拉取的视觉光源（角色微光、手提灯与临时灯）。</summary>
     public struct ActiveLight
     {
-        public ActiveLight(Vector2 position, float radius)
+        public ActiveLight(Vector2 position, float radius, float intensity = 1f)
         {
             Position = position;
             Radius = radius;
+            Intensity = Mathf.Clamp01(intensity);
         }
 
         public Vector2 Position { get; }
         public float Radius { get; }
+        public float Intensity { get; }
     }
 
     [Serializable]

@@ -93,6 +93,7 @@ namespace MemorialArchive.Framework.Event
 
     // 当前版本的临时调试入口；正式版发布前移除。
     public readonly struct DebugModeToggledEvent { }
+    public readonly struct DebugSpecialLightInteractRequestedEvent { }
 
     public readonly struct ShortcutEquipPressedEvent
     {

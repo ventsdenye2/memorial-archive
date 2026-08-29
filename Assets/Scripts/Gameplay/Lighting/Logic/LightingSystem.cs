@@ -43,6 +43,11 @@ namespace MemorialArchive.Gameplay.Lighting.Logic
         private float fuelPublishTimer;
         private float failureCooldownRemaining;
         private Vector2 lastPlayerPosition;
+        private readonly Dictionary<string, bool> debugOriginalRegionLitStates = new Dictionary<string, bool>();
+        private string debugOverrideSceneName;
+        private string debugLanternInstanceId;
+        private bool debugLanternFuelWasRecorded;
+        private float debugOriginalLanternFuel;
 
         public string ModuleKey => "lighting";
 
@@ -69,6 +74,7 @@ namespace MemorialArchive.Gameplay.Lighting.Logic
             activeSceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
 
             context.Events.Subscribe<LightSourceInteractRequestedEvent>(HandleLightSourceInteractRequested);
+            context.Events.Subscribe<DebugSpecialLightInteractRequestedEvent>(HandleDebugSpecialLightInteractRequested);
             context.Events.Subscribe<LanternTogglePressedEvent>(HandleLanternTogglePressed);
             context.Events.Subscribe<CharacterEquipmentChangedEvent>(HandleEquipmentChanged);
             context.Events.Subscribe<SceneLoadedEvent>(HandleSceneLoaded);
@@ -83,6 +89,7 @@ namespace MemorialArchive.Gameplay.Lighting.Logic
             if (context != null)
             {
                 context.Events.Unsubscribe<LightSourceInteractRequestedEvent>(HandleLightSourceInteractRequested);
+                context.Events.Unsubscribe<DebugSpecialLightInteractRequestedEvent>(HandleDebugSpecialLightInteractRequested);
                 context.Events.Unsubscribe<LanternTogglePressedEvent>(HandleLanternTogglePressed);
                 context.Events.Unsubscribe<CharacterEquipmentChangedEvent>(HandleEquipmentChanged);
                 context.Events.Unsubscribe<SceneLoadedEvent>(HandleSceneLoaded);
@@ -100,6 +107,7 @@ namespace MemorialArchive.Gameplay.Lighting.Logic
             isLanternEquipped = false;
             equippedLanternInstanceId = null;
             isLanternLit = false;
+            ClearDebugLightingSnapshot();
         }
 
         public void ResetForNewGame()
@@ -110,6 +118,7 @@ namespace MemorialArchive.Gameplay.Lighting.Logic
             isLanternLit = false;
             equippedLanternInstanceId = null;
             failureCooldownRemaining = 0f;
+            ClearDebugLightingSnapshot();
         }
 
         public void Tick(float deltaTime)
@@ -183,10 +192,24 @@ namespace MemorialArchive.Gameplay.Lighting.Logic
             return lightViews.TryGetValue(lightId, out var view) && IsRegionLit(view.regionId);
         }
 
-        /// <summary>填充黑暗层需要的活跃光源：点亮中的手提灯 + 当前场景亮着的临时灯。</summary>
+        /// <summary>
+        /// 填充黑暗层需要的视觉光源。角色微光只保证全黑时仍能辨认角色，
+        /// 不参与 IsPlayerInLight、交互门禁或黑暗失败等规则判断。
+        /// </summary>
         public void CollectActiveLights(List<ActiveLight> results)
         {
             results.Clear();
+
+            if (config != null && !IsCurrentSceneLit() && (!isLanternEquipped || !isLanternLit))
+            {
+                var safetyLightPosition = new Vector2(
+                    lastPlayerPosition.x,
+                    lastPlayerPosition.y + config.PlayerSafetyLightYOffset);
+                results.Add(new ActiveLight(
+                    safetyLightPosition,
+                    config.PlayerSafetyLightRadius,
+                    config.PlayerSafetyLightIntensity));
+            }
 
             if (isLanternLit && isLanternEquipped)
             {
@@ -256,6 +279,7 @@ namespace MemorialArchive.Gameplay.Lighting.Logic
             lanternFuelByInstance.Clear();
             isLanternLit = false;
             equippedLanternInstanceId = null;
+            ClearDebugLightingSnapshot();
 
             if (string.IsNullOrEmpty(json))
             {
@@ -343,22 +367,120 @@ namespace MemorialArchive.Gameplay.Lighting.Logic
 
             if (lightConfig.IsSpecial)
             {
-                regionLitStates[lightConfig.RegionId] = true;
-                context.Events.Publish(new RegionLightsStateChangedEvent(lightConfig.RegionId, true));
-                foreach (var view in lightViews.Values)
-                {
-                    if (view.regionId == lightConfig.RegionId)
-                    {
-                        context.Events.Publish(new LightStateChangedEvent(view.lightId, true, 0f));
-                    }
-                }
-
+                SetRegionLit(lightConfig.RegionId, true);
                 RefuelEquippedLantern();
             }
             else
             {
                 tempLightRemaining[evt.LightId] = config.TempLightSeconds;
                 context.Events.Publish(new LightStateChangedEvent(evt.LightId, true, config.TempLightSeconds));
+            }
+        }
+
+        /// <summary>
+        /// 临时调试入口：第一次 F3 视为完成当前场景的特殊灯具交互，
+        /// 第二次 F3 恢复点灯前的区域状态和手提灯燃油。
+        /// </summary>
+        private void HandleDebugSpecialLightInteractRequested(DebugSpecialLightInteractRequestedEvent evt)
+        {
+            if (debugOriginalRegionLitStates.Count > 0 && debugOverrideSceneName == activeSceneName)
+            {
+                RestoreDebugLightingOverride();
+                return;
+            }
+
+            // 若跨场景后才再次使用 F3，先撤销上一个场景的调试覆盖，再为当前场景建快照。
+            if (debugOriginalRegionLitStates.Count > 0)
+            {
+                RestoreDebugLightingOverride();
+            }
+
+            var currentSceneRegions = new HashSet<string>();
+            foreach (var view in lightViews.Values)
+            {
+                if (view.sceneName == activeSceneName && !string.IsNullOrEmpty(view.regionId))
+                {
+                    currentSceneRegions.Add(view.regionId);
+                }
+            }
+
+            if (currentSceneRegions.Count == 0)
+            {
+                Debug.LogWarning($"[LightingSystem] F3 调试点灯失败：当前场景 {activeSceneName} 没有已注册灯具区域。");
+                return;
+            }
+
+            debugOverrideSceneName = activeSceneName;
+            foreach (var regionId in currentSceneRegions)
+            {
+                debugOriginalRegionLitStates[regionId] = IsRegionLit(regionId);
+                SetRegionLit(regionId, true);
+            }
+
+            debugLanternInstanceId = equippedLanternInstanceId;
+            debugLanternFuelWasRecorded = debugLanternInstanceId != null &&
+                                          lanternFuelByInstance.TryGetValue(
+                                              debugLanternInstanceId,
+                                              out debugOriginalLanternFuel);
+            RefuelEquippedLantern();
+            Debug.Log(
+                $"[LightingSystem] F3 调试点灯完成：场景 {activeSceneName}，区域 {string.Join(", ", currentSceneRegions)}，" +
+                $"手提灯{(isLanternEquipped ? "已补满燃油" : "未装备，跳过补油")}；再次按 F3 恢复。");
+        }
+
+        private void RestoreDebugLightingOverride()
+        {
+            var restoredSceneName = debugOverrideSceneName;
+            foreach (var pair in debugOriginalRegionLitStates)
+            {
+                SetRegionLit(pair.Key, pair.Value);
+            }
+
+            if (debugLanternInstanceId != null)
+            {
+                if (debugLanternFuelWasRecorded)
+                {
+                    lanternFuelByInstance[debugLanternInstanceId] = debugOriginalLanternFuel;
+                }
+                else
+                {
+                    lanternFuelByInstance.Remove(debugLanternInstanceId);
+                }
+
+                if (debugLanternInstanceId == equippedLanternInstanceId)
+                {
+                    PublishLanternFuel();
+                }
+            }
+
+            ClearDebugLightingSnapshot();
+            Debug.Log($"[LightingSystem] F3 调试点灯已撤销：场景 {restoredSceneName} 已恢复原状态。");
+        }
+
+        private void ClearDebugLightingSnapshot()
+        {
+            debugOriginalRegionLitStates.Clear();
+            debugOverrideSceneName = null;
+            debugLanternInstanceId = null;
+            debugLanternFuelWasRecorded = false;
+            debugOriginalLanternFuel = 0f;
+        }
+
+        private void SetRegionLit(string regionId, bool isLit)
+        {
+            if (string.IsNullOrEmpty(regionId))
+            {
+                return;
+            }
+
+            regionLitStates[regionId] = isLit;
+            context.Events.Publish(new RegionLightsStateChangedEvent(regionId, isLit));
+            foreach (var view in lightViews.Values)
+            {
+                if (view.regionId == regionId)
+                {
+                    context.Events.Publish(new LightStateChangedEvent(view.lightId, isLit, 0f));
+                }
             }
         }
 

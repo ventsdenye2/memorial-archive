@@ -167,8 +167,10 @@ private void HandleInteractionFocusChanged(InteractionFocusChangedEvent evt)
             var config = context.Configs.GetInteraction(focusedInteractionId);
             var type = config != null ? config.InteractionType : focusedInteractionType;
 
-            // 黑暗门禁：无光源时除场景切换（含楼梯）外全部拦截。
-            if (type != InteractionType.SceneExit && lighting != null && !lighting.IsPlayerInLight())
+            // 恢复型交互不能被黑暗自身锁死：出口可脱离危险，灯具可恢复照明。
+            if (!InteractionLightingPolicy.CanAttemptInDarkness(type) &&
+                lighting != null &&
+                !lighting.IsPlayerInLight())
             {
                 context.Events.Publish(new InteractionBlockedInDarkEvent(type));
                 return;

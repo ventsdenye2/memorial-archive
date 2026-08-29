@@ -19,7 +19,7 @@ MonoBehaviour:
   walkSpeed: 120
   runSpeed: 340
   runStaminaCostPerSecond: 2
-  staminaRecoveryPerSecond: 6
+  staminaRecoveryPerSecond: 1
   dodgeStaminaCost: 6
   dodgeDistance: 120
   dodgeDurationSeconds: 0.18

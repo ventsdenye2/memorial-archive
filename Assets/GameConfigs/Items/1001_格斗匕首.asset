@@ -39,7 +39,7 @@ MonoBehaviour:
   spawnRule: 
   combatAttackKind: 0
   damageType: 0
-  damage: 800
+  damage: 80
   attackRange: 0.8
   attackActiveSeconds: 0.5
   attackCooldownSeconds: 0.5

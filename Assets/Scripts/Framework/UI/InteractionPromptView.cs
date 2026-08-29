@@ -99,6 +99,7 @@ namespace MemorialArchive.Framework.UI
                 InteractionType.SavePoint => "存档",
                 InteractionType.NotePickup => "拾取",
                 InteractionType.Npc => "对话",
+                InteractionType.LightSource => "点亮",
                 _ => "互动",
             };
         }

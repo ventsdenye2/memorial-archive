@@ -4,6 +4,7 @@ using MemorialArchive.Gameplay.Combat.Data;
 using MemorialArchive.Gameplay.Character.Data;
 using MemorialArchive.Gameplay.Item.Config;
 using MemorialArchive.Gameplay.Item.Data;
+using MemorialArchive.Gameplay.Lighting.Data;
 using MemorialArchive.Gameplay.Monster.Data;
 using MemorialArchive.Framework.UI;
 using UnityEngine;
@@ -82,6 +83,7 @@ namespace MemorialArchive.Framework.Event
 
     public readonly struct DodgePressedEvent { }
     public readonly struct InteractPressedEvent { }
+    public readonly struct LanternTogglePressedEvent { }
     public readonly struct PrimaryActionPressedEvent { }
     public readonly struct ReloadPressedEvent { }
     public readonly struct OpenInventoryPressedEvent { }
@@ -250,6 +252,89 @@ public readonly struct ContainerClosedEvent { }
     {
         public PuzzleInteractRequestedEvent(string puzzleId) => PuzzleId = puzzleId;
         public string PuzzleId { get; }
+    }
+
+    // ---- 光照系统事件 ----
+
+    /// <summary>交互系统分发灯具交互：InteractionSystem → LightingSystem。</summary>
+    public readonly struct LightSourceInteractRequestedEvent
+    {
+        public LightSourceInteractRequestedEvent(string lightId) => LightId = lightId;
+        public string LightId { get; }
+    }
+
+    /// <summary>单盏灯亮灭变化；RemainingSeconds 小于等于 0 视为永久点亮。</summary>
+    public readonly struct LightStateChangedEvent
+    {
+        public LightStateChangedEvent(string lightId, bool isOn, float remainingSeconds)
+        {
+            LightId = lightId;
+            IsOn = isOn;
+            RemainingSeconds = remainingSeconds;
+        }
+
+        public string LightId { get; }
+        public bool IsOn { get; }
+        public float RemainingSeconds { get; }
+    }
+
+    /// <summary>区域点亮状态变化（特殊灯具交互后发布）。</summary>
+    public readonly struct RegionLightsStateChangedEvent
+    {
+        public RegionLightsStateChangedEvent(string regionId, bool isLit)
+        {
+            RegionId = regionId;
+            IsLit = isLit;
+        }
+
+        public string RegionId { get; }
+        public bool IsLit { get; }
+    }
+
+    /// <summary>手提灯燃料或光强阶段变化。</summary>
+    public readonly struct LanternFuelChangedEvent
+    {
+        public LanternFuelChangedEvent(float remainingSeconds, float totalSeconds, LanternStage stage)
+        {
+            RemainingSeconds = remainingSeconds;
+            TotalSeconds = totalSeconds;
+            Stage = stage;
+        }
+
+        public float RemainingSeconds { get; }
+        public float TotalSeconds { get; }
+        public LanternStage Stage { get; }
+    }
+
+    public readonly struct LanternLitChangedEvent
+    {
+        public LanternLitChangedEvent(bool isLit) => IsLit = isLit;
+        public bool IsLit { get; }
+    }
+
+    public readonly struct LanternToggleFailedEvent
+    {
+        public LanternToggleFailedEvent(string reason) => Reason = reason;
+        public string Reason { get; }
+    }
+
+    public readonly struct LightInteractionFailedEvent
+    {
+        public LightInteractionFailedEvent(string lightId, string reason)
+        {
+            LightId = lightId;
+            Reason = reason;
+        }
+
+        public string LightId { get; }
+        public string Reason { get; }
+    }
+
+    /// <summary>黑暗中非场景切换类交互被拦截，供提示 UI 后续接入。</summary>
+    public readonly struct InteractionBlockedInDarkEvent
+    {
+        public InteractionBlockedInDarkEvent(InteractionType interactionType) => InteractionType = interactionType;
+        public InteractionType InteractionType { get; }
     }
 
     public readonly struct SceneTransitionRequestedEvent

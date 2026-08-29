@@ -5,6 +5,7 @@ using MemorialArchive.Framework.Save;
 using MemorialArchive.Framework.UI;
 using MemorialArchive.Gameplay.Interaction.Config;
 using MemorialArchive.Gameplay.Interaction.Data;
+using MemorialArchive.Gameplay.Lighting.Logic;
 using UnityEngine;
 
 namespace MemorialArchive.Gameplay.Interaction.Logic
@@ -13,11 +14,17 @@ namespace MemorialArchive.Gameplay.Interaction.Logic
     {
         private readonly Dictionary<string, InteractionRuntimeData> interactions = new Dictionary<string, InteractionRuntimeData>();
         private readonly Dictionary<string, RoomStateData> rooms = new Dictionary<string, RoomStateData>();
+        private readonly LightingSystem lighting;
         private GameContext context;
         private string focusedInteractionId;
         private InteractionType focusedInteractionType = InteractionType.None;
 
         public string ModuleKey => "interactions";
+
+        public InteractionSystem(LightingSystem lighting = null)
+        {
+            this.lighting = lighting;
+        }
 
         public void Initialize(GameContext context)
         {
@@ -159,6 +166,14 @@ private void HandleInteractionFocusChanged(InteractionFocusChangedEvent evt)
 
             var config = context.Configs.GetInteraction(focusedInteractionId);
             var type = config != null ? config.InteractionType : focusedInteractionType;
+
+            // 黑暗门禁：无光源时除场景切换（含楼梯）外全部拦截。
+            if (type != InteractionType.SceneExit && lighting != null && !lighting.IsPlayerInLight())
+            {
+                context.Events.Publish(new InteractionBlockedInDarkEvent(type));
+                return;
+            }
+
             DispatchInteraction(config, type);
         }
 
@@ -210,6 +225,9 @@ private void HandleInteractionFocusChanged(InteractionFocusChangedEvent evt)
                             context.Events.Publish(new SceneTransitionRequestedEvent(config.TransitionSceneId, config.TransitionSpawnPointId));
                     }
                         }
+                    break;
+                case InteractionType.LightSource:
+                    context.Events.Publish(new LightSourceInteractRequestedEvent(interactionId));
                     break;
                 case InteractionType.NotePickup:
                     context.Events.Publish(new NoteUnlockedEvent(config != null ? config.NoteId : interactionId));

@@ -13,6 +13,7 @@ namespace MemorialArchive.Gameplay.Character.View
         [SerializeField] private KeyCode mapKey = KeyCode.M;
         [SerializeField] private KeyCode reloadKey = KeyCode.R;
         [SerializeField] private KeyCode interactKey = KeyCode.F;
+        [SerializeField] private KeyCode lanternToggleKey = KeyCode.E;
         private bool gameplayPrimaryHeld;
 
         private void Update()
@@ -74,6 +75,11 @@ namespace MemorialArchive.Gameplay.Character.View
             if (Input.GetKeyDown(interactKey))
             {
                 events.Publish(new InteractPressedEvent());
+            }
+
+            if (Input.GetKeyDown(lanternToggleKey))
+            {
+                events.Publish(new LanternTogglePressedEvent());
             }
 
             if (Input.GetKeyDown(dodgeKey))

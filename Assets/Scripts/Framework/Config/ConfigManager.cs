@@ -4,6 +4,7 @@ using MemorialArchive.Gameplay.Character.Config;
 using MemorialArchive.Gameplay.Guide.Config;
 using MemorialArchive.Gameplay.Interaction.Config;
 using MemorialArchive.Gameplay.Item.Config;
+using MemorialArchive.Gameplay.Lighting.Config;
 using MemorialArchive.Gameplay.Monster.Config;
 using MemorialArchive.Gameplay.Puzzle.Config;
 using MemorialArchive.Gameplay.Story.Config;
@@ -24,6 +25,7 @@ namespace MemorialArchive.Framework.Config
         private readonly Dictionary<string, GuideSequenceConfig> guideSequences = new Dictionary<string, GuideSequenceConfig>();
         private readonly Dictionary<string, DialogueSequenceConfig> dialogueSequences = new Dictionary<string, DialogueSequenceConfig>();
         private readonly Dictionary<string, DialogueEffectConfig> dialogueEffects = new Dictionary<string, DialogueEffectConfig>();
+        private readonly Dictionary<string, LightSourceConfig> lightSources = new Dictionary<string, LightSourceConfig>();
 
         public ConfigManager(GameConfigDatabase database)
         {
@@ -47,6 +49,7 @@ namespace MemorialArchive.Framework.Config
             guideSequences.Clear();
             dialogueSequences.Clear();
             dialogueEffects.Clear();
+            lightSources.Clear();
         }
 
         public ItemConfig GetItem(int itemId) => items.TryGetValue(itemId, out var config) ? config : null;
@@ -59,6 +62,8 @@ namespace MemorialArchive.Framework.Config
         public StoryEntryConfig GetStory(string id) => !string.IsNullOrEmpty(id) && stories.TryGetValue(id, out var config) ? config : null;
         public DialogueSequenceConfig GetDialogueSequence(string id) => !string.IsNullOrEmpty(id) && dialogueSequences.TryGetValue(id, out var config) ? config : null;
         public DialogueEffectConfig GetDialogueEffect(string id) => !string.IsNullOrEmpty(id) && dialogueEffects.TryGetValue(id, out var config) ? config : null;
+        public LightSourceConfig GetLightSource(string id) => !string.IsNullOrEmpty(id) && lightSources.TryGetValue(id, out var config) ? config : null;
+        public LightingGlobalConfig GetLightingGlobal() => database != null ? database.LightingGlobal : null;
 
         private void RebuildIndexes()
         {
@@ -72,6 +77,7 @@ namespace MemorialArchive.Framework.Config
             guideSequences.Clear();
             dialogueSequences.Clear();
             dialogueEffects.Clear();
+            lightSources.Clear();
 
             if (database == null)
             {
@@ -88,6 +94,7 @@ namespace MemorialArchive.Framework.Config
             AddAll(database.GuideSequences, guideSequences, sequence => sequence.SequenceId, "GuideSequenceConfig");
             AddAll(database.DialogueSequences, dialogueSequences, sequence => sequence.DialogueId, "DialogueSequenceConfig");
             AddAll(database.DialogueEffects, dialogueEffects, effect => effect.EffectId, "DialogueEffectConfig");
+            AddAll(database.LightSources, lightSources, light => light.LightId, "LightSourceConfig");
         }
 
         private static void AddAll<TKey, TValue>(IEnumerable<TValue> values, IDictionary<TKey, TValue> target, System.Func<TValue, TKey> keySelector, string label)

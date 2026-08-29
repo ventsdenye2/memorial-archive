@@ -10,6 +10,7 @@ using MemorialArchive.Gameplay.Guide.Logic;
 using MemorialArchive.Gameplay.Interaction.Logic;
 using MemorialArchive.Gameplay.Inventory.Logic;
 using MemorialArchive.Gameplay.Item.Logic;
+using MemorialArchive.Gameplay.Lighting.Logic;
 using MemorialArchive.Gameplay.Monster.Logic;
 using MemorialArchive.Gameplay.Puzzle.Logic;
 using MemorialArchive.Gameplay.Story.Logic;
@@ -140,10 +141,13 @@ namespace MemorialArchive.Framework.Core
 
             var character = new CharacterSystem();
             RegisterSystem(character);
-            RegisterSystem(new InventorySystem());
+            var inventory = new InventorySystem();
+            RegisterSystem(inventory);
             RegisterSystem(new ItemEffectSystem());
             RegisterSystem(new CombatSystem(character));
-            RegisterSystem(new InteractionSystem());
+            var lighting = new LightingSystem(inventory);
+            RegisterSystem(lighting);
+            RegisterSystem(new InteractionSystem(lighting));
             RegisterSystem(new MonsterSystem());
             RegisterSystem(new PuzzleSystem());
             RegisterSystem(new StorySystem());

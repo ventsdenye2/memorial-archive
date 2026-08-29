@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77fa526fb713ca04f855653c6177f6b4, type: 3}
+  m_Name: LightingGlobalConfig
+  m_EditorClassIdentifier: 
+  darknessColor: {r: 0, g: 0, b: 0, a: 1}
+  darknessAlpha: 0.95
+  darknessFadeSeconds: 0.4
+  maxSimultaneousLights: 32
+  darknessMaterial: {fileID: 2100000, guid: fc20d5a99814b124abbc2032b8545b22, type: 2}
+  lightFalloffExponent: 2
+  lanternTotalFuelSeconds: 60
+  lanternStrongThresholdSeconds: 40
+  lanternWeakThresholdSeconds: 10
+  lanternStrongRadius: 3
+  lanternNormalRadius: 2.6
+  lanternWeakRadius: 2
+  autoLightOnEquip: 1
+  tempLightSeconds: 10
+  darknessFailureDamage: 9999
+  failureRetrySeconds: 1

@@ -1,0 +1,66 @@
+using UnityEngine;
+
+namespace MemorialArchive.Gameplay.Lighting.Config
+{
+    /// <summary>
+    /// 光照系统全局参数。所有数值集中在此配置，View 与 System 不得硬编码。
+    /// 半径单位为世界单位：项目 PPU=100，300px = 3.0。
+    /// </summary>
+    [CreateAssetMenu(menuName = "Memorial Archive/Config/Lighting Global")]
+    public sealed class LightingGlobalConfig : ScriptableObject
+    {
+        [Header("黑暗层")]
+        [SerializeField] private Color darknessColor = Color.black;
+        [Range(0f, 1f)]
+        [SerializeField] private float darknessAlpha = 0.95f;
+        [SerializeField] private float darknessFadeSeconds = 0.4f;
+        [SerializeField] private int maxSimultaneousLights = 32;
+        [SerializeField] private Material darknessMaterial;
+        [Range(1f, 6f)]
+        [SerializeField] private float lightFalloffExponent = 2f;
+
+        [Header("手提灯")]
+        [SerializeField] private float lanternTotalFuelSeconds = 60f;
+        [Tooltip("剩余燃料高于该值时为强光（默认 40 秒，即消耗前 20 秒）。")]
+        [SerializeField] private float lanternStrongThresholdSeconds = 40f;
+        [Tooltip("剩余燃料低于等于该值时为弱光（默认 10 秒，即最后 10 秒）。")]
+        [SerializeField] private float lanternWeakThresholdSeconds = 10f;
+        [SerializeField] private float lanternStrongRadius = 3f;
+        [SerializeField] private float lanternNormalRadius = 2.6f;
+        [SerializeField] private float lanternWeakRadius = 2f;
+        [Tooltip("装备手提灯时是否自动点亮（需求中的“选中”在副手栏等价于装备）。")]
+        [SerializeField] private bool autoLightOnEquip = true;
+        [Tooltip("手提灯光源的竖直抬升量（世界单位）。玩家事件位置在角色脚底原点，Spine 身体向上延伸，不抬升会让光圈压在脚下。")]
+        [SerializeField] private float lanternLightYOffset = 0.9f;
+
+        [Header("普通灯")]
+        [SerializeField] private float tempLightSeconds = 10f;
+
+        [Header("游戏失败")]
+        [Tooltip("燃料耗尽且处于全黑时，通过标准伤害入口造成的致死伤害。")]
+        [SerializeField] private float darknessFailureDamage = 9999f;
+        [Tooltip("失败伤害的重试间隔，避免无敌帧/闪避帧吞掉致死伤害后不再触发。")]
+        [SerializeField] private float failureRetrySeconds = 1f;
+
+        public Color DarknessColor => darknessColor;
+        public float DarknessAlpha => darknessAlpha;
+        public float DarknessFadeSeconds => Mathf.Max(0.01f, darknessFadeSeconds);
+        public int MaxSimultaneousLights => Mathf.Max(1, maxSimultaneousLights);
+        public Material DarknessMaterial => darknessMaterial;
+        public float LightFalloffExponent => lightFalloffExponent;
+
+        public float LanternTotalFuelSeconds => Mathf.Max(1f, lanternTotalFuelSeconds);
+        public float LanternStrongThresholdSeconds => lanternStrongThresholdSeconds;
+        public float LanternWeakThresholdSeconds => lanternWeakThresholdSeconds;
+        public float LanternStrongRadius => lanternStrongRadius;
+        public float LanternNormalRadius => lanternNormalRadius;
+        public float LanternWeakRadius => lanternWeakRadius;
+        public bool AutoLightOnEquip => autoLightOnEquip;
+        public float LanternLightYOffset => lanternLightYOffset;
+
+        public float TempLightSeconds => Mathf.Max(0.1f, tempLightSeconds);
+
+        public float DarknessFailureDamage => Mathf.Max(1f, darknessFailureDamage);
+        public float FailureRetrySeconds => Mathf.Max(0.1f, failureRetrySeconds);
+    }
+}

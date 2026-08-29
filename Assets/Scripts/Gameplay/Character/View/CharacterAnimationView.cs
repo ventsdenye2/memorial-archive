@@ -213,7 +213,8 @@ namespace MemorialArchive.Gameplay.Character.View
         private void HandleCharacterStateChanged(CharacterActionStateChangedEvent evt)
         {
             presentedState = evt.State;
-            if (activeAction == ActionPresentation.Aim && evt.State != CharacterActionState.Aiming && evt.State != CharacterActionState.ThrowAiming)
+            // Throwing 会立即用 throw 动画替换瞄准姿势，无需先切回待机造成双重建骨。
+            if (activeAction == ActionPresentation.Aim && evt.State != CharacterActionState.Aiming && evt.State != CharacterActionState.ThrowAiming && evt.State != CharacterActionState.Throwing)
                 StopActionToLocomotion();
             if (evt.State == CharacterActionState.Dead) { HandleCharacterDied(new CharacterDiedEvent(0f)); return; }
             if (evt.State == CharacterActionState.Staggered) { StartOneShot(armedHurtData, "hurt1", ActionPresentation.Hurt); return; }
@@ -290,7 +291,9 @@ namespace MemorialArchive.Gameplay.Character.View
             if (isDead || current == LocomotionState.Dodge) return;
             if (!evt.IsAiming)
             {
-                if (activeAction == ActionPresentation.Aim) StopActionToLocomotion();
+                // 投掷瞄准由角色状态驱动；输入层每帧都会发布 AimInputEvent(false)，
+                // 若在此打断，按住瞄准期间投掷姿势会立刻被切回待机。
+                if (activeAction == ActionPresentation.Aim && presentedState != CharacterActionState.ThrowAiming) StopActionToLocomotion();
                 return;
             }
 

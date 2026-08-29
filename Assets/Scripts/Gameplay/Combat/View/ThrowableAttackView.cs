@@ -26,16 +26,21 @@ namespace MemorialArchive.Gameplay.Combat.View
         [SerializeField, Min(0.01f)] private float projectileRadius = 0.18f;
         [SerializeField] private LayerMask trajectoryCollisionLayers = ~0;
         [SerializeField, Min(0.005f)] private float trajectoryWidth = 0.035f;
-        [SerializeField, Min(0.05f)] private float fallbackReleaseSeconds = 0.3f;
+        [SerializeField, Min(0.05f)] private float fallbackReleaseSeconds = 0.45f;
+        [SerializeField, Min(0.02f)] private float releaseSpawnDelaySeconds = 0.12f;
         [SerializeField, Min(9f)] private float requestedAttackLifetimeSeconds = 9f;
+        [SerializeField, Min(0.05f)] private float aimSweepSeconds = 2f;
+        [SerializeField, Min(0.1f)] private float aimSweepStartDistance = 0.6f;
 
         private Spine.AnimationState boundAnimationState;
         private AttackContext pendingAttack;
         private float pendingSince;
         private bool releaseEventObserved;
+        private float spawnAt;
         private bool isPreviewing;
         private int previewItemId;
         private Vector2 previewTarget;
+        private float aimSweepElapsed = -1f;
         private LineRenderer trajectoryRenderer;
         private Material trajectoryMaterial;
         private readonly RaycastHit2D[] trajectoryHits = new RaycastHit2D[16];
@@ -73,7 +78,26 @@ namespace MemorialArchive.Gameplay.Combat.View
         {
             BindAnimationState();
             var character = GameRoot.Instance?.GetSystem<MemorialArchive.Gameplay.Character.Logic.CharacterSystem>();
-            if (pendingAttack != null && !releaseEventObserved && character?.ActionState == MemorialArchive.Gameplay.Character.Data.CharacterActionState.Throwing && Time.time - pendingSince >= fallbackReleaseSeconds)
+            if (pendingAttack == null)
+            {
+                return;
+            }
+
+            // The "throw" spine event fires while the arm is still winding down
+            // toward the hip. Spawn slightly later so the projectile leaves the
+            // raised hand instead of falling out of the crotch.
+            if (releaseEventObserved)
+            {
+                if (Time.time >= spawnAt)
+                {
+                    SpawnPendingThrowable();
+                }
+                return;
+            }
+
+            // Covers skeletons without the "throw" event; the delay lands in the
+            // same arm-raised window of the throw animation.
+            if (character?.ActionState == MemorialArchive.Gameplay.Character.Data.CharacterActionState.Throwing && Time.time - pendingSince >= fallbackReleaseSeconds)
             {
                 SpawnPendingThrowable();
             }
@@ -86,9 +110,16 @@ namespace MemorialArchive.Gameplay.Combat.View
 
         private void HandleThrowableAimChanged(ThrowableAimChangedEvent evt)
         {
+            var wasAiming = isPreviewing;
             isPreviewing = evt.IsAiming;
             previewItemId = evt.ItemId;
             previewTarget = evt.TargetWorldPosition;
+            if (isPreviewing && !wasAiming)
+            {
+                // 每次重新开始瞄准时，轨迹从角色近处向鼠标位置扫过去。
+                aimSweepElapsed = 0f;
+            }
+
             if (!isPreviewing) HideTrajectory();
         }
 
@@ -129,7 +160,7 @@ namespace MemorialArchive.Gameplay.Combat.View
             }
 
             releaseEventObserved = true;
-            SpawnPendingThrowable();
+            spawnAt = Time.time + releaseSpawnDelaySeconds;
         }
 
         private void SpawnPendingThrowable()
@@ -164,7 +195,9 @@ namespace MemorialArchive.Gameplay.Combat.View
             body.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
             body.interpolation = RigidbodyInterpolation2D.Interpolate;
             body.velocity = launchVelocity;
-            body.drag = attack.WeaponItemId == GrenadeItemId ? 0.3f : 0.1f;
+            // ThrowableTrajectoryUtility solves a drag-free arc, so the body must
+            // match it or the real flight falls short of the previewed landing.
+            body.drag = 0f;
             body.angularVelocity = direction.x >= 0f ? -420f : 420f;
 
             var projectileCollider = projectileObject.AddComponent<CircleCollider2D>();
@@ -225,7 +258,8 @@ namespace MemorialArchive.Gameplay.Combat.View
             if (bone != null)
                 return skeletonAnimation.transform.TransformPoint(new Vector3(bone.WorldX, bone.WorldY, 0f));
             if (throwOrigin != null && throwOrigin != transform) return throwOrigin.position;
-            return (Vector2)transform.position + fallbackDirection * 0.35f + Vector2.up * 0.8f;
+            // Chest height so a missing bone never drops the throwable at the waist.
+            return (Vector2)transform.position + fallbackDirection * 0.4f + Vector2.up * 1.6f;
         }
 
         private void CreateTrajectoryRenderer()
@@ -249,6 +283,7 @@ namespace MemorialArchive.Gameplay.Combat.View
             var range = config != null ? config.AttackRange : 6f;
             var direction = requestedTarget.x >= transform.position.x ? Vector2.right : Vector2.left;
             var origin = GetThrowOrigin(direction);
+            requestedTarget = ApplyAimSweep(origin, requestedTarget);
             if (!ThrowableTrajectoryUtility.TrySolve(origin, requestedTarget, range, gravityScale, trajectoryArcHeight,
                     out var velocity, out var flightSeconds, out _))
             {
@@ -274,6 +309,36 @@ namespace MemorialArchive.Gameplay.Combat.View
                 previous = next;
             }
             trajectoryRenderer.positionCount = written;
+        }
+
+        /// <summary>
+        /// 瞄准开始后，轨迹落点先从角色近处向鼠标位置扫动，扫完才自由跟随鼠标。
+        /// 仅影响预览表现；实际投掷目标仍是松手时的真实鼠标位置。
+        /// </summary>
+        private Vector2 ApplyAimSweep(Vector2 origin, Vector2 requestedTarget)
+        {
+            if (aimSweepElapsed < 0f)
+            {
+                return requestedTarget;
+            }
+
+            aimSweepElapsed += Time.deltaTime;
+            var progress = Mathf.Clamp01(aimSweepElapsed / aimSweepSeconds);
+            if (progress >= 1f)
+            {
+                aimSweepElapsed = -1f;
+                return requestedTarget;
+            }
+
+            var toTarget = requestedTarget - origin;
+            if (toTarget.sqrMagnitude <= 0.0001f)
+            {
+                return requestedTarget;
+            }
+
+            var nearPoint = origin + toTarget.normalized * aimSweepStartDistance;
+            var eased = 1f - Mathf.Pow(1f - progress, 3f);
+            return Vector2.Lerp(nearPoint, requestedTarget, eased);
         }
 
         private bool TryFindFirstCollision(Vector2 from, Vector2 to, out Vector2 impact)
@@ -303,6 +368,7 @@ namespace MemorialArchive.Gameplay.Combat.View
         private void HideTrajectory()
         {
             isPreviewing = false;
+            aimSweepElapsed = -1f;
             if (trajectoryRenderer != null) trajectoryRenderer.enabled = false;
         }
 

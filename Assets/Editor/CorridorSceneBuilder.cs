@@ -57,8 +57,9 @@ namespace MemorialArchive.Editor
         private const string UiPrefabRoot = "Assets/Prefabs/UI";
         private const string DatabasePath = "Assets/GameConfigs/GameConfigDatabase.asset";
 
-        // Background sprite size: 19.2 × 10.8 world units (matching "休息室" in SampleScene)
-        private const float BgHalfW = 9.6f;
+        // Updated corridor exports are 3840×1080 at the project-wide 100 PPU,
+        // so each corridor segment is 38.4 × 10.8 world units.
+        private const float BgHalfW = 19.2f;
         private const float BgHalfH = 5.4f;
         private const float EdgeSpawnX = BgHalfW - 2.4f;
         // Player walks along the bottom line (Y is frozen at this height in PlayerMotor).
@@ -295,7 +296,7 @@ namespace MemorialArchive.Editor
             var geom = FindOrMakeChild(sceneRoot.transform, "RoomGeometry");
             ClearKids(geom);
 
-            // Camera confiner — PolygonCollider2D matching bg 19.2×10.8
+            // Camera confiner — PolygonCollider2D matching bg 38.4×10.8
             var confGo = FindOrMakeChild(geom.transform, "CameraConfiner");
             RemoveComps<Collider2D>(confGo);
             var poly = confGo.AddComponent<PolygonCollider2D>();

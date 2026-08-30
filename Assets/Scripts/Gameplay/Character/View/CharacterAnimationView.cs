@@ -18,6 +18,7 @@ namespace MemorialArchive.Gameplay.Character.View
     public sealed class CharacterAnimationView : MonoBehaviour
     {
         private const int FireAxeItemId = 1003;
+        private const int BayonetItemId = 1002;
 
         private enum LocomotionState { Idle, Walk, Run, Dodge }
         private enum ActionPresentation { None, Equip, Attack, Block, Aim, Hurt, Reload, Death }
@@ -37,6 +38,9 @@ namespace MemorialArchive.Gameplay.Character.View
         [Header("One-handed weapon")]
         [SerializeField] private SkeletonDataAsset oneHandedAttackData;
         [SerializeField] private SkeletonDataAsset weaponEquipData;
+        [Header("Updated weapon actions")]
+        [SerializeField] private SkeletonDataAsset updatedBayonetAttackData;
+        [SerializeField] private SkeletonDataAsset updatedGrenadeThrowData;
         [Header("Shared combat fallback")]
         [SerializeField] private SkeletonDataAsset bayonetCombatData;
         [SerializeField] private SkeletonDataAsset shieldBlockData;
@@ -219,13 +223,13 @@ namespace MemorialArchive.Gameplay.Character.View
             if (evt.State == CharacterActionState.Staggered) { StartOneShot(armedHurtData, "hurt1", ActionPresentation.Hurt); return; }
             if (evt.State == CharacterActionState.ThrowAiming)
             {
-                StartLoop(bayonetCombatData, "throw_aim", ActionPresentation.Aim);
+                StartLoop(GetThrowableActionData(), "throw_aim", ActionPresentation.Aim);
                 if (character != null) UpdateFacing(character.AimDirection);
                 return;
             }
             if (evt.State == CharacterActionState.Throwing)
             {
-                StartOneShot(bayonetCombatData, "throw", ActionPresentation.Attack);
+                StartOneShot(GetThrowableActionData(), "throw", ActionPresentation.Attack);
                 return;
             }
             if (evt.State == CharacterActionState.Attack1 || evt.State == CharacterActionState.Attack2 || evt.State == CharacterActionState.Attack3)
@@ -238,10 +242,10 @@ namespace MemorialArchive.Gameplay.Character.View
         {
             var config = GameRoot.Instance?.Context?.Configs.GetItem(selectedItemId);
             if (config != null && config.CombatAttackKind == CombatAttackKind.Firearm) { StartOneShot(firearmActionData, "gun -shot", ActionPresentation.Attack); return; }
-            if (config != null && config.CombatAttackKind != CombatAttackKind.Melee) { StartOneShot(bayonetCombatData, "throw", ActionPresentation.Attack); return; }
+            if (config != null && config.CombatAttackKind != CombatAttackKind.Melee) { StartOneShot(GetThrowableActionData(), "throw", ActionPresentation.Attack); return; }
             var stage = state == CharacterActionState.Attack1 ? 1 : state == CharacterActionState.Attack2 ? 2 : 3;
             if (selectedItemId == FireAxeItemId) StartOneShot(stage == 1 ? fireAxeAttack1Data : stage == 2 ? fireAxeAttack2Data : fireAxeAttack3Data, stage == 1 ? "act1_both hands" : stage == 2 ? "act2 both hands" : "act3 both hands", ActionPresentation.Attack);
-            else StartOneShot(oneHandedAttackData, stage == 1 ? "act（single）1" : stage == 2 ? "act（single）2" : "act（single）3", ActionPresentation.Attack);
+            else StartOneShot(GetMeleeActionData(selectedItemId), stage == 1 ? "act（single）1" : stage == 2 ? "act（single）2" : "act（single）3", ActionPresentation.Attack);
         }
 
         private void PlayMeleeAttack(int weaponItemId)
@@ -259,7 +263,7 @@ namespace MemorialArchive.Gameplay.Character.View
             // 匕首、刺刀、军官佩剑等近战武器暂共用刺刀三段动作。
             sharedMeleeComboStage = sharedMeleeComboStage % 3 + 1;
             StartOneShot(
-                oneHandedAttackData,
+                GetMeleeActionData(weaponItemId),
                 sharedMeleeComboStage == 1 ? "act（single）1" : sharedMeleeComboStage == 2 ? "act（single）2" : "act（single）3",
                 ActionPresentation.Attack);
         }
@@ -302,7 +306,7 @@ namespace MemorialArchive.Gameplay.Character.View
             }
             else if (SelectedItemUses(CombatAttackKind.Throwable))
             {
-                StartLoop(bayonetCombatData, "throw_aim", ActionPresentation.Aim);
+                StartLoop(GetThrowableActionData(), "throw_aim", ActionPresentation.Aim);
             }
         }
 
@@ -454,6 +458,18 @@ namespace MemorialArchive.Gameplay.Character.View
         {
             var config = GameRoot.Instance?.Context?.Configs.GetItem(selectedItemId);
             return config != null && config.CombatAttackKind == attackKind;
+        }
+
+        private SkeletonDataAsset GetMeleeActionData(int itemId)
+        {
+            return itemId == BayonetItemId && updatedBayonetAttackData != null
+                ? updatedBayonetAttackData
+                : oneHandedAttackData;
+        }
+
+        private SkeletonDataAsset GetThrowableActionData()
+        {
+            return updatedGrenadeThrowData != null ? updatedGrenadeThrowData : bayonetCombatData;
         }
 
         private void SwitchToLocomotion()

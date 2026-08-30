@@ -1,0 +1,118 @@
+
+player_01_bayonet.png
+size: 624,282
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Player_01_Arm_Left
+  rotate: false
+  xy: 419, 123
+  size: 70, 157
+  orig: 402, 602
+  offset: 160, 241
+  index: -1
+Player_01_Arm_Right1
+  rotate: false
+  xy: 491, 124
+  size: 55, 156
+  orig: 55, 156
+  offset: 0, 0
+  index: -1
+Player_01_Arm_Right2.0
+  rotate: false
+  xy: 548, 125
+  size: 55, 155
+  orig: 55, 156
+  offset: 0, 1
+  index: -1
+Player_01_Body_back
+  rotate: true
+  xy: 273, 2
+  size: 108, 147
+  orig: 402, 602
+  offset: 143, 162
+  index: -1
+Player_01_Body_front
+  rotate: false
+  xy: 2, 43
+  size: 117, 237
+  orig: 402, 602
+  offset: 118, 161
+  index: -1
+Player_01_Hair
+  rotate: false
+  xy: 101, 9
+  size: 48, 32
+  orig: 402, 602
+  offset: 205, 404
+  index: -1
+Player_01_Tail
+  rotate: true
+  xy: 422, 3
+  size: 118, 86
+  orig: 402, 602
+  offset: 70, 211
+  index: -1
+Player_01_Weapon_Left
+  rotate: false
+  xy: 2, 5
+  size: 97, 36
+  orig: 402, 602
+  offset: 147, 240
+  index: -1
+Player_01_cape
+  rotate: true
+  xy: 182, 2
+  size: 74, 89
+  orig: 402, 602
+  offset: 163, 303
+  index: -1
+Player_01_ear_Left
+  rotate: true
+  xy: 177, 78
+  size: 28, 50
+  orig: 402, 602
+  offset: 192, 421
+  index: -1
+Player_01_ear_Right
+  rotate: false
+  xy: 151, 5
+  size: 29, 59
+  orig: 402, 602
+  offset: 190, 420
+  index: -1
+Player_01_face
+  rotate: true
+  xy: 565, 39
+  size: 84, 57
+  orig: 402, 602
+  offset: 184, 377
+  index: -1
+Player_01_hat
+  rotate: true
+  xy: 510, 33
+  size: 89, 53
+  orig: 402, 602
+  offset: 170, 413
+  index: -1
+Player_01_leg_Right
+  rotate: false
+  xy: 273, 112
+  size: 144, 168
+  orig: 402, 602
+  offset: 189, 128
+  index: -1
+Player_01_leg_left
+  rotate: false
+  xy: 177, 108
+  size: 94, 172
+  orig: 402, 602
+  offset: 127, 123
+  index: -1
+刺刀
+  rotate: true
+  xy: 121, 66
+  size: 214, 54
+  orig: 1920, 1080
+  offset: 806, 565
+  index: -1

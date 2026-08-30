@@ -211,6 +211,8 @@ MonoBehaviour:
   fireAxeAttack3Data: {fileID: 11400000, guid: 275259c19fe7f574890933c22277061d, type: 2}
   oneHandedAttackData: {fileID: 11400000, guid: 9e2d81fa1ed9c414881078d448b89858, type: 2}
   weaponEquipData: {fileID: 11400000, guid: 05a2626e964c0fe459b1b15853b0e061, type: 2}
+  updatedBayonetAttackData: {fileID: 11400000, guid: 95caa979a7a027c4c9f0c463bea2992a, type: 2}
+  updatedGrenadeThrowData: {fileID: 11400000, guid: ba4a04cf60fc6df42897803389c586e2, type: 2}
   bayonetCombatData: {fileID: 11400000, guid: 9704f717f65a4e4439ea419f9d3713e7, type: 2}
   shieldBlockData: {fileID: 11400000, guid: d22e10daf14bf8245a6fbc24ea7f9538, type: 2}
   firearmActionData: {fileID: 11400000, guid: 9d54fe9a84accb645bc8bc06c66b0929, type: 2}

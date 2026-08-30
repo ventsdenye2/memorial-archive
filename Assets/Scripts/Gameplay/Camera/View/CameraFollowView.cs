@@ -15,7 +15,7 @@ namespace MemorialArchive.Gameplay.Camera.View
         [SerializeField, Min(0.01f)] private float followSmoothTime = 0.35f;
 
         [Header("Scene Bounds Fallback")]
-        [SerializeField, Min(0.01f)] private float segmentWidth = 19.2f;
+        [SerializeField, Min(0.01f)] private float segmentWidth = 38.4f;
         [SerializeField, Min(1)] private int defaultSegmentCount = 4;
         [SerializeField, Min(1)] private int floor4SegmentCount = 2;
         [SerializeField, Min(0.01f)] private float sceneHeight = 10.8f;

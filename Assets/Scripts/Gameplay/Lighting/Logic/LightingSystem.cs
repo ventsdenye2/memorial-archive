@@ -43,11 +43,7 @@ namespace MemorialArchive.Gameplay.Lighting.Logic
         private float fuelPublishTimer;
         private float failureCooldownRemaining;
         private Vector2 lastPlayerPosition;
-        private readonly Dictionary<string, bool> debugOriginalRegionLitStates = new Dictionary<string, bool>();
-        private string debugOverrideSceneName;
-        private string debugLanternInstanceId;
-        private bool debugLanternFuelWasRecorded;
-        private float debugOriginalLanternFuel;
+        private bool isDarknessOverlaySuppressed;
 
         public string ModuleKey => "lighting";
 
@@ -58,6 +54,7 @@ namespace MemorialArchive.Gameplay.Lighting.Logic
 
         public bool IsLanternEquipped => isLanternEquipped;
         public bool IsLanternLit => isLanternLit;
+        public bool IsDarknessOverlaySuppressed => isDarknessOverlaySuppressed;
         public float LanternFuelRemaining => GetEquippedLanternFuel();
         public float LanternFuelTotal => config != null ? config.LanternTotalFuelSeconds : 60f;
 
@@ -74,7 +71,7 @@ namespace MemorialArchive.Gameplay.Lighting.Logic
             activeSceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
 
             context.Events.Subscribe<LightSourceInteractRequestedEvent>(HandleLightSourceInteractRequested);
-            context.Events.Subscribe<DebugSpecialLightInteractRequestedEvent>(HandleDebugSpecialLightInteractRequested);
+            context.Events.Subscribe<DebugDarknessOverlayToggleRequestedEvent>(HandleDebugDarknessOverlayToggleRequested);
             context.Events.Subscribe<LanternTogglePressedEvent>(HandleLanternTogglePressed);
             context.Events.Subscribe<CharacterEquipmentChangedEvent>(HandleEquipmentChanged);
             context.Events.Subscribe<SceneLoadedEvent>(HandleSceneLoaded);
@@ -89,7 +86,7 @@ namespace MemorialArchive.Gameplay.Lighting.Logic
             if (context != null)
             {
                 context.Events.Unsubscribe<LightSourceInteractRequestedEvent>(HandleLightSourceInteractRequested);
-                context.Events.Unsubscribe<DebugSpecialLightInteractRequestedEvent>(HandleDebugSpecialLightInteractRequested);
+                context.Events.Unsubscribe<DebugDarknessOverlayToggleRequestedEvent>(HandleDebugDarknessOverlayToggleRequested);
                 context.Events.Unsubscribe<LanternTogglePressedEvent>(HandleLanternTogglePressed);
                 context.Events.Unsubscribe<CharacterEquipmentChangedEvent>(HandleEquipmentChanged);
                 context.Events.Unsubscribe<SceneLoadedEvent>(HandleSceneLoaded);
@@ -107,7 +104,7 @@ namespace MemorialArchive.Gameplay.Lighting.Logic
             isLanternEquipped = false;
             equippedLanternInstanceId = null;
             isLanternLit = false;
-            ClearDebugLightingSnapshot();
+            isDarknessOverlaySuppressed = false;
         }
 
         public void ResetForNewGame()
@@ -118,7 +115,7 @@ namespace MemorialArchive.Gameplay.Lighting.Logic
             isLanternLit = false;
             equippedLanternInstanceId = null;
             failureCooldownRemaining = 0f;
-            ClearDebugLightingSnapshot();
+            isDarknessOverlaySuppressed = false;
         }
 
         public void Tick(float deltaTime)
@@ -260,7 +257,7 @@ namespace MemorialArchive.Gameplay.Lighting.Logic
             lanternFuelByInstance.Clear();
             isLanternLit = false;
             equippedLanternInstanceId = null;
-            ClearDebugLightingSnapshot();
+            isDarknessOverlaySuppressed = false;
 
             if (string.IsNullOrEmpty(json))
             {
@@ -362,93 +359,11 @@ namespace MemorialArchive.Gameplay.Lighting.Logic
             }
         }
 
-        /// <summary>
-        /// 临时调试入口：第一次 F3 视为完成当前场景的特殊灯具交互，
-        /// 第二次 F3 恢复点灯前的区域状态和手提灯燃油。
-        /// </summary>
-        private void HandleDebugSpecialLightInteractRequested(DebugSpecialLightInteractRequestedEvent evt)
+        /// <summary>调试阶段用 F3 临时隐藏整层暗幕，不改变灯具、燃油或区域状态。</summary>
+        private void HandleDebugDarknessOverlayToggleRequested(DebugDarknessOverlayToggleRequestedEvent evt)
         {
-            if (debugOriginalRegionLitStates.Count > 0 && debugOverrideSceneName == activeSceneName)
-            {
-                RestoreDebugLightingOverride();
-                return;
-            }
-
-            // 若跨场景后才再次使用 F3，先撤销上一个场景的调试覆盖，再为当前场景建快照。
-            if (debugOriginalRegionLitStates.Count > 0)
-            {
-                RestoreDebugLightingOverride();
-            }
-
-            var currentSceneRegions = new HashSet<string>();
-            foreach (var view in lightViews.Values)
-            {
-                if (view.sceneName == activeSceneName && !string.IsNullOrEmpty(view.regionId))
-                {
-                    currentSceneRegions.Add(view.regionId);
-                }
-            }
-
-            if (currentSceneRegions.Count == 0)
-            {
-                Debug.LogWarning($"[LightingSystem] F3 调试点灯失败：当前场景 {activeSceneName} 没有已注册灯具区域。");
-                return;
-            }
-
-            debugOverrideSceneName = activeSceneName;
-            foreach (var regionId in currentSceneRegions)
-            {
-                debugOriginalRegionLitStates[regionId] = IsRegionLit(regionId);
-                SetRegionLit(regionId, true);
-            }
-
-            debugLanternInstanceId = equippedLanternInstanceId;
-            debugLanternFuelWasRecorded = debugLanternInstanceId != null &&
-                                          lanternFuelByInstance.TryGetValue(
-                                              debugLanternInstanceId,
-                                              out debugOriginalLanternFuel);
-            RefuelEquippedLantern();
-            Debug.Log(
-                $"[LightingSystem] F3 调试点灯完成：场景 {activeSceneName}，区域 {string.Join(", ", currentSceneRegions)}，" +
-                $"手提灯{(isLanternEquipped ? "已补满燃油" : "未装备，跳过补油")}；再次按 F3 恢复。");
-        }
-
-        private void RestoreDebugLightingOverride()
-        {
-            var restoredSceneName = debugOverrideSceneName;
-            foreach (var pair in debugOriginalRegionLitStates)
-            {
-                SetRegionLit(pair.Key, pair.Value);
-            }
-
-            if (debugLanternInstanceId != null)
-            {
-                if (debugLanternFuelWasRecorded)
-                {
-                    lanternFuelByInstance[debugLanternInstanceId] = debugOriginalLanternFuel;
-                }
-                else
-                {
-                    lanternFuelByInstance.Remove(debugLanternInstanceId);
-                }
-
-                if (debugLanternInstanceId == equippedLanternInstanceId)
-                {
-                    PublishLanternFuel();
-                }
-            }
-
-            ClearDebugLightingSnapshot();
-            Debug.Log($"[LightingSystem] F3 调试点灯已撤销：场景 {restoredSceneName} 已恢复原状态。");
-        }
-
-        private void ClearDebugLightingSnapshot()
-        {
-            debugOriginalRegionLitStates.Clear();
-            debugOverrideSceneName = null;
-            debugLanternInstanceId = null;
-            debugLanternFuelWasRecorded = false;
-            debugOriginalLanternFuel = 0f;
+            isDarknessOverlaySuppressed = !isDarknessOverlaySuppressed;
+            Debug.Log($"[LightingSystem] F3 调试暗幕已{(isDarknessOverlaySuppressed ? "隐藏" : "恢复")}。");
         }
 
         private void SetRegionLit(string regionId, bool isLit)

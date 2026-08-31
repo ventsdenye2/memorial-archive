@@ -21,7 +21,7 @@ namespace MemorialArchive.Gameplay.Camera.View
         [SerializeField, Min(0.01f)] private float sceneHeight = 10.8f;
         [SerializeField, Min(0.01f)] private float referenceOrthographicSize = 5.4f;
 
-        [Tooltip("Optional explicit scene bounds. When empty, the largest active CameraConfiner in this scene is used.")]
+        [Tooltip("Optional explicit scene bounds. When empty, all active CameraConfiner bounds in this scene are combined.")]
         [SerializeField] private Collider2D cameraBounds;
 
         private UnityEngine.Camera controlledCamera;
@@ -106,7 +106,8 @@ namespace MemorialArchive.Gameplay.Camera.View
             if (cameraBounds == null)
             {
                 var candidates = FindObjectsOfType<Collider2D>(true);
-                var largestArea = 0f;
+                Bounds combinedBounds = default;
+                var foundBounds = false;
                 foreach (var candidate in candidates)
                 {
                     if (candidate == null ||
@@ -117,13 +118,28 @@ namespace MemorialArchive.Gameplay.Camera.View
                         continue;
                     }
 
-                    var size = candidate.bounds.size;
-                    var area = size.x * size.y;
-                    if (area > largestArea)
+                    var candidateBounds = candidate.bounds;
+                    if (candidateBounds.size.sqrMagnitude <= 0f)
                     {
-                        largestArea = area;
-                        cameraBounds = candidate;
+                        continue;
                     }
+
+                    if (!foundBounds)
+                    {
+                        combinedBounds = candidateBounds;
+                        foundBounds = true;
+                    }
+                    else
+                    {
+                        combinedBounds.Encapsulate(candidateBounds);
+                    }
+                }
+
+                if (foundBounds)
+                {
+                    worldBounds = combinedBounds;
+                    hasWorldBounds = true;
+                    return;
                 }
             }
 

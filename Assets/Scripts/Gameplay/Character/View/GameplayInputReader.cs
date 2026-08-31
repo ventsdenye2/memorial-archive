@@ -35,7 +35,7 @@ namespace MemorialArchive.Gameplay.Character.View
 
             if (Input.GetKeyDown(KeyCode.F3))
             {
-                events.Publish(new DebugSpecialLightInteractRequestedEvent());
+                events.Publish(new DebugDarknessOverlayToggleRequestedEvent());
             }
 
             if (root.GetSystem<DialogueSystem>()?.IsInputModeActive == true)

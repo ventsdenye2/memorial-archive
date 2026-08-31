@@ -224,7 +224,7 @@ namespace MemorialArchive.Gameplay.Character.View
             if (evt.State == CharacterActionState.Staggered) { StartOneShot(armedHurtData, "hurt1", ActionPresentation.Hurt); return; }
             if (evt.State == CharacterActionState.ThrowAiming)
             {
-                StartHeldOneShot(GetThrowableActionData(), "throw_aim", ActionPresentation.Aim);
+                StartHeldOneShot(GetThrowableActionData(), GetThrowableAimAnimationName(), ActionPresentation.Aim);
                 if (character != null) UpdateFacing(character.AimDirection);
                 return;
             }
@@ -232,7 +232,7 @@ namespace MemorialArchive.Gameplay.Character.View
             {
                 StartOneShot(
                     GetThrowableActionData(),
-                    "throw",
+                    GetThrowableThrowAnimationName(),
                     ActionPresentation.Attack,
                     throwableAimHoldTime);
                 return;
@@ -247,7 +247,7 @@ namespace MemorialArchive.Gameplay.Character.View
         {
             var config = GameRoot.Instance?.Context?.Configs.GetItem(selectedItemId);
             if (config != null && config.CombatAttackKind == CombatAttackKind.Firearm) { StartOneShot(firearmActionData, "gun -shot", ActionPresentation.Attack); return; }
-            if (config != null && config.CombatAttackKind != CombatAttackKind.Melee) { StartOneShot(GetThrowableActionData(), "throw", ActionPresentation.Attack); return; }
+            if (config != null && config.CombatAttackKind != CombatAttackKind.Melee) { StartOneShot(GetThrowableActionData(), GetThrowableThrowAnimationName(), ActionPresentation.Attack); return; }
             var stage = state == CharacterActionState.Attack1 ? 1 : state == CharacterActionState.Attack2 ? 2 : 3;
             if (selectedItemId == FireAxeItemId) StartOneShot(stage == 1 ? fireAxeAttack1Data : stage == 2 ? fireAxeAttack2Data : fireAxeAttack3Data, stage == 1 ? "act1_both hands" : stage == 2 ? "act2 both hands" : "act3 both hands", ActionPresentation.Attack);
             else StartOneShot(GetMeleeActionData(selectedItemId), stage == 1 ? "act（single）1" : stage == 2 ? "act（single）2" : "act（single）3", ActionPresentation.Attack);
@@ -313,7 +313,7 @@ namespace MemorialArchive.Gameplay.Character.View
             }
             else if (SelectedItemUses(CombatAttackKind.Throwable))
             {
-                StartHeldOneShot(GetThrowableActionData(), "throw_aim", ActionPresentation.Aim);
+                StartHeldOneShot(GetThrowableActionData(), GetThrowableAimAnimationName(), ActionPresentation.Aim);
             }
         }
 
@@ -577,6 +577,24 @@ namespace MemorialArchive.Gameplay.Character.View
         private SkeletonDataAsset GetThrowableActionData()
         {
             return updatedGrenadeThrowData != null ? updatedGrenadeThrowData : bayonetCombatData;
+        }
+
+        private string GetThrowableAimAnimationName()
+        {
+            return ResolveAnimationName(GetThrowableActionData(), "throw_aim", "throw1");
+        }
+
+        private string GetThrowableThrowAnimationName()
+        {
+            return ResolveAnimationName(GetThrowableActionData(), "throw", "throw2");
+        }
+
+        private static string ResolveAnimationName(SkeletonDataAsset data, string preferred, string fallback)
+        {
+            var skeletonData = data != null ? data.GetSkeletonData(false) : null;
+            if (skeletonData?.FindAnimation(preferred) != null) return preferred;
+            if (skeletonData?.FindAnimation(fallback) != null) return fallback;
+            return preferred;
         }
 
         private void SwitchToLocomotion()

@@ -47,9 +47,17 @@ namespace MemorialArchive.Gameplay.Lighting.View
 
             FollowCamera();
 
-            var targetDim = lightingSystem.IsCurrentSceneLit() ? 0f : 1f;
-            var fadePerSecond = config != null ? 1f / config.DarknessFadeSeconds : 2.5f;
-            dimFactor = Mathf.MoveTowards(dimFactor, targetDim, Time.deltaTime * fadePerSecond);
+            if (lightingSystem.IsDarknessOverlaySuppressed)
+            {
+                // F3 调试模式需要立即露出完整场景，避免暗幕淡出期间仍然看不清素材。
+                dimFactor = 0f;
+            }
+            else
+            {
+                var targetDim = lightingSystem.IsCurrentSceneLit() ? 0f : 1f;
+                var fadePerSecond = config != null ? 1f / config.DarknessFadeSeconds : 2.5f;
+                dimFactor = Mathf.MoveTowards(dimFactor, targetDim, Time.deltaTime * fadePerSecond);
+            }
             quadRenderer.enabled = dimFactor > 0.001f;
 
             quadRenderer.GetPropertyBlock(propertyBlock);

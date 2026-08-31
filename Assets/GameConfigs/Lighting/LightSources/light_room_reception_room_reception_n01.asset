@@ -15,5 +15,5 @@ MonoBehaviour:
   lightId: light_room_reception_room_reception_n01
   regionId: room_reception
   isSpecial: 0
-  radius: 3
+  radius: 6
   exemptFromDarkness: 0

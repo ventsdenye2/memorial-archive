@@ -15,5 +15,5 @@ MonoBehaviour:
   lightId: light_room_office_room_office_n01
   regionId: room_office
   isSpecial: 0
-  radius: 3
+  radius: 6
   exemptFromDarkness: 0

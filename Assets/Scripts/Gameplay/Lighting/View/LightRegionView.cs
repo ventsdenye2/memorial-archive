@@ -6,8 +6,8 @@ using UnityEngine;
 namespace MemorialArchive.Gameplay.Lighting.View
 {
     /// <summary>
-    /// 区域灯光表现：美术预置的“灯光”叠层对象。区域未点亮时隐藏，
-    /// 点亮后显示；只根据 LightingSystem 的状态与事件工作。
+    /// 区域灯光表现：美术预置的“灯光”叠层对象。区域普通灯未启动时隐藏，
+    /// 特殊灯交互、普通灯全部点亮后显示；只根据 LightingSystem 的状态与事件工作。
     /// </summary>
     public sealed class LightRegionView : MonoBehaviour
     {

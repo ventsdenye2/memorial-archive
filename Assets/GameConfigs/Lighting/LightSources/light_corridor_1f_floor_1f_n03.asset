@@ -15,5 +15,5 @@ MonoBehaviour:
   lightId: light_corridor_1f_floor_1f_n03
   regionId: corridor_1f
   isSpecial: 0
-  radius: 3
+  radius: 6
   exemptFromDarkness: 0

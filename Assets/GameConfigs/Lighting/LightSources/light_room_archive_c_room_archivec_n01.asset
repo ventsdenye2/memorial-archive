@@ -15,5 +15,5 @@ MonoBehaviour:
   lightId: light_room_archive_c_room_archivec_n01
   regionId: room_archive_c
   isSpecial: 0
-  radius: 3
+  radius: 6
   exemptFromDarkness: 0

@@ -15,5 +15,5 @@ MonoBehaviour:
   lightId: light_room_toilet_room_toilet_n01
   regionId: room_toilet
   isSpecial: 0
-  radius: 3
+  radius: 6
   exemptFromDarkness: 0

@@ -130,7 +130,7 @@ namespace MemorialArchive.Gameplay.Lighting.Logic
 
         // ---- 公共查询（交互门禁与黑暗层使用） ----
 
-        /// <summary>玩家当前是否有光源：手提灯点亮、所在场景有已点亮区域或有亮着的临时灯。</summary>
+        /// <summary>玩家当前是否被手提灯或某盏已点亮的普通灯覆盖。</summary>
         public bool IsPlayerInLight()
         {
             if (!SceneHasLightingViews)
@@ -143,34 +143,16 @@ namespace MemorialArchive.Gameplay.Lighting.Logic
                 return true;
             }
 
-            return IsCurrentSceneLit();
+            return IsPositionCoveredByFixture(lastPlayerPosition);
         }
 
-        /// <summary>当前场景是否整体处于点亮状态（无灯光视图的场景视为点亮，不参与黑暗玩法）。</summary>
+        /// <summary>
+        /// 当前场景是否无需黑暗层。只要场景布置了灯具，就始终保留暗幕，
+        /// 由每盏普通灯各自挖出光圈；没有灯具的场景不参与黑暗玩法。
+        /// </summary>
         public bool IsCurrentSceneLit()
         {
-            var hasAnyRegion = false;
-            foreach (var view in lightViews.Values)
-            {
-                if (view.sceneName != activeSceneName)
-                {
-                    continue;
-                }
-
-                hasAnyRegion = true;
-                if (!IsRegionLit(view.regionId))
-                {
-                    return false;
-                }
-            }
-
-            if (hasAnyRegion)
-            {
-                return true;
-            }
-
-            // 场景没有区域视图，但可能有亮着的临时灯。
-            return HasActiveSceneTempLight();
+            return !SceneHasLightingViews;
         }
 
         public bool IsRegionLit(string regionId)
@@ -200,7 +182,9 @@ namespace MemorialArchive.Gameplay.Lighting.Logic
         {
             results.Clear();
 
-            if (config != null && !IsCurrentSceneLit() && (!isLanternEquipped || !isLanternLit))
+            if (config != null &&
+                (!isLanternEquipped || !isLanternLit) &&
+                !IsPositionCoveredByFixture(lastPlayerPosition))
             {
                 var safetyLightPosition = new Vector2(
                     lastPlayerPosition.x,
@@ -220,17 +204,14 @@ namespace MemorialArchive.Gameplay.Lighting.Logic
                 results.Add(new ActiveLight(lanternPosition, GetCurrentLanternRadius()));
             }
 
-            foreach (var pair in tempLightRemaining)
+            foreach (var view in lightViews.Values)
             {
-                if (pair.Value <= 0f)
+                if (view.sceneName != activeSceneName || view.isSpecial || !IsLightOn(view.lightId))
                 {
                     continue;
                 }
 
-                if (lightViews.TryGetValue(pair.Key, out var view) && view.sceneName == activeSceneName)
-                {
-                    results.Add(new ActiveLight(view.position, view.radius));
-                }
+                results.Add(new ActiveLight(view.position, view.radius));
             }
         }
 
@@ -335,13 +316,17 @@ namespace MemorialArchive.Gameplay.Lighting.Logic
             }
         }
 
-        private bool HasActiveSceneTempLight()
+        private bool IsPositionCoveredByFixture(Vector2 position)
         {
-            foreach (var pair in tempLightRemaining)
+            foreach (var view in lightViews.Values)
             {
-                if (pair.Value > 0f &&
-                    lightViews.TryGetValue(pair.Key, out var view) &&
-                    view.sceneName == activeSceneName)
+                if (view.sceneName != activeSceneName || view.isSpecial || !IsLightOn(view.lightId))
+                {
+                    continue;
+                }
+
+                var radius = Mathf.Max(0.1f, view.radius);
+                if ((view.position - position).sqrMagnitude <= radius * radius)
                 {
                     return true;
                 }
@@ -644,7 +629,11 @@ namespace MemorialArchive.Gameplay.Lighting.Logic
             }
 
             var expired = null as List<string>;
-            foreach (var pair in tempLightRemaining)
+            // Updating a Dictionary value changes its version just like adding
+            // or removing an entry. Iterate over a snapshot so the countdown
+            // can safely write back to the live map during the tick.
+            var snapshot = new List<KeyValuePair<string, float>>(tempLightRemaining);
+            foreach (var pair in snapshot)
             {
                 var remaining = pair.Value - deltaTime;
                 tempLightRemaining[pair.Key] = remaining;

@@ -16,10 +16,10 @@ namespace MemorialArchive.Editor
 {
         /// <summary>
         /// 第四阶段光照系统引导脚本：创建光照配置资产、把美术预置的“灯光”
-        /// 叠层对象接入区域视图、在 gameplay 场景放置占位灯具与黑暗层，并注册
+        /// 叠层对象接入区域视图、在每个光晕中心放置灯具与黑暗层，并注册
         /// 到 GameConfigDatabase。可重复执行（幂等）。
         /// 走廊特殊灯具的横向位置按策划《灯具分布图》配置；房间特殊灯具与
-        /// 普通灯分布图未标注，仍为占位，待美术定位后按 lightId 平移调整。
+        /// 普通灯位置直接从美术光晕贴图的透明度轮廓中识别。
         /// </summary>
     public static class Stage4LightingBootstrap
     {
@@ -39,8 +39,6 @@ namespace MemorialArchive.Editor
             public string SceneName;
             public string RegionId;
             public bool PlaceSpecial;
-            public int NormalLampCount;
-
             /// <summary>特殊灯具在场景横向范围（避开两侧边界后的区间）内的位置，0=最左 1=最右。</summary>
             public float SpecialXFraction;
         }
@@ -50,22 +48,20 @@ namespace MemorialArchive.Editor
             // 前厅并入 1F 走廊区域（corridor_1f），该区域的特殊灯具放在前厅。
             // 走廊特殊灯具的横向位置来自策划《灯具分布图》（4 个紫色菱形）：
             // 1F 前厅展览馆正中、2F 走廊中部、3F 走廊右端（禁闭室侧）、4F 走廊左端（露台侧）。
-            new ScenePlan { SceneName = "FrontHall", RegionId = "corridor_1f", PlaceSpecial = true, NormalLampCount = 2, SpecialXFraction = 0.45f },
-            new ScenePlan { SceneName = "Floor_1F", RegionId = "corridor_1f", PlaceSpecial = false, NormalLampCount = 3 },
-            new ScenePlan { SceneName = "Floor_2F", RegionId = "corridor_2f", PlaceSpecial = true, NormalLampCount = 3, SpecialXFraction = 0.5f },
-            new ScenePlan { SceneName = "Floor_3F", RegionId = "corridor_3f", PlaceSpecial = true, NormalLampCount = 3, SpecialXFraction = 0.9f },
-            new ScenePlan { SceneName = "Floor_4F", RegionId = "corridor_4f", PlaceSpecial = true, NormalLampCount = 2, SpecialXFraction = 0.12f },
-            // 房间内特殊灯具与普通灯均未出现在分布图上（§6：房间灯具“由美术自己设定位置”），
-            // 以下数值仍是占位，待美术定位图后按 lightId 调整。
-            new ScenePlan { SceneName = "Room_Toilet", RegionId = "room_toilet", PlaceSpecial = true, NormalLampCount = 1, SpecialXFraction = 1f },
-            new ScenePlan { SceneName = "Room_Office", RegionId = "room_office", PlaceSpecial = true, NormalLampCount = 1, SpecialXFraction = 1f },
-            new ScenePlan { SceneName = "Room_ArchiveA", RegionId = "room_archive_a", PlaceSpecial = true, NormalLampCount = 1, SpecialXFraction = 1f },
-            new ScenePlan { SceneName = "Room_ArchiveB", RegionId = "room_archive_b", PlaceSpecial = true, NormalLampCount = 1, SpecialXFraction = 1f },
-            new ScenePlan { SceneName = "Room_ArchiveC", RegionId = "room_archive_c", PlaceSpecial = true, NormalLampCount = 1, SpecialXFraction = 1f },
-            new ScenePlan { SceneName = "Room_TreatmentA", RegionId = "room_treatment_a", PlaceSpecial = true, NormalLampCount = 1, SpecialXFraction = 1f },
-            new ScenePlan { SceneName = "Room_TreatmentB", RegionId = "room_treatment_b", PlaceSpecial = true, NormalLampCount = 1, SpecialXFraction = 1f },
-            new ScenePlan { SceneName = "Room_Reception", RegionId = "room_reception", PlaceSpecial = true, NormalLampCount = 1, SpecialXFraction = 1f },
-            new ScenePlan { SceneName = "Room_Director", RegionId = "room_director", PlaceSpecial = true, NormalLampCount = 1, SpecialXFraction = 1f }
+            new ScenePlan { SceneName = "FrontHall", RegionId = "corridor_1f", PlaceSpecial = true, SpecialXFraction = 0.45f },
+            new ScenePlan { SceneName = "Floor_1F", RegionId = "corridor_1f", PlaceSpecial = false },
+            new ScenePlan { SceneName = "Floor_2F", RegionId = "corridor_2f", PlaceSpecial = true, SpecialXFraction = 0.5f },
+            new ScenePlan { SceneName = "Floor_3F", RegionId = "corridor_3f", PlaceSpecial = true, SpecialXFraction = 0.9f },
+            new ScenePlan { SceneName = "Floor_4F", RegionId = "corridor_4f", PlaceSpecial = true, SpecialXFraction = 0.12f },
+            new ScenePlan { SceneName = "Room_Toilet", RegionId = "room_toilet", PlaceSpecial = true, SpecialXFraction = 1f },
+            new ScenePlan { SceneName = "Room_Office", RegionId = "room_office", PlaceSpecial = true, SpecialXFraction = 1f },
+            new ScenePlan { SceneName = "Room_ArchiveA", RegionId = "room_archive_a", PlaceSpecial = true, SpecialXFraction = 1f },
+            new ScenePlan { SceneName = "Room_ArchiveB", RegionId = "room_archive_b", PlaceSpecial = true, SpecialXFraction = 1f },
+            new ScenePlan { SceneName = "Room_ArchiveC", RegionId = "room_archive_c", PlaceSpecial = true, SpecialXFraction = 1f },
+            new ScenePlan { SceneName = "Room_TreatmentA", RegionId = "room_treatment_a", PlaceSpecial = true, SpecialXFraction = 1f },
+            new ScenePlan { SceneName = "Room_TreatmentB", RegionId = "room_treatment_b", PlaceSpecial = true, SpecialXFraction = 1f },
+            new ScenePlan { SceneName = "Room_Reception", RegionId = "room_reception", PlaceSpecial = true, SpecialXFraction = 1f },
+            new ScenePlan { SceneName = "Room_Director", RegionId = "room_director", PlaceSpecial = true, SpecialXFraction = 1f }
         };
 
         [MenuItem("Tools/Memorial Archive/Build Stage 4 Lighting")]
@@ -257,19 +253,265 @@ namespace MemorialArchive.Editor
                 configs.Add(GetOrCreateLightConfig(lightId, plan.RegionId, true, 4f));
             }
 
-            for (var index = 0; index < plan.NormalLampCount; index++)
+            var glowCenters = FindGlowCenters();
+            glowCenters.Sort((left, right) =>
             {
-                // 普通灯 lightId 必须全局唯一：同一区域可能跨多个场景（如 corridor_1f
-                // 覆盖 FrontHall 与 Floor_1F），撞 ID 会导致跨场景串灯。
+                var xComparison = left.x.CompareTo(right.x);
+                return xComparison != 0 ? xComparison : right.y.CompareTo(left.y);
+            });
+
+            for (var index = 0; index < glowCenters.Count; index++)
+            {
                 var lightId = $"light_{plan.RegionId}_{plan.SceneName.ToLower()}_n{index + 1:00}";
-                var t = plan.NormalLampCount == 1 ? 0.5f : 0.2f + 0.6f * index / (plan.NormalLampCount - 1f);
-                var x = Mathf.Lerp(bounds.min.x + 3f, bounds.max.x - 6f, t);
-                var position = new Vector3(x, bounds.max.y - 1.2f, 0f);
-                CreateFixture(lightId, plan.RegionId, false, position, 3f);
-                configs.Add(GetOrCreateLightConfig(lightId, plan.RegionId, false, 3f));
+                CreateFixture(lightId, plan.RegionId, false, glowCenters[index], 6f);
+                configs.Add(GetOrCreateLightConfig(lightId, plan.RegionId, false, 6f));
             }
 
+            Debug.Log($"[Stage4Lighting] {plan.SceneName}: 从光晕贴图识别并放置 {glowCenters.Count} 盏普通灯。");
+
             return configs;
+        }
+
+        private static List<Vector3> FindGlowCenters()
+        {
+            var centers = new List<Vector3>();
+            foreach (var rootObject in SceneManager.GetActiveScene().GetRootGameObjects())
+            {
+                if (rootObject.GetComponent<LightRegionView>() == null)
+                {
+                    continue;
+                }
+
+                foreach (var renderer in rootObject.GetComponentsInChildren<SpriteRenderer>(true))
+                {
+                    centers.AddRange(ExtractGlowCenters(renderer));
+                }
+            }
+
+            return centers;
+        }
+
+        /// <summary>
+        /// 对光晕透明度轮廓做近似距离变换，再以非极大值抑制取每个圆形光晕的中心。
+        /// 即便相邻光晕互相搭接，也能保留各自的局部最大内切圆中心。
+        /// </summary>
+        private static List<Vector3> ExtractGlowCenters(SpriteRenderer renderer)
+        {
+            var results = new List<Vector3>();
+            var sprite = renderer.sprite;
+            if (sprite == null)
+            {
+                return results;
+            }
+
+            var assetPath = AssetDatabase.GetAssetPath(sprite.texture);
+            if (string.IsNullOrEmpty(assetPath) || !File.Exists(assetPath))
+            {
+                return results;
+            }
+
+            var texture = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+            try
+            {
+                if (!ImageConversion.LoadImage(texture, File.ReadAllBytes(assetPath), false))
+                {
+                    return results;
+                }
+
+                var width = texture.width;
+                var height = texture.height;
+                var pixels = texture.GetPixels32();
+                var maxAlpha = 0;
+                for (var index = 0; index < pixels.Length; index++)
+                {
+                    maxAlpha = Mathf.Max(maxAlpha, pixels[index].a);
+                }
+
+                var alphaThreshold = Mathf.Max(8, Mathf.RoundToInt(maxAlpha * 0.05f));
+                var paddedWidth = width + 2;
+                var paddedHeight = height + 2;
+                var distance = new float[paddedWidth * paddedHeight];
+                const float infinity = 100000f;
+                for (var y = 0; y < height; y++)
+                {
+                    for (var x = 0; x < width; x++)
+                    {
+                        distance[(y + 1) * paddedWidth + x + 1] =
+                            pixels[y * width + x].a >= alphaThreshold ? infinity : 0f;
+                    }
+                }
+
+                const float diagonal = 1.41421356f;
+                for (var y = 1; y < paddedHeight - 1; y++)
+                {
+                    for (var x = 1; x < paddedWidth - 1; x++)
+                    {
+                        var index = y * paddedWidth + x;
+                        if (distance[index] <= 0f)
+                        {
+                            continue;
+                        }
+
+                        distance[index] = Mathf.Min(distance[index], distance[index - 1] + 1f);
+                        distance[index] = Mathf.Min(distance[index], distance[index - paddedWidth] + 1f);
+                        distance[index] = Mathf.Min(distance[index], distance[index - paddedWidth - 1] + diagonal);
+                        distance[index] = Mathf.Min(distance[index], distance[index - paddedWidth + 1] + diagonal);
+                    }
+                }
+
+                for (var y = paddedHeight - 2; y >= 1; y--)
+                {
+                    for (var x = paddedWidth - 2; x >= 1; x--)
+                    {
+                        var index = y * paddedWidth + x;
+                        if (distance[index] <= 0f)
+                        {
+                            continue;
+                        }
+
+                        distance[index] = Mathf.Min(distance[index], distance[index + 1] + 1f);
+                        distance[index] = Mathf.Min(distance[index], distance[index + paddedWidth] + 1f);
+                        distance[index] = Mathf.Min(distance[index], distance[index + paddedWidth + 1] + diagonal);
+                        distance[index] = Mathf.Min(distance[index], distance[index + paddedWidth - 1] + diagonal);
+                    }
+                }
+
+                var localMaximum = MaximumFilter(distance, paddedWidth, paddedHeight, 50);
+                var peaks = new List<Vector3>();
+                for (var y = 1; y < paddedHeight - 1; y++)
+                {
+                    for (var x = 1; x < paddedWidth - 1; x++)
+                    {
+                        var index = y * paddedWidth + x;
+                        var value = distance[index];
+                        if (value < 28f || value < localMaximum[index] - 0.001f)
+                        {
+                            continue;
+                        }
+
+                        peaks.Add(new Vector3(x, y, value));
+                    }
+                }
+
+                peaks.Sort((left, right) => right.z.CompareTo(left.z));
+                var acceptedPeaks = new List<Vector3>();
+                foreach (var peak in peaks)
+                {
+                    var overlapsExistingPeak = false;
+                    foreach (var accepted in acceptedPeaks)
+                    {
+                        var minimumSeparation = Mathf.Max(55f, accepted.z * 1.15f);
+                        var deltaX = peak.x - accepted.x;
+                        var deltaY = peak.y - accepted.y;
+                        if (deltaX * deltaX + deltaY * deltaY < minimumSeparation * minimumSeparation)
+                        {
+                            overlapsExistingPeak = true;
+                            break;
+                        }
+                    }
+
+                    if (overlapsExistingPeak)
+                    {
+                        continue;
+                    }
+
+                    acceptedPeaks.Add(peak);
+                    var pixelX = peak.x - 1f;
+                    var pixelY = peak.y - 1f;
+                    if (renderer.flipX)
+                    {
+                        pixelX = width - 1f - pixelX;
+                    }
+
+                    if (renderer.flipY)
+                    {
+                        pixelY = height - 1f - pixelY;
+                    }
+
+                    var local = new Vector3(
+                        (pixelX - sprite.pivot.x) / sprite.pixelsPerUnit,
+                        (pixelY - sprite.pivot.y) / sprite.pixelsPerUnit,
+                        0f);
+                    var world = renderer.transform.TransformPoint(local);
+                    world.z = 0f;
+                    results.Add(world);
+
+                    if (acceptedPeaks.Count >= 32)
+                    {
+                        break;
+                    }
+                }
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(texture);
+            }
+
+            return results;
+        }
+
+        /// <summary>
+        /// O(width*height) 的方形最大值过滤。先按行、再按列做分块前缀/后缀最大值，
+        /// 用于排除同一光晕斜坡上的次级峰值，窗口半径 50px 与美术图的最小光晕间距匹配。
+        /// </summary>
+        private static float[] MaximumFilter(float[] source, int width, int height, int radius)
+        {
+            var horizontal = new float[source.Length];
+            var result = new float[source.Length];
+            var maxLength = Mathf.Max(width, height);
+            var line = new float[maxLength];
+            var filteredLine = new float[maxLength];
+
+            for (var y = 0; y < height; y++)
+            {
+                Array.Copy(source, y * width, line, 0, width);
+                MaximumFilterLine(line, filteredLine, width, radius);
+                Array.Copy(filteredLine, 0, horizontal, y * width, width);
+            }
+
+            for (var x = 0; x < width; x++)
+            {
+                for (var y = 0; y < height; y++)
+                {
+                    line[y] = horizontal[y * width + x];
+                }
+
+                MaximumFilterLine(line, filteredLine, height, radius);
+                for (var y = 0; y < height; y++)
+                {
+                    result[y * width + x] = filteredLine[y];
+                }
+            }
+
+            return result;
+        }
+
+        private static void MaximumFilterLine(float[] source, float[] destination, int length, int radius)
+        {
+            var blockSize = radius * 2 + 1;
+            var prefix = new float[length];
+            var suffix = new float[length];
+
+            for (var index = 0; index < length; index++)
+            {
+                prefix[index] = index % blockSize == 0
+                    ? source[index]
+                    : Mathf.Max(prefix[index - 1], source[index]);
+            }
+
+            for (var index = length - 1; index >= 0; index--)
+            {
+                suffix[index] = index == length - 1 || (index + 1) % blockSize == 0
+                    ? source[index]
+                    : Mathf.Max(suffix[index + 1], source[index]);
+            }
+
+            for (var index = 0; index < length; index++)
+            {
+                var start = Mathf.Max(0, index - radius);
+                var end = Mathf.Min(length - 1, index + radius);
+                destination[index] = Mathf.Max(suffix[start], prefix[end]);
+            }
         }
 
         /// <summary>
@@ -336,16 +578,25 @@ namespace MemorialArchive.Editor
         private static void ConfigureFixture(GameObject fixture, string lightId, bool isSpecial)
         {
             var spriteRenderer = fixture.GetComponent<SpriteRenderer>();
-            if (spriteRenderer == null)
+            if (isSpecial)
             {
-                spriteRenderer = fixture.AddComponent<SpriteRenderer>();
+                if (spriteRenderer == null)
+                {
+                    spriteRenderer = fixture.AddComponent<SpriteRenderer>();
+                }
+
+                spriteRenderer.sprite = LoadPlaceholderSprite();
+                spriteRenderer.sortingOrder = 10;
+                spriteRenderer.drawMode = SpriteDrawMode.Simple;
+                spriteRenderer.color = new Color(0.9f, 0.75f, 0.35f);
+            }
+            else if (spriteRenderer != null)
+            {
+                // 普通灯只保留交互与光源逻辑，画面由场景原有灯具和光晕贴图提供。
+                UnityEngine.Object.DestroyImmediate(spriteRenderer);
             }
 
-            spriteRenderer.sprite = LoadPlaceholderSprite();
-            spriteRenderer.sortingOrder = 10;
-            spriteRenderer.drawMode = SpriteDrawMode.Simple;
-            spriteRenderer.color = isSpecial ? new Color(0.9f, 0.75f, 0.35f) : new Color(0.55f, 0.55f, 0.55f);
-            fixture.transform.localScale = isSpecial ? new Vector3(1.4f, 0.9f, 1f) : new Vector3(1f, 0.7f, 1f);
+            fixture.transform.localScale = isSpecial ? new Vector3(1.4f, 0.9f, 1f) : Vector3.one;
 
             var collider = fixture.GetComponent<BoxCollider2D>();
             if (collider == null)
@@ -471,8 +722,7 @@ namespace MemorialArchive.Editor
         {
             var spriteRenderer = fixture.GetComponent<SpriteRenderer>();
             return fixture.transform.childCount == 0 &&
-                   spriteRenderer != null &&
-                   spriteRenderer.sprite == LoadPlaceholderSprite() &&
+                   (spriteRenderer == null || spriteRenderer.sprite == LoadPlaceholderSprite()) &&
                    fixture.GetComponent<BoxCollider2D>() != null &&
                    fixture.GetComponent<InteractionPointView>() != null;
         }
@@ -494,17 +744,10 @@ namespace MemorialArchive.Editor
                 root.transform.localScale = Vector3.one;
 
                 var spriteRenderer = root.GetComponent<SpriteRenderer>();
-                if (spriteRenderer == null)
+                if (spriteRenderer != null)
                 {
-                    spriteRenderer = root.AddComponent<SpriteRenderer>();
+                    UnityEngine.Object.DestroyImmediate(spriteRenderer);
                 }
-
-                // 使用项目内生成的简单灯具图标，避免依赖不同 Unity 发行版的内置资源。
-                // 美术资源接入后只需替换预制体上的 Sprite。
-                spriteRenderer.sprite = LoadPlaceholderSprite();
-                spriteRenderer.sortingOrder = 10;
-                spriteRenderer.drawMode = SpriteDrawMode.Simple;
-                spriteRenderer.color = new Color(0.35f, 0.35f, 0.35f, 1f);
 
                 var collider = root.GetComponent<BoxCollider2D>();
                 if (collider == null)

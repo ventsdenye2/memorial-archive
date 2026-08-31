@@ -201,7 +201,14 @@ namespace MemorialArchive.Gameplay.Combat.View
             body.angularVelocity = direction.x >= 0f ? -420f : 420f;
 
             var projectileCollider = projectileObject.AddComponent<CircleCollider2D>();
-            projectileCollider.radius = projectileRadius;
+            // The icon root is scaled for presentation. Collider2D dimensions are
+            // scaled with the transform as well, so compensate here and keep the
+            // configured radius in world units. The previous effective radius was
+            // only 65%, which let a rolling grenade enter thin floor seams.
+            var colliderScale = Mathf.Max(
+                Mathf.Abs(projectileObject.transform.lossyScale.x),
+                Mathf.Abs(projectileObject.transform.lossyScale.y));
+            projectileCollider.radius = projectileRadius / Mathf.Max(colliderScale, 0.0001f);
             var bounceMaterial = new PhysicsMaterial2D($"ThrowableMaterial_{attack.AttackInstanceId}")
             {
                 // 手雷保留轻微弹跳，但显著降低连续弹跳和落地滑行距离。

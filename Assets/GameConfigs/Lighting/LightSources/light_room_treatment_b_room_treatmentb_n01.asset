@@ -15,5 +15,5 @@ MonoBehaviour:
   lightId: light_room_treatment_b_room_treatmentb_n01
   regionId: room_treatment_b
   isSpecial: 0
-  radius: 3
+  radius: 6
   exemptFromDarkness: 0

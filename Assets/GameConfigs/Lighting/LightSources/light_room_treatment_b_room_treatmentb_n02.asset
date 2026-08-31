@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6360aa54ff07b4748b973b0be2baeb64, type: 3}
-  m_Name: light_room_treatment_a_room_treatmenta_n01
+  m_Name: light_room_treatment_b_room_treatmentb_n02
   m_EditorClassIdentifier: 
-  lightId: light_room_treatment_a_room_treatmenta_n01
-  regionId: room_treatment_a
+  lightId: light_room_treatment_b_room_treatmentb_n02
+  regionId: room_treatment_b
   isSpecial: 0
-  radius: 3
+  radius: 6
   exemptFromDarkness: 0

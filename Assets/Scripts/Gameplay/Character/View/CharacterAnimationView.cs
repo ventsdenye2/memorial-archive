@@ -52,6 +52,7 @@ namespace MemorialArchive.Gameplay.Character.View
         [SerializeField] private string dodgeDisplacementBoneName = "bone";
         [SerializeField] private float characterScale = 1f;
         [SerializeField] private float stateMinDuration = 0.2f;
+        [SerializeField, Min(0f)] private float throwableAimHoldTime = 0.1f;
 
         private CharacterSystem character;
         private LocomotionState current = LocomotionState.Idle;
@@ -67,6 +68,7 @@ namespace MemorialArchive.Gameplay.Character.View
         private TrackEntry dodgeTrackEntry;
         private TrackEntry actionTrackEntry;
         private bool isUsingWalkingEquipAnimation;
+        private float equipPlaybackDuration;
         private float normalDodgeLocalOffsetX;
         private bool hasCachedNormalDodgeOffset;
 
@@ -126,9 +128,9 @@ namespace MemorialArchive.Gameplay.Character.View
             }
 
             if (activeAction == ActionPresentation.Aim && character.IsAiming) UpdateFacing(character.AimDirection);
-            if (activeAction == ActionPresentation.Equip && character.MoveDirection.sqrMagnitude > 0.0001f)
+            if (activeAction == ActionPresentation.Equip)
             {
-                SwitchEquipToWalkingAnimation();
+                SwitchEquipAnimation(character.MoveDirection.sqrMagnitude > 0.0001f);
             }
             if (isDead || current == LocomotionState.Dodge || activeAction != ActionPresentation.None) return;
             SampleLocomotion();
@@ -192,10 +194,8 @@ namespace MemorialArchive.Gameplay.Character.View
             if (SelectedItemUses(CombatAttackKind.Melee))
             {
                 var equipWhileMoving = character != null && character.MoveDirection.sqrMagnitude > 0.0001f;
-                var equipAnimation = equipWhileMoving ? "zhuangbei+walk" : "zhuangbei";
-                if (StartOneShot(weaponEquipData, equipAnimation, ActionPresentation.Equip))
+                if (StartEquipAnimation(equipWhileMoving))
                 {
-                    isUsingWalkingEquipAnimation = equipWhileMoving;
                     PublishEquipAnimationState(true);
                 }
                 return;
@@ -224,13 +224,17 @@ namespace MemorialArchive.Gameplay.Character.View
             if (evt.State == CharacterActionState.Staggered) { StartOneShot(armedHurtData, "hurt1", ActionPresentation.Hurt); return; }
             if (evt.State == CharacterActionState.ThrowAiming)
             {
-                StartLoop(GetThrowableActionData(), "throw_aim", ActionPresentation.Aim);
+                StartHeldOneShot(GetThrowableActionData(), "throw_aim", ActionPresentation.Aim);
                 if (character != null) UpdateFacing(character.AimDirection);
                 return;
             }
             if (evt.State == CharacterActionState.Throwing)
             {
-                StartOneShot(GetThrowableActionData(), "throw", ActionPresentation.Attack);
+                StartOneShot(
+                    GetThrowableActionData(),
+                    "throw",
+                    ActionPresentation.Attack,
+                    throwableAimHoldTime);
                 return;
             }
             if (evt.State == CharacterActionState.Attack1 || evt.State == CharacterActionState.Attack2 || evt.State == CharacterActionState.Attack3)
@@ -309,7 +313,7 @@ namespace MemorialArchive.Gameplay.Character.View
             }
             else if (SelectedItemUses(CombatAttackKind.Throwable))
             {
-                StartLoop(GetThrowableActionData(), "throw_aim", ActionPresentation.Aim);
+                StartHeldOneShot(GetThrowableActionData(), "throw_aim", ActionPresentation.Aim);
             }
         }
 
@@ -363,7 +367,11 @@ namespace MemorialArchive.Gameplay.Character.View
             SwitchToLocomotion();
         }
 
-        private bool StartOneShot(SkeletonDataAsset data, string animationName, ActionPresentation presentation)
+        private bool StartOneShot(
+            SkeletonDataAsset data,
+            string animationName,
+            ActionPresentation presentation,
+            float startTime = 0f)
         {
             if (data == null || isDead || current == LocomotionState.Dodge) return false;
             CancelCurrentAction();
@@ -374,6 +382,15 @@ namespace MemorialArchive.Gameplay.Character.View
                 activeAction = ActionPresentation.None;
                 SwitchToLocomotion();
                 return false;
+            }
+
+            // Throw aiming and release are separate Spine animations. Starting
+            // the release clip at the held timestamp avoids visibly replaying its
+            // opening frames after the mouse button is released.
+            if (startTime > entry.AnimationStart)
+            {
+                entry.TrackTime = Mathf.Clamp(startTime, entry.AnimationStart, entry.AnimationEnd)
+                    - entry.AnimationStart;
             }
 
             actionTrackEntry = entry;
@@ -390,6 +407,35 @@ namespace MemorialArchive.Gameplay.Character.View
             SwitchSkeleton(data, animationName, true);
         }
 
+        /// <summary>
+        /// Plays a preparation animation once and deliberately leaves its track
+        /// active at the configured held pose, so holding input cannot restart or
+        /// loop the wind-up.
+        /// </summary>
+        private void StartHeldOneShot(SkeletonDataAsset data, string animationName, ActionPresentation presentation)
+        {
+            if (data == null || isDead || current == LocomotionState.Dodge) return;
+            if (activeAction == presentation && skeletonAnimation.skeletonDataAsset == data) return;
+            CancelCurrentAction();
+            activeAction = presentation;
+            var entry = SwitchSkeleton(data, animationName, false);
+            if (entry == null)
+            {
+                activeAction = ActionPresentation.None;
+                SwitchToLocomotion();
+                return;
+            }
+
+            // The throwable wind-up is authored past the intended held pose.
+            // Clamp this non-looping track to the measured pose instead of letting
+            // it reach the clip's final frame. Spine keeps the shortened track at
+            // AnimationEnd until release changes the character state.
+            entry.AnimationEnd = Mathf.Clamp(
+                throwableAimHoldTime,
+                entry.AnimationStart,
+                entry.AnimationEnd);
+        }
+
         private void HandleActionComplete(TrackEntry trackEntry)
         {
             if (trackEntry != actionTrackEntry) return;
@@ -401,6 +447,7 @@ namespace MemorialArchive.Gameplay.Character.View
             if (completedAction == ActionPresentation.Equip)
             {
                 isUsingWalkingEquipAnimation = false;
+                equipPlaybackDuration = 0f;
                 PublishEquipAnimationState(false);
             }
             else
@@ -427,29 +474,86 @@ namespace MemorialArchive.Gameplay.Character.View
             if (activeAction == ActionPresentation.Equip)
             {
                 isUsingWalkingEquipAnimation = false;
+                equipPlaybackDuration = 0f;
                 PublishEquipAnimationState(false);
             }
             UnsubscribeActionComplete();
             activeAction = ActionPresentation.None;
         }
 
-        private void SwitchEquipToWalkingAnimation()
+        private bool StartEquipAnimation(bool walking)
         {
-            if (isUsingWalkingEquipAnimation || weaponEquipData == null) return;
+            if (weaponEquipData == null || isDead || current == LocomotionState.Dodge) return false;
 
-            UnsubscribeActionComplete();
-            var entry = SwitchSkeleton(weaponEquipData, "zhuangbei+walk", false);
+            CancelCurrentAction();
+            activeAction = ActionPresentation.Equip;
+            isUsingWalkingEquipAnimation = walking;
+            equipPlaybackDuration = GetAnimationDuration(weaponEquipData, "zhuangbei");
+            var animationName = walking ? "zhuangbei+walk" : "zhuangbei";
+            var entry = SwitchSkeleton(weaponEquipData, animationName, false);
             if (entry == null)
             {
                 activeAction = ActionPresentation.None;
+                equipPlaybackDuration = 0f;
+                SwitchToLocomotion();
+                return false;
+            }
+
+            if (equipPlaybackDuration <= 0f) equipPlaybackDuration = entry.AnimationEnd;
+            ConfigureEquipTrack(entry, 0f);
+            return true;
+        }
+
+        private void SwitchEquipAnimation(bool walking)
+        {
+            if (isUsingWalkingEquipAnimation == walking || weaponEquipData == null) return;
+
+            // Both clips are two presentations of one logical equip action. Copy
+            // normalized progress and scale the target clip against the canonical
+            // duration so walking/stopping never restarts or extends the action.
+            var progress = GetNormalizedTrackProgress(actionTrackEntry);
+
+            UnsubscribeActionComplete();
+            var entry = SwitchSkeleton(weaponEquipData, walking ? "zhuangbei+walk" : "zhuangbei", false);
+            if (entry == null)
+            {
+                activeAction = ActionPresentation.None;
+                equipPlaybackDuration = 0f;
                 PublishEquipAnimationState(false);
                 SwitchToLocomotion();
                 return;
             }
 
-            isUsingWalkingEquipAnimation = true;
+            isUsingWalkingEquipAnimation = walking;
+            ConfigureEquipTrack(entry, progress);
+        }
+
+        private void ConfigureEquipTrack(TrackEntry entry, float normalizedProgress)
+        {
+            var clipDuration = Mathf.Max(0f, entry.AnimationEnd - entry.AnimationStart);
+            if (equipPlaybackDuration <= 0f) equipPlaybackDuration = clipDuration;
+            if (clipDuration > 0f && equipPlaybackDuration > 0f)
+            {
+                entry.TimeScale = clipDuration / equipPlaybackDuration;
+                entry.TrackTime = Mathf.Clamp01(normalizedProgress) * clipDuration;
+            }
+
             actionTrackEntry = entry;
             actionTrackEntry.Complete += HandleActionComplete;
+        }
+
+        private static float GetNormalizedTrackProgress(TrackEntry entry)
+        {
+            if (entry == null) return 0f;
+            var duration = entry.AnimationEnd - entry.AnimationStart;
+            return duration > 0f ? Mathf.Clamp01(entry.TrackTime / duration) : 0f;
+        }
+
+        private static float GetAnimationDuration(SkeletonDataAsset data, string animationName)
+        {
+            var skeletonData = data != null ? data.GetSkeletonData(false) : null;
+            var animation = skeletonData?.FindAnimation(animationName);
+            return animation != null ? animation.Duration : 0f;
         }
 
         private static void PublishEquipAnimationState(bool isPlaying)

@@ -269,6 +269,7 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   skeletonAnimation: {fileID: 9074858875134784153}
   throwOrigin: {fileID: 6489321317651925394}
+  throwOriginBoneName: Player_01_Weapon_Right6
   throwSpeed: 6
   upwardBoost: 2.4
   fallbackReleaseSeconds: 0.3

@@ -243,7 +243,24 @@ namespace MemorialArchive.Gameplay.Character.Logic
             else { SetState(CharacterActionState.Attack1); context.Events.Publish(new CharacterAttackRequestedEvent(primaryItemId, 0, direction)); }
             return true;
         }
-        private void OnDodge(DodgePressedEvent e) { var staminaCost = (attributes?.DodgeStaminaCost ?? 6f) * StaminaCostMultiplier; if (attributes == null || BlocksActions() || dodgeCooldown > 0 || exactStamina < staminaCost) return; if (!debugModeEnabled) exactStamina -= staminaCost; IsRunning = false; PublishSecondary(false, false, data.position); dodgeCooldown = attributes.DodgeCooldownSeconds; dodgeInvincible = attributes.DodgeDurationSeconds; SetState(CharacterActionState.Dodging); context.Events.Publish(new DodgeRequestedEvent(moveDirection.sqrMagnitude > 0 ? moveDirection.normalized : -facingDirection, attributes.DodgeDistance, attributes.DodgeDurationSeconds)); }
+        private void OnDodge(DodgePressedEvent e)
+        {
+            var staminaCost = (attributes?.DodgeStaminaCost ?? 6f) * StaminaCostMultiplier;
+            if (attributes == null || BlocksActions() || dodgeCooldown > 0 || exactStamina < staminaCost) return;
+            if (!debugModeEnabled) exactStamina -= staminaCost;
+            IsRunning = false;
+            PublishSecondary(false, false, data.position);
+            dodgeCooldown = attributes.DodgeCooldownSeconds;
+            dodgeInvincible = attributes.DodgeDurationSeconds;
+            SetState(CharacterActionState.Dodging);
+
+            // 闪避统一为相对朝向的后撤；移动输入只负责更新 facingDirection，
+            // 不再让按住前进时把闪避变成前冲。
+            context.Events.Publish(new DodgeRequestedEvent(
+                -facingDirection,
+                attributes.DodgeDistance,
+                attributes.DodgeDurationSeconds));
+        }
         private void OnDodgeAnimationState(DodgeAnimationStateChangedEvent e) { if (!e.IsPlaying && state == CharacterActionState.Dodging) SetState(weakRemaining > 0 ? CharacterActionState.Weak : CharacterActionState.Normal); }
         private void OnAnimationCompleted(CharacterActionAnimationCompletedEvent e)
         {

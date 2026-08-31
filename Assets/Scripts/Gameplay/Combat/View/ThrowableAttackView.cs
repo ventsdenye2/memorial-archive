@@ -19,7 +19,11 @@ namespace MemorialArchive.Gameplay.Combat.View
 
         [SerializeField] private SkeletonAnimation skeletonAnimation;
         [SerializeField] private Transform throwOrigin;
-        [SerializeField] private string throwOriginBoneName = "Player_01_Weapon_Right";
+        // The updated throw Spine asset attaches the grenade to Right6. Using
+        // the attachment bone keeps the projectile at the hand (the trajectory
+        // origin/left endpoint for a right-facing throw) instead of at the
+        // weapon chain's base.
+        [SerializeField] private string throwOriginBoneName = "Player_01_Weapon_Right6";
         [SerializeField, Min(0.1f)] private float trajectoryArcHeight = 1.7f;
         [SerializeField, Min(0.1f)] private float gravityScale = 1.35f;
         [SerializeField, Range(8, 64)] private int trajectorySegments = 28;
@@ -34,12 +38,16 @@ namespace MemorialArchive.Gameplay.Combat.View
 
         private Spine.AnimationState boundAnimationState;
         private AttackContext pendingAttack;
+        private Vector2 pendingOrigin;
+        private bool hasPendingOrigin;
         private float pendingSince;
         private bool releaseEventObserved;
         private float spawnAt;
         private bool isPreviewing;
         private int previewItemId;
         private Vector2 previewTarget;
+        private Vector2 aimOrigin;
+        private bool hasAimOrigin;
         private float aimSweepElapsed = -1f;
         private LineRenderer trajectoryRenderer;
         private Material trajectoryMaterial;
@@ -71,6 +79,8 @@ namespace MemorialArchive.Gameplay.Combat.View
             GameRoot.Instance?.Context?.Events.Unsubscribe<CharacterActionStateChangedEvent>(HandleCharacterStateChanged);
             UnbindAnimationState();
             pendingAttack = null;
+            hasAimOrigin = false;
+            hasPendingOrigin = false;
             HideTrajectory();
         }
 
@@ -83,9 +93,10 @@ namespace MemorialArchive.Gameplay.Combat.View
                 return;
             }
 
-            // The "throw" spine event fires while the arm is still winding down
-            // toward the hip. Spawn slightly later so the projectile leaves the
-            // raised hand instead of falling out of the crotch.
+            // The "throw" spine event controls when the projectile is released.
+            // Its position was captured during the held pose, so later motion
+            // in the throw animation cannot move the spawn point to the path's
+            // far/right endpoint.
             if (releaseEventObserved)
             {
                 if (Time.time >= spawnAt)
@@ -114,6 +125,16 @@ namespace MemorialArchive.Gameplay.Combat.View
             isPreviewing = evt.IsAiming;
             previewItemId = evt.ItemId;
             previewTarget = evt.TargetWorldPosition;
+            if (evt.IsAiming)
+            {
+                // Capture the hand position while the held throw pose is still
+                // active. The throw animation moves Right6 across the screen;
+                // sampling it later would place the projectile at the far/right
+                // end of the path instead of at its launch/left endpoint.
+                var direction = evt.TargetWorldPosition.x >= transform.position.x ? Vector2.right : Vector2.left;
+                aimOrigin = GetThrowOrigin(direction);
+                hasAimOrigin = true;
+            }
             if (isPreviewing && !wasAiming)
             {
                 // 每次重新开始瞄准时，轨迹从角色近处向鼠标位置扫过去。
@@ -126,7 +147,10 @@ namespace MemorialArchive.Gameplay.Combat.View
         private void HandleCharacterStateChanged(CharacterActionStateChangedEvent evt)
         {
             if (pendingAttack != null && evt.State != MemorialArchive.Gameplay.Character.Data.CharacterActionState.Throwing)
+            {
                 pendingAttack = null;
+                hasPendingOrigin = false;
+            }
         }
 
         private void HandleAttackStarted(AttackStartedEvent evt)
@@ -147,6 +171,18 @@ namespace MemorialArchive.Gameplay.Combat.View
             pendingAttack = attack;
             pendingSince = Time.time;
             releaseEventObserved = false;
+            var direction = attack.Direction.sqrMagnitude > 0.0001f ? attack.Direction.normalized : Vector2.right;
+            if (hasAimOrigin)
+            {
+                pendingOrigin = aimOrigin;
+                hasPendingOrigin = true;
+                hasAimOrigin = false;
+            }
+            else
+            {
+                pendingOrigin = GetThrowOrigin(direction);
+                hasPendingOrigin = true;
+            }
             GameRoot.Instance?.Context?.Events.Publish(new CombatAttackLifetimeRequestedEvent(
                 attack.AttackInstanceId, requestedAttackLifetimeSeconds));
         }
@@ -173,7 +209,8 @@ namespace MemorialArchive.Gameplay.Combat.View
             }
 
             var direction = attack.Direction.sqrMagnitude > 0.0001f ? attack.Direction.normalized : Vector2.right;
-            var origin = GetThrowOrigin(direction);
+            var origin = hasPendingOrigin ? pendingOrigin : GetThrowOrigin(direction);
+            hasPendingOrigin = false;
             var requestedTarget = attack.HasTargetWorldPosition ? attack.TargetWorldPosition : origin + direction * attack.Range;
             if (!ThrowableTrajectoryUtility.TrySolve(origin, requestedTarget, attack.Range, gravityScale, trajectoryArcHeight,
                     out var launchVelocity, out _, out _))
@@ -262,6 +299,10 @@ namespace MemorialArchive.Gameplay.Combat.View
         {
             var skeleton = skeletonAnimation != null ? skeletonAnimation.skeleton : null;
             var bone = skeleton?.FindBone(throwOriginBoneName);
+            // Keep older character/throw assets working if they have not yet
+            // been updated with the Right6 attachment bone.
+            if (bone == null && !string.Equals(throwOriginBoneName, "Player_01_Weapon_Right", StringComparison.Ordinal))
+                bone = skeleton?.FindBone("Player_01_Weapon_Right");
             if (bone != null)
                 return skeletonAnimation.transform.TransformPoint(new Vector3(bone.WorldX, bone.WorldY, 0f));
             if (throwOrigin != null && throwOrigin != transform) return throwOrigin.position;
@@ -289,7 +330,7 @@ namespace MemorialArchive.Gameplay.Combat.View
             var config = GameRoot.Instance?.Context?.Configs.GetItem(itemId);
             var range = config != null ? config.AttackRange : 6f;
             var direction = requestedTarget.x >= transform.position.x ? Vector2.right : Vector2.left;
-            var origin = GetThrowOrigin(direction);
+            var origin = hasAimOrigin ? aimOrigin : GetThrowOrigin(direction);
             requestedTarget = ApplyAimSweep(origin, requestedTarget);
             if (!ThrowableTrajectoryUtility.TrySolve(origin, requestedTarget, range, gravityScale, trajectoryArcHeight,
                     out var velocity, out var flightSeconds, out _))

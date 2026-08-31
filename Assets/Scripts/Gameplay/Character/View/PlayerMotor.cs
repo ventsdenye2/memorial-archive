@@ -15,6 +15,12 @@ namespace MemorialArchive.Gameplay.Character.View
         [SerializeField] private Rigidbody2D body;
         private CharacterSystem character;
         private bool dodgeAnimationPlaying;
+        private bool dodgeMotionActive;
+        private Vector2 dodgeMotionStartPosition;
+        private Vector2 dodgeMotionDirection;
+        private float dodgeMotionDistanceWorld;
+        private float dodgeMotionDuration;
+        private float dodgeMotionElapsed;
 
         private void Awake()
         {
@@ -34,8 +40,8 @@ namespace MemorialArchive.Gameplay.Character.View
         private void OnEnable()
         {
             character = GameRoot.Instance?.GetSystem<CharacterSystem>();
+            GameRoot.Instance?.Context?.Events.Subscribe<DodgeRequestedEvent>(HandleDodgeRequested);
             GameRoot.Instance?.Context?.Events.Subscribe<DodgeAnimationStateChangedEvent>(HandleDodgeAnimationStateChanged);
-            GameRoot.Instance?.Context?.Events.Subscribe<DodgePositionDeltaEvent>(HandleDodgePositionDelta);
             BindCamera();
         }
 
@@ -58,8 +64,9 @@ namespace MemorialArchive.Gameplay.Character.View
         private void OnDisable()
         {
             GameRoot.Instance?.Context?.Events.Unsubscribe<DodgeAnimationStateChangedEvent>(HandleDodgeAnimationStateChanged);
-            GameRoot.Instance?.Context?.Events.Unsubscribe<DodgePositionDeltaEvent>(HandleDodgePositionDelta);
+            GameRoot.Instance?.Context?.Events.Unsubscribe<DodgeRequestedEvent>(HandleDodgeRequested);
             dodgeAnimationPlaying = false;
+            dodgeMotionActive = false;
         }
 
         private void FixedUpdate()
@@ -73,12 +80,21 @@ namespace MemorialArchive.Gameplay.Character.View
                 }
             }
 
-            // dodge 播放期间只显示 Spine 原始动画，不叠加普通 A/D 位移。
-            var velocity = dodgeAnimationPlaying
-                ? Vector2.zero
-                : character.MoveDirection * character.CurrentMoveSpeed * DesignUnitsToWorldUnits;
+            Vector2 nextPosition;
+            if (dodgeMotionActive)
+            {
+                nextPosition = EvaluateDodgeMotion();
+            }
+            else
+            {
+                // dodge 播放期间只显示 Spine 原始动画，不叠加普通 A/D 位移。
+                var velocity = dodgeAnimationPlaying
+                    ? Vector2.zero
+                    : character.MoveDirection * character.CurrentMoveSpeed * DesignUnitsToWorldUnits;
+                nextPosition = body.position + velocity * Time.fixedDeltaTime;
+            }
 
-            body.MovePosition(body.position + velocity * Time.fixedDeltaTime);
+            body.MovePosition(nextPosition);
             character.Data.position = body.position;
             GameRoot.Instance?.Context?.Events.Publish(new PlayerPositionChangedEvent(body.position));
         }
@@ -91,6 +107,9 @@ namespace MemorialArchive.Gameplay.Character.View
                 body.position = position;
                 body.velocity = Vector2.zero;
             }
+
+            dodgeMotionActive = false;
+            dodgeMotionElapsed = 0f;
 
             if (character == null)
             {
@@ -108,23 +127,58 @@ namespace MemorialArchive.Gameplay.Character.View
         private void HandleDodgeAnimationStateChanged(DodgeAnimationStateChangedEvent evt)
         {
             dodgeAnimationPlaying = evt.IsPlaying;
+
+            if (!evt.IsPlaying && dodgeMotionActive)
+            {
+                // 动画比配置的位移时长更短时，仍然保证后撤落点结算完整。
+                dodgeMotionElapsed = dodgeMotionDuration;
+                var finalPosition = EvaluateDodgeMotion();
+                body.position = finalPosition;
+            }
         }
 
-        private void HandleDodgePositionDelta(DodgePositionDeltaEvent evt)
+        private void HandleDodgeRequested(DodgeRequestedEvent evt)
         {
-            // 动画结束时一次性改变真实坐标。事件是同步发布的，因此在动画
-            // 切回 Idle 前 Player 根节点就已到达最终位置，不会横向弹回。
             if (body == null)
             {
                 return;
             }
 
-            body.position += evt.WorldDelta;
-            if (character != null)
+            var direction = evt.Direction;
+            if (Mathf.Abs(direction.x) <= 0.0001f)
             {
-                character.Data.position = body.position;
-                GameRoot.Instance?.Context?.Events.Publish(new PlayerPositionChangedEvent(body.position));
+                direction = Vector2.left;
             }
+
+            dodgeMotionStartPosition = body.position;
+            dodgeMotionDirection = new Vector2(Mathf.Sign(direction.x), 0f);
+            dodgeMotionDistanceWorld = Mathf.Max(0f, evt.DistanceDesignUnits) * DesignUnitsToWorldUnits;
+            dodgeMotionDuration = Mathf.Max(0.01f, evt.DurationSeconds);
+            dodgeMotionElapsed = 0f;
+            dodgeMotionActive = true;
+            PublishDodgeMotionProgress(0f);
+        }
+
+        private Vector2 EvaluateDodgeMotion()
+        {
+            dodgeMotionElapsed = Mathf.Min(dodgeMotionDuration, dodgeMotionElapsed + Time.fixedDeltaTime);
+            var normalizedProgress = Mathf.Clamp01(dodgeMotionElapsed / dodgeMotionDuration);
+            var horizontalProgress = Mathf.SmoothStep(0f, 1f, normalizedProgress);
+            var position = dodgeMotionStartPosition + dodgeMotionDirection * (dodgeMotionDistanceWorld * horizontalProgress);
+            position.y = body.position.y;
+
+            PublishDodgeMotionProgress(normalizedProgress);
+            if (normalizedProgress >= 1f)
+            {
+                dodgeMotionActive = false;
+            }
+
+            return position;
+        }
+
+        private static void PublishDodgeMotionProgress(float normalizedProgress)
+        {
+            GameRoot.Instance?.Context?.Events.Publish(new DodgeMotionProgressEvent(normalizedProgress));
         }
     }
 }

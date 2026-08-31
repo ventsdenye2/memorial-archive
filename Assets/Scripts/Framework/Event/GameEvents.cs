@@ -228,11 +228,11 @@ public readonly struct ContainerClosedEvent { }
         public bool IsPlaying { get; }
     }
 
-    // dodge 播放结束后一次性结算到 Player/Rigidbody2D 的水平坐标增量。
-    public readonly struct DodgePositionDeltaEvent
+    // Dodge 位移期间同步视觉抛物线进度；真实 Y 坐标仍锁在地面线上。
+    public readonly struct DodgeMotionProgressEvent
     {
-        public DodgePositionDeltaEvent(Vector2 worldDelta) => WorldDelta = worldDelta;
-        public Vector2 WorldDelta { get; }
+        public DodgeMotionProgressEvent(float normalizedProgress) => NormalizedProgress = normalizedProgress;
+        public float NormalizedProgress { get; }
     }
 
     public readonly struct Stage1GameplayStartedEvent { }

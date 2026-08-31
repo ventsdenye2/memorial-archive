@@ -21,6 +21,6 @@ MonoBehaviour:
   runStaminaCostPerSecond: 2
   staminaRecoveryPerSecond: 1
   dodgeStaminaCost: 6
-  dodgeDistance: 120
+  dodgeDistance: 240
   dodgeDurationSeconds: 0.18
   dodgeCooldownSeconds: 0.8

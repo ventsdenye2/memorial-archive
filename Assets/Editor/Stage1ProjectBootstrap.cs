@@ -92,7 +92,7 @@ namespace MemorialArchive.Editor
             Set(player, "runStaminaCostPerSecond", 2f);
             Set(player, "staminaRecoveryPerSecond", 1f);
             Set(player, "dodgeStaminaCost", 6f);
-            Set(player, "dodgeDistance", 120f);
+            Set(player, "dodgeDistance", 240f);
             Set(player, "dodgeDurationSeconds", 0.18f);
 
             var normalState = GetOrCreate<CharacterStateConfig>("Assets/GameConfigs/Character/Stage1NormalState.asset");

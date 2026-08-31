@@ -14,7 +14,7 @@ namespace MemorialArchive.Gameplay.Character.Config
         [SerializeField] private float runStaminaCostPerSecond = 2f;
         [SerializeField] private float staminaRecoveryPerSecond = 1f;
         [SerializeField] private float dodgeStaminaCost = 6f;
-        [SerializeField] private float dodgeDistance = 120f;
+        [SerializeField] private float dodgeDistance = 240f;
         [SerializeField] private float dodgeDurationSeconds = 0.18f;
         [SerializeField] private float dodgeCooldownSeconds = 0.8f;
 

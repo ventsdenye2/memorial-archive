@@ -49,7 +49,7 @@ namespace MemorialArchive.Gameplay.Character.View
         [SerializeField] private SkeletonDataAsset armedHurtData;
         [SerializeField] private string firearmAimBoneName = "rotate-weapon";
         [SerializeField] private float firearmAimAngleOffset;
-        [SerializeField] private string dodgeDisplacementBoneName = "bone";
+        [SerializeField, Min(0f)] private float dodgeArcHeight = 0.16f;
         [SerializeField] private float characterScale = 1f;
         [SerializeField] private float stateMinDuration = 0.2f;
         [SerializeField, Min(0f)] private float throwableAimHoldTime = 0.1f;
@@ -69,8 +69,8 @@ namespace MemorialArchive.Gameplay.Character.View
         private TrackEntry actionTrackEntry;
         private bool isUsingWalkingEquipAnimation;
         private float equipPlaybackDuration;
-        private float normalDodgeLocalOffsetX;
-        private bool hasCachedNormalDodgeOffset;
+        private Vector3 dodgeVisualBasePosition;
+        private bool hasCachedDodgeVisualBasePosition;
 
         private void Awake()
         {
@@ -78,6 +78,8 @@ namespace MemorialArchive.Gameplay.Character.View
             {
                 skeletonAnimation.transform.localScale = new Vector3(characterScale, characterScale, 1f);
             }
+
+            CacheDodgeVisualBasePosition();
         }
 
         private void OnEnable()
@@ -85,6 +87,7 @@ namespace MemorialArchive.Gameplay.Character.View
             character = GameRoot.Instance?.GetSystem<CharacterSystem>();
             var events = GameRoot.Instance?.Context?.Events;
             events?.Subscribe<DodgeRequestedEvent>(HandleDodgeRequested);
+            events?.Subscribe<DodgeMotionProgressEvent>(HandleDodgeMotionProgress);
             events?.Subscribe<SelectedItemChangedEvent>(HandleSelectedItemChanged);
             events?.Subscribe<CharacterActionStateChangedEvent>(HandleCharacterStateChanged);
             events?.Subscribe<CharacterEquipmentChangedEvent>(HandleCharacterEquipmentChanged);
@@ -107,6 +110,7 @@ namespace MemorialArchive.Gameplay.Character.View
             CancelCurrentAction();
             var events = GameRoot.Instance?.Context?.Events;
             events?.Unsubscribe<DodgeRequestedEvent>(HandleDodgeRequested);
+            events?.Unsubscribe<DodgeMotionProgressEvent>(HandleDodgeMotionProgress);
             events?.Unsubscribe<SelectedItemChangedEvent>(HandleSelectedItemChanged);
             events?.Unsubscribe<CharacterActionStateChangedEvent>(HandleCharacterStateChanged);
             events?.Unsubscribe<CharacterEquipmentChangedEvent>(HandleCharacterEquipmentChanged);
@@ -117,6 +121,7 @@ namespace MemorialArchive.Gameplay.Character.View
             if (current == LocomotionState.Dodge) PublishDodgeAnimationState(false);
             UnsubscribeDodgeComplete();
             UnsubscribeActionComplete();
+            ResetDodgeVisualOffset();
         }
 
         private void Update()
@@ -330,6 +335,7 @@ namespace MemorialArchive.Gameplay.Character.View
             isDead = true;
             CancelCurrentAction();
             UnsubscribeDodgeComplete();
+            ResetDodgeVisualOffset();
             current = LocomotionState.Idle;
             SwitchSkeleton(bayonetCombatData, "death", false);
         }
@@ -338,6 +344,7 @@ namespace MemorialArchive.Gameplay.Character.View
         {
             if (isDead) return;
             CancelCurrentAction();
+            ResetDodgeVisualOffset();
             current = LocomotionState.Dodge;
             stateEnteredAt = Time.time;
             UnsubscribeDodgeComplete();
@@ -356,15 +363,23 @@ namespace MemorialArchive.Gameplay.Character.View
         private void HandleDodgeComplete(TrackEntry trackEntry)
         {
             if (trackEntry != dodgeTrackEntry) return;
-            if (equippedOffhand == OffhandType.Lantern)
-            {
-                CommitLanternDodgePosition();
-            }
-            else
-            {
-                CommitDodgePosition();
-            }
+            ResetDodgeVisualOffset();
             SwitchToLocomotion();
+        }
+
+        private void HandleDodgeMotionProgress(DodgeMotionProgressEvent evt)
+        {
+            CacheDodgeVisualBasePosition();
+            if (skeletonAnimation == null || !hasCachedDodgeVisualBasePosition)
+            {
+                return;
+            }
+
+            var progress = Mathf.Clamp01(evt.NormalizedProgress);
+            var arcOffset = dodgeArcHeight * 4f * progress * (1f - progress);
+            var position = dodgeVisualBasePosition;
+            position.y += arcOffset;
+            skeletonAnimation.transform.localPosition = position;
         }
 
         private bool StartOneShot(
@@ -628,70 +643,24 @@ namespace MemorialArchive.Gameplay.Character.View
             aimBone.Rotation = Mathf.Atan2(localDirection.y, localDirection.x) * Mathf.Rad2Deg + firearmAimAngleOffset;
         }
 
-        private void CommitDodgePosition()
+        private void CacheDodgeVisualBasePosition()
         {
-            var skeleton = skeletonAnimation != null ? skeletonAnimation.skeleton : null;
-            var displacementBone = skeleton?.FindBone(dodgeDisplacementBoneName);
-            if (displacementBone == null)
+            if (hasCachedDodgeVisualBasePosition || skeletonAnimation == null)
             {
-                Debug.LogWarning($"Dodge displacement bone '{dodgeDisplacementBoneName}' was not found.", this);
                 return;
             }
 
-            var localOffsetX = displacementBone.X - displacementBone.Data.X;
-            var facingScale = skeleton != null ? skeleton.ScaleX : 1f;
-            PublishDodgePositionDelta(localOffsetX, facingScale);
+            dodgeVisualBasePosition = skeletonAnimation.transform.localPosition;
+            hasCachedDodgeVisualBasePosition = true;
         }
 
-        private void CommitLanternDodgePosition()
+        private void ResetDodgeVisualOffset()
         {
-            if (!TryGetNormalDodgeLocalOffset(out var localOffsetX))
+            CacheDodgeVisualBasePosition();
+            if (skeletonAnimation != null && hasCachedDodgeVisualBasePosition)
             {
-                Debug.LogWarning("Unable to sample the normal dodge displacement for the lantern dodge.", this);
-                return;
+                skeletonAnimation.transform.localPosition = dodgeVisualBasePosition;
             }
-
-            // 提灯闪避素材没有位移骨骼；复用普通闪避末帧的骨骼偏移，
-            // 保持与不持灯时相同的后跳距离和朝向。
-            PublishDodgePositionDelta(localOffsetX, facingRight ? 1f : -1f);
-        }
-
-        private bool TryGetNormalDodgeLocalOffset(out float localOffsetX)
-        {
-            if (hasCachedNormalDodgeOffset)
-            {
-                localOffsetX = normalDodgeLocalOffsetX;
-                return true;
-            }
-
-            var skeletonData = dodgeData != null ? dodgeData.GetSkeletonData(false) : null;
-            var animation = skeletonData?.FindAnimation("dodge");
-            if (skeletonData == null || animation == null)
-            {
-                localOffsetX = 0f;
-                return false;
-            }
-
-            var sampleSkeleton = new Skeleton(skeletonData);
-            sampleSkeleton.SetToSetupPose();
-            animation.Apply(sampleSkeleton, 0f, animation.Duration, false, null, 1f, MixBlend.Replace, MixDirection.In);
-            var displacementBone = sampleSkeleton.FindBone(dodgeDisplacementBoneName);
-            if (displacementBone == null)
-            {
-                localOffsetX = 0f;
-                return false;
-            }
-
-            normalDodgeLocalOffsetX = displacementBone.X - displacementBone.Data.X;
-            hasCachedNormalDodgeOffset = true;
-            localOffsetX = normalDodgeLocalOffsetX;
-            return true;
-        }
-
-        private void PublishDodgePositionDelta(float localOffsetX, float facingScale)
-        {
-            var worldDelta = skeletonAnimation.transform.TransformVector(new Vector3(localOffsetX * facingScale, 0f, 0f));
-            GameRoot.Instance?.Context?.Events.Publish(new DodgePositionDeltaEvent(new Vector2(worldDelta.x, 0f)));
         }
 
         private static void PublishDodgeAnimationState(bool isPlaying)

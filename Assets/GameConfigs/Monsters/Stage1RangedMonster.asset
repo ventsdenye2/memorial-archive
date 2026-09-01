@@ -16,12 +16,12 @@ MonoBehaviour:
   monsterName: "\u602A\u7269 2\uFF08\u8FDC\u7A0B\uFF09"
   maxHealth: 1000
   attackDamage: 1
-  moveSpeed: 180
-  detectionRange: 8
-  attackRange: 5
+  moveSpeed: 360
+  detectionRange: 12
+  attackRange: 8
   attackInterval: 2
   decisionInterval: 0.15
-  hurtDuration: 0.3
+  hurtDuration: 0.8
   hurtCooldown: 1
   deathPresentationSeconds: 3
   attackMode: 1

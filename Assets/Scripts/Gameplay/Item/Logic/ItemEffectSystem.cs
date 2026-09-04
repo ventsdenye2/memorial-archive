@@ -40,7 +40,10 @@ namespace MemorialArchive.Gameplay.Item.Logic
 
             if (config.CanPlaceAmmo)
             {
-                context.Events.Publish(new AmmoReloadRequestedEvent(config.ItemId));
+                // Keep the concrete stack instance with the request.  CombatSystem
+                // consumes exactly one unit for this legacy "use ammo item" path;
+                // the R key uses its separate fill-to-capacity transaction.
+                context.Events.Publish(new AmmoReloadRequestedEvent(config.ItemId, evt.Item.instanceId));
                 return;
             }
 

@@ -3,6 +3,7 @@ using MemorialArchive.Framework.Event;
 using MemorialArchive.Gameplay.Character.Logic;
 using MemorialArchive.Gameplay.Character.Data;
 using MemorialArchive.Gameplay.Combat.Data;
+using MemorialArchive.Gameplay.Combat.View;
 using MemorialArchive.Gameplay.Inventory.Data;
 using MemorialArchive.Gameplay.Item.Config;
 using Spine;
@@ -19,6 +20,7 @@ namespace MemorialArchive.Gameplay.Character.View
     {
         private const int FireAxeItemId = 1003;
         private const int BayonetItemId = 1002;
+        private const float FirearmShotLifetimeSafetySeconds = 0.25f;
 
         private enum LocomotionState { Idle, Walk, Run, Dodge }
         private enum ActionPresentation { None, Equip, Attack, Block, Aim, Hurt, Reload, Death }
@@ -49,6 +51,8 @@ namespace MemorialArchive.Gameplay.Character.View
         [SerializeField] private SkeletonDataAsset armedHurtData;
         [SerializeField] private string firearmAimBoneName = "rotate-weapon";
         [SerializeField] private float firearmAimAngleOffset;
+        [SerializeField, Min(0f)] private float gunShotStartTimeSeconds = 1.7f;
+        [SerializeField, Min(0f)] private float firearmShotDelayAfterReleaseSeconds = 0.35f;
         [SerializeField, Min(0f)] private float dodgeArcHeight = 0.16f;
         [SerializeField] private float characterScale = 1f;
         [SerializeField] private float stateMinDuration = 0.2f;
@@ -62,6 +66,13 @@ namespace MemorialArchive.Gameplay.Character.View
         private float stateEnteredAt;
         private int selectedItemId;
         private OffhandType equippedOffhand;
+        private Vector2 firearmAimWorldPosition;
+        private bool hasFirearmAimWorldPosition;
+        private AttackContext pendingFirearmAttack;
+        private TrackEntry pendingFirearmShotTrackEntry;
+        private float pendingFirearmShotTargetTrackTime;
+        private bool firearmShotFramePublished;
+        private bool firearmShotLifetimeRequested;
         private int sharedMeleeComboStage;
         private int fireAxeComboStage;
         private CharacterActionState presentedState = CharacterActionState.Normal;
@@ -90,11 +101,15 @@ namespace MemorialArchive.Gameplay.Character.View
             events?.Subscribe<DodgeMotionProgressEvent>(HandleDodgeMotionProgress);
             events?.Subscribe<SelectedItemChangedEvent>(HandleSelectedItemChanged);
             events?.Subscribe<CharacterActionStateChangedEvent>(HandleCharacterStateChanged);
+            events?.Subscribe<AttackStartedEvent>(HandleAttackStarted);
             events?.Subscribe<CharacterEquipmentChangedEvent>(HandleCharacterEquipmentChanged);
             events?.Subscribe<BlockInputEvent>(HandleBlockInput);
             events?.Subscribe<AimInputEvent>(HandleAimInput);
             events?.Subscribe<ReloadRequestedEvent>(HandleReloadRequested);
             events?.Subscribe<CharacterDiedEvent>(HandleCharacterDied);
+            events?.Subscribe<DamageAppliedEvent>(HandleCombatDamage);
+            events?.Subscribe<CharacterDamageReceivedEvent>(HandleCharacterDamageReceived);
+            events?.Subscribe<CharacterItemEffectRequestedEvent>(HandleItemEffectRequested);
 
             if (skeletonAnimation == null)
             {
@@ -113,11 +128,15 @@ namespace MemorialArchive.Gameplay.Character.View
             events?.Unsubscribe<DodgeMotionProgressEvent>(HandleDodgeMotionProgress);
             events?.Unsubscribe<SelectedItemChangedEvent>(HandleSelectedItemChanged);
             events?.Unsubscribe<CharacterActionStateChangedEvent>(HandleCharacterStateChanged);
+            events?.Unsubscribe<AttackStartedEvent>(HandleAttackStarted);
             events?.Unsubscribe<CharacterEquipmentChangedEvent>(HandleCharacterEquipmentChanged);
             events?.Unsubscribe<BlockInputEvent>(HandleBlockInput);
             events?.Unsubscribe<AimInputEvent>(HandleAimInput);
             events?.Unsubscribe<ReloadRequestedEvent>(HandleReloadRequested);
             events?.Unsubscribe<CharacterDiedEvent>(HandleCharacterDied);
+            events?.Unsubscribe<DamageAppliedEvent>(HandleCombatDamage);
+            events?.Unsubscribe<CharacterDamageReceivedEvent>(HandleCharacterDamageReceived);
+            events?.Unsubscribe<CharacterItemEffectRequestedEvent>(HandleItemEffectRequested);
             if (current == LocomotionState.Dodge) PublishDodgeAnimationState(false);
             UnsubscribeDodgeComplete();
             UnsubscribeActionComplete();
@@ -143,10 +162,13 @@ namespace MemorialArchive.Gameplay.Character.View
 
         private void LateUpdate()
         {
-            if (activeAction == ActionPresentation.Aim && SelectedItemUses(CombatAttackKind.Firearm) && character != null)
+            if (activeAction == ActionPresentation.Aim && SelectedItemUses(CombatAttackKind.Firearm) &&
+                hasFirearmAimWorldPosition)
             {
-                UpdateFirearmAim(character.AimDirection);
+                UpdateFirearmAim(firearmAimWorldPosition);
             }
+
+            TryPublishFirearmShotFrame();
         }
 
         private void SampleLocomotion()
@@ -190,7 +212,9 @@ namespace MemorialArchive.Gameplay.Character.View
 
         private void HandleSelectedItemChanged(SelectedItemChangedEvent evt)
         {
+            ClearPendingFirearmShot();
             selectedItemId = evt.Item?.itemId ?? 0;
+            hasFirearmAimWorldPosition = false;
             sharedMeleeComboStage = 0;
             fireAxeComboStage = 0;
             if (isDead || current == LocomotionState.Dodge) return;
@@ -211,8 +235,10 @@ namespace MemorialArchive.Gameplay.Character.View
 
         private void HandleCharacterEquipmentChanged(CharacterEquipmentChangedEvent evt)
         {
+            ClearPendingFirearmShot();
             selectedItemId = evt.PrimaryItemId;
             equippedOffhand = evt.OffhandType;
+            hasFirearmAimWorldPosition = false;
             if (!isDead && current != LocomotionState.Dodge && activeAction == ActionPresentation.None)
             {
                 SwitchToLocomotion();
@@ -226,7 +252,10 @@ namespace MemorialArchive.Gameplay.Character.View
             if (activeAction == ActionPresentation.Aim && evt.State != CharacterActionState.Aiming && evt.State != CharacterActionState.ThrowAiming && evt.State != CharacterActionState.Throwing)
                 StopActionToLocomotion();
             if (evt.State == CharacterActionState.Dead) { HandleCharacterDied(new CharacterDiedEvent(0f)); return; }
-            if (evt.State == CharacterActionState.Staggered) { StartOneShot(armedHurtData, "hurt1", ActionPresentation.Hurt); return; }
+            // Hurt animation is started from DamageAppliedEvent only.  A state
+            // event can be replayed during initialization or by another view;
+            // treating Staggered alone as damage used to cause self-triggered
+            // hurt animations.
             if (evt.State == CharacterActionState.ThrowAiming)
             {
                 StartHeldOneShot(GetThrowableActionData(), GetThrowableAimAnimationName(), ActionPresentation.Aim);
@@ -251,7 +280,28 @@ namespace MemorialArchive.Gameplay.Character.View
         private void PlayStateAttack(CharacterActionState state)
         {
             var config = GameRoot.Instance?.Context?.Configs.GetItem(selectedItemId);
-            if (config != null && config.CombatAttackKind == CombatAttackKind.Firearm) { StartOneShot(firearmActionData, "gun -shot", ActionPresentation.Attack); return; }
+            if (config != null && config.CombatAttackKind == CombatAttackKind.Firearm)
+            {
+                // The release event has already been approved by CombatSystem
+                // (including the magazine transaction) before Attack1 reaches
+                // this view. Start from an Inspector-tunable point in the
+                // authored shot clip rather than replaying its anticipation.
+                var attack = pendingFirearmAttack;
+                if (StartOneShot(
+                    firearmActionData,
+                    "gun -shot",
+                    ActionPresentation.Attack,
+                    gunShotStartTimeSeconds))
+                {
+                    ArmFirearmShotTiming(attack);
+                }
+                else
+                {
+                    ClearPendingFirearmShot();
+                }
+                return;
+            }
+            ClearPendingFirearmShot();
             if (config != null && config.CombatAttackKind != CombatAttackKind.Melee) { StartOneShot(GetThrowableActionData(), GetThrowableThrowAnimationName(), ActionPresentation.Attack); return; }
             var stage = state == CharacterActionState.Attack1 ? 1 : state == CharacterActionState.Attack2 ? 2 : 3;
             if (selectedItemId == FireAxeItemId) StartOneShot(stage == 1 ? fireAxeAttack1Data : stage == 2 ? fireAxeAttack2Data : fireAxeAttack3Data, stage == 1 ? "act1_both hands" : stage == 2 ? "act2 both hands" : "act3 both hands", ActionPresentation.Attack);
@@ -299,11 +349,101 @@ namespace MemorialArchive.Gameplay.Character.View
             }
         }
 
+        private void HandleAttackStarted(AttackStartedEvent evt)
+        {
+            var attack = evt.Attack;
+            if (attack == null || attack.AttackKind != CombatAttackKind.Firearm ||
+                attack.AttackerId != CombatTargetIds.Player)
+            {
+                return;
+            }
+
+            // AttackStarted is emitted before CharacterSystem enters Attack1.
+            // Cache the approved context here; the shot-frame event is emitted
+            // only after the actual gun -shot track reaches its threshold.
+            ClearPendingFirearmShot();
+            pendingFirearmAttack = attack;
+        }
+
+        private void HandleCombatDamage(DamageAppliedEvent evt)
+        {
+            if (evt.TargetId != CombatTargetIds.Player || isDead)
+            {
+                return;
+            }
+
+            if (evt.Result.WasBlocked && character != null && character.HasShieldEquipped)
+            {
+                SpineEffectPlayer.TryPlayFollowing(
+                    SpineEffectPlayer.ShieldBlockResource,
+                    "animation",
+                    transform,
+                    new Vector3(facingRight ? 0.48f : -0.48f, 1.12f, 0f),
+                    0.85f,
+                    75);
+                return;
+            }
+
+            // Non-zero shield damage is handled by CharacterDamageReceivedEvent
+            // after CharacterSystem has accepted it.  A zero-damage shield hit
+            // still reaches this handler for the block effect above.
+        }
+
+        private void HandleCharacterDamageReceived(CharacterDamageReceivedEvent evt)
+        {
+            if (isDead || evt.FinalDamage <= 0f)
+            {
+                return;
+            }
+
+            StartOneShot(armedHurtData, "hurt1", ActionPresentation.Hurt);
+
+            SpineEffectPlayer.TryPlayFollowing(
+                SpineEffectPlayer.PlayerHurtResource,
+                equippedOffhand == OffhandType.Splint ? "gangjiaban hurt" : "hurt",
+                transform,
+                new Vector3(0f, 1.05f, 0f),
+                1f,
+                70);
+        }
+
+        private void HandleItemEffectRequested(CharacterItemEffectRequestedEvent evt)
+        {
+            var effect = evt.Effect;
+            if (effect == null || isDead)
+            {
+                return;
+            }
+
+            if (effect.RestoreFullHealth || effect.HealthRestore > 0f)
+            {
+                SpineEffectPlayer.TryPlayFollowing(
+                    SpineEffectPlayer.HealResource,
+                    "animation",
+                    transform,
+                    new Vector3(0f, 0.95f, 0f),
+                    0.55f,
+                    65);
+            }
+
+            if (effect.RestoreFullStamina || effect.HasTimedModifier)
+            {
+                SpineEffectPlayer.TryPlayFollowing(
+                    SpineEffectPlayer.BuffResource,
+                    "animation",
+                    transform,
+                    new Vector3(0f, 1.05f, 0f),
+                    0.65f,
+                    64);
+            }
+        }
+
         private void HandleAimInput(AimInputEvent evt)
         {
             if (isDead || current == LocomotionState.Dodge) return;
             if (!evt.IsAiming)
             {
+                hasFirearmAimWorldPosition = false;
                 // 投掷瞄准由角色状态驱动；输入层每帧都会发布 AimInputEvent(false)，
                 // 若在此打断，按住瞄准期间投掷姿势会立刻被切回待机。
                 if (activeAction == ActionPresentation.Aim && presentedState != CharacterActionState.ThrowAiming) StopActionToLocomotion();
@@ -313,7 +453,12 @@ namespace MemorialArchive.Gameplay.Character.View
             if (activeAction != ActionPresentation.None && activeAction != ActionPresentation.Aim) return;
             if (SelectedItemUses(CombatAttackKind.Firearm) && firearmActionData != null)
             {
-                StartLoop(firearmActionData, "gun-ami", ActionPresentation.Aim);
+                firearmAimWorldPosition = evt.PointerWorldPosition;
+                hasFirearmAimWorldPosition = true;
+                // gun-hold is the equipped firearm idle.  A primary Started
+                // event switches to gun-ami exactly once and holds its final
+                // frame until release/cancel.
+                StartHeldOneShot(firearmActionData, "gun-ami", ActionPresentation.Aim, false);
                 if (character != null) UpdateFacing(character.AimDirection);
             }
             else if (SelectedItemUses(CombatAttackKind.Throwable))
@@ -324,7 +469,12 @@ namespace MemorialArchive.Gameplay.Character.View
 
         private void HandleReloadRequested(ReloadRequestedEvent evt)
         {
-            if (!isDead && SelectedItemUses(CombatAttackKind.Firearm))
+            var weaponConfig = evt.Weapon == null
+                ? null
+                : GameRoot.Instance?.Context?.Configs.GetItem(evt.Weapon.itemId);
+            if (!isDead && firearmActionData != null &&
+                (SelectedItemUses(CombatAttackKind.Firearm) ||
+                 weaponConfig != null && weaponConfig.CombatAttackKind == CombatAttackKind.Firearm))
             {
                 StartOneShot(firearmActionData, "gun-change bullet", ActionPresentation.Reload);
             }
@@ -402,11 +552,7 @@ namespace MemorialArchive.Gameplay.Character.View
             // Throw aiming and release are separate Spine animations. Starting
             // the release clip at the held timestamp avoids visibly replaying its
             // opening frames after the mouse button is released.
-            if (startTime > entry.AnimationStart)
-            {
-                entry.TrackTime = Mathf.Clamp(startTime, entry.AnimationStart, entry.AnimationEnd)
-                    - entry.AnimationStart;
-            }
+            SetTrackStartTime(entry, startTime);
 
             actionTrackEntry = entry;
             actionTrackEntry.Complete += HandleActionComplete;
@@ -427,7 +573,11 @@ namespace MemorialArchive.Gameplay.Character.View
         /// active at the configured held pose, so holding input cannot restart or
         /// loop the wind-up.
         /// </summary>
-        private void StartHeldOneShot(SkeletonDataAsset data, string animationName, ActionPresentation presentation)
+        private void StartHeldOneShot(
+            SkeletonDataAsset data,
+            string animationName,
+            ActionPresentation presentation,
+            bool clampToThrowableHoldPose = true)
         {
             if (data == null || isDead || current == LocomotionState.Dodge) return;
             if (activeAction == presentation && skeletonAnimation.skeletonDataAsset == data) return;
@@ -441,19 +591,37 @@ namespace MemorialArchive.Gameplay.Character.View
                 return;
             }
 
-            // The throwable wind-up is authored past the intended held pose.
-            // Clamp this non-looping track to the measured pose instead of letting
-            // it reach the clip's final frame. Spine keeps the shortened track at
-            // AnimationEnd until release changes the character state.
-            entry.AnimationEnd = Mathf.Clamp(
-                throwableAimHoldTime,
-                entry.AnimationStart,
-                entry.AnimationEnd);
+            if (clampToThrowableHoldPose)
+            {
+                // The throwable wind-up is authored past the intended held pose.
+                // Clamp this non-looping track to the measured pose instead of letting
+                // it reach the clip's final frame.
+                entry.AnimationEnd = Mathf.Clamp(
+                    throwableAimHoldTime,
+                    entry.AnimationStart,
+                    entry.AnimationEnd);
+            }
+
+            // A non-looping TrackEntry holds its final pose while it remains on
+            // the track. Keep it alive until the aim input explicitly changes
+            // state, rather than letting Spine clear it at clip completion.
+            entry.TrackEnd = float.MaxValue;
         }
 
         private void HandleActionComplete(TrackEntry trackEntry)
         {
             if (trackEntry != actionTrackEntry) return;
+
+            // A very large frame can advance a track past the release-delay
+            // target and fire Complete before LateUpdate gets a chance to poll it.
+            // Consume the ready attack while the completed gun pose is still
+            // applied, then publish exactly once before replacing the track.
+            var completedFirearmAttack = TakeReadyFirearmShot(trackEntry);
+            if (completedFirearmAttack != null)
+            {
+                PublishFirearmShotFrame(completedFirearmAttack);
+            }
+
             var completedAction = activeAction;
             var completedState = presentedState;
             UnsubscribeActionComplete();
@@ -486,6 +654,7 @@ namespace MemorialArchive.Gameplay.Character.View
 
         private void CancelCurrentAction()
         {
+            ClearPendingFirearmShot();
             if (activeAction == ActionPresentation.Equip)
             {
                 isUsingWalkingEquipAnimation = false;
@@ -494,6 +663,145 @@ namespace MemorialArchive.Gameplay.Character.View
             }
             UnsubscribeActionComplete();
             activeAction = ActionPresentation.None;
+        }
+
+        private void ArmFirearmShotTiming(AttackContext attack)
+        {
+            ClearPendingFirearmShot();
+            if (attack == null || attack.AttackKind != CombatAttackKind.Firearm ||
+                attack.AttackerId != CombatTargetIds.Player || actionTrackEntry == null)
+            {
+                return;
+            }
+
+            pendingFirearmAttack = attack;
+            pendingFirearmShotTrackEntry = actionTrackEntry;
+            pendingFirearmShotTargetTrackTime = GetFirearmShotTargetTrackTime(actionTrackEntry);
+
+            var events = GameRoot.Instance?.Context?.Events;
+            if (events != null && !firearmShotLifetimeRequested)
+            {
+                // CombatSystem's normal firearm grace window is shorter than
+                // this release-to-shot delay. Extend only this approved attack
+                // until the animation-driven shot frame can report its hit.
+                events.Publish(new CombatAttackLifetimeRequestedEvent(
+                    attack.AttackInstanceId,
+                    GetFirearmShotDelay(actionTrackEntry) + FirearmShotLifetimeSafetySeconds));
+                firearmShotLifetimeRequested = true;
+            }
+
+            // This also handles a zero delay or a start time already past the
+            // configured target without waiting for another frame.
+            TryPublishFirearmShotFrame();
+        }
+
+        private void TryPublishFirearmShotFrame()
+        {
+            var trackEntry = pendingFirearmShotTrackEntry;
+            if (pendingFirearmAttack == null || trackEntry == null || firearmShotFramePublished)
+            {
+                return;
+            }
+
+            if (isDead || current == LocomotionState.Dodge || activeAction != ActionPresentation.Attack ||
+                actionTrackEntry != trackEntry)
+            {
+                ClearPendingFirearmShot();
+                return;
+            }
+
+            var attack = TakeReadyFirearmShot(trackEntry);
+            if (attack != null)
+            {
+                PublishFirearmShotFrame(attack);
+            }
+        }
+
+        private AttackContext TakeReadyFirearmShot(TrackEntry trackEntry)
+        {
+            if (pendingFirearmAttack == null || pendingFirearmShotTrackEntry != trackEntry ||
+                firearmShotFramePublished || !IsFirearmShotReady(trackEntry))
+            {
+                return null;
+            }
+
+            var attack = pendingFirearmAttack;
+            firearmShotFramePublished = true;
+            pendingFirearmAttack = null;
+            pendingFirearmShotTrackEntry = null;
+            pendingFirearmShotTargetTrackTime = 0f;
+            firearmShotLifetimeRequested = false;
+            return attack;
+        }
+
+        private bool IsFirearmShotReady(TrackEntry trackEntry)
+        {
+            if (trackEntry == null || float.IsNaN(trackEntry.TrackTime) ||
+                float.IsInfinity(trackEntry.TrackTime))
+            {
+                return false;
+            }
+
+            return trackEntry.TrackTime + 0.0001f >= pendingFirearmShotTargetTrackTime;
+        }
+
+        private float GetFirearmShotDelay(TrackEntry trackEntry)
+        {
+            if (trackEntry == null || float.IsNaN(trackEntry.TrackTime) ||
+                float.IsInfinity(trackEntry.TrackTime))
+            {
+                return 0f;
+            }
+
+            var remainingTrackTime = Mathf.Max(0f, pendingFirearmShotTargetTrackTime - trackEntry.TrackTime);
+            var timeScale = GetAbsoluteTrackTimeScale(trackEntry);
+            if (timeScale <= 0.0001f)
+            {
+                return 0f;
+            }
+            return remainingTrackTime / timeScale;
+        }
+
+        private float GetFirearmShotTargetTrackTime(TrackEntry trackEntry)
+        {
+            if (trackEntry == null || float.IsNaN(trackEntry.TrackTime) ||
+                float.IsInfinity(trackEntry.TrackTime))
+            {
+                return 0f;
+            }
+
+            var clipDuration = Mathf.Max(0f, trackEntry.AnimationEnd - trackEntry.AnimationStart);
+            var startTrackTime = Mathf.Clamp(trackEntry.TrackTime, 0f, clipDuration);
+            var delaySeconds = Mathf.Max(0f, firearmShotDelayAfterReleaseSeconds);
+            var timeScale = GetAbsoluteTrackTimeScale(trackEntry);
+            var delayTrackTime = timeScale > 0.0001f ? delaySeconds * timeScale : 0f;
+            return Mathf.Clamp(startTrackTime + delayTrackTime, 0f, clipDuration);
+        }
+
+        private static float GetAbsoluteTrackTimeScale(TrackEntry trackEntry)
+        {
+            if (trackEntry == null)
+            {
+                return 0f;
+            }
+
+            var timeScale = Mathf.Abs(trackEntry.TimeScale);
+            return float.IsNaN(timeScale) || float.IsInfinity(timeScale) ? 0f : timeScale;
+        }
+
+        private void PublishFirearmShotFrame(AttackContext attack)
+        {
+            if (attack == null) return;
+            GameRoot.Instance?.Context?.Events.Publish(new FirearmShotFrameEvent(attack));
+        }
+
+        private void ClearPendingFirearmShot()
+        {
+            pendingFirearmAttack = null;
+            pendingFirearmShotTrackEntry = null;
+            pendingFirearmShotTargetTrackTime = 0f;
+            firearmShotFramePublished = false;
+            firearmShotLifetimeRequested = false;
         }
 
         private bool StartEquipAnimation(bool walking)
@@ -517,6 +825,31 @@ namespace MemorialArchive.Gameplay.Character.View
             if (equipPlaybackDuration <= 0f) equipPlaybackDuration = entry.AnimationEnd;
             ConfigureEquipTrack(entry, 0f);
             return true;
+        }
+
+        private static void SetTrackStartTime(TrackEntry entry, float requestedStartTime)
+        {
+            if (entry == null || !(requestedStartTime > 0f))
+            {
+                return;
+            }
+
+            var clipDuration = Mathf.Max(0f, entry.AnimationEnd - entry.AnimationStart);
+            if (clipDuration <= 0f)
+            {
+                entry.TrackTime = 0f;
+                return;
+            }
+
+            // TrackTime is elapsed seconds from AnimationStart, not an
+            // absolute key time. Keep it strictly before the clip end so the
+            // non-looping entry still gets one update/Complete callback.
+            var safeEnd = Mathf.Max(0f, clipDuration - 0.0001f);
+            var elapsedSeconds = Mathf.Clamp(requestedStartTime, 0f, safeEnd);
+            entry.TrackTime = elapsedSeconds;
+            // Do not replay event keys before the requested starting point when
+            // the asset is later given a release event timeline.
+            entry.AnimationLast = entry.AnimationStart + elapsedSeconds;
         }
 
         private void SwitchEquipAnimation(bool walking)
@@ -633,14 +966,45 @@ namespace MemorialArchive.Gameplay.Character.View
             SwitchSkeleton(idleData, "idle", true);
         }
 
-        private void UpdateFirearmAim(Vector2 direction)
+        private void UpdateFirearmAim(Vector2 targetWorldPosition)
         {
             var skeleton = skeletonAnimation != null ? skeletonAnimation.skeleton : null;
             var aimBone = skeleton?.FindBone(firearmAimBoneName);
-            if (aimBone == null || direction.sqrMagnitude <= 0.0001f) return;
+            if (aimBone == null || skeletonAnimation == null || !IsFinite(targetWorldPosition)) return;
 
-            var localDirection = facingRight ? direction : new Vector2(-direction.x, direction.y);
-            aimBone.Rotation = Mathf.Atan2(localDirection.y, localDirection.x) * Mathf.Rad2Deg + firearmAimAngleOffset;
+            // Resolve the direction from the actual aim pivot, not from the
+            // character root. Then inverse-transform it through the parent
+            // bone matrix so both the mirrored left-facing skeleton and the
+            // Player's non-uniform parent scale are handled exactly once.
+            var pivotWorld = skeletonAnimation.transform.TransformPoint(
+                new Vector3(aimBone.WorldX, aimBone.WorldY, 0f));
+            var worldDirection = targetWorldPosition - (Vector2)pivotWorld;
+            if (worldDirection.sqrMagnitude <= 0.0001f) return;
+
+            var skeletonDirection = skeletonAnimation.transform.InverseTransformVector(
+                new Vector3(worldDirection.x, worldDirection.y, 0f));
+            var parent = aimBone.Parent;
+            if (parent != null)
+            {
+                var determinant = parent.A * parent.D - parent.B * parent.C;
+                if (Mathf.Abs(determinant) <= 0.000001f) return;
+
+                skeletonDirection = new Vector3(
+                    (skeletonDirection.x * parent.D - skeletonDirection.y * parent.B) / determinant,
+                    (skeletonDirection.y * parent.A - skeletonDirection.x * parent.C) / determinant,
+                    0f);
+            }
+
+            if (skeletonDirection.sqrMagnitude <= 0.0001f) return;
+            aimBone.Rotation = Mathf.Atan2(skeletonDirection.y, skeletonDirection.x) * Mathf.Rad2Deg
+                               + firearmAimAngleOffset;
+            skeleton.UpdateWorldTransform();
+        }
+
+        private static bool IsFinite(Vector2 value)
+        {
+            return !float.IsNaN(value.x) && !float.IsInfinity(value.x) &&
+                   !float.IsNaN(value.y) && !float.IsInfinity(value.y);
         }
 
         private void CacheDodgeVisualBasePosition()

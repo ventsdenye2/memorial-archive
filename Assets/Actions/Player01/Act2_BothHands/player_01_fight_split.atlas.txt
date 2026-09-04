@@ -1,125 +1,132 @@
 
 player_01_fight_split.png
-size: 866,494
+size: 4062,1432
 format: RGBA8888
 filter: Linear,Linear
 repeat: none
 Player_01_Arm_Left
   rotate: false
-  xy: 789, 335
-  size: 71, 157
+  xy: 1238, 828
+  size: 402, 602
   orig: 402, 602
-  offset: 159, 241
+  offset: 0, 0
   index: -1
 Player_01_Arm_Right1
-  rotate: true
-  xy: 620, 94
+  rotate: false
+  xy: 1238, 66
   size: 55, 156
   orig: 55, 156
   offset: 0, 0
   index: -1
 Player_01_Arm_Right2
   rotate: true
-  xy: 620, 37
-  size: 55, 155
+  xy: 1238, 9
+  size: 55, 156
   orig: 55, 156
-  offset: 0, 1
+  offset: 0, 0
   index: -1
 Player_01_Body_back
-  rotate: true
-  xy: 643, 214
-  size: 108, 147
+  rotate: false
+  xy: 1238, 224
+  size: 402, 602
   orig: 402, 602
-  offset: 143, 162
+  offset: 0, 0
   index: -1
 Player_01_Body_front
   rotate: false
-  xy: 524, 255
-  size: 117, 237
+  xy: 1642, 828
+  size: 402, 602
   orig: 402, 602
-  offset: 118, 161
+  offset: 0, 0
   index: -1
 Player_01_Hair
   rotate: false
-  xy: 676, 3
-  size: 48, 32
+  xy: 1642, 224
+  size: 402, 602
   orig: 402, 602
-  offset: 205, 404
+  offset: 0, 0
   index: -1
 Player_01_Tail
-  rotate: true
-  xy: 778, 94
-  size: 118, 86
+  rotate: false
+  xy: 2046, 828
+  size: 402, 602
   orig: 402, 602
-  offset: 70, 211
+  offset: 0, 0
   index: -1
 Player_01_Weapon_both
   rotate: false
-  xy: 620, 151
-  size: 156, 61
+  xy: 3258, 426
+  size: 400, 600
   orig: 400, 600
-  offset: 167, 239
+  offset: 0, 0
   index: -1
 Player_01_cape
-  rotate: true
-  xy: 524, 5
-  size: 74, 89
+  rotate: false
+  xy: 2046, 224
+  size: 402, 602
   orig: 402, 602
-  offset: 163, 303
+  offset: 0, 0
   index: -1
 Player_01_ear_Left
-  rotate: true
-  xy: 792, 214
-  size: 28, 50
+  rotate: false
+  xy: 2450, 828
+  size: 402, 602
   orig: 402, 602
-  offset: 192, 421
+  offset: 0, 0
   index: -1
 Player_01_ear_Right
-  rotate: true
-  xy: 615, 6
-  size: 29, 59
+  rotate: false
+  xy: 2450, 224
+  size: 402, 602
   orig: 402, 602
-  offset: 190, 420
+  offset: 0, 0
   index: -1
 Player_01_face
-  rotate: false
-  xy: 777, 35
-  size: 84, 57
+  rotate: true
+  xy: 2854, 1028
+  size: 402, 602
   orig: 402, 602
-  offset: 184, 377
+  offset: 0, 0
   index: -1
 Player_01_finger_Left
-  rotate: false
-  xy: 726, 4
-  size: 32, 31
+  rotate: true
+  xy: 3458, 24
+  size: 400, 600
   orig: 400, 600
-  offset: 245, 252
+  offset: 0, 0
   index: -1
 Player_01_hat
   rotate: true
-  xy: 792, 244
-  size: 89, 53
+  xy: 3458, 1028
+  size: 402, 602
   orig: 402, 602
-  offset: 170, 413
+  offset: 0, 0
   index: -1
 Player_01_leg_Right
   rotate: false
-  xy: 643, 324
-  size: 144, 168
+  xy: 2854, 424
+  size: 402, 602
   orig: 402, 602
-  offset: 189, 128
+  offset: 0, 0
   index: -1
 Player_01_leg_left
-  rotate: false
-  xy: 524, 81
-  size: 94, 172
+  rotate: true
+  xy: 2854, 20
+  size: 402, 602
   orig: 402, 602
-  offset: 127, 123
+  offset: 0, 0
   index: -1
 anti-tank-Grenada
-  rotate: true
+  rotate: false
   xy: 2, 2
-  size: 490, 520
+  size: 1234, 1428
   orig: 1234, 1428
-  offset: 369, 426
+  offset: 0, 0
+  index: -1
+刀光
+  rotate: true
+  xy: 3660, 778
+  size: 248, 300
+  orig: 248, 300
+  offset: 0, 0
   index: -1

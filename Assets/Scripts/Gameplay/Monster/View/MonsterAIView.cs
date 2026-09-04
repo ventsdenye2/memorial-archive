@@ -1,6 +1,7 @@
 using MemorialArchive.Framework.Core;
 using MemorialArchive.Framework.Event;
 using MemorialArchive.Gameplay.Combat.Data;
+using MemorialArchive.Gameplay.Combat.View;
 using MemorialArchive.Gameplay.Monster.Config;
 using MemorialArchive.Gameplay.Monster.Data;
 using MemorialArchive.Gameplay.Monster.Logic;
@@ -202,6 +203,23 @@ namespace MemorialArchive.Gameplay.Monster.View
                 Mathf.Abs(playerPosition.x - body.position.x) > config.AttackRange)
             {
                 return;
+            }
+            if (config.AttackMode == MonsterAttackMode.Ranged)
+            {
+                var projectileDirection = playerPosition - body.position;
+                if (projectileDirection.sqrMagnitude <= 0.0001f)
+                {
+                    projectileDirection = Vector2.left;
+                }
+                projectileDirection.Normalize();
+                SpineEffectPlayer.TryPlayAt(
+                    SpineEffectPlayer.EnemyKnifeProjectileResource,
+                    "animation",
+                    body.position + Vector2.up * 1.35f,
+                    Mathf.Atan2(projectileDirection.y, projectileDirection.x) * Mathf.Rad2Deg,
+                    1f,
+                    58,
+                    0.32f);
             }
             var request = new DamageRequest(
                 0,

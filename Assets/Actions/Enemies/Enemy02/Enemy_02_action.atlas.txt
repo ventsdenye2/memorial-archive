@@ -1,104 +1,132 @@
 
 Enemy_02.png
-size: 738,534
+size: 1505,606
 format: RGBA8888
 filter: Linear,Linear
 repeat: none
 敌人_ 02 _ 左耳
   rotate: true
-  xy: 429, 42
+  xy: 1249, 28
   size: 111, 159
   orig: 113, 161
   offset: 1, 1
   index: -1
 敌人_02 _领子
-  rotate: false
-  xy: 2, 2
+  rotate: true
+  xy: 1410, 53
   size: 86, 47
   orig: 89, 50
   offset: 1, 2
   index: -1
 敌人_02_ 右耳
   rotate: true
-  xy: 90, 6
+  xy: 1101, 35
   size: 43, 133
   orig: 45, 136
   offset: 1, 2
   index: -1
 敌人_02_ 拖尾
-  rotate: false
-  xy: 2, 232
+  rotate: true
+  xy: 804, 83
   size: 340, 300
   orig: 340, 309
   offset: 0, 0
   index: -1
 敌人_02_ 笔本
-  rotate: true
-  xy: 687, 248
+  rotate: false
+  xy: 1410, 15
   size: 50, 36
   orig: 52, 38
   offset: 1, 1
   index: -1
 敌人_02_ 背带
   rotate: true
-  xy: 225, 18
+  xy: 1094, 2
   size: 31, 113
   orig: 33, 115
   offset: 1, 1
   index: -1
 敌人_02_ 身体
-  rotate: true
-  xy: 344, 300
+  rotate: false
+  xy: 1231, 212
   size: 232, 392
   orig: 232, 593
   offset: 0, 5
   index: -1
 敌人_02_右臂
   rotate: true
-  xy: 429, 226
+  xy: 804, 9
   size: 72, 256
   orig: 72, 256
   offset: 0, 0
   index: -1
 敌人_02_围裙
   rotate: true
-  xy: 2, 51
+  xy: 804, 425
   size: 179, 425
   orig: 179, 427
   offset: 0, 2
   index: -1
 敌人_02_尾巴
   rotate: false
-  xy: 687, 205
+  xy: 1062, 40
   size: 37, 41
   orig: 40, 44
   offset: 1, 2
   index: -1
 敌人_02_左臂
   rotate: true
-  xy: 429, 155
+  xy: 1249, 141
   size: 69, 254
   orig: 69, 255
   offset: 0, 1
   index: -1
 敌人_02_手术刀
-  rotate: false
-  xy: 340, 18
+  rotate: true
+  xy: 1459, 61
   size: 78, 31
   orig: 80, 33
   offset: 1, 1
   index: -1
+敌人_02_手术刀拖尾
+  rotate: true
+  xy: 1106, 221
+  size: 202, 44
+  orig: 211, 46
+  offset: 1, 2
+  index: -1
+敌人_02_手术刀攻击
+  rotate: true
+  xy: 1152, 271
+  size: 152, 72
+  orig: 158, 77
+  offset: 3, 3
+  index: -1
 敌人_02_护士帽
   rotate: false
-  xy: 344, 246
+  xy: 1152, 217
   size: 74, 52
   orig: 77, 54
   offset: 1, 1
   index: -1
+敌人_02_眼睛攻击
+  rotate: false
+  xy: 1062, 6
+  size: 30, 32
+  orig: 34, 34
+  offset: 3, 1
+  index: -1
 敌人_03_头
   rotate: false
-  xy: 590, 23
+  xy: 1106, 80
   size: 141, 130
   orig: 141, 131
   offset: 0, 0
+  index: -1
+纸张
+  rotate: true
+  xy: 2, 4
+  size: 600, 800
+  orig: 602, 802
+  offset: 1, 1
   index: -1

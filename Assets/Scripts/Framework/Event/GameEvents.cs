@@ -498,8 +498,31 @@ public readonly struct ContainerClosedEvent { }
 
     public readonly struct AmmoReloadRequestedEvent
     {
-        public AmmoReloadRequestedEvent(int ammoItemId) => AmmoItemId = ammoItemId;
+        public AmmoReloadRequestedEvent(int ammoItemId, string ammoInstanceId = null)
+        {
+            AmmoItemId = ammoItemId;
+            AmmoInstanceId = ammoInstanceId;
+        }
+
         public int AmmoItemId { get; }
+        public string AmmoInstanceId { get; }
+    }
+
+    /// <summary>Published after a firearm instance's loaded rounds change.</summary>
+    public readonly struct FirearmAmmoChangedEvent
+    {
+        public FirearmAmmoChangedEvent(string weaponInstanceId, int weaponItemId, int loadedAmmo, int capacity)
+        {
+            WeaponInstanceId = weaponInstanceId;
+            WeaponItemId = weaponItemId;
+            LoadedAmmo = Mathf.Max(0, loadedAmmo);
+            Capacity = Mathf.Max(1, capacity);
+        }
+
+        public string WeaponInstanceId { get; }
+        public int WeaponItemId { get; }
+        public int LoadedAmmo { get; }
+        public int Capacity { get; }
     }
 
     public readonly struct CharacterStatsChangedEvent { }
@@ -546,36 +569,70 @@ public readonly struct ContainerClosedEvent { }
     }
 
     /// <summary>
+    /// Synchronous approval shared by CharacterSystem and CombatSystem.  The
+    /// character publishes an attack request before entering its attack state;
+    /// CombatSystem can reject it (for example, when a firearm has no ammo)
+    /// without briefly playing an attack animation.
+    /// </summary>
+    public sealed class CharacterAttackRequestResult
+    {
+        public bool Approved { get; private set; } = true;
+        public string Reason { get; private set; }
+
+        public void Reject(string reason)
+        {
+            Approved = false;
+            Reason = string.IsNullOrEmpty(reason) ? "Attack request was rejected." : reason;
+        }
+    }
+
+    /// <summary>
     /// 角色状态机已通过本次攻击的动作与体力校验。CombatSystem 接收此事件
-    /// 创建唯一攻击实例；武器 View 只在收到 AttackStartedEvent 后执行命中检测。
+    /// 创建唯一攻击实例；近战/投掷 View 由 AttackStartedEvent 驱动，枪械则
+    /// 等待 CharacterAnimationView 发布 FirearmShotFrameEvent 后执行命中检测。
+    /// CombatSystem may synchronously reject the request before the character
+    /// commits its visual/action state.
     /// </summary>
     public readonly struct CharacterAttackRequestedEvent
     {
         public CharacterAttackRequestedEvent(int itemId, int comboStage, Vector2 direction)
-            : this(itemId, comboStage, direction, false, Vector2.zero) { }
+            : this(itemId, comboStage, direction, false, Vector2.zero, null) { }
 
         public CharacterAttackRequestedEvent(int itemId, int comboStage, Vector2 direction, Vector2 targetWorldPosition)
-            : this(itemId, comboStage, direction, true, targetWorldPosition) { }
+            : this(itemId, comboStage, direction, true, targetWorldPosition, null) { }
 
-        private CharacterAttackRequestedEvent(int itemId, int comboStage, Vector2 direction, bool hasTargetWorldPosition, Vector2 targetWorldPosition)
+        private CharacterAttackRequestedEvent(
+            int itemId,
+            int comboStage,
+            Vector2 direction,
+            bool hasTargetWorldPosition,
+            Vector2 targetWorldPosition,
+            CharacterAttackRequestResult result)
         {
             ItemId = itemId;
             ComboStage = comboStage;
             Direction = direction.sqrMagnitude > 0.0001f ? direction.normalized : Vector2.right;
             HasTargetWorldPosition = hasTargetWorldPosition;
             TargetWorldPosition = targetWorldPosition;
+            Result = result ?? new CharacterAttackRequestResult();
         }
         public int ItemId { get; }
         public int ComboStage { get; }
         public Vector2 Direction { get; }
         public bool HasTargetWorldPosition { get; }
         public Vector2 TargetWorldPosition { get; }
+        public CharacterAttackRequestResult Result { get; }
     }
 
     public readonly struct CharacterDamageReceivedEvent
     {
-        public CharacterDamageReceivedEvent(float finalDamage) => FinalDamage = Mathf.Max(0f, finalDamage);
+        public CharacterDamageReceivedEvent(float finalDamage, bool wasBlocked = false)
+        {
+            FinalDamage = Mathf.Max(0f, finalDamage);
+            WasBlocked = wasBlocked;
+        }
         public float FinalDamage { get; }
+        public bool WasBlocked { get; }
     }
 
     public readonly struct PlayerAttackRequestedEvent
@@ -619,6 +676,17 @@ public readonly struct ContainerClosedEvent { }
     public readonly struct AttackStartedEvent
     {
         public AttackStartedEvent(AttackContext attack) => Attack = attack;
+        public AttackContext Attack { get; }
+    }
+
+    /// <summary>
+    /// Published by CharacterAnimationView at the authored firearm shot frame.
+    /// The payload keeps the approved attack identity and release target while
+    /// the firearm view resolves the current muzzle position for the hit query.
+    /// </summary>
+    public readonly struct FirearmShotFrameEvent
+    {
+        public FirearmShotFrameEvent(AttackContext attack) => Attack = attack;
         public AttackContext Attack { get; }
     }
 

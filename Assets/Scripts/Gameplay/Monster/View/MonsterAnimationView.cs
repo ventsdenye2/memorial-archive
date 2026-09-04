@@ -140,6 +140,7 @@ namespace MemorialArchive.Gameplay.Monster.View
                 eventName.Equals("melee_hit", StringComparison.OrdinalIgnoreCase) ||
                 eventName.Equals("hit", StringComparison.OrdinalIgnoreCase) ||
                 eventName.Equals("fire", StringComparison.OrdinalIgnoreCase) ||
+                eventName.Equals("shoushudao shot", StringComparison.OrdinalIgnoreCase) ||
                 eventName.Equals("shoot", StringComparison.OrdinalIgnoreCase))
             {
                 ReportAttackHit();

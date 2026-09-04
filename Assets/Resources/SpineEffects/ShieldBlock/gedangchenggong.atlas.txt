@@ -1,0 +1,90 @@
+
+gedangchenggong.png
+size: 1492,342
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+gedang03
+  rotate: false
+  xy: 1134, 75
+  size: 141, 265
+  orig: 141, 265
+  offset: 0, 0
+  index: -1
+gedang04
+  rotate: false
+  xy: 1340, 113
+  size: 150, 227
+  orig: 150, 227
+  offset: 0, 0
+  index: -1
+gedang_01
+  rotate: false
+  xy: 1277, 267
+  size: 27, 73
+  orig: 27, 73
+  offset: 0, 0
+  index: -1
+gedang_02
+  rotate: false
+  xy: 1306, 265
+  size: 22, 75
+  orig: 22, 75
+  offset: 0, 0
+  index: -1
+gedang_05
+  rotate: true
+  xy: 1459, 18
+  size: 93, 29
+  orig: 93, 29
+  offset: 0, 0
+  index: -1
+gedang_06
+  rotate: false
+  xy: 1254, 24
+  size: 84, 49
+  orig: 84, 49
+  offset: 0, 0
+  index: -1
+shandian_01
+  rotate: true
+  xy: 2, 5
+  size: 335, 281
+  orig: 335, 281
+  offset: 0, 0
+  index: -1
+shandian_02
+  rotate: true
+  xy: 285, 5
+  size: 335, 281
+  orig: 335, 281
+  offset: 0, 0
+  index: -1
+shandian_03
+  rotate: true
+  xy: 568, 5
+  size: 335, 281
+  orig: 335, 281
+  offset: 0, 0
+  index: -1
+shandian_04
+  rotate: true
+  xy: 851, 5
+  size: 335, 281
+  orig: 335, 281
+  offset: 0, 0
+  index: -1
+图层 2
+  rotate: false
+  xy: 1340, 2
+  size: 117, 109
+  orig: 117, 109
+  offset: 0, 0
+  index: -1
+图层 3
+  rotate: false
+  xy: 1134, 3
+  size: 118, 70
+  orig: 118, 70
+  offset: 0, 0
+  index: -1

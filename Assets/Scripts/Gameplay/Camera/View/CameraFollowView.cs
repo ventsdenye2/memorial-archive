@@ -101,6 +101,34 @@ namespace MemorialArchive.Gameplay.Camera.View
             hasSnappedToTarget = false;
         }
 
+/// <summary>
+/// Keeps an actor inside the same scene bounds used by the camera.
+/// CameraFollowView remains the single authority for scene extents, while
+/// callers provide their own collider so the actor's full shape stays in
+/// the playable area (not only its transform pivot).
+/// </summary>
+public Vector2 ClampActorPosition(Vector2 position, Collider2D actor)
+{
+    if (!hasWorldBounds)
+    {
+        return position;
+    }
+
+    var extents = actor != null ? actor.bounds.extents : Vector3.zero;
+    position.x = ClampAxis(
+        position.x,
+        worldBounds.min.x + extents.x,
+        worldBounds.max.x - extents.x,
+        worldBounds.center.x);
+    position.y = ClampAxis(
+        position.y,
+        worldBounds.min.y + extents.y,
+        worldBounds.max.y - extents.y,
+        worldBounds.center.y);
+    return position;
+}
+
+
         private void ResolveWorldBounds()
         {
             if (cameraBounds == null)

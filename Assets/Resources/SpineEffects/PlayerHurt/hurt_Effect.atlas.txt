@@ -1,0 +1,48 @@
+
+hurt_Effect.png
+size: 617,527
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+hurt_01
+  rotate: true
+  xy: 2, 328
+  size: 197, 415
+  orig: 197, 415
+  offset: 0, 0
+  index: -1
+hurt_02
+  rotate: false
+  xy: 419, 336
+  size: 160, 67
+  orig: 160, 67
+  offset: 0, 0
+  index: -1
+hurt_03
+  rotate: false
+  xy: 419, 405
+  size: 110, 120
+  orig: 110, 120
+  offset: 0, 0
+  index: -1
+hurt_04
+  rotate: true
+  xy: 531, 409
+  size: 116, 78
+  orig: 116, 78
+  offset: 0, 0
+  index: -1
+hurt_05
+  rotate: true
+  xy: 2, 67
+  size: 259, 409
+  orig: 259, 409
+  offset: 0, 0
+  index: -1
+椭圆 1
+  rotate: false
+  xy: 413, 2
+  size: 202, 324
+  orig: 202, 324
+  offset: 0, 0
+  index: -1

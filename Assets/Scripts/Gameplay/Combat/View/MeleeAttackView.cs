@@ -19,6 +19,7 @@ namespace MemorialArchive.Gameplay.Combat.View
     {
         private const int CombatDaggerItemId = 1001;
         private const int BayonetItemId = 1002;
+        private const int FireAxeItemId = 1003;
         private const int OfficerSwordItemId = 1004;
 
         [SerializeField] private SkeletonAnimation skeletonAnimation;
@@ -223,7 +224,8 @@ namespace MemorialArchive.Gameplay.Combat.View
 
         private static bool IsSupportedWeapon(int itemId)
         {
-            return itemId == CombatDaggerItemId || itemId == BayonetItemId || itemId == OfficerSwordItemId;
+            return itemId == CombatDaggerItemId || itemId == BayonetItemId ||
+                   itemId == FireAxeItemId || itemId == OfficerSwordItemId;
         }
 
         private void OnDrawGizmosSelected()

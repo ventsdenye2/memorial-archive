@@ -156,6 +156,24 @@ namespace MemorialArchive.Gameplay.Character.View
             if (events != null) CancelPrimaryAction(events);
         }
 
+        private void OnApplicationFocus(bool hasFocus)
+        {
+            if (!hasFocus)
+            {
+                var events = GameRoot.Instance?.Context?.Events;
+                if (events != null) CancelPrimaryAction(events);
+            }
+        }
+
+        private void OnApplicationPause(bool pauseStatus)
+        {
+            if (pauseStatus)
+            {
+                var events = GameRoot.Instance?.Context?.Events;
+                if (events != null) CancelPrimaryAction(events);
+            }
+        }
+
         private void CancelPrimaryAction(EventBus events)
         {
             if (!gameplayPrimaryHeld) return;

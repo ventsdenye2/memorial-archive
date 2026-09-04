@@ -1,0 +1,27 @@
+
+Enemy_02_shoushudao dandao.png
+size: 377,81
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+敌人_02_手术刀拖尾2
+  rotate: false
+  xy: 2, 11
+  size: 208, 33
+  orig: 208, 33
+  offset: 0, 0
+  index: -1
+敌人_02_手术刀拖尾3
+  rotate: false
+  xy: 2, 46
+  size: 213, 33
+  orig: 213, 33
+  offset: 0, 0
+  index: -1
+敌人_02_手术刀攻击
+  rotate: false
+  xy: 217, 2
+  size: 158, 77
+  orig: 158, 77
+  offset: 0, 0
+  index: -1

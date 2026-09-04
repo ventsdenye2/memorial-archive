@@ -81,11 +81,20 @@ namespace MemorialArchive.Gameplay.Combat.View
             resolved = true;
             var center = (Vector2)transform.position;
             ReportGrenadeTargets(center);
-            CombatPlaceholderEffectView.CreatePulse(
-                center,
-                GrenadeRadius,
-                new Color(1f, 0.58f, 0.12f, 0.7f),
-                0.45f);
+            if (!SpineEffectPlayer.TryPlayAt(
+                    SpineEffectPlayer.GrenadeExplosionResource,
+                    "idle",
+                    center,
+                    0f,
+                    1.4f,
+                    55))
+            {
+                CombatPlaceholderEffectView.CreatePulse(
+                    center,
+                    GrenadeRadius,
+                    new Color(1f, 0.58f, 0.12f, 0.7f),
+                    0.45f);
+            }
             Destroy(gameObject);
         }
 

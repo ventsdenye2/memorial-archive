@@ -9,8 +9,9 @@ namespace MemorialArchive.Gameplay.Combat.Data
 
     /// <summary>
     /// Identifies the presentation-side implementation that must consume an
-    /// AttackStartedEvent.  The shared combat layer deliberately does not
-    /// contain hitboxes, rays, or projectile movement.
+    /// approved attack. Melee/throwable Views start from AttackStartedEvent;
+    /// firearms wait for their animation shot-frame event. The shared combat
+    /// layer deliberately does not contain hitboxes, rays, or projectile movement.
     /// </summary>
     public enum CombatAttackKind
     {

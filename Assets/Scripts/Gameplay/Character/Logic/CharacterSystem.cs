@@ -20,6 +20,8 @@ namespace MemorialArchive.Gameplay.Character.Logic
         private float exactStamina, dodgeCooldown, dodgeInvincible, staggerRemaining, staggerCooldown, weakRemaining;
         private int primaryItemId, comboStage; private OffhandType offhandType;
         private bool bufferedPrimaryAction;
+        private bool primaryActionHeld;
+        private int firearmAimItemId;
         private CharacterActionState state = CharacterActionState.Normal;
         public string ModuleKey => "character"; public CharacterData Data => data; public Vector2 MoveDirection => moveDirection;
         public Vector3 SavedScenePosition => data.position;
@@ -39,6 +41,7 @@ namespace MemorialArchive.Gameplay.Character.Logic
             context.Events.Subscribe<MoveInputEvent>(OnMove); context.Events.Subscribe<RunInputEvent>(OnRun); context.Events.Subscribe<SecondaryActionInputEvent>(OnSecondary);
             context.Events.Subscribe<DodgePressedEvent>(OnDodge); context.Events.Subscribe<PrimaryActionPressedEvent>(OnPrimary);
             context.Events.Subscribe<PrimaryActionPhaseEvent>(OnPrimaryPhase);
+            context.Events.Subscribe<ReloadPressedEvent>(OnReloadPressed);
             context.Events.Subscribe<DodgeAnimationStateChangedEvent>(OnDodgeAnimationState);
             context.Events.Subscribe<CharacterEquipAnimationStateChangedEvent>(OnEquipAnimationStateChanged);
             context.Events.Subscribe<CharacterActionAnimationCompletedEvent>(OnAnimationCompleted); context.Events.Subscribe<DamageAppliedEvent>(OnDamageApplied);
@@ -70,6 +73,8 @@ namespace MemorialArchive.Gameplay.Character.Logic
             debugModeEnabled = false;
             comboStage = 0;
             bufferedPrimaryAction = false;
+            primaryActionHeld = false;
+            firearmAimItemId = 0;
             offhandType = OffhandType.None;
             IsRunning = false;
             state = CharacterActionState.Normal;
@@ -84,6 +89,7 @@ namespace MemorialArchive.Gameplay.Character.Logic
                 context.Events.Unsubscribe<MoveInputEvent>(OnMove); context.Events.Unsubscribe<RunInputEvent>(OnRun); context.Events.Unsubscribe<SecondaryActionInputEvent>(OnSecondary);
                 context.Events.Unsubscribe<DodgePressedEvent>(OnDodge); context.Events.Unsubscribe<PrimaryActionPressedEvent>(OnPrimary); context.Events.Unsubscribe<DodgeAnimationStateChangedEvent>(OnDodgeAnimationState);
                 context.Events.Unsubscribe<PrimaryActionPhaseEvent>(OnPrimaryPhase);
+                context.Events.Unsubscribe<ReloadPressedEvent>(OnReloadPressed);
                 context.Events.Unsubscribe<CharacterEquipAnimationStateChangedEvent>(OnEquipAnimationStateChanged);
                 context.Events.Unsubscribe<CharacterActionAnimationCompletedEvent>(OnAnimationCompleted); context.Events.Unsubscribe<DamageAppliedEvent>(OnDamageApplied); context.Events.Unsubscribe<CharacterEquipmentChangedEvent>(OnEquipment); context.Events.Unsubscribe<CharacterItemEffectRequestedEvent>(OnItemEffectRequested); context.Events.Unsubscribe<DebugModeToggledEvent>(OnDebugModeToggled);
             }
@@ -121,6 +127,10 @@ namespace MemorialArchive.Gameplay.Character.Logic
         {
             if ((state == CharacterActionState.ThrowAiming || state == CharacterActionState.Throwing) && e.PrimaryItemId != primaryItemId)
                 SetState(weakRemaining > 0 ? CharacterActionState.Weak : CharacterActionState.Normal);
+            if (firearmAimItemId != 0 && e.PrimaryItemId != firearmAimItemId)
+            {
+                CancelFirearmAim(data.position);
+            }
             primaryItemId = e.PrimaryItemId;
             offhandType = e.OffhandType;
             comboStage = 0;
@@ -144,18 +154,35 @@ namespace MemorialArchive.Gameplay.Character.Logic
         }
         private void OnSecondary(SecondaryActionInputEvent e)
         {
+            // The primary button owns firearm aiming.  The input reader emits
+            // a right-button state every frame, including false; do not let
+            // that idle value cancel an active left-button aim.
+            if (primaryActionHeld && firearmAimItemId == primaryItemId)
+            {
+                if (e.IsHeld)
+                {
+                    CancelFirearmAim(e.PointerWorldPosition);
+                }
+                else
+                {
+                    UpdateFirearmAim(e.PointerWorldPosition);
+                }
+                return;
+            }
+
             if (BlocksActions()) { PublishSecondary(false, false, e.PointerWorldPosition); return; }
-            var config = context.Configs.GetItem(primaryItemId); var aim = e.IsHeld && config != null && config.CombatAttackKind == CombatAttackKind.Firearm;
-            // 除枪械的右键瞄准外，角色始终可以格挡：
-            // 空手、持近战武器、持非武器道具和装备盾牌时都不应被装备条件拒绝。
-            var block = e.IsHeld && !aim;
-            SetState(aim ? CharacterActionState.Aiming : block ? CharacterActionState.Blocking : CharacterActionState.Normal); PublishSecondary(block, aim, e.PointerWorldPosition);
-            if (aim) { var d = e.PointerWorldPosition - data.position; if (d.sqrMagnitude > 0) aimDirection = d.normalized; }
+            // Firearm aim is deliberately a left-button gesture now.  Right
+            // mouse keeps its universal block behavior for every equipment.
+            var block = e.IsHeld;
+            SetState(block ? CharacterActionState.Blocking : CharacterActionState.Normal);
+            PublishSecondary(block, false, e.PointerWorldPosition);
         }
         private void OnPrimary(PrimaryActionPressedEvent e)
         {
             var selectedConfig = context.Configs.GetItem(primaryItemId);
-            if (state == CharacterActionState.ThrowAiming || selectedConfig != null && selectedConfig.CombatAttackKind == CombatAttackKind.Throwable) return;
+            if (state == CharacterActionState.ThrowAiming || selectedConfig != null &&
+                (selectedConfig.CombatAttackKind == CombatAttackKind.Throwable ||
+                 selectedConfig.CombatAttackKind == CombatAttackKind.Firearm)) return;
             if (IsAttackState(state))
             {
                 BufferMeleeComboInput();
@@ -165,9 +192,51 @@ namespace MemorialArchive.Gameplay.Character.Logic
             TryStartPrimaryAttack(false);
         }
 
+        private void OnReloadPressed(ReloadPressedEvent e)
+        {
+            // R must not leave a stale firearm aim alive until the next mouse
+            // release, otherwise a reload followed by releasing LMB could fire
+            // through the reload animation.  CombatSystem handles the actual
+            // magazine transaction after this synchronous cancellation.
+            if (state == CharacterActionState.Aiming || firearmAimItemId != 0 || primaryActionHeld)
+            {
+                CancelFirearmAim(data.position);
+            }
+        }
+
         private void OnPrimaryPhase(PrimaryActionPhaseEvent e)
         {
-            if (e.Phase == PrimaryActionPhase.Started) { TryBeginThrowableAim(e.PointerWorldPosition); return; }
+            if (e.Phase == PrimaryActionPhase.Started)
+            {
+                var config = context.Configs.GetItem(primaryItemId);
+                if (config != null && config.Category == ItemCategory.Weapon &&
+                    config.CombatAttackKind == CombatAttackKind.Firearm)
+                {
+                    TryBeginFirearmAim(e.PointerWorldPosition);
+                    return;
+                }
+
+                TryBeginThrowableAim(e.PointerWorldPosition);
+                return;
+            }
+
+            if (primaryActionHeld && firearmAimItemId == primaryItemId)
+            {
+                if (e.Phase == PrimaryActionPhase.Canceled)
+                {
+                    CancelFirearmAim(e.PointerWorldPosition);
+                }
+                else if (e.Phase == PrimaryActionPhase.Updated)
+                {
+                    UpdateFirearmAim(e.PointerWorldPosition);
+                }
+                else if (e.Phase == PrimaryActionPhase.Released)
+                {
+                    TryReleaseFirearm(e.PointerWorldPosition);
+                }
+                return;
+            }
+
             if (state != CharacterActionState.ThrowAiming) return;
             if (e.Phase == PrimaryActionPhase.Canceled)
             {
@@ -176,6 +245,125 @@ namespace MemorialArchive.Gameplay.Character.Logic
             }
             UpdateThrowableAim(e.PointerWorldPosition);
             if (e.Phase == PrimaryActionPhase.Released) TryReleaseThrowable();
+        }
+
+        private void TryBeginFirearmAim(Vector2 pointerWorldPosition)
+        {
+            if (BlocksActions() || IsBlocking || primaryItemId <= 0)
+            {
+                return;
+            }
+
+            var config = context.Configs.GetItem(primaryItemId);
+            if (config == null || config.Category != ItemCategory.Weapon ||
+                config.CombatAttackKind != CombatAttackKind.Firearm)
+            {
+                return;
+            }
+
+            if (primaryActionHeld && firearmAimItemId == primaryItemId &&
+                state == CharacterActionState.Aiming)
+            {
+                // Started is allowed to be delivered more than once by an
+                // input bridge; keep the existing gun-ami hold pose instead
+                // of restarting it.
+                UpdateFirearmAim(pointerWorldPosition);
+                return;
+            }
+
+            primaryActionHeld = true;
+            firearmAimItemId = primaryItemId;
+            PublishSecondary(false, false, pointerWorldPosition);
+            // Enter the aiming state before publishing the first aim update.
+            // UpdateFirearmAim intentionally ignores updates outside Aiming;
+            // ordering this way makes the Started event begin gun-ami on the
+            // same frame instead of waiting for the first Updated event.
+            SetState(CharacterActionState.Aiming);
+            UpdateFirearmAim(pointerWorldPosition);
+        }
+
+        private void UpdateFirearmAim(Vector2 pointerWorldPosition)
+        {
+            if (!primaryActionHeld || firearmAimItemId != primaryItemId || state != CharacterActionState.Aiming)
+            {
+                return;
+            }
+
+            var direction = pointerWorldPosition - data.position;
+            if (direction.sqrMagnitude > 0.0001f)
+            {
+                aimDirection = direction.normalized;
+                if (Mathf.Abs(direction.x) > 0.0001f)
+                {
+                    facingDirection = new Vector2(Mathf.Sign(direction.x), 0f);
+                }
+            }
+
+            context.Events.Publish(new AimInputEvent(true, pointerWorldPosition));
+        }
+
+        private void CancelFirearmAim(Vector2 pointerWorldPosition)
+        {
+            if (firearmAimItemId == 0 && !primaryActionHeld && state != CharacterActionState.Aiming)
+            {
+                return;
+            }
+
+            primaryActionHeld = false;
+            firearmAimItemId = 0;
+            PublishSecondary(false, false, pointerWorldPosition);
+            if (state == CharacterActionState.Aiming)
+            {
+                SetState(weakRemaining > 0 ? CharacterActionState.Weak : CharacterActionState.Normal);
+            }
+        }
+
+        private bool TryReleaseFirearm(Vector2 pointerWorldPosition)
+        {
+            if (!primaryActionHeld || firearmAimItemId <= 0 || firearmAimItemId != primaryItemId ||
+                state != CharacterActionState.Aiming)
+            {
+                primaryActionHeld = false;
+                firearmAimItemId = 0;
+                return false;
+            }
+
+            var itemId = firearmAimItemId;
+            var config = context.Configs.GetItem(itemId);
+            var direction = aimDirection.sqrMagnitude > 0.0001f ? aimDirection : facingDirection;
+            primaryActionHeld = false;
+            firearmAimItemId = 0;
+            PublishSecondary(false, false, pointerWorldPosition);
+
+            if (config == null || config.Category != ItemCategory.Weapon ||
+                config.CombatAttackKind != CombatAttackKind.Firearm)
+            {
+                SetState(weakRemaining > 0 ? CharacterActionState.Weak : CharacterActionState.Normal);
+                return false;
+            }
+
+            var staminaCost = config.StaminaCost * StaminaCostMultiplier;
+            if (exactStamina < staminaCost)
+            {
+                SetState(weakRemaining > 0 ? CharacterActionState.Weak : CharacterActionState.Normal);
+                return false;
+            }
+
+            // Preserve the exact release pointer. The firearm view resolves
+            // its ray from the real muzzle to this point; root-to-pointer
+            // direction alone is visibly wrong because the muzzle is higher
+            // than the character root.
+            var request = new CharacterAttackRequestedEvent(itemId, 0, direction, pointerWorldPosition);
+            context.Events.Publish(request);
+            if (!request.Result.Approved)
+            {
+                SetState(weakRemaining > 0 ? CharacterActionState.Weak : CharacterActionState.Normal);
+                return false;
+            }
+
+            if (!debugModeEnabled) exactStamina -= staminaCost;
+            SetState(CharacterActionState.Attack1);
+            return true;
         }
 
         private void TryBeginThrowableAim(Vector2 pointerWorldPosition)
@@ -216,11 +404,18 @@ namespace MemorialArchive.Gameplay.Character.Logic
                 SetState(weakRemaining > 0 ? CharacterActionState.Weak : CharacterActionState.Normal);
                 return;
             }
-            if (!debugModeEnabled) exactStamina -= staminaCost;
             var direction = throwAimTarget - data.position;
             if (direction.sqrMagnitude <= 0.0001f) direction = facingDirection;
+            var request = new CharacterAttackRequestedEvent(primaryItemId, 0, direction, throwAimTarget);
+            context.Events.Publish(request);
+            if (!request.Result.Approved)
+            {
+                SetState(weakRemaining > 0 ? CharacterActionState.Weak : CharacterActionState.Normal);
+                return;
+            }
+
+            if (!debugModeEnabled) exactStamina -= staminaCost;
             SetState(CharacterActionState.Throwing);
-            context.Events.Publish(new CharacterAttackRequestedEvent(primaryItemId, 0, direction, throwAimTarget));
         }
         private void BufferMeleeComboInput()
         {
@@ -237,10 +432,30 @@ namespace MemorialArchive.Gameplay.Character.Logic
             if (BlocksActions() && !continuingCompletedAttack || IsBlocking || primaryItemId <= 0) return false; var config = context.Configs.GetItem(primaryItemId); if (config == null || config.Category != ItemCategory.Weapon) return false;
             var staminaCost = config.StaminaCost * StaminaCostMultiplier;
             if (exactStamina < staminaCost) return false;
-            if (!debugModeEnabled) exactStamina -= staminaCost;
             var direction = state == CharacterActionState.Aiming ? aimDirection : facingDirection;
-            if (config.CombatAttackKind == CombatAttackKind.Melee) { if (state == CharacterActionState.Attack3) return false; comboStage = comboStage % 3 + 1; SetState(comboStage == 1 ? CharacterActionState.Attack1 : comboStage == 2 ? CharacterActionState.Attack2 : CharacterActionState.Attack3); context.Events.Publish(new CharacterAttackRequestedEvent(primaryItemId, comboStage, direction)); }
-            else { SetState(CharacterActionState.Attack1); context.Events.Publish(new CharacterAttackRequestedEvent(primaryItemId, 0, direction)); }
+            var nextComboStage = comboStage;
+            var nextState = CharacterActionState.Attack1;
+            if (config.CombatAttackKind == CombatAttackKind.Melee)
+            {
+                if (state == CharacterActionState.Attack3) return false;
+                nextComboStage = comboStage % 3 + 1;
+                nextState = nextComboStage == 1 ? CharacterActionState.Attack1 :
+                    nextComboStage == 2 ? CharacterActionState.Attack2 : CharacterActionState.Attack3;
+            }
+
+            var request = new CharacterAttackRequestedEvent(
+                primaryItemId,
+                config.CombatAttackKind == CombatAttackKind.Melee ? nextComboStage : 0,
+                direction);
+            context.Events.Publish(request);
+            if (!request.Result.Approved)
+            {
+                return false;
+            }
+
+            comboStage = nextComboStage;
+            if (!debugModeEnabled) exactStamina -= staminaCost;
+            SetState(nextState);
             return true;
         }
         private void OnDodge(DodgePressedEvent e)
@@ -284,7 +499,21 @@ namespace MemorialArchive.Gameplay.Character.Logic
             if (state == CharacterActionState.Attack3) comboStage = 0;
             SetState(weakRemaining > 0 ? CharacterActionState.Weak : CharacterActionState.Normal);
         }
-        private void OnDamageApplied(DamageAppliedEvent e) { if (e.TargetId == CombatTargetIds.Player) ApplyFinalDamage(e.Amount, e.Result.WasBlocked); }
+        private void OnDamageApplied(DamageAppliedEvent e)
+        {
+            if (e.TargetId != CombatTargetIds.Player || e.Amount <= 0f || debugModeEnabled ||
+                data.isDead || dodgeInvincible > 0f)
+            {
+                return;
+            }
+
+            ApplyFinalDamage(e.Amount, e.Result.WasBlocked);
+            // DamageAppliedEvent is a shared combat notification and can be
+            // emitted while the player is invincible, dead, or in debug mode.
+            // Publish this narrower event only after the player actually accepts
+            // the damage, so presentation cannot play a phantom hurt animation.
+            context.Events.Publish(new CharacterDamageReceivedEvent(e.Amount, e.Result.WasBlocked));
+        }
 
         public void ConsumeSuccessfulBlockStamina(float amount)
         {

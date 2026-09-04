@@ -8,6 +8,10 @@ namespace MemorialArchive.Gameplay.Inventory.Data
         public string instanceId;
         public int itemId;
         public int quantity = 1;
+        // Runtime ammunition stored on this weapon instance.  Keeping it on
+        // the same serializable object preserves a partially loaded magazine
+        // when the weapon is unequipped, moved, or saved and restored.
+        public int loadedAmmo;
 
         public InventoryItemInstance Clone()
         {
@@ -15,7 +19,8 @@ namespace MemorialArchive.Gameplay.Inventory.Data
             {
                 instanceId = instanceId,
                 itemId = itemId,
-                quantity = quantity
+                quantity = quantity,
+                loadedAmmo = loadedAmmo
             };
         }
     }

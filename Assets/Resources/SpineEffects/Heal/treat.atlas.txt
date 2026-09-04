@@ -1,0 +1,34 @@
+
+treat.png
+size: 232,115
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+十字架
+  rotate: false
+  xy: 173, 55
+  size: 57, 58
+  orig: 57, 58
+  offset: 0, 0
+  index: -1
+图层 10
+  rotate: false
+  xy: 2, 2
+  size: 204, 25
+  orig: 204, 25
+  offset: 0, 0
+  index: -1
+图层 5
+  rotate: true
+  xy: 2, 29
+  size: 37, 154
+  orig: 37, 154
+  offset: 0, 0
+  index: -1
+图层 7
+  rotate: false
+  xy: 2, 68
+  size: 169, 45
+  orig: 169, 45
+  offset: 0, 0
+  index: -1

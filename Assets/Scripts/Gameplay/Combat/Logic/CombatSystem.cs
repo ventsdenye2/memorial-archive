@@ -3,6 +3,7 @@ using MemorialArchive.Framework.Core;
 using MemorialArchive.Framework.Event;
 using MemorialArchive.Gameplay.Combat.Data;
 using MemorialArchive.Gameplay.Inventory.Data;
+using MemorialArchive.Gameplay.Inventory.Logic;
 using MemorialArchive.Gameplay.Item.Config;
 using UnityEngine;
 
@@ -10,6 +11,8 @@ namespace MemorialArchive.Gameplay.Combat.Logic
 {
     public sealed class CombatSystem : IGameSystem, ITickableSystem, INewGameResettable
     {
+        public const int FirearmMagazineCapacity = 6;
+
         private sealed class PlayerBlockDamageModifier : IDamageModifier
         {
             private const float SuccessfulBlockStaminaCost = 5f;
@@ -48,9 +51,13 @@ namespace MemorialArchive.Gameplay.Combat.Logic
         private int nextAttackInstanceId;
         private float meleeDamageMultiplier = 1f;
         private readonly IDamageModifier playerBlockDamageModifier;
+        private readonly InventorySystem inventory;
 
-        public CombatSystem(ICharacterCombatStateProvider characterCombatState = null)
+        public CombatSystem(
+            ICharacterCombatStateProvider characterCombatState = null,
+            InventorySystem inventorySystem = null)
         {
+            inventory = inventorySystem;
             if (characterCombatState != null)
             {
                 playerBlockDamageModifier = new PlayerBlockDamageModifier(characterCombatState);
@@ -162,6 +169,8 @@ namespace MemorialArchive.Gameplay.Combat.Logic
         private void HandleSelectedItemChanged(SelectedItemChangedEvent evt)
         {
             selectedItem = evt.Item;
+            NormalizeSelectedFirearmMagazine();
+            PublishSelectedFirearmAmmo();
         }
 
         private void HandleAimInput(AimInputEvent evt)
@@ -184,14 +193,25 @@ namespace MemorialArchive.Gameplay.Combat.Logic
         {
             if (selectedItem == null || selectedItem.itemId != evt.ItemId)
             {
-                PublishAttackFailed(evt.ItemId, "The requested weapon is no longer selected.");
+                RejectAttack(evt, "The requested weapon is no longer selected.");
                 return;
             }
 
-            var config = context.Configs.GetItem(selectedItem.itemId);
+            // Keep the selected weapon snapshot local.  Consuming a stack can
+            // publish inventory/equipment events synchronously and may change
+            // the CombatSystem's selected-item cache.
+            var weapon = selectedItem;
+            var config = context.Configs.GetItem(weapon.itemId);
             if (config == null || config.Category != ItemCategory.Weapon)
             {
-                PublishAttackFailed(selectedItem.itemId, "The selected item is not a weapon.");
+                RejectAttack(evt, "The selected item is not a weapon.");
+                return;
+            }
+
+            if (config.CombatAttackKind == CombatAttackKind.Firearm &&
+                !TryConsumeMagazineRound(weapon, config))
+            {
+                RejectAttack(evt, "The firearm magazine is empty.");
                 return;
             }
 
@@ -199,7 +219,7 @@ namespace MemorialArchive.Gameplay.Combat.Logic
             var attack = new AttackContext(
                 attackId,
                 CombatTargetIds.Player,
-                selectedItem.instanceId,
+                weapon.instanceId,
                 config.ItemId,
                 config.CombatAttackKind,
                 config.DamageType,
@@ -231,7 +251,11 @@ namespace MemorialArchive.Gameplay.Combat.Logic
 
         private void HandleAmmoReloadRequested(AmmoReloadRequestedEvent evt)
         {
-            RequestReload();
+            // ItemEffectSystem raises this only when the player explicitly uses
+            // an ammo stack.  It is a one-round compatibility path; R below is
+            // the only fill-to-capacity path, so the same input cannot consume
+            // six rounds or consume the stack a second time.
+            RequestReloadFromAmmoItem(evt.AmmoItemId, evt.AmmoInstanceId);
         }
 
         /// <summary>
@@ -298,29 +322,213 @@ namespace MemorialArchive.Gameplay.Combat.Logic
             ResolveDamage(evt.Request);
         }
 
+        private bool TryConsumeMagazineRound(InventoryItemInstance weapon, ItemConfig config)
+        {
+            if (weapon == null || config == null || config.Category != ItemCategory.Weapon ||
+                config.CombatAttackKind != CombatAttackKind.Firearm)
+            {
+                return false;
+            }
+
+            var loaded = Mathf.Clamp(weapon.loadedAmmo, 0, FirearmMagazineCapacity);
+            if (loaded <= 0)
+            {
+                // Old saves and hand-authored instances may contain a negative
+                // value; normalize it without ever allowing a shot to proceed.
+                weapon.loadedAmmo = 0;
+                return false;
+            }
+
+            weapon.loadedAmmo = loaded - 1;
+            PublishFirearmAmmoChanged(weapon);
+            return true;
+        }
+
+        private void NormalizeSelectedFirearmMagazine()
+        {
+            if (selectedItem == null || context == null)
+            {
+                return;
+            }
+
+            var config = context.Configs.GetItem(selectedItem.itemId);
+            if (config == null || config.Category != ItemCategory.Weapon ||
+                config.CombatAttackKind != CombatAttackKind.Firearm)
+            {
+                return;
+            }
+
+            selectedItem.loadedAmmo = Mathf.Clamp(selectedItem.loadedAmmo, 0, FirearmMagazineCapacity);
+        }
+
+        private void PublishSelectedFirearmAmmo()
+        {
+            if (context == null)
+            {
+                return;
+            }
+
+            if (selectedItem == null)
+            {
+                context.Events.Publish(new FirearmAmmoChangedEvent(string.Empty, 0, 0, FirearmMagazineCapacity));
+                return;
+            }
+
+            var config = context.Configs.GetItem(selectedItem.itemId);
+            if (config == null || config.Category != ItemCategory.Weapon ||
+                config.CombatAttackKind != CombatAttackKind.Firearm)
+            {
+                context.Events.Publish(new FirearmAmmoChangedEvent(string.Empty, 0, 0, FirearmMagazineCapacity));
+                return;
+            }
+
+            PublishFirearmAmmoChanged(selectedItem);
+        }
+
+        private void PublishFirearmAmmoChanged(InventoryItemInstance weapon)
+        {
+            if (context == null || weapon == null)
+            {
+                return;
+            }
+
+            context.Events.Publish(new FirearmAmmoChangedEvent(
+                weapon.instanceId,
+                weapon.itemId,
+                Mathf.Clamp(weapon.loadedAmmo, 0, FirearmMagazineCapacity),
+                FirearmMagazineCapacity));
+        }
+
+        private void RequestReloadFromAmmoItem(int ammoItemId, string ammoInstanceId)
+        {
+            if (ammoItemId <= 0)
+            {
+                return;
+            }
+
+            // The old item-use flow selects the ammo stack, so find the first
+            // equipped firearm for that explicit one-round action.  R itself
+            // never falls back to another shortcut slot.
+            var weapon = GetSelectedFirearm();
+            if (weapon == null && inventory != null)
+            {
+                foreach (var placement in inventory.GetPlayerPlacements(InventoryContainerKind.ShortcutBar))
+                {
+                    var candidate = placement?.item;
+                    if (IsFirearm(candidate))
+                    {
+                        weapon = candidate;
+                        break;
+                    }
+                }
+            }
+
+            if (weapon == null)
+            {
+                context.Events.Publish(new ItemUseFailedEvent(ammoItemId, "No equipped firearm can use this ammunition."));
+                return;
+            }
+
+            RequestReload(weapon, ammoItemId, ammoInstanceId, true);
+        }
+
         private void RequestReload()
         {
-            if (selectedItem == null)
+            RequestReload(selectedItem, 0, null, false);
+        }
+
+        private void RequestReload(
+            InventoryItemInstance weapon,
+            int requestedAmmoItemId,
+            string requestedAmmoInstanceId,
+            bool consumeSingleRound)
+        {
+            if (weapon == null)
             {
                 PublishAttackFailed(0, "No firearm is selected for reloading.");
                 return;
             }
 
-            var config = context.Configs.GetItem(selectedItem.itemId);
+            var config = context.Configs.GetItem(weapon.itemId);
             if (config == null || config.Category != ItemCategory.Weapon || config.CombatAttackKind != CombatAttackKind.Firearm)
             {
-                PublishAttackFailed(selectedItem.itemId, "Reload requires a selected firearm.");
+                PublishAttackFailed(weapon.itemId, "Reload requires a selected firearm.");
                 return;
             }
 
-            // Ammo counts and magazine state belong to the firearm developer.
-            // This shared event is the only common reload trigger they need.
-            context.Events.Publish(new ReloadRequestedEvent(selectedItem));
+            var loadedBefore = Mathf.Clamp(weapon.loadedAmmo, 0, FirearmMagazineCapacity);
+            weapon.loadedAmmo = loadedBefore;
+            var missing = FirearmMagazineCapacity - loadedBefore;
+            if (missing <= 0)
+            {
+                return;
+            }
+
+            if (inventory == null)
+            {
+                PublishAttackFailed(weapon.itemId, "No inventory is available for reloading.");
+                return;
+            }
+
+            var unitsToLoad = consumeSingleRound ? 1 : missing;
+            var consumed = requestedAmmoItemId > 0
+                ? inventory.TryConsumeCompatibleAmmo(
+                    config.ItemId,
+                    unitsToLoad,
+                    requestedAmmoInstanceId,
+                    requestedAmmoItemId,
+                    out _)
+                : inventory.TryConsumeCompatibleAmmo(config.ItemId, unitsToLoad, out _);
+            if (consumed <= 0)
+            {
+                if (requestedAmmoItemId > 0)
+                {
+                    context.Events.Publish(new ItemUseFailedEvent(
+                        requestedAmmoItemId,
+                        "The ammunition is not compatible with the equipped firearm."));
+                }
+                else
+                {
+                    PublishAttackFailed(weapon.itemId, "No compatible ammunition is available.");
+                }
+
+                return;
+            }
+
+            // InventorySystem has already removed exactly the units it
+            // reported.  The weapon instance is the same object retained by
+            // its placement, so this survives switching and save capture.
+            weapon.loadedAmmo = Mathf.Clamp(loadedBefore + consumed, 0, FirearmMagazineCapacity);
+            PublishFirearmAmmoChanged(weapon);
+            context.Events.Publish(new ReloadRequestedEvent(weapon));
+        }
+
+        private InventoryItemInstance GetSelectedFirearm()
+        {
+            return IsFirearm(selectedItem) ? selectedItem : null;
+        }
+
+        private bool IsFirearm(InventoryItemInstance item)
+        {
+            if (item == null || context == null)
+            {
+                return false;
+            }
+
+            var config = context.Configs.GetItem(item.itemId);
+            return config != null && config.Category == ItemCategory.Weapon &&
+                config.CombatAttackKind == CombatAttackKind.Firearm;
         }
 
         private void PublishAttackFailed(int weaponItemId, string reason)
         {
             context.Events.Publish(new AttackFailedEvent(weaponItemId, reason));
+        }
+
+        private void RejectAttack(CharacterAttackRequestedEvent evt, string reason)
+        {
+            evt.Result?.Reject(reason);
+            PublishAttackFailed(evt.ItemId, reason);
         }
     }
 }

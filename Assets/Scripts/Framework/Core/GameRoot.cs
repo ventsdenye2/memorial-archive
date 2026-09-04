@@ -144,7 +144,7 @@ namespace MemorialArchive.Framework.Core
             var inventory = new InventorySystem();
             RegisterSystem(inventory);
             RegisterSystem(new ItemEffectSystem());
-            RegisterSystem(new CombatSystem(character));
+            RegisterSystem(new CombatSystem(character, inventory));
             var lighting = new LightingSystem(inventory);
             RegisterSystem(lighting);
             RegisterSystem(new InteractionSystem(lighting));

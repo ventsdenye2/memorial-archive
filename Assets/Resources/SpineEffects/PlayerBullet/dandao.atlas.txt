@@ -1,0 +1,48 @@
+
+dandao.png
+size: 1688,327
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+tuowei1
+  rotate: false
+  xy: 2, 178
+  size: 1670, 86
+  orig: 1670, 86
+  offset: 0, 0
+  index: -1
+tuowei2
+  rotate: false
+  xy: 2, 90
+  size: 1645, 86
+  orig: 1645, 86
+  offset: 0, 0
+  index: -1
+tuowei3
+  rotate: false
+  xy: 2, 2
+  size: 1684, 86
+  orig: 1684, 86
+  offset: 0, 0
+  index: -1
+zidan1
+  rotate: false
+  xy: 2, 266
+  size: 470, 59
+  orig: 470, 59
+  offset: 0, 0
+  index: -1
+zidan2
+  rotate: false
+  xy: 474, 266
+  size: 444, 59
+  orig: 444, 59
+  offset: 0, 0
+  index: -1
+zidan3
+  rotate: false
+  xy: 920, 266
+  size: 454, 59
+  orig: 454, 59
+  offset: 0, 0
+  index: -1

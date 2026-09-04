@@ -1,132 +1,195 @@
 
 player_01_gun action_split.png
-size: 1159,945
+size: 3244,1848
 format: RGBA8888
 filter: Linear,Linear
 repeat: none
 Player_01_Arm_Left
-  rotate: false
-  xy: 924, 5
-  size: 70, 157
+  rotate: true
+  xy: 2, 2
+  size: 402, 602
   orig: 402, 602
-  offset: 160, 241
+  offset: 0, 0
   index: -1
 Player_01_Arm_Right
   rotate: false
-  xy: 996, 2
-  size: 55, 160
+  xy: 1740, 478
+  size: 66, 160
   orig: 66, 160
-  offset: 11, 0
+  offset: 0, 0
   index: -1
 Player_01_Body_back
-  rotate: false
-  xy: 924, 164
-  size: 108, 147
+  rotate: true
+  xy: 606, 2
+  size: 402, 602
   orig: 402, 602
-  offset: 143, 162
+  offset: 0, 0
   index: -1
 Player_01_Body_front
-  rotate: false
-  xy: 1007, 706
-  size: 116, 237
+  rotate: true
+  xy: 1210, 2
+  size: 402, 602
   orig: 402, 602
-  offset: 118, 161
+  offset: 0, 0
   index: -1
 Player_01_Hair
-  rotate: true
-  xy: 1125, 895
-  size: 48, 32
+  rotate: false
+  xy: 1444, 1244
+  size: 402, 602
   orig: 402, 602
-  offset: 205, 404
+  offset: 0, 0
   index: -1
 Player_01_Tail
   rotate: false
-  xy: 1020, 448
-  size: 118, 86
+  xy: 1444, 640
+  size: 402, 602
   orig: 402, 602
-  offset: 70, 211
+  offset: 0, 0
   index: -1
 Player_01_cape
   rotate: false
-  xy: 1020, 358
-  size: 74, 88
+  xy: 1848, 1244
+  size: 402, 602
   orig: 402, 602
-  offset: 163, 304
+  offset: 0, 0
   index: -1
 Player_01_ear_Left
   rotate: false
-  xy: 1053, 46
-  size: 28, 50
+  xy: 1848, 640
+  size: 402, 602
   orig: 402, 602
-  offset: 192, 421
+  offset: 0, 0
   index: -1
 Player_01_ear_Right
   rotate: false
-  xy: 1125, 834
-  size: 29, 59
+  xy: 2252, 1244
+  size: 402, 602
   orig: 402, 602
-  offset: 190, 420
+  offset: 0, 0
   index: -1
 Player_01_face
-  rotate: true
-  xy: 1034, 272
-  size: 84, 57
+  rotate: false
+  xy: 2252, 640
+  size: 402, 602
   orig: 402, 602
-  offset: 184, 377
+  offset: 0, 0
   index: -1
 Player_01_hat
-  rotate: true
-  xy: 1096, 357
-  size: 89, 53
+  rotate: false
+  xy: 2656, 1244
+  size: 402, 602
   orig: 402, 602
-  offset: 170, 413
+  offset: 0, 0
   index: -1
 Player_01_leg_Right
   rotate: false
-  xy: 1007, 536
-  size: 144, 168
+  xy: 2656, 640
+  size: 402, 602
   orig: 402, 602
-  offset: 189, 128
+  offset: 0, 0
   index: -1
 Player_01_leg_left
   rotate: false
-  xy: 924, 313
-  size: 94, 172
+  xy: 1814, 36
+  size: 402, 602
   orig: 402, 602
-  offset: 127, 123
+  offset: 0, 0
   index: -1
 bullet
   rotate: false
-  xy: 924, 487
-  size: 81, 456
+  xy: 2218, 38
+  size: 400, 600
   orig: 400, 600
-  offset: 162, 68
+  offset: 0, 0
   index: -1
 gun_example
   rotate: false
-  xy: 2, 4
-  size: 920, 939
+  xy: 2, 406
+  size: 1440, 1440
   orig: 1440, 1440
-  offset: 142, 197
+  offset: 0, 0
+  index: -1
+huoguang_01
+  rotate: true
+  xy: 3022, 121
+  size: 138, 103
+  orig: 138, 103
+  offset: 0, 0
+  index: -1
+huoguang_02
+  rotate: true
+  xy: 3022, 18
+  size: 101, 103
+  orig: 101, 103
+  offset: 0, 0
+  index: -1
+huoguang_03
+  rotate: false
+  xy: 3022, 261
+  size: 116, 132
+  orig: 116, 132
+  offset: 0, 0
   index: -1
 player_01_finger
   rotate: false
-  xy: 1034, 164
-  size: 16, 19
+  xy: 2620, 38
+  size: 400, 600
   orig: 400, 600
-  offset: 223, 252
+  offset: 0, 0
+  index: -1
+yanwu_01
+  rotate: true
+  xy: 3022, 395
+  size: 243, 175
+  orig: 243, 175
+  offset: 0, 0
+  index: -1
+yanwu_02
+  rotate: true
+  xy: 3060, 694
+  size: 269, 176
+  orig: 269, 176
+  offset: 0, 0
+  index: -1
+yanwu_03
+  rotate: true
+  xy: 3060, 965
+  size: 269, 177
+  orig: 269, 177
+  offset: 0, 0
+  index: -1
+yanwu_04
+  rotate: true
+  xy: 3060, 1236
+  size: 285, 182
+  orig: 285, 182
+  offset: 0, 0
+  index: -1
+yanwu_05
+  rotate: false
+  xy: 1444, 448
+  size: 294, 190
+  orig: 294, 190
+  offset: 0, 0
+  index: -1
+yanwu_06
+  rotate: true
+  xy: 3060, 1523
+  size: 323, 182
+  orig: 323, 182
+  offset: 0, 0
   index: -1
 左轮手枪
-  rotate: true
-  xy: 1034, 185
-  size: 85, 69
+  rotate: false
+  xy: 3140, 293
+  size: 100, 100
   orig: 100, 100
-  offset: 7, 16
+  offset: 0, 0
   index: -1
 左轮手枪2
-  rotate: true
-  xy: 1053, 98
-  size: 85, 68
+  rotate: false
+  xy: 3140, 191
+  size: 100, 100
   orig: 100, 100
-  offset: 8, 16
+  offset: 0, 0
   index: -1

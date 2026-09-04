@@ -88,6 +88,129 @@ namespace MemorialArchive.Gameplay.Inventory.Logic
             return GetPlayerItems(kind);
         }
 
+        /// <summary>
+        /// Consumes up to <paramref name="maxUnits"/> units of compatible
+        /// ammunition in the player's backpack.  A firearm reload uses this
+        /// bounded transaction so a partial stack can fill only the missing
+        /// rounds and the inventory is notified once after all mutations.
+        /// </summary>
+        public int TryConsumeCompatibleAmmo(int weaponItemId, int maxUnits, out int ammoItemId)
+        {
+            return TryConsumeCompatibleAmmo(weaponItemId, maxUnits, null, 0, out ammoItemId);
+        }
+
+        /// <summary>
+        /// Consumes ammunition for the legacy "use an ammo item" action.  When
+        /// a concrete instance or item id is supplied, that request is allowed
+        /// to consume from a shortcut slot as well; the normal R reload above
+        /// intentionally only consumes backpack ammunition.
+        /// </summary>
+        public int TryConsumeCompatibleAmmo(
+            int weaponItemId,
+            int maxUnits,
+            string preferredAmmoInstanceId,
+            int preferredAmmoItemId,
+            out int ammoItemId)
+        {
+            ammoItemId = 0;
+            if (context == null || weaponItemId <= 0 || maxUnits <= 0 ||
+                playerInventory?.playerItems == null)
+            {
+                return 0;
+            }
+
+            var consumed = 0;
+            var shortcutChanged = false;
+            var selectedShortcutChanged = false;
+            var consumedInstances = new HashSet<string>();
+            // Take a snapshot because the transaction removes empty placements
+            // before publishing inventory/equipment events.
+            var placements = new List<InventoryItemPlacement>(playerInventory.playerItems);
+            foreach (var placement in placements)
+            {
+                if (consumed >= maxUnits)
+                {
+                    break;
+                }
+
+                var item = placement?.item;
+                if (item == null || item.quantity <= 0)
+                {
+                    continue;
+                }
+
+                var isShortcut = placement.containerKind == InventoryContainerKind.ShortcutBar;
+
+                if (!string.IsNullOrEmpty(preferredAmmoInstanceId) &&
+                    !string.Equals(item.instanceId, preferredAmmoInstanceId, StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                var config = context.Configs.GetItem(item.itemId);
+                if (config == null || config.Category != ItemCategory.Ammo ||
+                    !config.IsConsumable || config.CompatibleWeaponItemId != weaponItemId ||
+                    preferredAmmoItemId > 0 && item.itemId != preferredAmmoItemId ||
+                    !string.IsNullOrEmpty(item.instanceId) && !consumedInstances.Add(item.instanceId))
+                {
+                    continue;
+                }
+
+                // A normal R reload is explicitly backed by backpack stock.
+                // The ammo-item use path may target its selected shortcut stack.
+                if (string.IsNullOrEmpty(preferredAmmoInstanceId) && preferredAmmoItemId <= 0 &&
+                    placement.containerKind != InventoryContainerKind.Backpack)
+                {
+                    continue;
+                }
+
+                var unitsFromPlacement = Mathf.Min(maxUnits - consumed, item.quantity);
+                if (unitsFromPlacement <= 0)
+                {
+                    continue;
+                }
+
+                item.quantity -= unitsFromPlacement;
+                consumed += unitsFromPlacement;
+                ammoItemId = item.itemId;
+                shortcutChanged |= isShortcut;
+                selectedShortcutChanged |= isShortcut &&
+                    playerInventory.selectedShortcutIndex == placement.slotIndex && item.quantity <= 0;
+                if (item.quantity <= 0)
+                {
+                    RemovePlacement(placement);
+                }
+            }
+
+            if (consumed <= 0)
+            {
+                return 0;
+            }
+
+            if (shortcutChanged)
+            {
+                context.Events.Publish(new ShortcutChangedEvent());
+            }
+
+            context.Events.Publish(new InventoryChangedEvent());
+            if (selectedShortcutChanged)
+            {
+                var selected = FindPlayerSlot(
+                    InventoryContainerKind.ShortcutBar,
+                    playerInventory.selectedShortcutIndex)?.item;
+                context.Events.Publish(new SelectedItemChangedEvent(selected));
+                PublishCharacterEquipment();
+            }
+
+            return consumed;
+        }
+
+        /// <summary>Compatibility wrapper for callers that need one round.</summary>
+        public bool TryConsumeCompatibleAmmo(int weaponItemId, out int ammoItemId)
+        {
+            return TryConsumeCompatibleAmmo(weaponItemId, 1, out ammoItemId) > 0;
+        }
+
         public SceneContainerData GetOrCreateSceneContainer(string containerId)
         {
             if (string.IsNullOrEmpty(containerId))
@@ -187,6 +310,7 @@ namespace MemorialArchive.Gameplay.Inventory.Logic
             playerInventory.playerItems.Add(candidate);
             context.Events.Publish(new ShortcutChangedEvent());
             context.Events.Publish(new InventoryChangedEvent());
+            PublishCharacterEquipment();
             return true;
         }
 
@@ -546,18 +670,57 @@ namespace MemorialArchive.Gameplay.Inventory.Logic
             }
 
             playerInventory = saveData.playerInventory ?? new InventoryData();
+            if (playerInventory.playerItems == null)
+            {
+                playerInventory.playerItems = new List<InventoryItemPlacement>();
+            }
+            NormalizePlacements(playerInventory.playerItems);
             sceneContainers.Clear();
-            if (saveData.sceneContainers == null)
+            if (saveData.sceneContainers != null)
+            {
+                foreach (var container in saveData.sceneContainers)
+                {
+                    if (container != null && !string.IsNullOrEmpty(container.containerId))
+                    {
+                        if (container.items == null)
+                        {
+                            container.items = new List<InventoryItemPlacement>();
+                        }
+
+                        NormalizePlacements(container.items);
+                        sceneContainers[container.containerId] = container;
+                    }
+                }
+            }
+
+            // Restore the selected weapon and its per-instance magazine to
+            // every already-running system before the next input frame.
+            var selected = FindPlayerSlot(
+                InventoryContainerKind.ShortcutBar,
+                playerInventory.selectedShortcutIndex)?.item;
+            context.Events.Publish(new SelectedItemChangedEvent(selected));
+            PublishCharacterEquipment();
+            context.Events.Publish(new ShortcutChangedEvent());
+            context.Events.Publish(new InventoryChangedEvent());
+        }
+
+        private static void NormalizePlacements(IEnumerable<InventoryItemPlacement> placements)
+        {
+            if (placements == null)
             {
                 return;
             }
 
-            foreach (var container in saveData.sceneContainers)
+            foreach (var placement in placements)
             {
-                if (container != null && !string.IsNullOrEmpty(container.containerId))
+                if (placement?.item == null)
                 {
-                    sceneContainers[container.containerId] = container;
+                    continue;
                 }
+
+                EnsureInstanceId(placement.item);
+                placement.item.quantity = Mathf.Max(1, placement.item.quantity);
+                placement.item.loadedAmmo = Mathf.Max(0, placement.item.loadedAmmo);
             }
         }
 

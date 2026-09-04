@@ -14,6 +14,8 @@ namespace MemorialArchive.Gameplay.Character.View
 
         [SerializeField] private Rigidbody2D body;
         private CharacterSystem character;
+        private Collider2D collisionShape;
+        private CameraFollowView cameraFollow;
         private bool dodgeAnimationPlaying;
         private bool dodgeMotionActive;
         private Vector2 dodgeMotionStartPosition;
@@ -22,20 +24,22 @@ namespace MemorialArchive.Gameplay.Character.View
         private float dodgeMotionDuration;
         private float dodgeMotionElapsed;
 
-        private void Awake()
-        {
-            if (body == null)
-            {
-                body = GetComponent<Rigidbody2D>();
-            }
+private void Awake()
+{
+    if (body == null)
+    {
+        body = GetComponent<Rigidbody2D>();
+    }
 
-            // 本项目当前是横向 2D 平面玩法：出生时所在的场景下边缘就是唯一可行走线。
-            // 输入和 CharacterSystem 已经不提供 Y 方向；这里再锁住物理 Y，避免碰撞或外力把玩家推离该线。
-            if (body != null)
-            {
-                body.constraints |= RigidbodyConstraints2D.FreezePositionY;
-            }
-        }
+    collisionShape = GetComponent<Collider2D>();
+
+    // 本项目当前是横向 2D 平面玩法：出生时所在的场景下边缘就是唯一可行走线。
+    // 输入和 CharacterSystem 已经不提供 Y 方向；这里再锁住物理 Y，避免碰撞或外力把玩家推离该线。
+    if (body != null)
+    {
+        body.constraints |= RigidbodyConstraints2D.FreezePositionY;
+    }
+}
 
         private void OnEnable()
         {
@@ -46,20 +50,20 @@ namespace MemorialArchive.Gameplay.Character.View
         }
 
         // CameraFollowView 位于表现层，只绑定角色 Transform；跟随与边界限制由相机组件自己处理。
-        private void BindCamera()
-        {
-            var cam = UnityEngine.Camera.main;
-            if (cam == null)
-            {
-                return;
-            }
+private void BindCamera()
+{
+    var cam = UnityEngine.Camera.main;
+    if (cam == null)
+    {
+        return;
+    }
 
-            var follow = cam.GetComponent<CameraFollowView>();
-            if (follow != null)
-            {
-                follow.SetTarget(transform);
-            }
-        }
+    cameraFollow = cam.GetComponent<CameraFollowView>();
+    if (cameraFollow != null)
+    {
+        cameraFollow.SetTarget(transform);
+    }
+}
 
         private void OnDisable()
         {
@@ -69,73 +73,75 @@ namespace MemorialArchive.Gameplay.Character.View
             dodgeMotionActive = false;
         }
 
-        private void FixedUpdate()
+private void FixedUpdate()
+{
+    if (character == null)
+    {
+        character = GameRoot.Instance?.GetSystem<CharacterSystem>();
+        if (character == null)
         {
-            if (character == null)
-            {
-                character = GameRoot.Instance?.GetSystem<CharacterSystem>();
-                if (character == null)
-                {
-                    return;
-                }
-            }
-
-            Vector2 nextPosition;
-            if (dodgeMotionActive)
-            {
-                nextPosition = EvaluateDodgeMotion();
-            }
-            else
-            {
-                // dodge 播放期间只显示 Spine 原始动画，不叠加普通 A/D 位移。
-                var velocity = dodgeAnimationPlaying
-                    ? Vector2.zero
-                    : character.MoveDirection * character.CurrentMoveSpeed * DesignUnitsToWorldUnits;
-                nextPosition = body.position + velocity * Time.fixedDeltaTime;
-            }
-
-            body.MovePosition(nextPosition);
-            character.Data.position = body.position;
-            GameRoot.Instance?.Context?.Events.Publish(new PlayerPositionChangedEvent(body.position));
+            return;
         }
+    }
 
-        public void MoveToSceneSpawn(Vector3 position)
-        {
-            transform.position = position;
-            if (body != null)
-            {
-                body.position = position;
-                body.velocity = Vector2.zero;
-            }
+    Vector2 nextPosition;
+    if (dodgeMotionActive)
+    {
+        nextPosition = EvaluateDodgeMotion();
+    }
+    else
+    {
+        // dodge 播放期间只显示 Spine 原始动画，不叠加普通 A/D 位移。
+        var velocity = dodgeAnimationPlaying
+            ? Vector2.zero
+            : character.MoveDirection * character.CurrentMoveSpeed * DesignUnitsToWorldUnits;
+        nextPosition = body.position + velocity * Time.fixedDeltaTime;
+    }
 
-            dodgeMotionActive = false;
-            dodgeMotionElapsed = 0f;
+    nextPosition = ClampToSceneBounds(nextPosition);
+    body.MovePosition(nextPosition);
+    character.Data.position = body.position;
+    GameRoot.Instance?.Context?.Events.Publish(new PlayerPositionChangedEvent(body.position));
+}
 
-            if (character == null)
-            {
-                character = GameRoot.Instance?.GetSystem<CharacterSystem>();
-            }
+public void MoveToSceneSpawn(Vector3 position)
+{
+    var constrainedPosition = ClampToSceneBounds(position);
+    transform.position = constrainedPosition;
+    if (body != null)
+    {
+        body.position = constrainedPosition;
+        body.velocity = Vector2.zero;
+    }
 
-            if (character != null)
-            {
-                character.Data.position = position;
-            }
+    dodgeMotionActive = false;
+    dodgeMotionElapsed = 0f;
 
-            GameRoot.Instance?.Context?.Events.Publish(new PlayerPositionChangedEvent(position));
-        }
+    if (character == null)
+    {
+        character = GameRoot.Instance?.GetSystem<CharacterSystem>();
+    }
 
-        private void HandleDodgeAnimationStateChanged(DodgeAnimationStateChangedEvent evt)
-        {
-            dodgeAnimationPlaying = evt.IsPlaying;
+    if (character != null)
+    {
+        character.Data.position = constrainedPosition;
+    }
 
-            if (!evt.IsPlaying && dodgeMotionActive)
-            {
-                // 动画比配置的位移时长更短时，仍然保证后撤落点结算完整。
-                dodgeMotionElapsed = dodgeMotionDuration;
-                var finalPosition = EvaluateDodgeMotion();
-                body.position = finalPosition;
-            }
-        }
+    GameRoot.Instance?.Context?.Events.Publish(new PlayerPositionChangedEvent(constrainedPosition));
+}
+
+private void HandleDodgeAnimationStateChanged(DodgeAnimationStateChangedEvent evt)
+{
+    dodgeAnimationPlaying = evt.IsPlaying;
+
+    if (!evt.IsPlaying && dodgeMotionActive)
+    {
+        // 动画比配置的位移时长更短时，仍然保证后撤落点结算完整。
+        dodgeMotionElapsed = dodgeMotionDuration;
+        var finalPosition = ClampToSceneBounds(EvaluateDodgeMotion());
+        body.position = finalPosition;
+    }
+}
 
         private void HandleDodgeRequested(DodgeRequestedEvent evt)
         {
@@ -175,6 +181,14 @@ namespace MemorialArchive.Gameplay.Character.View
 
             return position;
         }
+
+private Vector2 ClampToSceneBounds(Vector2 position)
+{
+    return cameraFollow != null
+        ? cameraFollow.ClampActorPosition(position, collisionShape)
+        : position;
+}
+
 
         private static void PublishDodgeMotionProgress(float normalizedProgress)
         {

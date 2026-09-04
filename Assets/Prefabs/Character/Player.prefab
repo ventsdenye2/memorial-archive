@@ -18,6 +18,7 @@ GameObject:
   - component: {fileID: 800000010}
   - component: {fileID: 9100000000000000001}
   - component: {fileID: 9100000000000000002}
+  - component: {fileID: 9100000000000000003}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -219,6 +220,8 @@ MonoBehaviour:
   armedHurtData: {fileID: 11400000, guid: 273c574a8a6c96e45b1a56e0e342d5c4, type: 2}
   firearmAimBoneName: rotate-weapon
   firearmAimAngleOffset: 0
+  gunShotStartTimeSeconds: 1.7
+  firearmShotDelayAfterReleaseSeconds: 0.2
   characterScale: 1
 --- !u!114 &800000010
 MonoBehaviour:
@@ -274,6 +277,30 @@ MonoBehaviour:
   upwardBoost: 2.4
   fallbackReleaseSeconds: 0.3
   requestedAttackLifetimeSeconds: 9
+--- !u!114 &9100000000000000003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3890368740958347379}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2c6b9c0f1d749f8a6c3e1b5d8a0c4e9, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  muzzleOrigin: {fileID: 0}
+  muzzleLocalOffset: {x: 0, y: 1.25}
+  skeletonAnimation: {fileID: 9074858875134784153}
+  muzzleBoneName: gun_example2
+  visualAngleOffset: 0
+  bulletVisualForwardOffset: 8
+  bulletEffectPlaybackSeconds: 0.22
+  targetLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  fallbackRange: 30
+  nonTargetCollidersBlockShot: 1
 --- !u!1 &800000000
 GameObject:
   m_ObjectHideFlags: 0

@@ -15,8 +15,17 @@ namespace MemorialArchive.Framework.UI
 
         public virtual void Open()
         {
+            BindButtonAudio();
             IsOpen = true;
             SetVisible(true);
+        }
+
+        private void BindButtonAudio()
+        {
+            if (panelId == PanelId.MainMenu)
+                foreach (var button in GetComponentsInChildren<UnityEngine.UI.Button>(true))
+                    if (button.GetComponent<MemorialArchive.Framework.Audio.UIButtonAudio>() == null)
+                        button.gameObject.AddComponent<MemorialArchive.Framework.Audio.UIButtonAudio>();
         }
 
         public virtual void Close()
@@ -27,6 +36,7 @@ namespace MemorialArchive.Framework.UI
 
         protected virtual void Awake()
         {
+            BindButtonAudio();
             if (canvasGroup == null)
             {
                 canvasGroup = GetComponent<CanvasGroup>();

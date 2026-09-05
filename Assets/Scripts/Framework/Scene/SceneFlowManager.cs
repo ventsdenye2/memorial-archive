@@ -12,6 +12,7 @@ namespace MemorialArchive.Framework.Scene
         private bool hasPendingSavedPosition;
         private Vector3 pendingSavedPosition;
         private bool isLoading;
+        private bool playDoorOnArrival;
 
         public void Initialize(GameContext gameContext)
         {
@@ -48,6 +49,7 @@ namespace MemorialArchive.Framework.Scene
             }
 
             isLoading = true;
+            playDoorOnArrival = evt.SceneId.StartsWith("Room_") || SceneManager.GetActiveScene().name.StartsWith("Room_");
             pendingSpawnPointId = evt.SpawnPointId;
             try
             {
@@ -74,6 +76,7 @@ namespace MemorialArchive.Framework.Scene
             }
 
             isLoading = true;
+            playDoorOnArrival = false;
             pendingSpawnPointId = null;
             pendingSavedPosition = savedPosition;
             hasPendingSavedPosition = true;
@@ -105,6 +108,9 @@ namespace MemorialArchive.Framework.Scene
             hasPendingSavedPosition = false;
             isLoading = false;
             context?.Events.Publish(new SceneLoadedEvent(scene.name));
+            if (playDoorOnArrival)
+                MemorialArchive.Framework.Audio.AudioSystem.Play("sfx_scene_door_open");
+            playDoorOnArrival = false;
         }
 
         private static void ResolveSpawnPoint(string spawnPointId)

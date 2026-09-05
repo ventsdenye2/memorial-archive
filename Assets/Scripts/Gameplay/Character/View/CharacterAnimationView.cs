@@ -884,6 +884,8 @@ namespace MemorialArchive.Gameplay.Character.View
             {
                 entry.TimeScale = clipDuration / equipPlaybackDuration;
                 entry.TrackTime = Mathf.Clamp01(normalizedProgress) * clipDuration;
+                // Switching equip poses must not replay earlier foot contacts.
+                entry.AnimationLast = entry.AnimationStart + entry.TrackTime;
             }
 
             actionTrackEntry = entry;
@@ -1045,8 +1047,17 @@ namespace MemorialArchive.Gameplay.Character.View
                 skeletonAnimation.Initialize(true);
             }
             var entry = skeletonAnimation.state.SetAnimation(0, animationName, loop);
+            entry.Event += HandleFootstepEvent;
             ApplyFacing();
             return entry;
+        }
+
+        private void HandleFootstepEvent(TrackEntry entry, Spine.Event evt)
+        {
+            if (evt.Data.Name != "footstep" || !isActiveAndEnabled || isDead || Time.timeScale <= 0f ||
+                skeletonAnimation?.state?.GetCurrent(0) != entry || character == null ||
+                character.MoveDirection.sqrMagnitude <= 0.0001f) return;
+            GameRoot.Instance?.Context?.Events.Publish(new PlayerFootstepEvent(evt.Int == 1));
         }
 
         private void UpdateFacing()

@@ -201,6 +201,7 @@ private void HandleInteractionFocusChanged(InteractionFocusChangedEvent evt)
                     context.Events.Publish(new PuzzleInteractRequestedEvent(config != null ? config.PuzzleId : interactionId));
                     break;
                 case InteractionType.SavePoint:
+                    MemorialArchive.Framework.Audio.AudioSystem.Play("sfx_scene_save_phone");
                     context.UI.Open(PanelId.Save);
                     break;
                 case InteractionType.SceneExit:

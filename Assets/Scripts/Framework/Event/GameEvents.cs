@@ -538,6 +538,13 @@ public readonly struct ContainerClosedEvent { }
         public Vector2 Position { get; }
     }
 
+    /// <summary>Emitted at authored Spine foot-contact frames; independent of movement speed.</summary>
+    public readonly struct PlayerFootstepEvent
+    {
+        public PlayerFootstepEvent(bool running) => Running = running;
+        public bool Running { get; }
+    }
+
     public readonly struct CharacterDiedEvent
     {
         public CharacterDiedEvent(float deathAnimationSeconds) => DeathAnimationSeconds = deathAnimationSeconds;

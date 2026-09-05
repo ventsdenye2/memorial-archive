@@ -1,0 +1,388 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ee2872f5f424183be55e86cbcd7f941, type: 3}
+  m_Name: GameAudioCatalog
+  m_EditorClassIdentifier:
+  cues:
+  - id: amb_archive_room
+    clips:
+    - {fileID: 8300000, guid: 334a8ead52c5a3741b24b5f9c53b906f, type: 3}
+    bus: 2
+    loop: 1
+    volume: 0.3
+    cooldown: 0
+  - id: amb_guest_room
+    clips:
+    - {fileID: 8300000, guid: 3d4e1867996a6f9469186fc3f4c0b9a9, type: 3}
+    bus: 2
+    loop: 1
+    volume: 0.3
+    cooldown: 0
+  - id: amb_lobby_exhibition
+    clips:
+    - {fileID: 8300000, guid: 156963718284dfa48a5886ad9d14c87b, type: 3}
+    bus: 2
+    loop: 1
+    volume: 0.3
+    cooldown: 0
+  - id: amb_office
+    clips:
+    - {fileID: 8300000, guid: 756c795738249b940974add29884ef69, type: 3}
+    bus: 2
+    loop: 1
+    volume: 0.3
+    cooldown: 0
+  - id: amb_restroom
+    clips:
+    - {fileID: 8300000, guid: bafe93aad6a59cb479434198dad6c60c, type: 3}
+    bus: 2
+    loop: 1
+    volume: 0.3
+    cooldown: 0
+  - id: amb_staircase
+    clips:
+    - {fileID: 8300000, guid: 207ab423a0d1c364eaa086978760b4e2, type: 3}
+    bus: 2
+    loop: 1
+    volume: 0.3
+    cooldown: 0
+  - id: sfx_monster_ghost_move
+    clips:
+    - {fileID: 8300000, guid: e41c4c6ba1671814ba1ca2291a1577d4, type: 3}
+    bus: 0
+    loop: 1
+    volume: 0.3
+    cooldown: 0
+  - id: sfx_monster_guard_attack
+    clips:
+    - {fileID: 8300000, guid: 01c7d0c18c65a5e449c76453298e135c, type: 3}
+    - {fileID: 8300000, guid: 43751ca297f94ee40ae6cd1d457db291, type: 3}
+    bus: 0
+    loop: 0
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_monster_guard_death
+    clips:
+    - {fileID: 8300000, guid: 3163670889d5b2b45b65c6942d576dd4, type: 3}
+    bus: 0
+    loop: 0
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_monster_guard_hurt
+    clips:
+    - {fileID: 8300000, guid: f23a1f0c642fff145a5146e0c252c7e8, type: 3}
+    - {fileID: 8300000, guid: 27bb99dbceccda34f9b9fba4eb1075b9, type: 3}
+    bus: 0
+    loop: 0
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_monster_nurse_attack
+    clips:
+    - {fileID: 8300000, guid: 12da51c50a6fab04a86ce2d36638dc5c, type: 3}
+    - {fileID: 8300000, guid: 5c65e4e381159854f89c91b8f0883885, type: 3}
+    bus: 0
+    loop: 0
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_monster_nurse_death
+    clips:
+    - {fileID: 8300000, guid: 9676245c32afe8548b252cfb4dd2566b, type: 3}
+    bus: 0
+    loop: 0
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_monster_nurse_hurt
+    clips:
+    - {fileID: 8300000, guid: 7db1f18730686b24ca16255d483a254d, type: 3}
+    - {fileID: 8300000, guid: 1bed80a9defacac4ab6cdced81615d31, type: 3}
+    bus: 0
+    loop: 0
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_player_attack_dagger
+    clips:
+    - {fileID: 8300000, guid: 46f1110bc33488a4fae46adec4bb23aa, type: 3}
+    - {fileID: 8300000, guid: 2e5c7a4584da6da4cb66e0f3bbbc0093, type: 3}
+    - {fileID: 8300000, guid: d7b05b60d2ac16c4d82e9af759d59c2b, type: 3}
+    bus: 0
+    loop: 0
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_player_block_hit
+    clips:
+    - {fileID: 8300000, guid: 0927e8afcd650d145996632f04f36378, type: 3}
+    - {fileID: 8300000, guid: 3f3693b2631f31c428c42fa52a612a8e, type: 3}
+    bus: 0
+    loop: 0
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_player_death
+    clips:
+    - {fileID: 8300000, guid: e4d94da399e7e9a43b4e277861394d1d, type: 3}
+    bus: 0
+    loop: 0
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_player_dodge
+    clips:
+    - {fileID: 8300000, guid: a77981a72b211a04b833923dcfa25827, type: 3}
+    - {fileID: 8300000, guid: aada56a79848b0240ba35d9b928df0fa, type: 3}
+    bus: 0
+    loop: 0
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_player_equip_dagger
+    clips:
+    - {fileID: 8300000, guid: 0febd9039fe609041a71a802a1a913a2, type: 3}
+    bus: 0
+    loop: 0
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_player_footstep_marble
+    clips:
+    - {fileID: 8300000, guid: 5ff60a27007599740802edb1c7090e51, type: 3}
+    - {fileID: 8300000, guid: bee893e722ece8745a3794740e90182c, type: 3}
+    bus: 0
+    loop: 0
+    sequential: 1
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_player_footstep_stone
+    clips:
+    - {fileID: 8300000, guid: 00c9d9c08ec748d46b8e88dea8c68aac, type: 3}
+    - {fileID: 8300000, guid: 86884a3bf56e86b4091826d3225cf831, type: 3}
+    bus: 0
+    loop: 0
+    sequential: 1
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_player_footstep_wood
+    clips:
+    - {fileID: 8300000, guid: 43fc91a71723d894ba9f137f467b77e5, type: 3}
+    - {fileID: 8300000, guid: 6445d9dc3f54a894d88dcbe06ff31487, type: 3}
+    bus: 0
+    loop: 0
+    sequential: 1
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_player_hurt
+    clips:
+    - {fileID: 8300000, guid: c7de2804f875c9e47aac57ccc69a580f, type: 3}
+    - {fileID: 8300000, guid: a09d7a7d8ac20b9488d49053d7f9b7e7, type: 3}
+    bus: 0
+    loop: 0
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_player_run_marble
+    clips:
+    - {fileID: 8300000, guid: b1092a764a6c8514781525e6695eb14f, type: 3}
+    - {fileID: 8300000, guid: 0fcc115f7aaaf1d40a6265c7c1228a97, type: 3}
+    bus: 0
+    loop: 0
+    sequential: 1
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_player_run_stone
+    clips:
+    - {fileID: 8300000, guid: 25babb1cafa4e734daa01f09c84f7d75, type: 3}
+    - {fileID: 8300000, guid: cabe12aeccdee764597092f52f8ea079, type: 3}
+    bus: 0
+    loop: 0
+    sequential: 1
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_player_run_wood
+    clips:
+    - {fileID: 8300000, guid: e1562e4934283474aab136044b00008a, type: 3}
+    - {fileID: 8300000, guid: aed995a2cc3ddde40a5a536dd6bea254, type: 3}
+    bus: 0
+    loop: 0
+    sequential: 1
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_scene_container_open
+    clips:
+    - {fileID: 8300000, guid: 3dff05a2fb0345e41b16b8428a19f97d, type: 3}
+    bus: 1
+    loop: 0
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_scene_diary_pickup
+    clips:
+    - {fileID: 8300000, guid: e9db63a771413254b954889a9e8734a2, type: 3}
+    bus: 0
+    loop: 0
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_scene_door_open
+    clips:
+    - {fileID: 8300000, guid: f3f27e1bdf06192428357c0a9fc85827, type: 3}
+    bus: 1
+    loop: 0
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_scene_lantern_switch
+    clips:
+    - {fileID: 8300000, guid: 8eec4753c4bc9e94d9cffb3758c0e1ea, type: 3}
+    - {fileID: 8300000, guid: 331356a81caae4a4d9648370e0ee52ee, type: 3}
+    bus: 0
+    loop: 0
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_scene_note_pickup
+    clips:
+    - {fileID: 8300000, guid: 1b2f9d51c675e114080341141e72d12d, type: 3}
+    bus: 0
+    loop: 0
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_scene_save_phone
+    clips:
+    - {fileID: 8300000, guid: 88c6fd14333386a4c80ac04f090d18e6, type: 3}
+    bus: 1
+    loop: 0
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_ui_click
+    clips:
+    - {fileID: 8300000, guid: 9ec332bfad924b5469f16dff93317d25, type: 3}
+    bus: 1
+    loop: 0
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_ui_dialogue_click
+    clips:
+    - {fileID: 8300000, guid: 15c6d9378f1a21b4c8a683f1f9779472, type: 3}
+    - {fileID: 8300000, guid: ad32801e7aec0b74888571307a51a8cc, type: 3}
+    bus: 1
+    loop: 0
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_ui_diary_open
+    clips:
+    - {fileID: 8300000, guid: 8362ac47ea3da774990bc0647c1f8d7e, type: 3}
+    bus: 1
+    loop: 0
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_ui_hover
+    clips:
+    - {fileID: 8300000, guid: 3d987657af1791e41bfd2a7d47cdd17a, type: 3}
+    bus: 1
+    loop: 0
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_ui_inventory_open
+    clips:
+    - {fileID: 8300000, guid: 073f0ca665d622b41886b230c45b1c8c, type: 3}
+    bus: 1
+    loop: 0
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_ui_inventory_select
+    clips:
+    - {fileID: 8300000, guid: 7b244980db25ec944b8a78a42ff93639, type: 3}
+    bus: 1
+    loop: 0
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_ui_map_open
+    clips:
+    - {fileID: 8300000, guid: 771e91143fc7f714bbbd1aa350b0af4f, type: 3}
+    bus: 1
+    loop: 0
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_ui_quest_toggle
+    clips:
+    - {fileID: 8300000, guid: c985d370c5011b240ab5591e28c425a6, type: 3}
+    - {fileID: 8300000, guid: 1f2cc2f78557ec141b9c7e71d2641026, type: 3}
+    bus: 1
+    loop: 0
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_ui_settings
+    clips:
+    - {fileID: 8300000, guid: e8b3552dbb834b643b162f626a9f87d3, type: 3}
+    bus: 1
+    loop: 0
+    volume: 0.65
+    cooldown: 0.06
+  scenes:
+  - scene: MainMenu
+    ambience: 
+    music: bgm_menu
+    surface: wood
+  - scene: OpeningStory
+    ambience: 
+    music: 
+    surface: wood
+  - scene: FrontHall
+    ambience: amb_lobby_exhibition
+    music: bgm_explore
+    surface: wood
+  - scene: SampleScene
+    ambience: amb_lobby_exhibition
+    music: bgm_explore
+    surface: wood
+  - scene: Room_Office
+    ambience: amb_office
+    music: bgm_explore
+    surface: wood
+  - scene: Room_Director
+    ambience: amb_office
+    music: bgm_explore
+    surface: wood
+  - scene: Room_Reception
+    ambience: amb_guest_room
+    music: bgm_safe
+    surface: wood
+  - scene: Room_Toilet
+    ambience: amb_restroom
+    music: bgm_explore
+    surface: wood
+  - scene: Room_TreatmentA
+    ambience: amb_treatment_room
+    music: bgm_explore
+    surface: wood
+  - scene: Room_TreatmentB
+    ambience: amb_treatment_room
+    music: bgm_explore
+    surface: wood
+  - scene: Room_ArchiveA
+    ambience: amb_archive_room
+    music: bgm_explore
+    surface: wood
+  - scene: Room_ArchiveB
+    ambience: amb_archive_room
+    music: bgm_explore
+    surface: wood
+  - scene: Room_ArchiveC
+    ambience: amb_archive_room
+    music: bgm_explore
+    surface: wood
+  - scene: Floor_1F
+    ambience: amb_staircase
+    music: bgm_explore
+    surface: wood
+  - scene: Floor_2F
+    ambience: amb_staircase
+    music: bgm_explore
+    surface: wood
+  - scene: Floor_3F
+    ambience: amb_staircase
+    music: bgm_explore
+    surface: wood
+  - scene: Floor_4F
+    ambience: amb_staircase
+    music: bgm_explore
+    surface: wood

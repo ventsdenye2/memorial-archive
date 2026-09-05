@@ -392,7 +392,9 @@ namespace MemorialArchive.Framework.UI
 
             // InventoryPanel owns the SceneContainer, backpack and shortcut bar.
             CloseForExclusiveOpen(PanelId.Inventory);
-            OpenDirect(FindPanel(PanelId.Inventory));
+            var opened = OpenDirect(FindPanel(PanelId.Inventory));
+            if (opened != null)
+                MemorialArchive.Framework.Audio.AudioSystem.Play("sfx_scene_container_open");
         }
 
         private bool IsContainerGroupOpen() =>

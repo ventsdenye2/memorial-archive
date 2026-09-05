@@ -27,6 +27,14 @@ namespace MemorialArchive.Gameplay.Monster.View
         private float attackCooldownRemaining;
         private float actionLockRemaining;
         private bool attackAwaitingHit;
+        private AudioSource movementAudio;
+        private string AudioPrefix => config != null && config.AttackMode == MonsterAttackMode.Ranged
+            ? "sfx_monster_nurse_" : "sfx_monster_guard_";
+
+        private void PlayAudio(string suffix)
+        {
+            MemorialArchive.Framework.Audio.AudioSystem.Current?.Playback?.Play(AudioPrefix + suffix, transform);
+        }
 
         public MonsterActionState State => state;
         public MonsterConfig Config => config;
@@ -58,6 +66,8 @@ namespace MemorialArchive.Gameplay.Monster.View
 
         private void OnDisable()
         {
+            MemorialArchive.Framework.Audio.AudioSystem.Current?.Playback?.Stop(movementAudio);
+            movementAudio = null;
             var events = GameRoot.Instance?.Context?.Events;
             events?.Unsubscribe<PlayerPositionChangedEvent>(HandlePlayerPositionChanged);
             events?.Unsubscribe<CharacterDiedEvent>(HandlePlayerDied);
@@ -173,6 +183,7 @@ namespace MemorialArchive.Gameplay.Monster.View
 
         private void PerformAttack()
         {
+            if (config.AttackMode == MonsterAttackMode.Melee) PlayAudio("attack");
             attackAwaitingHit = true;
             SetState(MonsterActionState.Attacking);
             actionLockRemaining = config.AttackInterval;
@@ -206,6 +217,7 @@ namespace MemorialArchive.Gameplay.Monster.View
             }
             if (config.AttackMode == MonsterAttackMode.Ranged)
             {
+                PlayAudio("attack");
                 var projectileDirection = playerPosition - body.position;
                 if (projectileDirection.sqrMagnitude <= 0.0001f)
                 {
@@ -255,6 +267,7 @@ namespace MemorialArchive.Gameplay.Monster.View
 
             if (evt.TriggersHurt)
             {
+                PlayAudio("hurt");
                 attackAwaitingHit = false;
                 actionLockRemaining = config.HurtDuration;
                 SetState(MonsterActionState.Hurt);
@@ -269,6 +282,7 @@ namespace MemorialArchive.Gameplay.Monster.View
             }
 
             SetState(MonsterActionState.Dead);
+            PlayAudio("death");
             attackAwaitingHit = false;
             if (body != null)
             {
@@ -291,6 +305,10 @@ namespace MemorialArchive.Gameplay.Monster.View
             }
 
             state = nextState;
+            var audio = MemorialArchive.Framework.Audio.AudioSystem.Current?.Playback;
+            audio?.Stop(movementAudio);
+            movementAudio = state == MonsterActionState.Chasing
+                ? audio?.Play("sfx_monster_ghost_move", transform) : null;
             if (state != MonsterActionState.Attacking)
             {
                 attackAwaitingHit = false;

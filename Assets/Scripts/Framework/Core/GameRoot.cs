@@ -153,6 +153,7 @@ namespace MemorialArchive.Framework.Core
             RegisterSystem(new StorySystem());
             RegisterSystem(new GuideSystem());
             RegisterSystem(new DialogueSystem());
+            RegisterSystem(new MemorialArchive.Framework.Audio.AudioSystem());
 
             foreach (var system in systems)
             {

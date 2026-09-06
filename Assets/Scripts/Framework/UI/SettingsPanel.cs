@@ -1,28 +1,105 @@
 using MemorialArchive.Framework.Audio;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Events;
 
 namespace MemorialArchive.Framework.UI
 {
     public sealed class SettingsPanel : BasePanel
     {
         [SerializeField] private Slider masterVolumeSlider;
+        [SerializeField] private Slider backgroundVolumeSlider;
+        [SerializeField] private Slider gameVolumeSlider;
+        [SerializeField] private Text backgroundVolumeValueLabel;
+        [SerializeField] private Text gameVolumeValueLabel;
+        [SerializeField] private Text resolutionLabel;
+        [SerializeField] private Button fullscreenButton;
+        [SerializeField] private Button windowedButton;
+        [SerializeField] private Sprite fullscreenNormalSprite;
+        [SerializeField] private Sprite fullscreenSelectedSprite;
+        [SerializeField] private Sprite windowedNormalSprite;
+        [SerializeField] private Sprite windowedSelectedSprite;
+
         public override void Open()
         {
             base.Open();
-            if (masterVolumeSlider == null) masterVolumeSlider = GetComponentInChildren<Slider>(true);
-            if (masterVolumeSlider == null) CreateVolumeSlider();
-            masterVolumeSlider.minValue = 0; masterVolumeSlider.maxValue = 1;
-            masterVolumeSlider.wholeNumbers = false;
-            masterVolumeSlider.SetValueWithoutNotify(AudioSystem.Current?.Playback?.MasterVolume ?? 1f);
-            masterVolumeSlider.onValueChanged.RemoveListener(SetMasterVolume);
-            masterVolumeSlider.onValueChanged.AddListener(SetMasterVolume);
+            if (backgroundVolumeSlider == null) backgroundVolumeSlider = FindSlider("BackgroundVolume");
+            if (gameVolumeSlider == null) gameVolumeSlider = FindSlider("GameVolume");
+
+            if (backgroundVolumeSlider != null || gameVolumeSlider != null)
+            {
+                BindSlider(backgroundVolumeSlider, AudioBus.Music, SetBackgroundVolume);
+                BindSlider(gameVolumeSlider, AudioBus.Sfx, SetGameVolume);
+            }
+            else
+            {
+                if (masterVolumeSlider == null) masterVolumeSlider = GetComponentInChildren<Slider>(true);
+                if (masterVolumeSlider == null) CreateVolumeSlider();
+                BindSlider(masterVolumeSlider, AudioBus.UI, SetMasterVolume);
+            }
+
+            RefreshResolutionLabel();
+            RefreshModeVisuals();
         }
+
         public void SetMasterVolume(float value) => AudioSystem.Current?.Playback?.SetMasterVolume(value);
         public override void Close() { PlayerPrefs.Save(); base.Close(); }
         public void SetSfxVolume(float value) => AudioSystem.Current?.Playback?.SetBusVolume(AudioBus.Sfx, value);
         public void SetMusicVolume(float value) => AudioSystem.Current?.Playback?.SetBusVolume(AudioBus.Music, value);
         public void SetAmbienceVolume(float value) => AudioSystem.Current?.Playback?.SetBusVolume(AudioBus.Ambience, value);
+
+        public void SetBackgroundVolume(float value)
+        {
+            SetMusicVolume(value);
+            SetVolumeLabel(backgroundVolumeValueLabel, value);
+        }
+
+        public void SetGameVolume(float value)
+        {
+            SetSfxVolume(value);
+            SetVolumeLabel(gameVolumeValueLabel, value);
+        }
+
+        public void SetFullscreen()
+        {
+            Screen.fullScreenMode = FullScreenMode.FullScreenWindow;
+            RefreshModeVisuals();
+        }
+
+        public void SetWindowed()
+        {
+            Screen.fullScreenMode = FullScreenMode.Windowed;
+            RefreshModeVisuals();
+        }
+
+        public void CycleResolution()
+        {
+            var resolutions = Screen.resolutions;
+            if (resolutions == null || resolutions.Length == 0)
+            {
+                RefreshResolutionLabel();
+                return;
+            }
+
+            var currentIndex = 0;
+            var bestDistance = long.MaxValue;
+            for (var i = 0; i < resolutions.Length; i++)
+            {
+                var widthDistance = resolutions[i].width - Screen.width;
+                var heightDistance = resolutions[i].height - Screen.height;
+                var distance = (long)widthDistance * widthDistance + (long)heightDistance * heightDistance;
+                if (distance < bestDistance)
+                {
+                    currentIndex = i;
+                    bestDistance = distance;
+                }
+            }
+
+            var next = resolutions[(currentIndex + 1) % resolutions.Length];
+            Screen.SetResolution(next.width, next.height, Screen.fullScreenMode, next.refreshRate);
+            RefreshResolutionLabel();
+        }
+
         private void CreateVolumeSlider()
         {
             // Existing placeholder prefab has only a title and close button.
@@ -44,6 +121,61 @@ namespace MemorialArchive.Framework.UI
             label.rectTransform.sizeDelta = new Vector2(360f, 36f);
             label.rectTransform.anchoredPosition = new Vector2(0f, 40f);
         }
-        private void OnDestroy() { if (masterVolumeSlider != null) masterVolumeSlider.onValueChanged.RemoveListener(SetMasterVolume); }
+
+        private Slider FindSlider(string objectName)
+        {
+            var child = transform.Find(objectName);
+            return child != null ? child.GetComponent<Slider>() : null;
+        }
+
+        private void BindSlider(Slider slider, AudioBus bus, UnityAction<float> callback)
+        {
+            if (slider == null) return;
+            slider.minValue = 0f;
+            slider.maxValue = 1f;
+            slider.wholeNumbers = false;
+            var playback = AudioSystem.Current?.Playback;
+            var value = bus == AudioBus.UI
+                ? (playback?.MasterVolume ?? 1f)
+                : (playback?.GetBusVolume(bus) ?? 1f);
+            slider.SetValueWithoutNotify(value);
+            if (bus == AudioBus.Music) SetVolumeLabel(backgroundVolumeValueLabel, value);
+            if (bus == AudioBus.Sfx) SetVolumeLabel(gameVolumeValueLabel, value);
+            slider.onValueChanged.RemoveListener(callback);
+            slider.onValueChanged.AddListener(callback);
+        }
+
+        private static void SetVolumeLabel(Text label, float value)
+        {
+            if (label != null) label.text = Mathf.RoundToInt(Mathf.Clamp01(value) * 100f).ToString();
+        }
+
+        private void RefreshResolutionLabel()
+        {
+            if (resolutionLabel != null) resolutionLabel.text = $"{Screen.width}*{Screen.height} px";
+        }
+
+        private void RefreshModeVisuals()
+        {
+            var isFullscreen = Screen.fullScreenMode != FullScreenMode.Windowed;
+            SetModeSprite(fullscreenButton, isFullscreen, fullscreenNormalSprite, fullscreenSelectedSprite);
+            SetModeSprite(windowedButton, !isFullscreen, windowedNormalSprite, windowedSelectedSprite);
+        }
+
+        private static void SetModeSprite(Button button, bool selected, Sprite normal, Sprite highlighted)
+        {
+            if (button == null || button.targetGraphic == null) return;
+            var image = button.targetGraphic as Image;
+            if (image == null) return;
+            image.sprite = selected ? highlighted : normal;
+            image.overrideSprite = null;
+        }
+
+        private void OnDestroy()
+        {
+            if (masterVolumeSlider != null) masterVolumeSlider.onValueChanged.RemoveListener(SetMasterVolume);
+            if (backgroundVolumeSlider != null) backgroundVolumeSlider.onValueChanged.RemoveListener(SetBackgroundVolume);
+            if (gameVolumeSlider != null) gameVolumeSlider.onValueChanged.RemoveListener(SetGameVolume);
+        }
     }
 }

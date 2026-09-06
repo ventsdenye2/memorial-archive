@@ -87,9 +87,11 @@ namespace MemorialArchive.Gameplay.Inventory.View
 
             if (label != null)
             {
+                // UI2.0 keeps item names in the parchment description area;
+                // only a compact stack count belongs on a slot itself.
                 label.text = string.IsNullOrEmpty(instanceId)
                     ? string.Empty
-                    : quantity > 1 ? displayName + " x" + quantity : displayName;
+                    : quantity > 1 ? "×" + quantity : string.Empty;
             }
         }
 

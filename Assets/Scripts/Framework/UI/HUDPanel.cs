@@ -21,6 +21,7 @@ namespace MemorialArchive.Framework.UI
         [SerializeField] private Image staminaFill;
         [SerializeField] private Sprite normalSlotSprite;
         [SerializeField] private Sprite selectedSlotSprite;
+        [SerializeField] private Sprite offhandSlotSprite;
 
         private readonly List<Image> itemIcons = new List<Image>();
         private readonly List<Text> itemLabels = new List<Text>();
@@ -232,18 +233,27 @@ namespace MemorialArchive.Framework.UI
             {
                 var placement = FindPlacement(inventory.GetPlayerPlacements(InventoryContainerKind.ShortcutBar), i);
                 RefreshSlot(i, shortcutSlots[i], placement,
-                    inventory.PlayerInventory.selectedShortcutIndex == i);
+                    inventory.PlayerInventory.selectedShortcutIndex == i, false);
             }
 
             var offhand = FindPlacement(inventory.GetPlayerPlacements(InventoryContainerKind.Offhand), 0);
-            RefreshSlot(shortcutSlots.Length, offhandSlot, offhand, false);
+            RefreshSlot(shortcutSlots.Length, offhandSlot, offhand, false, true);
         }
 
-        private void RefreshSlot(int contentIndex, Image slot, InventoryItemPlacement placement, bool selected)
+        private void RefreshSlot(
+            int contentIndex,
+            Image slot,
+            InventoryItemPlacement placement,
+            bool selected,
+            bool offhand)
         {
             if (slot != null)
             {
-                slot.sprite = selected && selectedSlotSprite != null ? selectedSlotSprite : normalSlotSprite;
+                slot.sprite = selected && selectedSlotSprite != null
+                    ? selectedSlotSprite
+                    : offhand && offhandSlotSprite != null
+                        ? offhandSlotSprite
+                        : normalSlotSprite;
             }
 
             if (contentIndex < 0 || contentIndex >= itemIcons.Count || itemIcons[contentIndex] == null)

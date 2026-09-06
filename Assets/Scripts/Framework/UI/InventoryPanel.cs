@@ -32,6 +32,17 @@ namespace MemorialArchive.Framework.UI
         [SerializeField] private Sprite cancelSprite;
         [SerializeField] private Sprite cancelHighlightedSprite;
 
+        // UI2.0 has separate slot artwork for the scene container, backpack,
+        // and the four-cell equipment row. Keep the original fields above as
+        // fallbacks so older prefabs can still be opened and rebuilt.
+        [Header("UI2.0 slot artwork")]
+        [SerializeField] private Sprite sceneSlotSprite;
+        [SerializeField] private Sprite sceneSelectedSlotSprite;
+        [SerializeField] private Sprite backpackSlotSprite;
+        [SerializeField] private Sprite backpackSelectedSlotSprite;
+        [SerializeField] private Sprite equipmentSlotSprite;
+        [SerializeField] private Sprite equipmentSelectedSlotSprite;
+
         [Header("Prefab layout")]
         [SerializeField] private List<InventorySlotView> slots = new List<InventorySlotView>();
         [SerializeField] private Text statusLabel;
@@ -241,33 +252,49 @@ namespace MemorialArchive.Framework.UI
             mask.raycastTarget = true;
             mask.transform.SetAsFirstSibling();
 
-            CreateImage("SceneContainer", transform, new Vector2(-390f, 70f), new Vector2(400f, 399f), scenePanelSprite);
-            CreateImage("BackpackPanel", transform, new Vector2(310f, 15f), new Vector2(484f, 652f), backpackPanelSprite);
-            CreateGrid(InventoryContainerKind.SceneContainer, -1, new Vector2(-390f, 75f), 2, 2,
-                new Vector2(128f, 86f), new Vector2(8f, 8f), slotSprite, selectedSlotSprite);
-            CreateGrid(InventoryContainerKind.Backpack, -1, new Vector2(310f, 105f), 3, 3,
-                new Vector2(116f, 78f), new Vector2(4f, 3f), slotSprite, selectedSlotSprite);
+            // Coordinates are measured from the 1920x1080 UI2.0 reference:
+            // the item panel is centered at (523,510), the backpack at
+            // (1345,497), and each grid starts at the marked top-left cell.
+            CreateImage("SceneContainer", transform, new Vector2(-437f, 30f), new Vector2(678f, 551f), scenePanelSprite);
+            CreateImage("BackpackPanel", transform, new Vector2(385f, 43f), new Vector2(1068f, 960f), backpackPanelSprite);
+            var sceneNormal = sceneSlotSprite != null ? sceneSlotSprite : slotSprite;
+            var sceneSelected = sceneSelectedSlotSprite != null ? sceneSelectedSlotSprite : selectedSlotSprite;
+            var backpackNormal = backpackSlotSprite != null ? backpackSlotSprite : slotSprite;
+            var backpackSelected = backpackSelectedSlotSprite != null ? backpackSelectedSlotSprite : selectedSlotSprite;
+            var equipmentNormal = equipmentSlotSprite != null ? equipmentSlotSprite : hudSlotSprite;
+            var equipmentSelected = equipmentSelectedSlotSprite != null ? equipmentSelectedSlotSprite : hudSelectedSlotSprite;
+            CreateGrid(InventoryContainerKind.SceneContainer, -1, new Vector2(-340f, -26f), 2, 2,
+                new Vector2(129f, 109f), Vector2.zero, sceneNormal, sceneSelected);
+            CreateGrid(InventoryContainerKind.Backpack, -1, new Vector2(398.5f, 214f), 3, 3,
+                new Vector2(129f, 108f), Vector2.zero, backpackNormal, backpackSelected);
 
-            CreateImage("ItemDescriptionFrame", transform, new Vector2(310f, -175f), new Vector2(412f, 83f), descriptionSprite);
-            descriptionLabel = CreateText("ItemDescription", transform, new Vector2(310f, -175f), new Vector2(360f, 64f), 15, TextAnchor.MiddleLeft);
-            descriptionLabel.color = new Color(0.18f, 0.11f, 0.08f, 1f);
+            // The parchment is part of the new backpack artwork. Only create
+            // the legacy frame when a fallback sprite is assigned.
+            if (descriptionSprite != null)
+            {
+                CreateImage("ItemDescriptionFrame", transform, new Vector2(385f, -165f), new Vector2(680f, 126f), descriptionSprite);
+            }
+            descriptionLabel = CreateText("ItemDescription", transform, new Vector2(385f, -165f), new Vector2(680f, 126f), 15, TextAnchor.MiddleCenter);
+            descriptionLabel.color = new Color(0.349f, 0.286f, 0.224f, 1f); // #594939
             descriptionLabel.text = "选择物品后，这里会显示名称和数量。";
 
-            CreateButton("CloseButton", transform, new Vector2(650f, 385f), new Vector2(54f, 54f), closeSprite, null, InventoryPanelButtonActionType.Close);
-            CreateButton("EquipButton", transform, new Vector2(230f, -275f), new Vector2(126f, 66f), descriptionSprite, null, InventoryPanelButtonActionType.Equip);
-            CreateButton("DiscardButton", transform, new Vector2(390f, -275f), new Vector2(126f, 66f), descriptionSprite, null, InventoryPanelButtonActionType.Discard);
+            CreateButton("CloseButton", transform, new Vector2(763f, 423f), new Vector2(183f, 182f), closeSprite, null, InventoryPanelButtonActionType.Close);
+            CreateButton("EquipButton", transform, new Vector2(236f, -16f), new Vector2(231f, 71f), selectSprite, selectHighlightedSprite, InventoryPanelButtonActionType.Equip);
+            CreateButton("DiscardButton", transform, new Vector2(545f, -16f), new Vector2(229f, 71f), cancelSprite, cancelHighlightedSprite, InventoryPanelButtonActionType.Discard);
 
-            CreateGrid(InventoryContainerKind.ShortcutBar, 0, new Vector2(-45f, -455f), 3, 1,
-                new Vector2(75f, 73f), new Vector2(16f, 0f), hudSlotSprite, hudSelectedSlotSprite);
-            CreateGrid(InventoryContainerKind.Offhand, 0, new Vector2(137f, -455f), 1, 1,
-                new Vector2(75f, 73f), Vector2.zero, hudSlotSprite, hudSelectedSlotSprite);
+            // Four contiguous cells match the shortcut row in the reference;
+            // they remain valid drop targets for the inventory interactions.
+            CreateGrid(InventoryContainerKind.ShortcutBar, 0, new Vector2(611.5f, -475.5f), 3, 1,
+                new Vector2(91f, 75f), Vector2.zero, equipmentNormal, equipmentSelected);
+            CreateGrid(InventoryContainerKind.Offhand, 0, new Vector2(793.5f, -475.5f), 1, 1,
+                new Vector2(91f, 75f), Vector2.zero, equipmentNormal, equipmentSelected);
             for (var i = 0; i < 3; i++)
             {
-                CreateHint((i + 1).ToString(), new Vector2(-136f + i * 91f, -430f));
+                CreateHint((i + 1).ToString(), new Vector2(575.5f + i * 91f, -451.5f));
             }
 
-            CreateHint("副", new Vector2(137f, -430f));
-            statusLabel = CreateText("InventoryStatus", transform, new Vector2(-390f, -165f), new Vector2(390f, 58f), 14, TextAnchor.MiddleCenter);
+            CreateHint("副", new Vector2(793.5f, -451.5f));
+            statusLabel = CreateText("InventoryStatus", transform, new Vector2(-437f, -235f), new Vector2(420f, 54f), 14, TextAnchor.MiddleCenter);
             statusLabel.color = new Color(0.2f, 0.13f, 0.09f, 1f);
             statusLabel.text = "拖拽物品到背包、快捷栏或副手栏。";
         }
@@ -566,15 +593,16 @@ namespace MemorialArchive.Framework.UI
             }
 
             var labelText = actionType == InventoryPanelButtonActionType.Equip ? "装备" : "丢弃";
+            var captionSprite = actionType == InventoryPanelButtonActionType.Equip ? selectSprite : cancelSprite;
+            var captionHighlightedSprite = actionType == InventoryPanelButtonActionType.Equip
+                ? selectHighlightedSprite
+                : cancelHighlightedSprite;
             buttonTransform.name = actionType == InventoryPanelButtonActionType.Equip ? "EquipButton" : "DiscardButton";
 
-            // The original button art has the old captions baked into the PNG.
-            // Use the caption-free parchment artwork and author the new caption
-            // as UI text so future wording changes do not require new textures.
             var image = buttonTransform.GetComponent<Image>();
             if (image != null)
             {
-                image.sprite = descriptionSprite;
+                image.sprite = captionSprite != null ? captionSprite : descriptionSprite;
                 image.type = Image.Type.Simple;
                 image.color = Color.white;
             }
@@ -582,13 +610,34 @@ namespace MemorialArchive.Framework.UI
             var button = buttonTransform.GetComponent<Button>();
             if (button != null)
             {
-                button.transition = Selectable.Transition.ColorTint;
-                var colors = button.colors;
-                colors.normalColor = Color.white;
-                colors.highlightedColor = new Color(1f, 0.9f, 0.72f, 1f);
-                colors.pressedColor = new Color(0.84f, 0.68f, 0.5f, 1f);
-                colors.selectedColor = colors.highlightedColor;
-                button.colors = colors;
+                if (captionHighlightedSprite != null)
+                {
+                    button.transition = Selectable.Transition.SpriteSwap;
+                    var state = button.spriteState;
+                    state.highlightedSprite = captionHighlightedSprite;
+                    state.selectedSprite = captionHighlightedSprite;
+                    state.pressedSprite = captionHighlightedSprite;
+                    button.spriteState = state;
+                }
+                else
+                {
+                    button.transition = Selectable.Transition.ColorTint;
+                    var colors = button.colors;
+                    colors.normalColor = Color.white;
+                    colors.highlightedColor = new Color(1f, 0.9f, 0.72f, 1f);
+                    colors.pressedColor = new Color(0.84f, 0.68f, 0.5f, 1f);
+                    colors.selectedColor = colors.highlightedColor;
+                    button.colors = colors;
+                }
+            }
+
+            // UI2.0 action captions are baked into their button sprites. Hide
+            // an authored legacy label when the new artwork is available.
+            var authoredLabel = buttonTransform.Find("ActionLabel");
+            if (captionSprite != null && authoredLabel != null)
+            {
+                authoredLabel.gameObject.SetActive(false);
+                return;
             }
 
             var label = buttonTransform.Find("ActionLabel")?.GetComponent<Text>();
@@ -611,7 +660,7 @@ namespace MemorialArchive.Framework.UI
             label.fontSize = 26;
             label.fontStyle = FontStyle.Bold;
             label.alignment = TextAnchor.MiddleCenter;
-            label.color = new Color(0.18f, 0.11f, 0.08f, 1f);
+            label.color = new Color(0.349f, 0.286f, 0.224f, 1f); // #594939
             label.raycastTarget = false;
         }
 

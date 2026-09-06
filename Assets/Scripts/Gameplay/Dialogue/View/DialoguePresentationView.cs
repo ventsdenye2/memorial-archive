@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using MemorialArchive.Framework.Core;
 using MemorialArchive.Framework.Event;
+using MemorialArchive.Framework.UI;
 using MemorialArchive.Gameplay.Dialogue.Data;
 using UnityEngine;
 using UnityEngine.UI;
@@ -31,6 +32,11 @@ namespace MemorialArchive.Gameplay.Dialogue.View
         [SerializeField] private PortraitSlot[] portraitSlots = Array.Empty<PortraitSlot>();
         [SerializeField, Range(0f, 1f)] private float inactivePortraitOverlayAlpha = 0.55f;
         [SerializeField] private bool dimAllPortraitsForNarration;
+        [Header("Optional HUD narration filter")]
+        [SerializeField] private string dialogueIdFilter;
+        [SerializeField] private bool narrationOnly;
+        [SerializeField] private BasePanel requiredOpenPanel;
+        [SerializeField] private GameObject presentationRoot;
         [Header("Dialogue text")]
         [SerializeField, Min(1)] private int dialogueFontSize = 30;
         [SerializeField] private bool useTypewriter = true;
@@ -68,6 +74,7 @@ namespace MemorialArchive.Gameplay.Dialogue.View
             {
                 GameRoot.Instance?.Context?.Events.Unsubscribe<DialogueNodePresentedEvent>(HandleNodePresented);
                 GameRoot.Instance?.Context?.Events.Unsubscribe<DialogueTypewriterCompletionRequestedEvent>(HandleTypewriterCompletionRequested);
+                GameRoot.Instance?.Context?.Events.Unsubscribe<DialogueFinishedEvent>(HandleDialogueFinished);
                 subscribed = false;
             }
 
@@ -75,6 +82,15 @@ namespace MemorialArchive.Gameplay.Dialogue.View
             typewriterRoutine = null;
             isTyping = false;
             SetFlashAlpha(0f);
+            HidePresentationRoot();
+        }
+
+        private void LateUpdate()
+        {
+            if (presentationRoot != null && requiredOpenPanel != null && !requiredOpenPanel.IsOpen)
+            {
+                HidePresentationRoot();
+            }
         }
 
         private IEnumerator SubscribeWhenReady()
@@ -86,15 +102,27 @@ namespace MemorialArchive.Gameplay.Dialogue.View
 
             GameRoot.Instance.Context.Events.Subscribe<DialogueNodePresentedEvent>(HandleNodePresented);
             GameRoot.Instance.Context.Events.Subscribe<DialogueTypewriterCompletionRequestedEvent>(HandleTypewriterCompletionRequested);
+            GameRoot.Instance.Context.Events.Subscribe<DialogueFinishedEvent>(HandleDialogueFinished);
             subscribed = true;
         }
 
         private void HandleNodePresented(DialogueNodePresentedEvent evt)
         {
             var node = evt.Node;
-            if (node == null)
+            if (!ShouldPresentNode(node))
             {
+                if (ShouldHideForIgnoredNode(node))
+                {
+                    StopTypewriterForIgnoredNode(node);
+                    HidePresentationRoot();
+                }
+
                 return;
+            }
+
+            if (presentationRoot != null)
+            {
+                presentationRoot.SetActive(true);
             }
 
             if (dialogueText != null)
@@ -314,6 +342,69 @@ namespace MemorialArchive.Gameplay.Dialogue.View
             if (dialogueText != null)
             {
                 dialogueText.text = typewriterText;
+            }
+        }
+
+        private bool ShouldPresentNode(DialogueNodeData node)
+        {
+            if (node == null)
+            {
+                return false;
+            }
+
+            if (requiredOpenPanel != null && !requiredOpenPanel.IsOpen)
+            {
+                return false;
+            }
+
+            if (!string.IsNullOrEmpty(dialogueIdFilter) && node.DialogueId != dialogueIdFilter)
+            {
+                return false;
+            }
+
+            return !narrationOnly || string.IsNullOrEmpty(node.SpeakerId);
+        }
+
+        private bool ShouldHideForIgnoredNode(DialogueNodeData node)
+        {
+            if (node == null || (!string.IsNullOrEmpty(dialogueIdFilter) && node.DialogueId != dialogueIdFilter))
+            {
+                return false;
+            }
+
+            return (requiredOpenPanel != null && !requiredOpenPanel.IsOpen)
+                || (narrationOnly && !string.IsNullOrEmpty(node.SpeakerId));
+        }
+
+        private void StopTypewriterForIgnoredNode(DialogueNodeData node)
+        {
+            if (typewriterRoutine != null)
+            {
+                StopCoroutine(typewriterRoutine);
+                typewriterRoutine = null;
+            }
+
+            isTyping = false;
+            typewriterDialogueId = node.DialogueId;
+            typewriterNodeIndex = node.NodeIndex;
+            PublishTypewriterState(false);
+        }
+
+        private void HandleDialogueFinished(DialogueFinishedEvent evt)
+        {
+            if (!string.IsNullOrEmpty(dialogueIdFilter) && evt.DialogueId != dialogueIdFilter)
+            {
+                return;
+            }
+
+            HidePresentationRoot();
+        }
+
+        private void HidePresentationRoot()
+        {
+            if (presentationRoot != null && presentationRoot.activeSelf)
+            {
+                presentationRoot.SetActive(false);
             }
         }
 

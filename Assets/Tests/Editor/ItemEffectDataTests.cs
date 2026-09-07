@@ -5,6 +5,8 @@ using MemorialArchive.Gameplay.Character.Logic;
 using MemorialArchive.Gameplay.Inventory.Data;
 using MemorialArchive.Gameplay.Inventory.Logic;
 using MemorialArchive.Gameplay.Item.Data;
+using MemorialArchive.Gameplay.Item.Config;
+using UnityEngine;
 using MemorialArchive.Gameplay.Item.Logic;
 using NUnit.Framework;
 using UnityEditor;
@@ -24,7 +26,7 @@ namespace MemorialArchive.Tests.Editor
         public void TryCreate_MapsConfiguredCharacterEffects(string effectId, float healthRestore,
             bool restoresFullStamina, float duration, float staminaMultiplier, float meleeMultiplier)
         {
-            Assert.That(ItemEffectData.TryCreate(effectId, out var effect), Is.True);
+            Assert.That(ItemEffectData.TryCreate(LoadEffectConfig(effectId), out var effect), Is.True);
             Assert.That(effect.HealthRestore, Is.EqualTo(healthRestore));
             Assert.That(effect.RestoreFullStamina, Is.EqualTo(restoresFullStamina));
             Assert.That(effect.DurationSeconds, Is.EqualTo(duration));
@@ -35,7 +37,7 @@ namespace MemorialArchive.Tests.Editor
         [Test]
         public void TryCreate_OpiumTinctureCarriesItsExpiryPenalty()
         {
-            Assert.That(ItemEffectData.TryCreate("opium_tincture", out var effect), Is.True);
+            Assert.That(ItemEffectData.TryCreate(LoadEffectConfig("opium_tincture"), out var effect), Is.True);
             Assert.That(effect.RestoreFullHealth, Is.True);
             Assert.That(effect.RestoreHealthAtExpiry, Is.True);
             Assert.That(effect.ExhaustAtExpiry, Is.True);
@@ -44,7 +46,7 @@ namespace MemorialArchive.Tests.Editor
         [Test]
         public void TryCreate_RejectsEffectsWithoutCharacterRuntimeRules()
         {
-            Assert.That(ItemEffectData.TryCreate("reload_pistol", out _), Is.False);
+            Assert.That(ItemEffectData.TryCreate(LoadEffectConfig("reload_pistol"), out _), Is.False);
         }
 
         [Test]
@@ -52,7 +54,7 @@ namespace MemorialArchive.Tests.Editor
         {
             var character = CreateCharacterSystem(out var events);
             character.Data.health = 2.5f;
-            ItemEffectData.TryCreate("restore_health_1_5", out var effect);
+            ItemEffectData.TryCreate(LoadEffectConfig("restore_health_1_5"), out var effect);
 
             events.Publish(new CharacterItemEffectRequestedEvent(1015, effect));
 
@@ -65,7 +67,7 @@ namespace MemorialArchive.Tests.Editor
         {
             var character = CreateCharacterSystem(out var events);
             character.Data.health = 1f;
-            ItemEffectData.TryCreate("opium_tincture", out var effect);
+            ItemEffectData.TryCreate(LoadEffectConfig("opium_tincture"), out var effect);
 
             events.Publish(new CharacterItemEffectRequestedEvent(1019, effect));
             Assert.That(character.Data.health, Is.EqualTo(3f));
@@ -111,6 +113,42 @@ namespace MemorialArchive.Tests.Editor
             itemEffects.Dispose();
             inventory.Dispose();
             character.Dispose();
+        }
+
+        [Test]
+        public void TryCreate_UsesEditedConfigValuesWithoutChangingEffectId()
+        {
+            var config = Object.Instantiate(LoadEffectConfig("melee_damage_bonus_20_300"));
+            try
+            {
+                var serialized = new SerializedObject(config);
+                serialized.FindProperty("healthRestore").floatValue = 2.25f;
+                serialized.FindProperty("effectDurationSeconds").floatValue = 45f;
+                serialized.FindProperty("staminaCostMultiplier").floatValue = 0.25f;
+                serialized.FindProperty("meleeDamageMultiplier").floatValue = 1.75f;
+                serialized.ApplyModifiedPropertiesWithoutUndo();
+                Assert.That(ItemEffectData.TryCreate(config, out var effect), Is.True);
+                Assert.That(effect.HealthRestore, Is.EqualTo(2.25f));
+                Assert.That(effect.DurationSeconds, Is.EqualTo(45f));
+                Assert.That(effect.StaminaCostMultiplier, Is.EqualTo(0.25f));
+                Assert.That(effect.MeleeDamageMultiplier, Is.EqualTo(1.75f));
+            }
+            finally
+            {
+                Object.DestroyImmediate(config);
+            }
+        }
+
+        private static ItemConfig LoadEffectConfig(string effectId)
+        {
+            foreach (var guid in AssetDatabase.FindAssets("t:ItemConfig", new[] { "Assets/GameConfigs/Items" }))
+            {
+                var config = AssetDatabase.LoadAssetAtPath<ItemConfig>(AssetDatabase.GUIDToAssetPath(guid));
+                if (config.EffectId == effectId)
+                    return config;
+            }
+            Assert.Fail("Missing item config for " + effectId);
+            return null;
         }
 
         private static CharacterSystem CreateCharacterSystem(out EventBus events)

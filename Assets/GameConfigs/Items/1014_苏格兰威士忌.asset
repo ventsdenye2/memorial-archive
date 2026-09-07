@@ -38,6 +38,10 @@ MonoBehaviour:
   synthesisTargetItemId: 0
   synthesisRequiredQuantity: 1
   spawnRule: 0.03
+  healthRestore: 0
+  effectDurationSeconds: 300
+  staminaCostMultiplier: 1
+  meleeDamageMultiplier: 1.2
   combatAttackKind: 0
   damageType: 0
   damage: 0

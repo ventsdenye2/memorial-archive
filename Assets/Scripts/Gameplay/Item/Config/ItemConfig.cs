@@ -62,6 +62,16 @@ namespace MemorialArchive.Gameplay.Item.Config
         [SerializeField] private int synthesisRequiredQuantity;
         [Tooltip("保留配置表中的刷新权重或数量范围。")]
         [SerializeField] private string spawnRule;
+        [Header("消耗品效果数值")]
+        [Tooltip("使用时恢复的生命值；回满生命类效果仍按回满处理。")]
+        [Min(0f)] [SerializeField] private float healthRestore;
+        [Tooltip("增益持续时间，单位秒；0 表示不添加持续增益。")]
+        [Min(0f)] [SerializeField] private float effectDurationSeconds;
+        [Tooltip("体力消耗倍率：1 正常，0 不消耗，0.5 减半。")]
+        [Min(0f)] [SerializeField] private float staminaCostMultiplier = 1f;
+        [Tooltip("近战伤害倍率：1 正常，1.2 提升 20%。")]
+        [Min(0f)] [SerializeField] private float meleeDamageMultiplier = 1f;
+
         [Header("Combat (only used when Category is Weapon)")]
         [SerializeField] private CombatAttackKind combatAttackKind = CombatAttackKind.Melee;
         [SerializeField] private DamageType damageType = DamageType.Physical;
@@ -71,6 +81,10 @@ namespace MemorialArchive.Gameplay.Item.Config
         [SerializeField] private float attackCooldownSeconds = 0.4f;
         [SerializeField] private float staminaCost = 1f;
 
+        public float HealthRestore => Mathf.Max(0f, healthRestore);
+        public float EffectDurationSeconds => Mathf.Max(0f, effectDurationSeconds);
+        public float StaminaCostMultiplier => Mathf.Max(0f, staminaCostMultiplier);
+        public float MeleeDamageMultiplier => Mathf.Max(0f, meleeDamageMultiplier);
         public int ItemId => itemId;
         public string ItemName => itemName;
         public string Description => description;

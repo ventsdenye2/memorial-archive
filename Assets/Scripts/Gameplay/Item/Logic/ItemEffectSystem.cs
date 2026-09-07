@@ -47,7 +47,7 @@ namespace MemorialArchive.Gameplay.Item.Logic
                 return;
             }
 
-            if (!ItemEffectData.TryCreate(config.EffectId, out var effect))
+            if (!ItemEffectData.TryCreate(config, out var effect))
             {
                 context.Events.Publish(new ItemUseFailedEvent(config.ItemId, "This item has no implemented runtime effect."));
                 return;

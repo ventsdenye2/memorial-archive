@@ -39,8 +39,8 @@ MonoBehaviour:
   spawnRule: 
   combatAttackKind: 0
   damageType: 0
-  damage: 80
-  attackRange: 0.8
-  attackActiveSeconds: 0.5
-  attackCooldownSeconds: 0.5
+  damage: 150
+  attackRange: 2
+  attackActiveSeconds: 0.7
+  attackCooldownSeconds: 0.7
   staminaCost: 6

@@ -19,7 +19,7 @@ namespace MemorialArchive.Gameplay.Monster.View
         [SerializeField] private MonsterAnimationView animationView;
 
         private MonsterConfig config;
-        private MonsterActionState state;
+        private readonly MonsterStateMachine stateMachine = new MonsterStateMachine();
         private Vector2 playerPosition;
         private bool hasPlayerPosition;
         private bool playerAlive = true;
@@ -36,7 +36,7 @@ namespace MemorialArchive.Gameplay.Monster.View
             MemorialArchive.Framework.Audio.AudioSystem.Current?.Playback?.Play(AudioPrefix + suffix, transform);
         }
 
-        public MonsterActionState State => state;
+        public MonsterActionState State => stateMachine.CurrentState;
         public MonsterConfig Config => config;
 
         private void Awake()
@@ -97,16 +97,19 @@ namespace MemorialArchive.Gameplay.Monster.View
             }
 
             playerAlive = true;
+            playerPosition = Vector2.zero;
+            hasPlayerPosition = false;
             decisionRemaining = 0f;
             attackCooldownRemaining = 0f;
             actionLockRemaining = 0f;
             attackAwaitingHit = false;
+            stateMachine.Reset(MonsterActionState.Idle);
             SetState(MonsterActionState.Idle, true);
         }
 
         private void FixedUpdate()
         {
-            if (config == null || state == MonsterActionState.Dead)
+            if (config == null || State == MonsterActionState.Dead)
             {
                 return;
             }
@@ -115,7 +118,7 @@ namespace MemorialArchive.Gameplay.Monster.View
             attackCooldownRemaining = Mathf.Max(0f, attackCooldownRemaining - deltaTime);
             decisionRemaining -= deltaTime;
 
-            if (state == MonsterActionState.Hurt || state == MonsterActionState.Attacking)
+            if (stateMachine.IsActionLocked)
             {
                 actionLockRemaining -= deltaTime;
                 if (actionLockRemaining > 0f)
@@ -128,13 +131,19 @@ namespace MemorialArchive.Gameplay.Monster.View
                 decisionRemaining = 0f;
             }
 
+            // 冷却刚结束时立即重新评估，不额外等待下一次普通 AI 间隔。
+            if (State == MonsterActionState.AttackCooldown && attackCooldownRemaining <= 0f)
+            {
+                decisionRemaining = 0f;
+            }
+
             if (decisionRemaining <= 0f)
             {
                 decisionRemaining = config.DecisionInterval;
                 MakeDecision();
             }
 
-            if (state == MonsterActionState.Chasing)
+            if (stateMachine.CanMove)
             {
                 MoveTowardsPlayer(deltaTime);
             }
@@ -149,7 +158,7 @@ namespace MemorialArchive.Gameplay.Monster.View
             var distance = hasPlayerPosition
                 ? Mathf.Abs(playerPosition.x - body.position.x)
                 : float.PositiveInfinity;
-            var nextState = MonsterDecisionPolicy.Decide(
+            var nextState = stateMachine.DecideTarget(
                 hasPlayerPosition,
                 playerAlive,
                 distance,
@@ -172,13 +181,24 @@ namespace MemorialArchive.Gameplay.Monster.View
             var distance = Mathf.Abs(horizontalOffset);
             if (distance <= config.AttackRange)
             {
+                // 目标已在攻击距离内时不能继续保留 Chasing；马上走一次状态决策。
+                MakeDecision();
                 return;
             }
 
             var maximumStep = config.MoveSpeed * DesignUnitsToWorldUnits * deltaTime;
             var step = Mathf.Min(maximumStep, distance - config.AttackRange);
-            body.MovePosition(body.position + Vector2.right * Mathf.Sign(horizontalOffset) * step);
+            var nextPosition = body.position + Vector2.right * Mathf.Sign(horizontalOffset) * step;
+            body.MovePosition(nextPosition);
             animationView?.SetFacing(horizontalOffset);
+
+            // MovePosition 在本次物理步末才提交。先离开 Chasing，下一物理步再用已提交的位置
+            // 决定是攻击还是继续等待冷却，避免到达边界后出现一帧以上的追踪残留。
+            if (Mathf.Abs(playerPosition.x - nextPosition.x) <= config.AttackRange)
+            {
+                decisionRemaining = 0f;
+                SetState(MonsterActionState.AttackCooldown);
+            }
         }
 
         private void PerformAttack()
@@ -199,7 +219,7 @@ namespace MemorialArchive.Gameplay.Monster.View
 
         private void HandleAttackHit()
         {
-            if (state == MonsterActionState.Attacking)
+            if (State == MonsterActionState.Attacking)
             {
                 CommitAttackHit();
             }
@@ -248,6 +268,18 @@ namespace MemorialArchive.Gameplay.Monster.View
         {
             playerPosition = evt.Position;
             hasPlayerPosition = true;
+
+            // 玩家在追踪状态下进入攻击距离，或在等待状态下离开攻击距离时，
+            // 下一物理步必须立即重算，不能等完整的 decisionInterval。
+            if (config != null && !stateMachine.IsActionLocked)
+            {
+                var distance = Mathf.Abs(playerPosition.x - body.position.x);
+                if ((State == MonsterActionState.Chasing && distance <= config.AttackRange) ||
+                    (State == MonsterActionState.AttackCooldown && distance > config.AttackRange))
+                {
+                    decisionRemaining = 0f;
+                }
+            }
         }
 
         private void HandlePlayerDied(CharacterDiedEvent evt)
@@ -299,24 +331,23 @@ namespace MemorialArchive.Gameplay.Monster.View
 
         private void SetState(MonsterActionState nextState, bool force = false)
         {
-            if (!force && state == nextState)
+            if (!stateMachine.TryTransition(nextState, force))
             {
                 return;
             }
 
-            state = nextState;
             var audio = MemorialArchive.Framework.Audio.AudioSystem.Current?.Playback;
             audio?.Stop(movementAudio);
-            movementAudio = state == MonsterActionState.Chasing
+            movementAudio = State == MonsterActionState.Chasing
                 ? audio?.Play("sfx_monster_ghost_move", transform) : null;
-            if (state != MonsterActionState.Attacking)
+            if (State != MonsterActionState.Attacking)
             {
                 attackAwaitingHit = false;
             }
-            animationView?.PlayState(state);
+            animationView?.PlayState(State);
             if (targetView != null && !string.IsNullOrEmpty(targetView.TargetId))
             {
-                GameRoot.Instance?.Context?.Events.Publish(new MonsterStateChangedEvent(targetView.TargetId, state));
+                GameRoot.Instance?.Context?.Events.Publish(new MonsterStateChangedEvent(targetView.TargetId, State));
             }
         }
 
@@ -324,7 +355,7 @@ namespace MemorialArchive.Gameplay.Monster.View
         {
             if (targetView != null && body != null)
             {
-                GameRoot.Instance?.GetSystem<MonsterSystem>()?.UpdateRuntimeState(targetView.TargetId, body.position, state);
+                GameRoot.Instance?.GetSystem<MonsterSystem>()?.UpdateRuntimeState(targetView.TargetId, body.position, State);
             }
         }
     }

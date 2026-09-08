@@ -10,7 +10,10 @@ namespace MemorialArchive.Gameplay.Monster.Data
         Chasing,
         Attacking,
         Hurt,
-        Dead
+        Dead,
+        // 目标在攻击距离内，但攻击间隔尚未结束。这个状态不移动，动画表现为待机。
+        // 放在已有枚举值末尾，避免旧存档中的状态数值发生变化。
+        AttackCooldown
     }
 
     [Serializable]

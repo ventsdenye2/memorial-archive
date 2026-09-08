@@ -72,6 +72,8 @@ namespace MemorialArchive.Gameplay.Monster.View
                 case MonsterActionState.Dead:
                     Play(deathAnimation, false);
                     break;
+                case MonsterActionState.AttackCooldown:
+                case MonsterActionState.Idle:
                 default:
                     Play(idleAnimation, true);
                     break;

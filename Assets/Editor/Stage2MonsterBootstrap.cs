@@ -414,8 +414,8 @@ namespace MemorialArchive.Editor
                 "AI without a player must idle.");
             Require(MonsterDecisionPolicy.Decide(true, true, 1f, 8f, 1.2f, true) == MonsterActionState.Attacking,
                 "AI in range with a ready cooldown must attack.");
-            Require(MonsterDecisionPolicy.Decide(true, true, 1f, 8f, 1.2f, false) == MonsterActionState.Idle,
-                "AI in range while cooling down must wait.");
+            Require(MonsterDecisionPolicy.Decide(true, true, 1f, 8f, 1.2f, false) == MonsterActionState.AttackCooldown,
+                "AI in range while cooling down must enter the explicit attack cooldown state.");
             Require(MonsterDecisionPolicy.Decide(true, true, 4f, 8f, 1.2f, true) == MonsterActionState.Chasing,
                 "AI in detection range must chase.");
             Require(MonsterDecisionPolicy.Decide(true, true, 9f, 8f, 1.2f, true) == MonsterActionState.Idle,

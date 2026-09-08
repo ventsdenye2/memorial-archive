@@ -19,7 +19,7 @@ namespace MemorialArchive.Gameplay.Monster.Logic
 
             if (distance <= attackRange)
             {
-                return attackReady ? MonsterActionState.Attacking : MonsterActionState.Idle;
+                return attackReady ? MonsterActionState.Attacking : MonsterActionState.AttackCooldown;
             }
 
             return MonsterActionState.Chasing;

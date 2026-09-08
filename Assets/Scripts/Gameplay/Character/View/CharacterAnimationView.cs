@@ -248,6 +248,15 @@ namespace MemorialArchive.Gameplay.Character.View
         private void HandleCharacterStateChanged(CharacterActionStateChangedEvent evt)
         {
             presentedState = evt.State;
+            if (activeAction == ActionPresentation.Attack && !IsAttackState(evt.State))
+            {
+                CancelCurrentAction();
+                if (evt.State == CharacterActionState.Normal || evt.State == CharacterActionState.Weak)
+                {
+                    SwitchToLocomotion();
+                }
+            }
+
             // Throwing 会立即用 throw 动画替换瞄准姿势，无需先切回待机造成双重建骨。
             if (activeAction == ActionPresentation.Aim && evt.State != CharacterActionState.Aiming && evt.State != CharacterActionState.ThrowAiming && evt.State != CharacterActionState.Throwing)
                 StopActionToLocomotion();
@@ -275,6 +284,14 @@ namespace MemorialArchive.Gameplay.Character.View
             {
                 PlayStateAttack(evt.State);
             }
+        }
+
+        private static bool IsAttackState(CharacterActionState state)
+        {
+            return state == CharacterActionState.Attack1 ||
+                   state == CharacterActionState.Attack2 ||
+                   state == CharacterActionState.Attack3 ||
+                   state == CharacterActionState.Throwing;
         }
 
         private void PlayStateAttack(CharacterActionState state)

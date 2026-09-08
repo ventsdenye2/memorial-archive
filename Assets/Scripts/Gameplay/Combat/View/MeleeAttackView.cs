@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using MemorialArchive.Framework.Core;
 using MemorialArchive.Framework.Event;
+using MemorialArchive.Gameplay.Character.Data;
 using MemorialArchive.Gameplay.Combat.Data;
 using MemorialArchive.Gameplay.Monster.View;
 using Spine;
@@ -54,12 +55,14 @@ namespace MemorialArchive.Gameplay.Combat.View
         private void OnEnable()
         {
             GameRoot.Instance?.Context?.Events.Subscribe<AttackStartedEvent>(HandleAttackStarted);
+            GameRoot.Instance?.Context?.Events.Subscribe<CharacterActionStateChangedEvent>(HandleCharacterStateChanged);
             BindAnimationState();
         }
 
         private void OnDisable()
         {
             GameRoot.Instance?.Context?.Events.Unsubscribe<AttackStartedEvent>(HandleAttackStarted);
+            GameRoot.Instance?.Context?.Events.Unsubscribe<CharacterActionStateChangedEvent>(HandleCharacterStateChanged);
             UnbindAnimationState();
             ClearAttack();
         }
@@ -110,6 +113,21 @@ namespace MemorialArchive.Gameplay.Combat.View
             frameEventObserved = false;
             fallbackTriggered = false;
             reportedTargetIds.Clear();
+        }
+
+        private void HandleCharacterStateChanged(CharacterActionStateChangedEvent evt)
+        {
+            if (!IsAttackState(evt.State))
+            {
+                ClearAttack();
+            }
+        }
+
+        private static bool IsAttackState(CharacterActionState state)
+        {
+            return state == CharacterActionState.Attack1 ||
+                   state == CharacterActionState.Attack2 ||
+                   state == CharacterActionState.Attack3;
         }
 
         private void HandleSpineEvent(TrackEntry trackEntry, Spine.Event evt)

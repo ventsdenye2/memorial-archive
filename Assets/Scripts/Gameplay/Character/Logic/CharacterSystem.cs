@@ -121,7 +121,19 @@ namespace MemorialArchive.Gameplay.Character.Logic
             if (exactStamina <= 0 && weakRemaining <= 0) EnterWeakState();
             var before = data.stamina; data.stamina = Mathf.CeilToInt(exactStamina); if (before != data.stamina) context.Events.Publish(new CharacterStatsChangedEvent());
         }
-        private void OnMove(MoveInputEvent e) { if (BlocksMovement()) { moveDirection = Vector2.zero; return; } moveDirection = new Vector2(Mathf.Clamp(e.Direction.x, -1, 1), 0); if (moveDirection.sqrMagnitude > 0) facingDirection = moveDirection.normalized; }
+        private void OnMove(MoveInputEvent e)
+        {
+            if (IsAttackState(state) && Mathf.Abs(e.Direction.x) > 0.0001f)
+            {
+                moveDirection = new Vector2(Mathf.Clamp(e.Direction.x, -1, 1), 0);
+                if (moveDirection.sqrMagnitude > 0) facingDirection = moveDirection.normalized;
+                SetState(weakRemaining > 0 ? CharacterActionState.Weak : CharacterActionState.Normal);
+                return;
+            }
+            if (BlocksMovement()) { moveDirection = Vector2.zero; return; }
+            moveDirection = new Vector2(Mathf.Clamp(e.Direction.x, -1, 1), 0);
+            if (moveDirection.sqrMagnitude > 0) facingDirection = moveDirection.normalized;
+        }
         private void OnRun(RunInputEvent e) { IsRunning = e.IsRunning && !BlocksMovement() && (state == CharacterActionState.Normal || state == CharacterActionState.Equipping) && exactStamina > 0; }
         private void OnEquipment(CharacterEquipmentChangedEvent e)
         {
@@ -167,6 +179,13 @@ namespace MemorialArchive.Gameplay.Character.Logic
                 {
                     UpdateFirearmAim(e.PointerWorldPosition);
                 }
+                return;
+            }
+
+            if (IsAttackState(state) && e.IsHeld)
+            {
+                SetState(CharacterActionState.Blocking);
+                PublishSecondary(true, false, e.PointerWorldPosition);
                 return;
             }
 
@@ -461,7 +480,8 @@ namespace MemorialArchive.Gameplay.Character.Logic
         private void OnDodge(DodgePressedEvent e)
         {
             var staminaCost = (attributes?.DodgeStaminaCost ?? 6f) * StaminaCostMultiplier;
-            if (attributes == null || BlocksActions() || dodgeCooldown > 0 || exactStamina < staminaCost) return;
+            var canInterruptAttack = IsAttackState(state);
+            if (attributes == null || (!canInterruptAttack && BlocksActions()) || dodgeCooldown > 0 || exactStamina < staminaCost) return;
             if (!debugModeEnabled) exactStamina -= staminaCost;
             IsRunning = false;
             PublishSecondary(false, false, data.position);

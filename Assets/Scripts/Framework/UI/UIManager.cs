@@ -164,6 +164,24 @@ namespace MemorialArchive.Framework.UI
             return OpenDirect(panel);
         }
 
+        public BasePanel OpenFromSystem(PanelId panelId)
+        {
+            if (panelId != PanelId.Settings && panelId != PanelId.Load)
+            {
+                Debug.LogWarning($"System panel cannot open: {panelId}");
+                return null;
+            }
+
+            if (!IsOpen(PanelId.System))
+            {
+                Debug.LogWarning($"Cannot open {panelId} from System because the System panel is closed.");
+                return null;
+            }
+
+            Close(PanelId.System);
+            return Open(panelId);
+        }
+
         public void Close(PanelId panelId)
         {
             if (panelId == PanelId.Inventory && IsContainerGroupOpen())
@@ -214,11 +232,23 @@ namespace MemorialArchive.Framework.UI
                 }
             }
 
-            var hud = FindPanel(PanelId.Hud);
-            if (hud != null && hud.IsOpen)
+            // A panel can be opened by its authored lifecycle (for example a
+            // scene-start panel) without ever entering the modal stack.  A
+            // scene transition must still close that panel; otherwise its
+            // visual state survives the transition and can leave the UI in a
+            // stale modal state after loading a save.
+            foreach (var panel in panels.ToArray())
             {
-                hud.Close();
-                context?.Events.Publish(new PanelClosedEvent(PanelId.Hud));
+                if (panel == null || !panel.IsOpen)
+                {
+                    continue;
+                }
+
+                panel.Close();
+                if (panel.PanelId == PanelId.Hud)
+                {
+                    context?.Events.Publish(new PanelClosedEvent(PanelId.Hud));
+                }
             }
 
             if (hadContainerGroup)

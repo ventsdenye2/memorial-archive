@@ -96,7 +96,7 @@ namespace MemorialArchive.Framework.UI
             }
 
             var next = resolutions[(currentIndex + 1) % resolutions.Length];
-            Screen.SetResolution(next.width, next.height, Screen.fullScreenMode, next.refreshRate);
+            Screen.SetResolution(next.width, next.height, Screen.fullScreenMode, next.refreshRateRatio);
             RefreshResolutionLabel();
         }
 

@@ -30,6 +30,7 @@ namespace MemorialArchive.Gameplay.Character.Logic
         public bool IsRunning { get; private set; } public CharacterActionState ActionState => state;
         public bool IsBlocking => state == CharacterActionState.Blocking; public bool IsAiming => state == CharacterActionState.Aiming || state == CharacterActionState.ThrowAiming;
         public bool HasShieldEquipped => offhandType == OffhandType.Shield;
+        public Vector2 FacingDirection => facingDirection;
         public Vector2 AimDirection => aimDirection;
         public float StaminaCostMultiplier => GetStaminaCostMultiplier();
         public float MeleeDamageMultiplier => GetMeleeDamageMultiplier();
@@ -123,18 +124,36 @@ namespace MemorialArchive.Gameplay.Character.Logic
         }
         private void OnMove(MoveInputEvent e)
         {
-            if (IsAttackState(state) && Mathf.Abs(e.Direction.x) > 0.0001f)
+            var horizontal = Mathf.Clamp(e.Direction.x, -1, 1);
+            if (Mathf.Abs(horizontal) > 0.0001f)
             {
-                moveDirection = new Vector2(Mathf.Clamp(e.Direction.x, -1, 1), 0);
-                if (moveDirection.sqrMagnitude > 0) facingDirection = moveDirection.normalized;
+                facingDirection = new Vector2(Mathf.Sign(horizontal), 0f);
+            }
+
+            if (IsAttackState(state) && Mathf.Abs(horizontal) > 0.0001f)
+            {
+                moveDirection = new Vector2(horizontal, 0f);
                 SetState(weakRemaining > 0 ? CharacterActionState.Weak : CharacterActionState.Normal);
                 return;
             }
-            if (BlocksMovement()) { moveDirection = Vector2.zero; return; }
-            moveDirection = new Vector2(Mathf.Clamp(e.Direction.x, -1, 1), 0);
-            if (moveDirection.sqrMagnitude > 0) facingDirection = moveDirection.normalized;
+
+            if (BlocksMovement())
+            {
+                moveDirection = Vector2.zero;
+                return;
+            }
+
+            moveDirection = new Vector2(horizontal, 0);
         }
-        private void OnRun(RunInputEvent e) { IsRunning = e.IsRunning && !BlocksMovement() && (state == CharacterActionState.Normal || state == CharacterActionState.Equipping) && exactStamina > 0; }
+
+        private void OnRun(RunInputEvent e)
+        {
+            IsRunning = e.IsRunning
+                && !BlocksMovement()
+                && (state == CharacterActionState.Normal || state == CharacterActionState.Equipping)
+                && exactStamina > 0
+                && !HasPrimaryWeaponEquipped();
+        }
         private void OnEquipment(CharacterEquipmentChangedEvent e)
         {
             if ((state == CharacterActionState.ThrowAiming || state == CharacterActionState.Throwing) && e.PrimaryItemId != primaryItemId)
@@ -147,6 +166,10 @@ namespace MemorialArchive.Gameplay.Character.Logic
             offhandType = e.OffhandType;
             comboStage = 0;
             bufferedPrimaryAction = false;
+            if (HasPrimaryWeaponEquipped())
+            {
+                IsRunning = false;
+            }
         }
         private void OnEquipAnimationStateChanged(CharacterEquipAnimationStateChangedEvent e)
         {
@@ -765,6 +788,17 @@ namespace MemorialArchive.Gameplay.Character.Logic
             state == CharacterActionState.Throwing ||
             IsAttackState(state);
 
+        private bool HasPrimaryWeaponEquipped()
+        {
+            if (context == null)
+            {
+                return false;
+            }
+
+            var config = context.Configs?.GetItem(primaryItemId);
+            return config != null && config.Category == ItemCategory.Weapon;
+        }
+
         private static bool IsAttackState(CharacterActionState value) =>
             value == CharacterActionState.Attack1 ||
             value == CharacterActionState.Attack2 ||
@@ -800,9 +834,40 @@ namespace MemorialArchive.Gameplay.Character.Logic
             }
 
             data = JsonUtility.FromJson<CharacterData>(json) ?? data;
+            ResetTransientRuntimeState();
             EnsureActiveEffects();
-            exactStamina = data.stamina;
+            exactStamina = Mathf.Clamp(data.stamina, 0f, attributes?.MaxStamina ?? data.stamina);
+            PublishState();
+            context?.Events.Publish(new CharacterStatsChangedEvent());
             PublishCombatModifiers();
+        }
+
+        private void ResetTransientRuntimeState()
+        {
+            if (state == CharacterActionState.ThrowAiming)
+            {
+                context?.Events.Publish(new ThrowableAimChangedEvent(false, primaryItemId, throwAimTarget));
+            }
+
+            context?.Events.Publish(new BlockInputEvent(false));
+            context?.Events.Publish(new AimInputEvent(false, data.position));
+
+            moveDirection = Vector2.zero;
+            aimDirection = facingDirection.sqrMagnitude > 0.0001f ? facingDirection : Vector2.right;
+            throwAimTarget = data.position;
+            dodgeCooldown = 0f;
+            dodgeInvincible = 0f;
+            staggerRemaining = 0f;
+            staggerCooldown = 0f;
+            weakRemaining = 0f;
+            primaryItemId = 0;
+            offhandType = OffhandType.None;
+            comboStage = 0;
+            bufferedPrimaryAction = false;
+            primaryActionHeld = false;
+            firearmAimItemId = 0;
+            IsRunning = false;
+            state = CharacterActionState.Normal;
         }
     }
 }

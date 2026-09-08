@@ -19,9 +19,9 @@ namespace MemorialArchive.Framework.UI
             GameRoot.Instance?.Context?.UI?.CloseTop();
         }
 
-        public void OpenSettings() => GameRoot.Instance?.Context?.UI?.Open(PanelId.Settings);
+        public void OpenSettings() => OpenPanel(PanelId.Settings);
         public void OpenSave() => GameRoot.Instance?.Context?.UI?.Open(PanelId.Save);
-        public void OpenLoad() => GameRoot.Instance?.Context?.UI?.Open(PanelId.Load);
+        public void OpenLoad() => OpenPanel(PanelId.Load);
 
         public void ContinueGame()
         {
@@ -55,6 +55,23 @@ namespace MemorialArchive.Framework.UI
         private static void RequestLoad(int slotIndex)
         {
             GameRoot.Instance?.Context?.Events.Publish(new LoadRequestedEvent(slotIndex));
+        }
+
+        private void OpenPanel(PanelId panelId)
+        {
+            var ui = GameRoot.Instance?.Context?.UI;
+            if (ui == null)
+            {
+                return;
+            }
+
+            if (ownerPanelId == PanelId.System)
+            {
+                ui.OpenFromSystem(panelId);
+                return;
+            }
+
+            ui.Open(panelId);
         }
     }
 }

@@ -151,7 +151,15 @@ namespace MemorialArchive.Gameplay.Character.View
                 if (character == null) return;
             }
 
-            if (activeAction == ActionPresentation.Aim && character.IsAiming) UpdateFacing(character.AimDirection);
+            if (activeAction == ActionPresentation.Aim && character.IsAiming)
+            {
+                UpdateFacing(character.AimDirection);
+            }
+            else if (activeAction == ActionPresentation.Equip || activeAction == ActionPresentation.None)
+            {
+                UpdateFacing(character.FacingDirection);
+            }
+
             if (activeAction == ActionPresentation.Equip)
             {
                 SwitchEquipAnimation(character.MoveDirection.sqrMagnitude > 0.0001f);

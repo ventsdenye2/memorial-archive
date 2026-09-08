@@ -20,7 +20,9 @@ namespace MemorialArchive.Framework.UI
                 return null;
             }
 
-            return panel.Find("SaveSlotSurface") ?? panel.Find("SaveSlotRuntime");
+            return panel.Find("SaveSlotSurface")
+                ?? panel.Find("SaveSlotRuntime")
+                ?? panel;
         }
 
         public static Button FindSlotButton(Transform surface, int slotIndex, out Text label)
@@ -31,7 +33,11 @@ namespace MemorialArchive.Framework.UI
                 return null;
             }
 
-            var slot = surface.Find("Slot_" + (slotIndex + 1)) ?? surface.Find("Slot" + slotIndex);
+            var oneBased = slotIndex + 1;
+            var slot = surface.Find($"Slot_{oneBased}")
+                ?? surface.Find($"Slot{oneBased}")
+                ?? surface.Find($"Slot_{slotIndex}")
+                ?? surface.Find($"Slot{slotIndex}");
             if (slot == null)
             {
                 return null;
@@ -49,7 +55,11 @@ namespace MemorialArchive.Framework.UI
                 return null;
             }
 
-            var slot = surface.Find("Slot_" + (slotIndex + 1)) ?? surface.Find("Slot" + slotIndex);
+            var oneBased = slotIndex + 1;
+            var slot = surface.Find($"Slot_{oneBased}")
+                ?? surface.Find($"Slot{oneBased}")
+                ?? surface.Find($"Slot_{slotIndex}")
+                ?? surface.Find($"Slot{slotIndex}");
             if (slot == null)
             {
                 return null;

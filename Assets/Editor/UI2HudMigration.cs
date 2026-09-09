@@ -8,7 +8,9 @@ using UnityEngine.UI;
 namespace MemorialArchive.Editor
 {
     /// <summary>
-    /// Applies the UI2.0 locator art to the two runtime prefabs owned by the HUD pass.
+    /// Applies the UI2.0 game-page art to GameplayHUD and the self-narration page to
+    /// OpeningDialoguePanel. The latter is the OpeningStory host for this requirement;
+    /// the HUD does not create an unconfirmed narration host.
     /// The operation is intentionally idempotent so it can be rerun after a prefab or
     /// Unity import change without rebuilding the panels by hand.
     /// </summary>
@@ -20,7 +22,6 @@ namespace MemorialArchive.Editor
 
         private const string GameUiPath = "Assets/Art/UI/Imported_UI2.0/UI2.0/游戏页面/";
         private const string SelfWhiteUiPath = "Assets/Art/UI/Imported_UI2.0/UI2.0/自白页/";
-        private const string StoryUiPath = "Assets/Art/UI/Imported_UI2.0/UI2.0/剧情页/";
 
         [MenuItem("Memorial Archive/UI/Apply UI2.0 HUD and Opening Dialogue")]
         public static void Apply()
@@ -65,15 +66,33 @@ namespace MemorialArchive.Editor
                 hudPanel = root.AddComponent<HUDPanel>();
             }
 
+            RemoveUnconfirmedHudNarration(root);
             ConfigureHealth(root);
             var staminaBar = ConfigureStamina(root);
             ConfigureNavigation(root);
             ConfigureTaskArea(root);
             var shortcutSlots = ConfigureShortcutBar(root);
-            ConfigureNarration(root, hudPanel);
             ConfigureHudPanelBindings(hudPanel, shortcutSlots, staminaBar);
             ConfigureGuideGraphics(root);
             EnsureCanvasRenderers(root);
+        }
+
+        private static void RemoveUnconfirmedHudNarration(GameObject root)
+        {
+            // Older runs of this migration created a disabled self-narration panel on
+            // the HUD. The current requirement assigns the self-narration page to
+            // OpeningStory, so remove that stale generated subtree and its presenter.
+            var narration = root.transform.Find("NarrationPanel");
+            if (narration != null)
+            {
+                Object.DestroyImmediate(narration.gameObject);
+            }
+
+            var presenter = root.GetComponent<DialoguePresentationView>();
+            if (presenter != null)
+            {
+                Object.DestroyImmediate(presenter);
+            }
         }
 
         private static void ConfigureHealth(GameObject root)
@@ -279,50 +298,6 @@ namespace MemorialArchive.Editor
             EnsureImage(toggle.gameObject, LoadSprite(GameUiPath + "任务栏展开按钮.png"), false);
         }
 
-        private static void ConfigureNarration(GameObject root, HUDPanel hudPanel)
-        {
-            var narration = EnsureRect(root.transform, "NarrationPanel");
-            ConfigureRect(narration, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, new Vector2(0.5f, 0.5f));
-            narration.gameObject.SetActive(false);
-
-            var frame = EnsureRect(narration, "NarrationFrame");
-            ConfigureBottomAnchored(frame, Vector2.zero, new Vector2(1545f, 242f));
-            EnsureImage(frame.gameObject, LoadSprite(SelfWhiteUiPath + "话框.png"), false);
-
-            var text = EnsureText(narration.gameObject, "NarrationText", string.Empty, 30,
-                new Color(0.86f, 0.82f, 0.74f, 1f));
-            ConfigureBottomCenter(text.rectTransform, new Vector2(0f, 95f), new Vector2(1250f, 120f));
-            text.alignment = TextAnchor.UpperLeft;
-
-            var hint = EnsureRect(narration, "ContinueHint");
-            ConfigureBottomCenter(hint, new Vector2(610f, 68f), new Vector2(221f, 76f));
-            EnsureImage(hint.gameObject, LoadSprite(SelfWhiteUiPath + "按任意键继续.png"), false);
-
-            var view = root.GetComponent<DialoguePresentationView>();
-            if (view == null)
-            {
-                view = root.AddComponent<DialoguePresentationView>();
-            }
-
-            var serializedView = new SerializedObject(view);
-            SetObjectReference(serializedView, "dialogueText", text);
-            SetObjectReference(serializedView, "cgImage", null);
-            SetObjectReference(serializedView, "flashOverlay", null);
-            SetObjectReference(serializedView, "effectAudioSource", null);
-            SetObjectReferenceArray(serializedView, "portraitSlots", 0);
-            SetFloat(serializedView, "inactivePortraitOverlayAlpha", 0.55f);
-            SetBool(serializedView, "dimAllPortraitsForNarration", false);
-            SetString(serializedView, "dialogueIdFilter", string.Empty);
-            SetBool(serializedView, "narrationOnly", true);
-            SetObjectReference(serializedView, "requiredOpenPanel", hudPanel);
-            SetObjectReference(serializedView, "presentationRoot", narration.gameObject);
-            SetInt(serializedView, "dialogueFontSize", 30);
-            SetBool(serializedView, "useTypewriter", true);
-            SetFloat(serializedView, "charactersPerSecond", 36f);
-            serializedView.ApplyModifiedPropertiesWithoutUndo();
-            EditorUtility.SetDirty(view);
-        }
-
         private static void ConfigureHudPanelBindings(HUDPanel panel, Image[] slots, Image staminaBar)
         {
             var serializedPanel = new SerializedObject(panel);
@@ -379,19 +354,21 @@ namespace MemorialArchive.Editor
                 panelImage.raycastTarget = false;
             }
 
+            // The current requirement assigns the self-narration page to OpeningStory.
+            // Keep the CG/portrait layer and dialogue controller, but replace only the
+            // authored dialogue chrome with the self-narration frame and hint.
             var frame = EnsureRect(dialoguePanel, "DialogueFrame");
-            ConfigureBottomAnchored(frame, Vector2.zero, new Vector2(1920f, 415f));
-            EnsureImage(frame.gameObject, LoadSprite(StoryUiPath + "剧情框.png"), false);
+            ConfigureBottomAnchored(frame, Vector2.zero, new Vector2(1545f, 242f));
+            EnsureImage(frame.gameObject, LoadSprite(SelfWhiteUiPath + "话框.png"), false);
             frame.SetSiblingIndex(1);
 
             var dialogueText = dialoguePanel.Find("DialogueText")?.GetComponent<Text>();
             if (dialogueText != null)
             {
-                ConfigureRect(dialogueText.rectTransform, new Vector2(0.10f, 0.08f), new Vector2(0.90f, 0.30f),
-                    Vector2.zero, Vector2.zero, new Vector2(0.5f, 0.5f));
+                ConfigureBottomCenter(dialogueText.rectTransform, new Vector2(0f, 95f), new Vector2(1250f, 120f));
                 dialogueText.font = LoadFont();
                 dialogueText.fontSize = 30;
-                dialogueText.color = new Color(0.82f, 0.76f, 0.66f, 1f);
+                dialogueText.color = new Color(0.86f, 0.82f, 0.74f, 1f);
                 dialogueText.alignment = TextAnchor.UpperLeft;
                 dialogueText.resizeTextForBestFit = false;
                 dialogueText.horizontalOverflow = HorizontalWrapMode.Wrap;
@@ -407,8 +384,8 @@ namespace MemorialArchive.Editor
                 hint = EnsureRect(dialoguePanel, "Hint");
             }
 
-            ConfigureBottomCenter(hint, new Vector2(745f, 110f), new Vector2(274f, 87f));
-            var hintImage = EnsureImage(hint.gameObject, LoadSprite(StoryUiPath + "按任意键继续.png"), false);
+            ConfigureBottomCenter(hint, new Vector2(610f, 68f), new Vector2(221f, 76f));
+            var hintImage = EnsureImage(hint.gameObject, LoadSprite(SelfWhiteUiPath + "按任意键继续.png"), false);
             hintImage.preserveAspect = true;
             var hintText = hint.GetComponent<Text>();
             if (hintText != null)

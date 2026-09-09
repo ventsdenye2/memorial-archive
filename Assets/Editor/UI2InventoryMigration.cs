@@ -137,21 +137,6 @@ namespace MemorialArchive.Editor
                     image.color = Color.white;
                     image.raycastTarget = false;
 
-                    var keyObject = new GameObject("KeyHint", typeof(RectTransform), typeof(Text));
-                    keyObject.transform.SetParent(slotObject.transform, false);
-                    var keyRect = keyObject.GetComponent<RectTransform>();
-                    keyRect.anchorMin = new Vector2(0f, 1f);
-                    keyRect.anchorMax = new Vector2(0f, 1f);
-                    keyRect.pivot = new Vector2(0f, 1f);
-                    keyRect.anchoredPosition = new Vector2(7f, -4f);
-                    keyRect.sizeDelta = new Vector2(22f, 20f);
-                    var key = keyObject.GetComponent<Text>();
-                    key.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-                    key.fontSize = 14;
-                    key.fontStyle = FontStyle.Bold;
-                    key.color = new Color(0.25f, 0.18f, 0.13f, 1f);
-                    key.raycastTarget = false;
-                    key.text = i == 3 ? "副" : (i + 1).ToString();
                 }
 
                 // Keep the stretch root authored by the scene instance; only

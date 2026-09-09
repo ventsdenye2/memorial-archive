@@ -15,7 +15,7 @@ MonoBehaviour:
   itemId: 1015
   itemName: "\u814C\u54B8\u725B\u8089\u7816"
   description: "\u53EF\u5FEB\u901F\u8865\u5145\u751F\u547D\u7684\u814C\u54B8\u725B\u8089\u7816\u3002"
-  icon: {fileID: 21300000, guid: a7938e9426112cd4687a6dc512e4e321, type: 3}
+  icon: {fileID: 21300000, guid: b7057493dd7caad4b8a3fdda2b6678ab, type: 3}
   category: 1
   sourceType: 3
   isMissionItem: 0

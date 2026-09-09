@@ -57,6 +57,27 @@ namespace MemorialArchive.Tests.Editor
         }
 
         [Test]
+        public void EquipButtonRule_MovesLanternToShortcutBar()
+        {
+            var item = AddBackpackItem("lantern", 1006);
+
+            Assert.That(inventory.TryEquipToFirstAvailableSlot(item.instanceId), Is.True);
+
+            var placement = Find(item.instanceId);
+            Assert.That(placement.containerKind, Is.EqualTo(InventoryContainerKind.ShortcutBar));
+            Assert.That(placement.slotIndex, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void LanternRule_CannotBePlacedInOffhandSlot()
+        {
+            var item = AddBackpackItem("lantern-offhand-rejected", 1006);
+
+            Assert.That(inventory.TryMoveToOffhand(item.instanceId), Is.False);
+            Assert.That(Find(item.instanceId).containerKind, Is.EqualTo(InventoryContainerKind.Backpack));
+        }
+
+        [Test]
         public void EquipButtonRule_WhenShortcutBarIsFull_IsNoOp()
         {
             for (var slotIndex = 0; slotIndex < InventorySystem.ShortcutSlotCount; slotIndex++)

@@ -104,17 +104,27 @@ namespace MemorialArchive.Editor
         {
             SetSprite(Find(root, "Background").GetComponent<Image>(), P("封面", "背景.png"), false, false);
             ConfigureMenuButton(Find(root, "NewGameButton"), P("封面", "新游戏.png"), P("封面", "新游戏（选中）.png"), new Vector2(548f, 219f));
+            var flow = root.GetComponent<MemorialArchive.Framework.Scene.MainMenuFlowController>();
+            if (flow == null) throw new InvalidOperationException("MainMenuPanel is missing MainMenuFlowController.");
+            var continueButton = CreateButton(root.transform, "ContinueButton", P("封面", "继续游戏.png"), P("封面", "继续游戏(选中）.png"), new Vector2(596f, 62f));
+            BindClick(continueButton, flow.ContinueGamePlaceholder);
             ConfigureMenuButton(Find(root, "SettingsButton"), P("封面", "设置.png"), P("封面", "设置 （选中）.png"), new Vector2(618f, -252f));
             ConfigureMenuButton(Find(root, "LoadButton"), P("封面", "读取存档.png"), P("封面", "读取存档 （选中）.png"), new Vector2(509f, -95f));
             ConfigureMenuButton(Find(root, "ExitButton"), P("封面", "退出游戏.png"), P("封面", "退出游戏 （选中）.png"), new Vector2(506f, -409f));
 
+            // The authored cover already contains its title. Keep the old
+            // runtime Text disabled so it cannot sit over the paper artwork.
+            var oldTitle = Find(root, "Title");
+            if (oldTitle != null) oldTitle.SetActive(false);
+
             var rope = Find(root, "Subtitle");
             if (rope != null)
             {
+                rope.SetActive(true);
                 var image = rope.GetComponent<Image>();
                 SetSprite(image, P("封面", "红绳（此图层置于所有选项图层上）.png"), false, false);
                 SetNativeRect(rope.GetComponent<RectTransform>(), image.sprite, new Vector2(550f, -118f));
-            rope.transform.SetAsLastSibling();
+                rope.transform.SetAsLastSibling();
             }
         }
 
@@ -193,6 +203,7 @@ namespace MemorialArchive.Editor
             resolutionLabel.alignment = TextAnchor.MiddleCenter;
             resolutionLabel.fontSize = 31;
             resolutionLabel.color = new Color(0.23f, 0.18f, 0.13f, 1f);
+            resolutionLabel.text = "1920*1080 px";
             resolutionLabel.raycastTarget = false;
 
             var backgroundVolume = CreateVolumeSlider(root.transform, "BackgroundVolume", new Vector2(100f, -200f));
@@ -275,6 +286,7 @@ namespace MemorialArchive.Editor
             var rootImage = go.GetComponent<Image>();
             rootImage.sprite = null;
             rootImage.overrideSprite = null;
+            rootImage.color = new Color(1f, 1f, 1f, 0f);
             rootImage.raycastTarget = false;
 
             var background = GetOrCreateImage(go.transform, "Background");
@@ -284,19 +296,28 @@ namespace MemorialArchive.Editor
             backgroundRect.anchoredPosition = Vector2.zero;
             backgroundRect.sizeDelta = new Vector2(544f, 23f);
 
-            var fill = GetOrCreateImage(go.transform, "Fill");
+            var fillArea = GetOrCreateRect(go.transform, "FillArea");
+            ConfigureSliderArea(fillArea, new Vector2(544f, 23f));
+            var directFill = go.transform.Find("Fill");
+            if (directFill != null) directFill.SetParent(fillArea, false);
+            var fill = GetOrCreateImage(fillArea, "Fill");
             var fillRect = fill.GetComponent<RectTransform>();
-            fillRect.anchorMin = new Vector2(0f, 0.5f);
-            fillRect.anchorMax = new Vector2(0f, 0.5f);
+            fillRect.anchorMin = new Vector2(0f, 0f);
+            fillRect.anchorMax = new Vector2(1f, 1f);
             fillRect.pivot = new Vector2(0f, 0.5f);
-            fillRect.sizeDelta = new Vector2(273f, 23f);
-            fillRect.anchoredPosition = new Vector2(-272f, 0f);
+            fillRect.offsetMin = Vector2.zero;
+            fillRect.offsetMax = Vector2.zero;
             SetSprite(fill.GetComponent<Image>(), P("游戏设置弹窗", "音量（可变滑条）.png"), false, false);
             fill.GetComponent<Image>().raycastTarget = false;
 
-            var handle = GetOrCreateImage(go.transform, "Handle");
+            var handleArea = GetOrCreateRect(go.transform, "HandleArea");
+            ConfigureSliderArea(handleArea, new Vector2(544f, 23f));
+            var directHandle = go.transform.Find("Handle");
+            if (directHandle != null) directHandle.SetParent(handleArea, false);
+            var handle = GetOrCreateImage(handleArea, "Handle");
             var handleRect = handle.GetComponent<RectTransform>();
             handleRect.anchorMin = handleRect.anchorMax = new Vector2(0.5f, 0.5f);
+            handleRect.anchoredPosition = Vector2.zero;
             handleRect.sizeDelta = new Vector2(50f, 50f);
             SetSprite(handle.GetComponent<Image>(), P("游戏设置弹窗", "按钮.png"), false, true);
             handle.GetComponent<Image>().raycastTarget = true;
@@ -311,6 +332,28 @@ namespace MemorialArchive.Editor
             slider.targetGraphic = handle.GetComponent<Image>();
             slider.SetValueWithoutNotify(0.5f);
             return slider;
+        }
+
+        private static RectTransform GetOrCreateRect(Transform parent, string name)
+        {
+            var existing = parent.Find(name);
+            if (existing != null)
+            {
+                var rect = existing.GetComponent<RectTransform>();
+                return rect != null ? rect : existing.gameObject.AddComponent<RectTransform>();
+            }
+
+            var go = new GameObject(name, typeof(RectTransform));
+            go.transform.SetParent(parent, false);
+            return go.GetComponent<RectTransform>();
+        }
+
+        private static void ConfigureSliderArea(RectTransform rect, Vector2 size)
+        {
+            rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.anchoredPosition = Vector2.zero;
+            rect.sizeDelta = size;
+            rect.localScale = Vector3.one;
         }
 
         private static void ConfigureVolumeValue(Slider slider, Text value)

@@ -40,8 +40,8 @@ namespace MemorialArchive.Editor
             var inventoryHint = BuildStep("op_inventory_hint", "背包", "背包中储存着你的物品，点击或按下 TAB 键打开", 1f, 3f,
                 11, MoveHintGroup, GuideCompleteCondition.InventoryOpened, 0, true);
 
-            // 背包打开后引导装备手提灯；条件=道具已装备，不绑定快捷栏/副手槽位。
-            var lanternEquip = BuildStep("op_lantern_equip", "装备手提灯", "将手提灯装备以照亮黑暗", 0.5f, 0f,
+            // 背包打开后引导把手提灯放入快捷栏并选中；条件=道具已装备，不绑定具体快捷栏序号。
+            var lanternEquip = BuildStep("op_lantern_equip", "装备手提灯", "将手提灯放入快捷栏并按对应数字键选中以照亮黑暗", 0.5f, 0f,
                 20, string.Empty, GuideCompleteCondition.ItemEquipped, LanternItemId, true);
 
             // 奔跑提示：3 秒自动隐藏。

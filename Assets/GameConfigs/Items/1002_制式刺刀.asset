@@ -15,7 +15,7 @@ MonoBehaviour:
   itemId: 1002
   itemName: "\u5236\u5F0F\u523A\u5200"
   description: 制式刺刀，可安装在枪械上，也可徒手近战使用。
-  icon: {fileID: 21300000, guid: 32e2218a32cebc74e91a986f6d65f323, type: 3}
+  icon: {fileID: 21300000, guid: 6759b491175859f43920d1624c2ffc0a, type: 3}
   category: 2
   sourceType: 1
   isMissionItem: 1

@@ -1,0 +1,90 @@
+{
+  "date": "2026-09-09",
+  "prefabs": [
+    {
+      "path": "Assets/Prefabs/UI\\BlackScreenStoryPanel.prefab",
+      "graphics": 8,
+      "missing": []
+    },
+    {
+      "path": "Assets/Prefabs/UI\\ContainerPanel.prefab",
+      "graphics": 2,
+      "missing": []
+    },
+    {
+      "path": "Assets/Prefabs/UI\\DiaryPanel.prefab",
+      "graphics": 12,
+      "missing": []
+    },
+    {
+      "path": "Assets/Prefabs/UI\\GameplayHUD.prefab",
+      "graphics": 26,
+      "missing": []
+    },
+    {
+      "path": "Assets/Prefabs/UI\\GuideOverlayPanel.prefab",
+      "graphics": 3,
+      "missing": []
+    },
+    {
+      "path": "Assets/Prefabs/UI\\InventoryPanel.prefab",
+      "graphics": 60,
+      "missing": []
+    },
+    {
+      "path": "Assets/Prefabs/UI\\InventorySlot.prefab",
+      "graphics": 1,
+      "missing": []
+    },
+    {
+      "path": "Assets/Prefabs/UI\\LoadPanel.prefab",
+      "graphics": 13,
+      "missing": []
+    },
+    {
+      "path": "Assets/Prefabs/UI\\MainMenuPanel.prefab",
+      "graphics": 9,
+      "missing": []
+    },
+    {
+      "path": "Assets/Prefabs/UI\\MapPanel.prefab",
+      "graphics": 5,
+      "missing": []
+    },
+    {
+      "path": "Assets/Prefabs/UI\\NewGameConfirmPanel.prefab",
+      "graphics": 5,
+      "missing": []
+    },
+    {
+      "path": "Assets/Prefabs/UI\\OpeningDialoguePanel.prefab",
+      "graphics": 10,
+      "missing": []
+    },
+    {
+      "path": "Assets/Prefabs/UI\\SavePanel.prefab",
+      "graphics": 13,
+      "missing": []
+    },
+    {
+      "path": "Assets/Prefabs/UI\\SettingsPanel.prefab",
+      "graphics": 19,
+      "missing": []
+    },
+    {
+      "path": "Assets/Prefabs/UI\\ShortcutBarPanel.prefab",
+      "graphics": 5,
+      "missing": []
+    },
+    {
+      "path": "Assets/Prefabs/UI\\StairTravelPanel.prefab",
+      "graphics": 9,
+      "missing": []
+    },
+    {
+      "path": "Assets/Prefabs/UI\\SystemPanel.prefab",
+      "graphics": 9,
+      "missing": []
+    }
+  ]
+}

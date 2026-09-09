@@ -192,10 +192,10 @@ namespace MemorialArchive.Gameplay.Character.View
                         SwitchIdleAnimation();
                         break;
                     case LocomotionState.Walk:
-                        SwitchSkeleton(isInjured ? hurtLocomotionData : walkData, isInjured ? "hurt-walk" : equippedOffhand == OffhandType.Lantern ? "lanternwalk" : "normal walk", true);
+                        SwitchSkeleton(isInjured ? hurtLocomotionData : walkData, isInjured ? "hurt-walk" : IsLanternSelected() ? "lanternwalk" : "normal walk", true);
                         break;
                     case LocomotionState.Run:
-                        SwitchSkeleton(isInjured ? hurtLocomotionData : runData, isInjured ? "hurt-run" : equippedOffhand == OffhandType.Lantern ? "run_lantern" : "normal run", true);
+                        SwitchSkeleton(isInjured ? hurtLocomotionData : runData, isInjured ? "hurt-run" : IsLanternSelected() ? "run_lantern" : "normal run", true);
                         break;
                 }
                 current = desired;
@@ -523,7 +523,7 @@ namespace MemorialArchive.Gameplay.Character.View
             current = LocomotionState.Dodge;
             stateEnteredAt = Time.time;
             UnsubscribeDodgeComplete();
-            var entry = SwitchSkeleton(equippedOffhand == OffhandType.Lantern ? lanternDodgeData : dodgeData, "dodge", false);
+            var entry = SwitchSkeleton(IsLanternSelected() ? lanternDodgeData : dodgeData, "dodge", false);
             if (entry == null)
             {
                 SwitchToLocomotion();
@@ -940,6 +940,13 @@ namespace MemorialArchive.Gameplay.Character.View
         {
             var config = GameRoot.Instance?.Context?.Configs.GetItem(selectedItemId);
             return config != null && config.CombatAttackKind == attackKind;
+        }
+
+        private bool IsLanternSelected()
+        {
+            var config = GameRoot.Instance?.Context?.Configs.GetItem(selectedItemId);
+            return equippedOffhand == OffhandType.Lantern ||
+                   config != null && config.OffhandType == OffhandType.Lantern;
         }
 
         private SkeletonDataAsset GetMeleeActionData(int itemId)

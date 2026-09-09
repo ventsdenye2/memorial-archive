@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   stepId: op_lantern_equip
   title: "\u88C5\u5907\u624B\u63D0\u706F"
-  description: "\u6253\u5F00\u80CC\u5305\uFF0C\u5C06\u624B\u63D0\u706F\u62D6\u5165\u526F\u624B\u69FD\u4EE5\u7167\u4EAE\u9ED1\u6697"
+  description: "打开背包，将手提灯放入快捷栏并按对应数字键选中以照亮黑暗"
   sprite: {fileID: 0}
   parallelGroupId: 
   displayDelay: 0.5

@@ -1,4 +1,5 @@
 using MemorialArchive.Framework.Audio;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
@@ -74,7 +75,7 @@ namespace MemorialArchive.Framework.UI
 
         public void CycleResolution()
         {
-            var resolutions = Screen.resolutions;
+            var resolutions = GetDistinctResolutions();
             if (resolutions == null || resolutions.Length == 0)
             {
                 RefreshResolutionLabel();
@@ -97,7 +98,29 @@ namespace MemorialArchive.Framework.UI
 
             var next = resolutions[(currentIndex + 1) % resolutions.Length];
             Screen.SetResolution(next.width, next.height, Screen.fullScreenMode, next.refreshRateRatio);
-            RefreshResolutionLabel();
+            // SetResolution applies on a later player update. Show the
+            // requested size immediately, then Open() refreshes it from the
+            // actual Screen dimensions the next time this panel is shown.
+            if (resolutionLabel != null)
+            {
+                resolutionLabel.text = FormatResolution(next.width, next.height);
+            }
+        }
+
+        private static Resolution[] GetDistinctResolutions()
+        {
+            var source = Screen.resolutions;
+            if (source == null || source.Length == 0) return source;
+
+            var distinct = new List<Resolution>(source.Length);
+            var seen = new HashSet<string>();
+            foreach (var resolution in source)
+            {
+                var key = resolution.width + "x" + resolution.height;
+                if (seen.Add(key)) distinct.Add(resolution);
+            }
+
+            return distinct.ToArray();
         }
 
         private void CreateVolumeSlider()
@@ -152,8 +175,10 @@ namespace MemorialArchive.Framework.UI
 
         private void RefreshResolutionLabel()
         {
-            if (resolutionLabel != null) resolutionLabel.text = $"{Screen.width}*{Screen.height} px";
+            if (resolutionLabel != null) resolutionLabel.text = FormatResolution(Screen.width, Screen.height);
         }
+
+        private static string FormatResolution(int width, int height) => $"{width}*{height} px";
 
         private void RefreshModeVisuals()
         {

@@ -232,9 +232,13 @@ namespace MemorialArchive.Gameplay.Guide.Logic
 
         private void HandleEquipmentChanged(CharacterEquipmentChangedEvent evt)
         {
-            // 手提灯(1006)装备到副手(Lantern)即视为「道具已装备」条件满足。
-            // 按装备结果判定而非绑定快捷栏/副手，规避物品配置归属的不确定性。
-            if (evt.OffhandType == OffhandType.Lantern && conditionFlags.Add(ItemEquippedFlag))
+            // 手提灯既可以由旧存档的副手状态恢复，也可以由新快捷栏的
+            // 当前选中道具激活；引导只关心真实的装备结果。
+            var selectedConfig = evt.PrimaryItemId > 0
+                ? context?.Configs?.GetItem(evt.PrimaryItemId)
+                : null;
+            var lanternSelected = selectedConfig != null && selectedConfig.OffhandType == OffhandType.Lantern;
+            if ((evt.OffhandType == OffhandType.Lantern || lanternSelected) && conditionFlags.Add(ItemEquippedFlag))
             {
                 EvaluateConditionDrivenSteps();
             }

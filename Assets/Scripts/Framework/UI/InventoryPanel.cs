@@ -288,12 +288,6 @@ namespace MemorialArchive.Framework.UI
                 new Vector2(91f, 75f), Vector2.zero, equipmentNormal, equipmentSelected);
             CreateGrid(InventoryContainerKind.Offhand, 0, new Vector2(793.5f, -475.5f), 1, 1,
                 new Vector2(91f, 75f), Vector2.zero, equipmentNormal, equipmentSelected);
-            for (var i = 0; i < 3; i++)
-            {
-                CreateHint((i + 1).ToString(), new Vector2(575.5f + i * 91f, -451.5f));
-            }
-
-            CreateHint("副", new Vector2(793.5f, -451.5f));
             statusLabel = CreateText("InventoryStatus", transform, new Vector2(-437f, -235f), new Vector2(420f, 54f), 14, TextAnchor.MiddleCenter);
             statusLabel.color = new Color(0.2f, 0.13f, 0.09f, 1f);
             statusLabel.text = "拖拽物品到背包、快捷栏或副手栏。";
@@ -401,14 +395,6 @@ namespace MemorialArchive.Framework.UI
                     slots.Add(slot);
                 }
             }
-        }
-
-        private void CreateHint(string text, Vector2 position)
-        {
-            var label = CreateText("SlotHint", transform, position, new Vector2(28f, 24f), 16, TextAnchor.MiddleCenter);
-            label.fontStyle = FontStyle.Bold;
-            label.color = new Color(0.22f, 0.14f, 0.09f, 1f);
-            label.text = text;
         }
 
         private static Image CreateImage(string name, Transform parent, Vector2 position, Vector2 size, Sprite sprite)
@@ -592,7 +578,6 @@ namespace MemorialArchive.Framework.UI
                 return;
             }
 
-            var labelText = actionType == InventoryPanelButtonActionType.Equip ? "装备" : "丢弃";
             var captionSprite = actionType == InventoryPanelButtonActionType.Equip ? selectSprite : cancelSprite;
             var captionHighlightedSprite = actionType == InventoryPanelButtonActionType.Equip
                 ? selectHighlightedSprite
@@ -640,6 +625,14 @@ namespace MemorialArchive.Framework.UI
                 return;
             }
 
+            // UI2.0 captions are part of the button artwork. Do not create a
+            // new legacy Text child when the authored label is already baked
+            // into the sprite; this keeps the prefab free of duplicate text.
+            if (captionSprite != null)
+            {
+                return;
+            }
+
             var label = buttonTransform.Find("ActionLabel")?.GetComponent<Text>();
             if (label == null)
             {
@@ -653,7 +646,7 @@ namespace MemorialArchive.Framework.UI
                 label = labelObject.GetComponent<Text>();
             }
 
-            label.text = labelText;
+            label.text = actionType == InventoryPanelButtonActionType.Equip ? "装备" : "丢弃";
             label.font = descriptionLabel != null && descriptionLabel.font != null
                 ? descriptionLabel.font
                 : Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");

@@ -76,7 +76,7 @@
 ## 七、已知问题（按类型分类）
 
 ### 配置
-- 手提灯（1006）当前 `canEquipToShortcut=0`、只能装备副手。需求文档写「拖拽至快捷栏」。**引导逻辑按「装备即完成」判定**（监听 `CharacterEquipmentChangedEvent.OffhandType==Lantern`），不绑定快捷栏/副手，对两种配置都成立。槽位归属若策划确认为快捷栏，需 D/主程序改 1006 配置（B 不越权改物品配置）。
+- 手提灯（1006）已按需求改为快捷栏物品：`quickAccessBarType=1`、`canEquipToShortcut=1`、`canEquipToOffhand=0`。放入快捷栏后，按对应数字键选中才视为当前装备并点亮；引导监听真实的快捷栏选中结果，不绑定具体快捷栏序号。旧存档中的副手手提灯仍可被兼容读取并移出旧槽位。
 - 引导提示图为占位（`sprite` 留空）。美术资产交付后，在对应 `GuideStepConfig.asset` 的 `sprite` 字段填入即可。
 
 ### 场景挂接

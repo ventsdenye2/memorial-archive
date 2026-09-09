@@ -89,6 +89,18 @@ namespace MemorialArchive.Gameplay.Inventory.Logic
         }
 
         /// <summary>
+        /// Returns the item occupying the currently selected shortcut slot.
+        /// Selection is equipment state; merely placing an item in the bar is
+        /// not enough to make it active.
+        /// </summary>
+        public InventoryItemPlacement GetSelectedShortcutPlacement()
+        {
+            return playerInventory == null || playerInventory.selectedShortcutIndex < 0
+                ? null
+                : FindPlayerSlot(InventoryContainerKind.ShortcutBar, playerInventory.selectedShortcutIndex);
+        }
+
+        /// <summary>
         /// Consumes up to <paramref name="maxUnits"/> units of compatible
         /// ammunition in the player's backpack.  A firearm reload uses this
         /// bounded transaction so a partial stack can fill only the missing

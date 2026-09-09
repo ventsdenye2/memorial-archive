@@ -15,7 +15,7 @@ MonoBehaviour:
   itemId: 1024
   itemName: "\u529E\u516C\u5BA4\u94A5\u5319"
   description: 可打开对应办公室门锁的铜钥匙。
-  icon: {fileID: 21300000, guid: fc4d4984612a6444f96fd2b4858f11a6, type: 3}
+  icon: {fileID: 21300000, guid: 733e22157b986aa478e586ffb04a4a64, type: 3}
   category: 4
   sourceType: 5
   isMissionItem: 1

@@ -20,14 +20,14 @@ MonoBehaviour:
   sourceType: 1
   isMissionItem: 1
   isConsumable: 0
-  quickAccessBarType: 2
+  quickAccessBarType: 1
   sourcePlaceholder: 1
   backpackFootprint: 0
   maxStack: 1
   canStack: 0
   canUse: 0
-  canEquipToShortcut: 0
-  canEquipToOffhand: 1
+  canEquipToShortcut: 1
+  canEquipToOffhand: 0
   offhandType: 2
   canPlaceAmmo: 0
   compatibleWeaponItemId: 0

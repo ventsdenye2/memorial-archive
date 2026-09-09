@@ -19,6 +19,40 @@ namespace MemorialArchive.Editor
         private const string PrefabRoot = "Assets/Prefabs/UI";
         private const float PixelsPerUnit = 100f;
 
+        // Coordinates are normalized against the 1920x1080 UI2.0 map
+        // composition with the RectTransform lower-left origin. They come
+        // from the supplied scene_layout.png and 场景地图1草图.png references;
+        // no coordinate is inferred at runtime.
+        private readonly struct MapMarkerPlacement
+        {
+            public MapMarkerPlacement(string sceneId, Vector2 normalizedPosition)
+            {
+                SceneId = sceneId;
+                NormalizedPosition = normalizedPosition;
+            }
+
+            public string SceneId { get; }
+            public Vector2 NormalizedPosition { get; }
+        }
+
+        private static readonly MapMarkerPlacement[] MapMarkerPlacements =
+        {
+            new MapMarkerPlacement("Floor_4F", new Vector2(0.424f, 0.570f)),
+            new MapMarkerPlacement("Floor_3F", new Vector2(0.424f, 0.450f)),
+            new MapMarkerPlacement("Floor_2F", new Vector2(0.424f, 0.360f)),
+            new MapMarkerPlacement("Floor_1F", new Vector2(0.591f, 0.250f)),
+            new MapMarkerPlacement("FrontHall", new Vector2(0.464f, 0.250f)),
+            new MapMarkerPlacement("Room_Director", new Vector2(0.365f, 0.450f)),
+            new MapMarkerPlacement("Room_Office", new Vector2(0.365f, 0.360f)),
+            new MapMarkerPlacement("Room_ArchiveC", new Vector2(0.484f, 0.450f)),
+            new MapMarkerPlacement("Room_TreatmentA", new Vector2(0.561f, 0.450f)),
+            new MapMarkerPlacement("Room_TreatmentB", new Vector2(0.641f, 0.450f)),
+            new MapMarkerPlacement("Room_ArchiveA", new Vector2(0.484f, 0.360f)),
+            new MapMarkerPlacement("Room_ArchiveB", new Vector2(0.561f, 0.360f)),
+            new MapMarkerPlacement("Room_Reception", new Vector2(0.641f, 0.360f)),
+            new MapMarkerPlacement("Room_Toilet", new Vector2(0.651f, 0.250f))
+        };
+
         [MenuItem("Tools/Memorial Archive/Apply UI2.0 Diary and Map")]
         public static void Apply()
         {
@@ -46,6 +80,7 @@ namespace MemorialArchive.Editor
                 P("笔记", "纸条.png"),
                 P("笔记", "纸条（选中）.png"),
                 P("地图", "地图弹窗背景.png"),
+                P("地图", "实时位置.png"),
                 P("地图", "退出键.png"),
                 P("地图", "退出键 （选中）.png")
             })
@@ -179,6 +214,47 @@ namespace MemorialArchive.Editor
 
             var closeLabel = Find(root, "Label");
             if (closeLabel != null) closeLabel.SetActive(false);
+
+            ConfigureMapMarker(root);
+        }
+
+        private static void ConfigureMapMarker(GameObject root)
+        {
+            var mapPanel = root.GetComponent<MapPanel>();
+            var mapRect = root.GetComponent<RectTransform>();
+            var markerObject = FindDirectChild(root, "PlayerMarker");
+            if (markerObject == null)
+            {
+                markerObject = new GameObject("PlayerMarker", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+                markerObject.transform.SetParent(root.transform, false);
+            }
+
+            var markerImage = RequireImage(markerObject, "PlayerMarker");
+            var markerSprite = LoadSprite(P("地图", "实时位置.png"));
+            SetSprite(markerImage, markerSprite, false, false);
+            SetNativeRect(markerObject.GetComponent<RectTransform>(), markerSprite, Vector2.zero);
+            markerObject.SetActive(false);
+
+            var close = Find(root, "CloseButton");
+            if (close != null)
+            {
+                markerObject.transform.SetSiblingIndex(close.transform.GetSiblingIndex());
+            }
+
+            var serialized = new SerializedObject(mapPanel);
+            SetObject(serialized, "mapRect", mapRect);
+            SetObject(serialized, "markerImage", markerImage);
+            var entries = serialized.FindProperty("markerPlacements");
+            entries.arraySize = MapMarkerPlacements.Length;
+            for (var i = 0; i < MapMarkerPlacements.Length; i++)
+            {
+                var entry = entries.GetArrayElementAtIndex(i);
+                entry.FindPropertyRelative("sceneId").stringValue = MapMarkerPlacements[i].SceneId;
+                entry.FindPropertyRelative("roomId").stringValue = string.Empty;
+                entry.FindPropertyRelative("normalizedPosition").vector2Value = MapMarkerPlacements[i].NormalizedPosition;
+            }
+
+            serialized.ApplyModifiedPropertiesWithoutUndo();
         }
 
         private static void ConfigureDiaryTab(
@@ -269,6 +345,17 @@ namespace MemorialArchive.Editor
             var image = go.GetComponent<Image>();
             if (image == null) throw new InvalidOperationException($"Missing Image component: {label}");
             return image;
+        }
+
+        private static void SetObject(SerializedObject serialized, string propertyName, UnityEngine.Object value)
+        {
+            var property = serialized.FindProperty(propertyName);
+            if (property == null)
+            {
+                throw new InvalidOperationException($"Serialized property was not found: {propertyName}");
+            }
+
+            property.objectReferenceValue = value;
         }
 
         private static GameObject FindDirectChild(GameObject parent, string name)

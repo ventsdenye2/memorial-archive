@@ -112,7 +112,7 @@ namespace MemorialArchive.Editor
                 CreateItem(1003, "消防斧", ItemCategory.Weapon, InventoryFootprint.OneByTwoHorizontal, 1, true, false, OffhandType.None, false, 0, ""),
                 CreateItem(1012, "瓶装气泡水", ItemCategory.Consumable, InventoryFootprint.OneByOne, 1, true, false, OffhandType.None, false, 0, "restore_full_stamina", true),
                 CreateItem(1020, "手枪子弹", ItemCategory.Ammo, InventoryFootprint.OneByOne, 30, true, false, OffhandType.None, true, 1007, "", true),
-                CreateItem(1006, "手提灯", ItemCategory.Offhand, InventoryFootprint.OneByOne, 1, false, true, OffhandType.Lantern, false, 0, "lantern_light"),
+                CreateItem(1006, "手提灯", ItemCategory.Offhand, InventoryFootprint.OneByOne, 1, true, false, OffhandType.Lantern, false, 0, "lantern_light"),
                 CreateItem(1024, "办公室钥匙", ItemCategory.Key, InventoryFootprint.OneByOne, 1, false, false, OffhandType.None, false, 0, "office_key")
             };
 

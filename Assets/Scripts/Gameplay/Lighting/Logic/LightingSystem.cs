@@ -112,10 +112,12 @@ namespace MemorialArchive.Gameplay.Lighting.Logic
             regionLitStates.Clear();
             tempLightRemaining.Clear();
             lanternFuelByInstance.Clear();
+            isLanternEquipped = false;
             isLanternLit = false;
             equippedLanternInstanceId = null;
             failureCooldownRemaining = 0f;
             isDarknessOverlaySuppressed = false;
+            RequeryLanternEquipment();
         }
 
         public void Tick(float deltaTime)
@@ -432,26 +434,9 @@ namespace MemorialArchive.Gameplay.Lighting.Logic
 
         private void RequeryLanternEquipment()
         {
-            string foundInstanceId = null;
-            var foundItemId = 0;
-            if (inventory != null)
-            {
-                foreach (var placement in inventory.GetPlayerPlacements(InventoryContainerKind.Offhand))
-                {
-                    if (placement?.item == null)
-                    {
-                        continue;
-                    }
-
-                    var itemConfig = context?.Configs?.GetItem(placement.item.itemId);
-                    if (itemConfig != null && itemConfig.OffhandType == OffhandType.Lantern)
-                    {
-                        foundInstanceId = placement.item.instanceId;
-                        foundItemId = placement.item.itemId;
-                        break;
-                    }
-                }
-            }
+            var equippedLantern = FindEquippedLanternPlacement();
+            var foundInstanceId = equippedLantern?.item?.instanceId;
+            var foundItemId = equippedLantern?.item?.itemId ?? 0;
 
             var wasEquipped = isLanternEquipped;
             var previousInstanceId = equippedLanternInstanceId;
@@ -469,12 +454,56 @@ namespace MemorialArchive.Gameplay.Lighting.Logic
                 return;
             }
 
-            // 副手栏只有一格，装备即视为需求中的“选中”；首次装备且有燃料时自动点亮。
+            // 快捷栏中的手提灯只有被选中才算装备；首次选中且有燃料时自动点亮。
             var isNewEquip = !wasEquipped || previousInstanceId != foundInstanceId;
             if (isNewEquip && config != null && config.AutoLightOnEquip && !isLanternLit)
             {
                 SetLanternLit(GetEquippedLanternFuel() > 0f);
             }
+        }
+
+        private InventoryItemPlacement FindEquippedLanternPlacement()
+        {
+            if (inventory == null)
+            {
+                return null;
+            }
+
+            // New saves use the selected shortcut slot as the active equipment
+            // source. A selected lantern takes priority over every legacy slot.
+            var selectedShortcutIndex = inventory.PlayerInventory?.selectedShortcutIndex ?? -1;
+            if (selectedShortcutIndex >= 0)
+            {
+                var selected = inventory.GetSelectedShortcutPlacement();
+                if (IsLanternPlacement(selected))
+                {
+                    return selected;
+                }
+            }
+
+            // Compatibility for saves created before the lantern moved to the
+            // shortcut bar. The inventory UI can still move this item out of
+            // the legacy slot; the new item configuration cannot create one.
+            foreach (var placement in inventory.GetPlayerPlacements(InventoryContainerKind.Offhand))
+            {
+                if (IsLanternPlacement(placement))
+                {
+                    return placement;
+                }
+            }
+
+            return null;
+        }
+
+        private bool IsLanternPlacement(InventoryItemPlacement placement)
+        {
+            if (placement?.item == null)
+            {
+                return false;
+            }
+
+            var itemConfig = context?.Configs?.GetItem(placement.item.itemId);
+            return itemConfig != null && itemConfig.OffhandType == OffhandType.Lantern;
         }
 
         private float GetEquippedLanternFuel()

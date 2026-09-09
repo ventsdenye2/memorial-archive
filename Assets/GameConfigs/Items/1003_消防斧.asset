@@ -15,7 +15,7 @@ MonoBehaviour:
   itemId: 1003
   itemName: "\u6D88\u9632\u65A7"
   description: 碳钢消防斧，可砍开障碍物，也可作为强力近战武器。
-  icon: {fileID: 21300000, guid: f2c408ac4aa23554b85399ddaab34fe1, type: 3}
+  icon: {fileID: 21300000, guid: b7af19ee9e259d54485a16ab57037dda, type: 3}
   category: 2
   sourceType: 1
   isMissionItem: 1

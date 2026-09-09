@@ -37,7 +37,7 @@ namespace MemorialArchive.Gameplay.Lighting.Config
         [SerializeField] private float lanternStrongRadius = 3f;
         [SerializeField] private float lanternNormalRadius = 2.6f;
         [SerializeField] private float lanternWeakRadius = 2f;
-        [Tooltip("装备手提灯时是否自动点亮（需求中的“选中”在副手栏等价于装备）。")]
+        [Tooltip("选中快捷栏中的手提灯时是否自动点亮。")]
         [SerializeField] private bool autoLightOnEquip = true;
         [Tooltip("手提灯光源的竖直抬升量（世界单位）。玩家事件位置在角色脚底原点，Spine 身体向上延伸，不抬升会让光圈压在脚下。")]
         [SerializeField] private float lanternLightYOffset = 0.9f;

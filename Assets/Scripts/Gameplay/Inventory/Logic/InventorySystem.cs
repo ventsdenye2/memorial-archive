@@ -239,6 +239,43 @@ namespace MemorialArchive.Gameplay.Inventory.Logic
             return container;
         }
 
+        public bool IsSceneContainerInitialized(string containerId)
+        {
+            return !string.IsNullOrEmpty(containerId) && sceneContainers.TryGetValue(containerId, out var container) &&
+                   (container.hasBeenInitialized || container.items.Count > 0);
+        }
+
+        /// <summary>Seeds an authored container once per new game, including empty/looted containers.</summary>
+        public bool TryInitializeSceneContainer(string containerId, IEnumerable<InventoryItemPlacement> seeds)
+        {
+            if (string.IsNullOrEmpty(containerId) || seeds == null || IsSceneContainerInitialized(containerId))
+            {
+                return false;
+            }
+
+            var prepared = new List<InventoryItemPlacement>();
+            foreach (var seed in seeds)
+            {
+                if (seed?.item == null || context.Configs.GetItem(seed.item.itemId) == null)
+                {
+                    return false;
+                }
+
+                var placement = BuildPlacementForDestination(seed.item, InventoryContainerKind.SceneContainer,
+                    containerId, seed.x, seed.y, -1);
+                if (!sceneContainerGrid.CanPlace(placement, prepared))
+                {
+                    return false;
+                }
+                prepared.Add(placement);
+            }
+
+            var container = GetOrCreateSceneContainer(containerId);
+            container.items.AddRange(prepared);
+            container.hasBeenInitialized = true;
+            return true;
+        }
+
         public bool TryAddToBackpack(InventoryItemInstance item)
         {
             if (item == null)
@@ -700,6 +737,8 @@ namespace MemorialArchive.Gameplay.Inventory.Logic
                         }
 
                         NormalizePlacements(container.items);
+                        // A container present in an older save may already have been looted empty.
+                        container.hasBeenInitialized = true;
                         sceneContainers[container.containerId] = container;
                     }
                 }

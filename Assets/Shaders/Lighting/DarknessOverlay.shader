@@ -1,7 +1,6 @@
 // 全屏黑暗层：基础暗幕 + 最多 32 个软边光源挖洞。
 // 内置管线 Unlit，与默认精灵材质兼容；光源数据由 DarknessOverlayView
-// 通过 MaterialPropertyBlock 写入（_LightData：xy=世界坐标，z=半径，w=强度；
-// _LightShapeData：x=形状，yz=竖向光带半轴）。
+// 通过 MaterialPropertyBlock 写入（_LightData：xy=世界坐标，z=半径，w=强度）。
 Shader "Memorial Archive/Lighting/Darkness Overlay"
 {
     Properties
@@ -34,7 +33,6 @@ Shader "Memorial Archive/Lighting/Darkness Overlay"
             float _FalloffExponent;
             float _Dim;
             float4 _LightData[MAX_LIGHTS];
-            float4 _LightShapeData[MAX_LIGHTS];
             int _LightCount;
 
             struct v2f
@@ -58,21 +56,8 @@ Shader "Memorial Archive/Lighting/Darkness Overlay"
                 for (int index = 0; index < lightCount; index++)
                 {
                     float4 lightData = _LightData[index];
-                    float4 shapeData = _LightShapeData[index];
-                    float contribution;
-                    if (shapeData.x > 0.5)
-                    {
-                        // A vertical ellipse keeps the light narrow at the
-                        // sides while covering the full character height.
-                        float2 halfExtents = max(shapeData.yz, float2(0.0001, 0.0001));
-                        float2 normalizedOffset = abs(input.worldPosition - lightData.xy) / halfExtents;
-                        contribution = saturate(1.0 - length(normalizedOffset));
-                    }
-                    else
-                    {
-                        float distanceToLight = distance(input.worldPosition, lightData.xy);
-                        contribution = saturate(1.0 - distanceToLight / max(lightData.z, 0.0001));
-                    }
+                    float distanceToLight = distance(input.worldPosition, lightData.xy);
+                    float contribution = saturate(1.0 - distanceToLight / max(lightData.z, 0.0001));
                     contribution = pow(contribution, _FalloffExponent) * saturate(lightData.w);
                     lightAmount = max(lightAmount, contribution);
                 }

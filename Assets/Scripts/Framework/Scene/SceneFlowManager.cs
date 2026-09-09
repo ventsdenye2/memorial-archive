@@ -2,6 +2,7 @@ using MemorialArchive.Framework.Core;
 using MemorialArchive.Framework.Event;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using MemorialArchive.Gameplay.Inventory.Logic;
 
 namespace MemorialArchive.Framework.Scene
 {
@@ -39,6 +40,17 @@ namespace MemorialArchive.Framework.Scene
         {
             if (isLoading || string.IsNullOrEmpty(evt.SceneId))
             {
+                return;
+            }
+
+            // Doors and stair-panel selections share this access check. Save restoration bypasses it.
+            var requiredItemId = context.Configs.GetRequiredSceneKey(SceneManager.GetActiveScene().name, evt.SceneId);
+            var inventory = GameRoot.Instance?.GetSystem<InventorySystem>();
+            if (requiredItemId > 0 && (inventory == null ||
+                !inventory.PlayerInventory.playerItems.Exists(p => p?.item != null && p.item.itemId == requiredItemId && p.item.quantity > 0)))
+            {
+                var itemName = context.Configs.GetItem(requiredItemId)?.ItemName ?? "钥匙";
+                context.Events.Publish(new SceneAccessDeniedEvent(evt.SceneId, $"需要{itemName}"));
                 return;
             }
 

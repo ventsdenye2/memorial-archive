@@ -110,6 +110,37 @@ namespace MemorialArchive.Tests.Editor
             Assert.That(Find(item.instanceId), Is.Null);
         }
 
+        [Test]
+        public void SceneSeed_LootedContainerDoesNotRefillOnReentry()
+        {
+            var seeds = new[] { new InventoryItemPlacement { item = new InventoryItemInstance { instanceId = "key", itemId = 1027, quantity = 1 } } };
+            Assert.That(inventory.TryInitializeSceneContainer("seed-test", seeds), Is.True);
+            inventory.GetOrCreateSceneContainer("seed-test").items.Clear();
+            Assert.That(inventory.TryInitializeSceneContainer("seed-test", seeds), Is.False);
+            Assert.That(inventory.GetOrCreateSceneContainer("seed-test").items, Is.Empty);
+        }
+
+        [Test]
+        public void SceneSeed_OldSaveWithEmptyContainerDoesNotRefill()
+        {
+            inventory.RestoreSaveData("{\"sceneContainers\":[{\"containerId\":\"old-looted\",\"items\":[]}]}");
+            Assert.That(inventory.IsSceneContainerInitialized("old-looted"), Is.True);
+            Assert.That(inventory.TryInitializeSceneContainer("old-looted", new InventoryItemPlacement[0]), Is.False);
+        }
+
+        [Test]
+        public void SceneSeed_InvalidSeedRollsBackEntireInitialization()
+        {
+            var seeds = new[]
+            {
+                new InventoryItemPlacement { item = new InventoryItemInstance { instanceId = "valid", itemId = 1024, quantity = 1 } },
+                new InventoryItemPlacement { item = new InventoryItemInstance { instanceId = "invalid", itemId = 999999, quantity = 1 }, x = 1 }
+            };
+            Assert.That(inventory.TryInitializeSceneContainer("invalid-seed", seeds), Is.False);
+            Assert.That(inventory.IsSceneContainerInitialized("invalid-seed"), Is.False);
+            Assert.That(inventory.GetOrCreateSceneContainer("invalid-seed").items, Is.Empty);
+        }
+
         private InventoryItemInstance AddBackpackItem(string instanceId, int itemId)
         {
             var item = new InventoryItemInstance { instanceId = instanceId, itemId = itemId, quantity = 1 };

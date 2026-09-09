@@ -19,7 +19,6 @@ namespace MemorialArchive.Gameplay.Lighting.View
 
         private readonly List<ActiveLight> activeLights = new List<ActiveLight>();
         private readonly Vector4[] lightData = new Vector4[32];
-        private readonly Vector4[] lightShapeData = new Vector4[32];
         private MaterialPropertyBlock propertyBlock;
         private MeshRenderer quadRenderer;
         private Transform cameraTransform;
@@ -81,12 +80,9 @@ namespace MemorialArchive.Gameplay.Lighting.View
             {
                 var light = activeLights[index];
                 lightData[index] = new Vector4(light.Position.x, light.Position.y, light.Radius, light.Intensity);
-                lightShapeData[index] = new Vector4((float)light.Shape,
-                    light.HalfExtents.x, light.HalfExtents.y, 0f);
             }
 
             propertyBlock.SetVectorArray("_LightData", lightData);
-            propertyBlock.SetVectorArray("_LightShapeData", lightShapeData);
             propertyBlock.SetInt("_LightCount", lightCount);
             quadRenderer.SetPropertyBlock(propertyBlock);
         }

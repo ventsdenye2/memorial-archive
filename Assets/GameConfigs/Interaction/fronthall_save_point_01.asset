@@ -11,21 +11,21 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 04e91c37f4f6db44f8acc346aeda0225, type: 3}
   m_Name: fronthall_save_point_01
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier: ''
   interactionId: fronthall_save_point_01
   interactionType: 5
-  displayName: "\u524D\u5385\u7535\u8BDD\u5B58\u6863\u70B9"
+  displayName: 存档电话
   sceneId: FrontHall
-  containerId: 
-  puzzleId: 
-  storyId: 
-  noteId: 
-  transitionSceneId: 
-  transitionSpawnPointId: 
-  stairPrompt: "\u8BF7\u9009\u62E9\u76EE\u7684\u697C\u5C42"
+  containerId: ''
+  puzzleId: ''
+  storyId: ''
+  noteId: ''
+  transitionSceneId: ''
+  transitionSpawnPointId: ''
   requiresConfirmation: 0
-  confirmationMessage: "\u786E\u8BA4\u524D\u5F80\u8BE5\u623F\u95F4\uFF1F"
-  stairUpSceneId: 
-  stairUpSpawnPointId: 
-  stairDownSceneId: 
-  stairDownSpawnPointId: 
+  confirmationMessage: 确认前往？
+  stairPrompt: 请选择目的楼层
+  stairUpSceneId: ''
+  stairUpSpawnPointId: ''
+  stairDownSceneId: ''
+  stairDownSpawnPointId: ''

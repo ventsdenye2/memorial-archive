@@ -65,6 +65,17 @@ namespace MemorialArchive.Framework.Config
         public LightSourceConfig GetLightSource(string id) => !string.IsNullOrEmpty(id) && lightSources.TryGetValue(id, out var config) ? config : null;
         public LightingGlobalConfig GetLightingGlobal() => database != null ? database.LightingGlobal : null;
 
+        public int GetRequiredSceneKey(string fromSceneId, string destinationSceneId)
+        {
+            if (database?.SceneAccessRules == null) return 0;
+            foreach (var rule in database.SceneAccessRules)
+            {
+                if (rule != null && rule.Matches(fromSceneId, destinationSceneId))
+                    return rule.RequiredItemId;
+            }
+            return 0;
+        }
+
         private void RebuildIndexes()
         {
             items.Clear();

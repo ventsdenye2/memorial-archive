@@ -188,11 +188,10 @@ namespace MemorialArchive.Gameplay.Lighting.Logic
                 var safetyLightPosition = new Vector2(
                     lastPlayerPosition.x,
                     lastPlayerPosition.y + config.PlayerSafetyLightYOffset);
-                AddCharacterLightRig(results,
+                results.Add(new ActiveLight(
                     safetyLightPosition,
-                    config.PlayerSafetyLightWidth,
-                    config.PlayerSafetyLightHeight,
-                    config.PlayerSafetyLightIntensity);
+                    config.PlayerSafetyLightRadius,
+                    config.PlayerSafetyLightIntensity));
             }
 
             if (isLanternLit && isLanternEquipped)
@@ -201,8 +200,7 @@ namespace MemorialArchive.Gameplay.Lighting.Logic
                 var lanternPosition = new Vector2(
                     lastPlayerPosition.x,
                     lastPlayerPosition.y + config.LanternLightYOffset);
-                AddCharacterLightRig(results, lanternPosition,
-                    GetCurrentLanternLightWidth(), GetCurrentLanternLightHeight());
+                results.Add(new ActiveLight(lanternPosition, GetCurrentLanternLightRadius()));
             }
 
             foreach (var view in lightViews.Values)
@@ -214,46 +212,6 @@ namespace MemorialArchive.Gameplay.Lighting.Logic
 
                 results.Add(new ActiveLight(view.position, view.radius));
             }
-        }
-
-        private void AddCharacterLightRig(List<ActiveLight> results, Vector2 center,
-            float width, float height, float intensity = 1f)
-        {
-            if (results == null || config == null)
-            {
-                return;
-            }
-
-            // Keep the center beam for the torso and add two narrower side beams
-            // so the darkness overlay does not hide the outer silhouette of a
-            // tall Spine character. The shader takes the maximum contribution,
-            // so these beams extend coverage without making the center glow twice.
-            AddVerticalLightTriad(results, center, width, height, intensity);
-
-            // A second triad sits above the first one. This is deliberately a
-            // separate light group instead of relying only on a larger ellipse,
-            // so the upper body and head remain readable without widening the
-            // light around the floor.
-            AddVerticalLightTriad(results,
-                center + new Vector2(0f, config.CharacterLightUpperOffset),
-                width * config.CharacterLightUpperWidthScale,
-                height * config.CharacterLightUpperHeightScale,
-                intensity * config.CharacterLightUpperIntensityScale);
-        }
-
-        private void AddVerticalLightTriad(List<ActiveLight> results, Vector2 center,
-            float width, float height, float intensity)
-        {
-            results.Add(ActiveLight.VerticalBeam(center, width, height, intensity));
-
-            var sideWidth = width * config.CharacterLightSideWidthScale;
-            var sideHeight = height * config.CharacterLightSideHeightScale;
-            var sideIntensity = intensity * config.CharacterLightSideIntensityScale;
-            var sideOffset = config.CharacterLightSideOffset;
-            results.Add(ActiveLight.VerticalBeam(
-                center + new Vector2(-sideOffset, 0f), sideWidth, sideHeight, sideIntensity));
-            results.Add(ActiveLight.VerticalBeam(
-                center + new Vector2(sideOffset, 0f), sideWidth, sideHeight, sideIntensity));
         }
 
         // ---- View 注册 ----
@@ -464,7 +422,7 @@ namespace MemorialArchive.Gameplay.Lighting.Logic
 
         private void HandleLoadCompleted(LoadCompletedEvent evt)
         {
-            // 读档后手提灯一律为熄灭状态，按 E 重新点亮。
+            // 读档后按当前选中的快捷栏状态重新同步；选中且有燃料时会自动点亮。
             SetLanternLit(false);
             RequeryLanternEquipment();
         }
@@ -498,7 +456,7 @@ namespace MemorialArchive.Gameplay.Lighting.Logic
 
             // 快捷栏中的手提灯只有被选中才算装备；首次选中且有燃料时自动点亮。
             var isNewEquip = !wasEquipped || previousInstanceId != foundInstanceId;
-            if (isNewEquip && config != null && config.AutoLightOnEquip && !isLanternLit)
+            if (isNewEquip && !isLanternLit)
             {
                 SetLanternLit(GetEquippedLanternFuel() > 0f);
             }
@@ -511,8 +469,7 @@ namespace MemorialArchive.Gameplay.Lighting.Logic
                 return null;
             }
 
-            // New saves use the selected shortcut slot as the active equipment
-            // source. A selected lantern takes priority over every legacy slot.
+            // 手提灯只允许放入快捷栏，且只有当前选中的快捷栏格才算装备。
             var selectedShortcutIndex = inventory.PlayerInventory?.selectedShortcutIndex ?? -1;
             if (selectedShortcutIndex >= 0)
             {
@@ -520,17 +477,6 @@ namespace MemorialArchive.Gameplay.Lighting.Logic
                 if (IsLanternPlacement(selected))
                 {
                     return selected;
-                }
-            }
-
-            // Compatibility for saves created before the lantern moved to the
-            // shortcut bar. The inventory UI can still move this item out of
-            // the legacy slot; the new item configuration cannot create one.
-            foreach (var placement in inventory.GetPlayerPlacements(InventoryContainerKind.Offhand))
-            {
-                if (IsLanternPlacement(placement))
-                {
-                    return placement;
                 }
             }
 
@@ -725,31 +671,16 @@ namespace MemorialArchive.Gameplay.Lighting.Logic
             return fuel > config.LanternWeakThresholdSeconds ? LanternStage.Normal : LanternStage.Weak;
         }
 
-        private float GetCurrentLanternLightWidth()
+        private float GetCurrentLanternLightRadius()
         {
             switch (GetCurrentStage())
             {
                 case LanternStage.Strong:
-                    return config.LanternStrongLightWidth;
+                    return config.LanternStrongLightRadius;
                 case LanternStage.Normal:
-                    return config.LanternNormalLightWidth;
+                    return config.LanternNormalLightRadius;
                 case LanternStage.Weak:
-                    return config.LanternWeakLightWidth;
-                default:
-                    return 0f;
-            }
-        }
-
-        private float GetCurrentLanternLightHeight()
-        {
-            switch (GetCurrentStage())
-            {
-                case LanternStage.Strong:
-                    return config.LanternStrongLightHeight;
-                case LanternStage.Normal:
-                    return config.LanternNormalLightHeight;
-                case LanternStage.Weak:
-                    return config.LanternWeakLightHeight;
+                    return config.LanternWeakLightRadius;
                 default:
                     return 0f;
             }

@@ -46,6 +46,7 @@ namespace MemorialArchive.Framework.UI
             if (boundEvents != null)
             {
                 boundEvents.Unsubscribe<InteractionFocusChangedEvent>(HandleFocusChanged);
+                boundEvents.Unsubscribe<SceneAccessDeniedEvent>(HandleAccessDenied);
                 boundEvents = null;
             }
         }
@@ -61,10 +62,19 @@ namespace MemorialArchive.Framework.UI
             if (boundEvents != null)
             {
                 boundEvents.Unsubscribe<InteractionFocusChangedEvent>(HandleFocusChanged);
+                boundEvents.Unsubscribe<SceneAccessDeniedEvent>(HandleAccessDenied);
             }
 
             events.Subscribe<InteractionFocusChangedEvent>(HandleFocusChanged);
+            events.Subscribe<SceneAccessDeniedEvent>(HandleAccessDenied);
             boundEvents = events;
+        }
+
+        private void HandleAccessDenied(SceneAccessDeniedEvent evt)
+        {
+            if (!isInitialized || promptRoot == null || promptText == null) return;
+            promptText.text = evt.Message;
+            promptRoot.SetActive(true);
         }
 
         private void HandleFocusChanged(InteractionFocusChangedEvent evt)

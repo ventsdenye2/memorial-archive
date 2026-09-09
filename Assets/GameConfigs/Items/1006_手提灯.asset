@@ -32,7 +32,7 @@ MonoBehaviour:
   canPlaceAmmo: 0
   compatibleWeaponItemId: 0
   effectId: lantern_light
-  effectDescription: 装备后提供半径 2.5 米的圆形照明。
+  effectDescription: 选中快捷栏中的手提灯后自动点亮；前 20 秒半径 3 米，中间 30 秒半径 2.6 米，最后 10 秒半径 2 米。
   synthesisRule: "0"
   synthesisTargetItemId: 0
   synthesisRequiredQuantity: 0

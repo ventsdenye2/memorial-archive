@@ -395,8 +395,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4538d8a37979b414f978a7954f08d3e4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name: null
+  m_EditorClassIdentifier: null
   panelId: 6
   pausesGame: 0
   canvasGroup: {fileID: 7668967543100170710}
@@ -404,48 +404,51 @@ MonoBehaviour:
   mapRect: {fileID: 7069829379552086489}
   markerImage: {fileID: 7310000000000000004}
   markerPlacements:
-  - sceneId: Floor_4F
-    roomId: ""
-    normalizedPosition: {x: 0.424, y: 0.57}
-  - sceneId: Floor_3F
-    roomId: ""
-    normalizedPosition: {x: 0.424, y: 0.45}
-  - sceneId: Floor_2F
-    roomId: ""
-    normalizedPosition: {x: 0.424, y: 0.36}
-  - sceneId: Floor_1F
-    roomId: ""
-    normalizedPosition: {x: 0.591, y: 0.25}
-  - sceneId: FrontHall
-    roomId: ""
-    normalizedPosition: {x: 0.464, y: 0.25}
-  - sceneId: Room_Director
-    roomId: ""
-    normalizedPosition: {x: 0.365, y: 0.45}
-  - sceneId: Room_Office
-    roomId: ""
-    normalizedPosition: {x: 0.365, y: 0.36}
-  - sceneId: Room_ArchiveC
-    roomId: ""
-    normalizedPosition: {x: 0.484, y: 0.45}
-  - sceneId: Room_TreatmentA
-    roomId: ""
-    normalizedPosition: {x: 0.561, y: 0.45}
-  - sceneId: Room_TreatmentB
-    roomId: ""
-    normalizedPosition: {x: 0.641, y: 0.45}
-  - sceneId: Room_ArchiveA
-    roomId: ""
-    normalizedPosition: {x: 0.484, y: 0.36}
-  - sceneId: Room_ArchiveB
-    roomId: ""
-    normalizedPosition: {x: 0.561, y: 0.36}
-  - sceneId: Room_Reception
-    roomId: ""
-    normalizedPosition: {x: 0.641, y: 0.36}
-  - sceneId: Room_Toilet
-    roomId: ""
-    normalizedPosition: {x: 0.651, y: 0.25}
+    - sceneId: Floor_4F
+      roomId: ''
+      normalizedPosition: {x: 0.424, y: 0.57}
+    - sceneId: Floor_3F
+      roomId: ''
+      normalizedPosition: {x: 0.424, y: 0.45}
+    - sceneId: Floor_2F
+      roomId: ''
+      normalizedPosition: {x: 0.424, y: 0.36}
+    - sceneId: Floor_1F
+      roomId: ''
+      normalizedPosition: {x: 0.591, y: 0.25}
+    - sceneId: FrontHall
+      roomId: ''
+      normalizedPosition: {x: 0.464, y: 0.25}
+    - sceneId: Room_Director
+      roomId: ''
+      normalizedPosition: {x: 0.365, y: 0.45}
+    - sceneId: Room_Office
+      roomId: ''
+      normalizedPosition: {x: 0.365, y: 0.36}
+    - sceneId: Room_ArchiveC
+      roomId: ''
+      normalizedPosition: {x: 0.484, y: 0.45}
+    - sceneId: Room_TreatmentA
+      roomId: ''
+      normalizedPosition: {x: 0.561, y: 0.45}
+    - sceneId: Room_TreatmentB
+      roomId: ''
+      normalizedPosition: {x: 0.641, y: 0.45}
+    - sceneId: Room_ArchiveA
+      roomId: ''
+      normalizedPosition: {x: 0.484, y: 0.36}
+    - sceneId: Room_ArchiveB
+      roomId: ''
+      normalizedPosition: {x: 0.561, y: 0.36}
+    - sceneId: Room_Reception
+      roomId: ''
+      normalizedPosition: {x: 0.641, y: 0.36}
+    - sceneId: Room_Toilet
+      roomId: ''
+      normalizedPosition: {x: 0.651, y: 0.25}
+    - sceneId: Room_Terrace
+      roomId: ''
+      normalizedPosition: {x: 0.3, y: 0.45}
 --- !u!114 &8160528963196324159
 MonoBehaviour:
   m_ObjectHideFlags: 0

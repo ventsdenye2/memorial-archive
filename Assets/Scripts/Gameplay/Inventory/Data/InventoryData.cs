@@ -35,6 +35,7 @@ namespace MemorialArchive.Gameplay.Inventory.Data
     public sealed class SceneContainerData
     {
         public string containerId;
+        public bool hasBeenInitialized;
         public List<InventoryItemPlacement> items = new List<InventoryItemPlacement>();
     }
 

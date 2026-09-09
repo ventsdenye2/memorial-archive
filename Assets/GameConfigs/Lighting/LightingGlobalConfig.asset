@@ -18,28 +18,15 @@ MonoBehaviour:
   maxSimultaneousLights: 32
   darknessMaterial: {fileID: 2100000, guid: fc20d5a99814b124abbc2032b8545b22, type: 2}
   lightFalloffExponent: 2
-  playerSafetyLightWidth: 2
-  playerSafetyLightHeight: 6.8
-  playerSafetyLightIntensity: 0.58
+  playerSafetyLightRadius: 1.8
+  playerSafetyLightIntensity: 0.32
   playerSafetyLightYOffset: 0.9
-  characterLightSideOffset: 0.42
-  characterLightSideWidthScale: 0.85
-  characterLightSideHeightScale: 0.92
-  characterLightSideIntensityScale: 0.85
-  characterLightUpperOffset: 2.4
-  characterLightUpperWidthScale: 0.82
-  characterLightUpperHeightScale: 0.7
-  characterLightUpperIntensityScale: 0.78
   lanternTotalFuelSeconds: 60
   lanternStrongThresholdSeconds: 40
   lanternWeakThresholdSeconds: 10
-  lanternStrongLightWidth: 2.6
-  lanternNormalLightWidth: 2.35
-  lanternWeakLightWidth: 2.1
-  lanternStrongLightHeight: 8.8
-  lanternNormalLightHeight: 7.8
-  lanternWeakLightHeight: 6.6
-  autoLightOnEquip: 1
+  lanternStrongLightRadius: 3
+  lanternNormalLightRadius: 2.6
+  lanternWeakLightRadius: 2
   lanternLightYOffset: 0.9
   tempLightSeconds: 10
   darknessFailureDamage: 9999

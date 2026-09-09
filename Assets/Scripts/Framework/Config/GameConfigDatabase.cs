@@ -8,6 +8,7 @@ using MemorialArchive.Gameplay.Puzzle.Config;
 using MemorialArchive.Gameplay.Story.Config;
 using MemorialArchive.Gameplay.Dialogue.Config;
 using UnityEngine;
+using MemorialArchive.Framework.Scene;
 
 namespace MemorialArchive.Framework.Config
 {
@@ -26,6 +27,7 @@ namespace MemorialArchive.Framework.Config
         [SerializeField] private DialogueEffectConfig[] dialogueEffects;
         [SerializeField] private LightingGlobalConfig lightingGlobal;
         [SerializeField] private LightSourceConfig[] lightSources;
+        [SerializeField] private SceneAccessRule[] sceneAccessRules;
 
         public ItemConfig[] Items => items;
         public CharacterAttributeConfig[] CharacterAttributes => characterAttributes;
@@ -39,5 +41,6 @@ namespace MemorialArchive.Framework.Config
         public DialogueEffectConfig[] DialogueEffects => dialogueEffects;
         public LightingGlobalConfig LightingGlobal => lightingGlobal;
         public LightSourceConfig[] LightSources => lightSources;
+        public SceneAccessRule[] SceneAccessRules => sceneAccessRules;
     }
 }

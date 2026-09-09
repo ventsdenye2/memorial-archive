@@ -8,7 +8,7 @@ using UnityEngine.UI;
 namespace MemorialArchive.Editor
 {
     /// <summary>
-    /// Applies the UI2.0 game-page art to GameplayHUD and the self-narration page to
+    /// Applies the UI2.0 game-page art to GameplayHUD and story/dialogue pages to
     /// OpeningDialoguePanel. The latter is the OpeningStory host for this requirement;
     /// the HUD does not create an unconfirmed narration host.
     /// The operation is intentionally idempotent so it can be rerun after a prefab or
@@ -22,6 +22,8 @@ namespace MemorialArchive.Editor
 
         private const string GameUiPath = "Assets/Art/UI/Imported_UI2.0/UI2.0/游戏页面/";
         private const string SelfWhiteUiPath = "Assets/Art/UI/Imported_UI2.0/UI2.0/自白页/";
+        private const string DialogueUiPath = "Assets/Art/UI/Imported_UI2.0/UI2.0/对话页/";
+        private const string StoryUiPath = "Assets/Art/UI/Imported_UI2.0/UI2.0/剧情页/";
 
         [MenuItem("Memorial Archive/UI/Apply UI2.0 HUD and Opening Dialogue")]
         public static void Apply()
@@ -354,21 +356,46 @@ namespace MemorialArchive.Editor
                 panelImage.raycastTarget = false;
             }
 
-            // The current requirement assigns the self-narration page to OpeningStory.
-            // Keep the CG/portrait layer and dialogue controller, but replace only the
-            // authored dialogue chrome with the self-narration frame and hint.
+            var cg = dialoguePanel.Find("CG")?.GetComponent<Image>();
+            if (cg != null)
+            {
+                cg.preserveAspect = false;
+                var fitter = cg.GetComponent<AspectRatioFitter>();
+                if (fitter == null) fitter = cg.gameObject.AddComponent<AspectRatioFitter>();
+                fitter.aspectRatio = 16f / 9f;
+                fitter.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
+            }
+
+            // Match the dialogue positioning reference at the 1920x1080 canvas size.
+            // Portraits extend behind the paper frame, with their original aspect ratio.
+            var left = dialoguePanel.Find("PortraitLeft") as RectTransform;
+            var right = dialoguePanel.Find("PortraitRight") as RectTransform;
+            if (left != null) ConfigureRect(left, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
+                new Vector2(-544.5f, 358f), new Vector2(331f, 899f), new Vector2(0.5f, 1f));
+            if (right != null) ConfigureRect(right, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
+                new Vector2(588.5f, 358f), new Vector2(323f, 899f), new Vector2(0.5f, 1f));
+            left?.SetSiblingIndex(1);
+            right?.SetSiblingIndex(2);
+            foreach (var slotName in new[] { "PortraitLeft", "PortraitRight" })
+            {
+                var portrait = dialoguePanel.Find(slotName)?.GetComponent<Image>();
+                if (portrait != null) portrait.preserveAspect = true;
+            }
+
             var frame = EnsureRect(dialoguePanel, "DialogueFrame");
-            ConfigureBottomAnchored(frame, Vector2.zero, new Vector2(1545f, 242f));
-            EnsureImage(frame.gameObject, LoadSprite(SelfWhiteUiPath + "话框.png"), false);
-            frame.SetSiblingIndex(1);
+            ConfigureBottomAnchored(frame, Vector2.zero, new Vector2(1920f, 415f));
+            var frameImage = EnsureImage(frame.gameObject, LoadSprite(StoryUiPath + "剧情框.png"), false);
+            frame.SetAsLastSibling();
 
             var dialogueText = dialoguePanel.Find("DialogueText")?.GetComponent<Text>();
             if (dialogueText != null)
             {
-                ConfigureBottomCenter(dialogueText.rectTransform, new Vector2(0f, 95f), new Vector2(1250f, 120f));
-                dialogueText.font = LoadFont();
-                dialogueText.fontSize = 30;
-                dialogueText.color = new Color(0.86f, 0.82f, 0.74f, 1f);
+                // Keep all lines below the nameplate (bottom = 228) and above the hint.
+                ConfigureBottomCenter(dialogueText.rectTransform, new Vector2(0f, 141f), new Vector2(1540f, 154f));
+                dialogueText.font = AssetDatabase.LoadAssetAtPath<Font>("Assets/Font/FZCHSJW.TTF");
+                dialogueText.fontSize = 32;
+                dialogueText.color = Color.white;
+                dialogueText.lineSpacing = 1.25f;
                 dialogueText.alignment = TextAnchor.UpperLeft;
                 dialogueText.resizeTextForBestFit = false;
                 dialogueText.horizontalOverflow = HorizontalWrapMode.Wrap;
@@ -384,8 +411,8 @@ namespace MemorialArchive.Editor
                 hint = EnsureRect(dialoguePanel, "Hint");
             }
 
-            ConfigureBottomCenter(hint, new Vector2(610f, 68f), new Vector2(221f, 76f));
-            var hintImage = EnsureImage(hint.gameObject, LoadSprite(SelfWhiteUiPath + "按任意键继续.png"), false);
+            ConfigureBottomCenter(hint, new Vector2(745f, 30f), new Vector2(253f, 59f));
+            var hintImage = EnsureImage(hint.gameObject, LoadSprite(DialogueUiPath + "按任意按钮继续.png"), false);
             hintImage.preserveAspect = true;
             var hintText = hint.GetComponent<Text>();
             if (hintText != null)
@@ -398,12 +425,26 @@ namespace MemorialArchive.Editor
 
             hint.SetSiblingIndex(frame.GetSiblingIndex() + 2);
 
+            var nameplate = EnsureRect(dialoguePanel, "SpeakerName");
+            ConfigureBottomAnchored(nameplate, new Vector2(724f, 228f), new Vector2(324f, 207f));
+            var nameImage = EnsureImage(nameplate.gameObject, null, false);
+            nameImage.preserveAspect = true;
+            nameplate.SetAsLastSibling();
+            nameplate.gameObject.SetActive(false);
+            dialoguePanel.Find("FlashOverlay")?.SetAsLastSibling();
+
             var view = dialoguePanel.GetComponent<DialoguePresentationView>();
             if (view != null)
             {
                 var serializedView = new SerializedObject(view);
                 SetObjectReference(serializedView, "dialogueText", dialogueText);
                 SetObjectReference(serializedView, "cgImage", dialoguePanel.Find("CG")?.GetComponent<Image>());
+                SetBool(serializedView, "fillCgViewport", true);
+                SetObjectReference(serializedView, "speakerNameImage", nameImage);
+                SetObjectReference(serializedView, "dialogueFrame", frameImage);
+                SetObjectReference(serializedView, "narrationFrameSprite", LoadSprite(StoryUiPath + "剧情框.png"));
+                SetObjectReference(serializedView, "spokenFrameSprite", LoadSprite(DialogueUiPath + "对话框.png"));
+                SetBool(serializedView, "useNativePortraitSize", true);
                 SetObjectReference(serializedView, "flashOverlay", dialoguePanel.Find("FlashOverlay")?.GetComponent<Image>());
                 SetObjectReference(serializedView, "effectAudioSource", dialoguePanel.GetComponent<AudioSource>());
                 SetString(serializedView, "dialogueIdFilter", string.Empty);
@@ -411,6 +452,11 @@ namespace MemorialArchive.Editor
                 SetObjectReference(serializedView, "requiredOpenPanel", null);
                 SetObjectReference(serializedView, "presentationRoot", null);
                 SetInt(serializedView, "dialogueFontSize", 30);
+                SetBool(serializedView, "useAuthoredTextStyles", true);
+                SetObjectReference(serializedView, "narrationFont", AssetDatabase.LoadAssetAtPath<Font>("Assets/Font/FZCHSJW.TTF"));
+                SetObjectReference(serializedView, "speechFont", AssetDatabase.LoadAssetAtPath<Font>("Assets/Font/FZZJ-LZXTFSJW.TTF"));
+                SetInt(serializedView, "narrationFontSize", 32);
+                SetInt(serializedView, "speechFontSize", 40);
                 SetBool(serializedView, "useTypewriter", true);
                 SetFloat(serializedView, "charactersPerSecond", 36f);
                 serializedView.ApplyModifiedPropertiesWithoutUndo();

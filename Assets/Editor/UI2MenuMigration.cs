@@ -232,8 +232,15 @@ namespace MemorialArchive.Editor
         private static void ConfigureSystemButton(GameObject go, string normal, string selected, Vector2 position) =>
             ConfigureButton(go, go.GetComponent<Image>(), normal, selected, position);
 
-        private static void ConfigureConfirmButton(GameObject go, string normal, string selected, Vector2 position) =>
+        private static void ConfigureConfirmButton(GameObject go, string normal, string selected, Vector2 position)
+        {
             ConfigureButton(go, go.GetComponent<Image>(), normal, selected, position);
+            // Both sprites place their text at the top-left; the hover stamp
+            // extends right/down. Keep that corner fixed when native size changes.
+            var rect = go.GetComponent<RectTransform>();
+            rect.pivot = new Vector2(0f, 1f);
+            rect.anchoredPosition = position + new Vector2(-rect.sizeDelta.x * 0.5f, rect.sizeDelta.y * 0.5f);
+        }
 
         private static void ConfigureButton(GameObject go, Image image, string normal, string selected, Vector2 position)
         {

@@ -129,7 +129,8 @@ namespace MemorialArchive.Framework.UI
             var fourthImage = SaveSlotPanelViewFactory.FindDisabledSlot(surface, SaveManager.Stage1SlotCount, out fourthLabel);
             if (fourthImage != null)
             {
-                SaveSlotPanelViewFactory.ConfigureDisabledSlot(fourthImage);
+                SaveSlotPanelViewFactory.ConfigureDisabledSlot(fourthImage,
+                    GetNormalSprite(SaveManager.Stage1SlotCount), GetSelectedSprite(SaveManager.Stage1SlotCount));
                 if (fourthLabel != null) fourthLabel.text = "第一阶段预留";
             }
 
@@ -188,7 +189,8 @@ namespace MemorialArchive.Framework.UI
             }
 
             SaveSlotPanelViewFactory.CreateAuthoredDisabledSlot(surface, SaveManager.Stage1SlotCount,
-                GetNormalSprite(SaveManager.Stage1SlotCount), positions[SaveManager.Stage1SlotCount], out _);
+                GetNormalSprite(SaveManager.Stage1SlotCount), GetSelectedSprite(SaveManager.Stage1SlotCount),
+                positions[SaveManager.Stage1SlotCount], out _);
             SaveSlotPanelViewFactory.CreateAuthoredText(surface, "Status", new Vector2(0f, -292f),
                 new Vector2(720f, 40f), 16, TextAnchor.MiddleCenter, new Color(0.28f, 0.18f, 0.12f, 1f));
             SaveSlotPanelViewFactory.CreateAuthoredCloseButton(surface, cancelSprite, new Vector2(0f, -390f));

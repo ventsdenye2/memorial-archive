@@ -18,20 +18,26 @@ MonoBehaviour:
     speakerId: 
     text: "在终年大雾笼罩的伦敦旧城区深处，矗立着一栋沉默的建筑。"
     cgCommand: 1
-    cgSprite: {fileID: 21300000, guid: 3264dbc9806adef4ca749cce7ba0f7ae, type: 3}
+    cgSprite: {fileID: 21300000, guid: 182ca303a08f2aa40906e63de804d65d, type: 3}
     portraits:
     - characterId: andre
-      portrait: {fileID: 0}
+      portrait: {fileID: 21300000, guid: 0db949548410a414d8789a498bceb383, type: 3}
+      inactivePortrait: {fileID: 21300000, guid: 97caa12a367ce534cba45fc7e0cd787d, type: 3}
+      nameplate: {fileID: 21300000, guid: 67f75469a8b5b814898c088447427999, type: 3}
       slotId: left
       visible: 0
       placeholderColor: {r: 0.25, g: 0.45, b: 0.8, a: 1}
-    - characterId: father
-      portrait: {fileID: 0}
+    - characterId: george
+      portrait: {fileID: 21300000, guid: cecf67af453ce1041b8ddfdff0d36f77, type: 3}
+      inactivePortrait: {fileID: 21300000, guid: 234207a5f968da34c818da80f1ed94c1, type: 3}
+      nameplate: {fileID: 21300000, guid: 6ce731d3a6af87747b4dea2916982b61, type: 3}
       slotId: right
       visible: 0
       placeholderColor: {r: 0.45, g: 0.32, b: 0.2, a: 1}
-    - characterId: mother
-      portrait: {fileID: 0}
+    - characterId: emily
+      portrait: {fileID: 21300000, guid: f3c8fd9d927a9224ba6c2d8fd0e755b1, type: 3}
+      inactivePortrait: {fileID: 21300000, guid: 75ddf199cd5203c4081a01790cc2e6bb, type: 3}
+      nameplate: {fileID: 21300000, guid: b92a39b09356ae546b5d1aa10cb984ef, type: 3}
       slotId: right
       visible: 0
       placeholderColor: {r: 0.62, g: 0.28, b: 0.35, a: 1}
@@ -109,6 +115,7 @@ MonoBehaviour:
     blocksAdvance: 0
   - nodeId: opening_012
     speakerId: 
+    textPresentation: 3
     text: "那栋楼在雾夜里，所有人都被吃掉了。"
     cgCommand: 0
     portraits: []
@@ -116,6 +123,7 @@ MonoBehaviour:
     blocksAdvance: 0
   - nodeId: opening_013
     speakerId: 
+    textPresentation: 3
     text: "政府砌死了大门，抹去名讳。"
     cgCommand: 0
     portraits: []
@@ -123,6 +131,7 @@ MonoBehaviour:
     blocksAdvance: 0
   - nodeId: opening_014
     speakerId: 
+    textPresentation: 3
     text: "雾都的深夜里，时至今日。"
     cgCommand: 0
     portraits: []
@@ -130,6 +139,7 @@ MonoBehaviour:
     blocksAdvance: 0
   - nodeId: opening_015
     speakerId: 
+    textPresentation: 3
     text: "歇斯底里的人们，总在废墟外听到长廊尽头的呼唤。"
     cgCommand: 0
     portraits: []
@@ -139,17 +149,20 @@ MonoBehaviour:
     speakerId: 
     text: "……"
     cgCommand: 1
-    cgSprite: {fileID: 21300000, guid: 3523a3f3c77fb95448961dcebc930631, type: 3}
+    cgSprite: {fileID: 21300000, guid: 791fddf8ba1f3974cbec0c9cb6cf8221, type: 3}
     portraits: []
     effectIds: []
     blocksAdvance: 0
   - nodeId: opening_017
     speakerId: andre
     text: "我叫安德·比尔，一名私家侦探。"
-    cgCommand: 0
+    cgCommand: 1
+    cgSprite: {fileID: 21300000, guid: 9c6615a835b4784439337cc9fae537cf, type: 3}
     portraits:
     - characterId: andre
-      portrait: {fileID: 0}
+      portrait: {fileID: 21300000, guid: 0db949548410a414d8789a498bceb383, type: 3}
+      inactivePortrait: {fileID: 21300000, guid: 97caa12a367ce534cba45fc7e0cd787d, type: 3}
+      nameplate: {fileID: 21300000, guid: 67f75469a8b5b814898c088447427999, type: 3}
       slotId: left
       visible: 1
       placeholderColor: {r: 0.25, g: 0.45, b: 0.8, a: 1}
@@ -180,7 +193,7 @@ MonoBehaviour:
     speakerId: andre
     text: "在深夜死寂的浓雾里，那些年轻人像提线木偶般推门走入大楼，只留下一个似人非人的模糊背影。随后，他们便人间蒸发，如同被那栋黑色的建筑生吞一般，再无音讯。"
     cgCommand: 1
-    cgSprite: {fileID: 21300000, guid: 5c049d0cba7e4ba4db252da0185767e3, type: 3}
+    cgSprite: {fileID: 21300000, guid: 100fb24f0e3e4504eb87b1109c59fb2b, type: 3}
     portraits: []
     effectIds: []
     blocksAdvance: 0
@@ -195,56 +208,74 @@ MonoBehaviour:
     speakerId: andre
     text: "那位母亲脸色惨白，浑身颤抖，连一句完整的话都说不出来。"
     cgCommand: 0
-    portraits: []
+    portraits:
+    - characterId: emily
+      portrait: {fileID: 21300000, guid: f3c8fd9d927a9224ba6c2d8fd0e755b1, type: 3}
+      inactivePortrait: {fileID: 21300000, guid: 75ddf199cd5203c4081a01790cc2e6bb, type: 3}
+      nameplate: {fileID: 21300000, guid: b92a39b09356ae546b5d1aa10cb984ef, type: 3}
+      slotId: right
+      visible: 1
+      placeholderColor: {r: 0.62, g: 0.28, b: 0.35, a: 1}
     effectIds: []
     blocksAdvance: 0
   - nodeId: opening_024
     speakerId: andre
     text: "父亲则摘下礼帽，甚至来不及擦掉脸上的雨水，用一种近乎哀求的绝望眼神望着我。他将一本边缘磨损的旧日记递了过来。"
     cgCommand: 0
-    portraits: []
+    portraits:
+    - characterId: george
+      portrait: {fileID: 21300000, guid: cecf67af453ce1041b8ddfdff0d36f77, type: 3}
+      inactivePortrait: {fileID: 21300000, guid: 234207a5f968da34c818da80f1ed94c1, type: 3}
+      nameplate: {fileID: 21300000, guid: 6ce731d3a6af87747b4dea2916982b61, type: 3}
+      slotId: right
+      visible: 1
+      placeholderColor: {r: 0.45, g: 0.32, b: 0.2, a: 1}
     effectIds: []
     blocksAdvance: 0
   - nodeId: opening_025
-    speakerId: father
+    speakerId: george
     text: "比尔先生……求您。"
     cgCommand: 0
     portraits:
-    - characterId: father
-      portrait: {fileID: 0}
+    - characterId: george
+      portrait: {fileID: 21300000, guid: cecf67af453ce1041b8ddfdff0d36f77, type: 3}
+      inactivePortrait: {fileID: 21300000, guid: 234207a5f968da34c818da80f1ed94c1, type: 3}
+      nameplate: {fileID: 21300000, guid: 6ce731d3a6af87747b4dea2916982b61, type: 3}
       slotId: right
       visible: 1
       placeholderColor: {r: 0.45, g: 0.32, b: 0.2, a: 1}
     effectIds: []
     blocksAdvance: 0
   - nodeId: opening_026
-    speakerId: father
+    speakerId: george
     text: "父亲的声音沙哑得像两块砂纸在摩擦。"
     cgCommand: 0
     portraits: []
     effectIds: []
     blocksAdvance: 0
   - nodeId: opening_027
-    speakerId: father
+    speakerId: george
     text: "苏格兰场的那帮蠢货，声称我的儿子是和下等阶层的无名女子私奔了！但我们做父母的清楚，阿尔伯特绝没有那样自甘堕落，他是去那栋该死的大楼了！……他在写字台留下了这个！……比尔先生，他在日记中提到了您。"
     cgCommand: 0
     portraits: []
     effectIds: []
     blocksAdvance: 0
   - nodeId: opening_028
-    speakerId: mother
+    speakerId: emily
     text: "母亲终于无法抑制地抽泣起来，用手绢捂住嘴。"
     cgCommand: 0
     portraits:
-    - characterId: mother
-      portrait: {fileID: 0}
+    - characterId: emily
+      portrait: {fileID: 21300000, guid: f3c8fd9d927a9224ba6c2d8fd0e755b1, type: 3}
+      inactivePortrait: {fileID: 21300000, guid: 75ddf199cd5203c4081a01790cc2e6bb, type: 3}
+      nameplate: {fileID: 21300000, guid: b92a39b09356ae546b5d1aa10cb984ef, type: 3}
       slotId: right
       visible: 1
       placeholderColor: {r: 0.62, g: 0.28, b: 0.35, a: 1}
     effectIds: []
     blocksAdvance: 0
   - nodeId: opening_029
-    speakerId: mother
+    speakerId: emily
     text: "求求您！比尔先生……我们不知道该找谁了！……"
     cgCommand: 0
     portraits: []
@@ -254,13 +285,13 @@ MonoBehaviour:
     speakerId: andre
     text: "轰。"
     cgCommand: 1
-    cgSprite: {fileID: 21300000, guid: 095d40aaa446a014e91fa113e8c88471, type: 3}
+    cgSprite: {fileID: 21300000, guid: 0e7ff664461bca944b54de888dc1be33, type: 3}
     portraits: []
-    effectIds:
-    - opening_thunder
-    blocksAdvance: 1
+    effectIds: []
+    blocksAdvance: 0
   - nodeId: opening_031
     speakerId: andre
+    textPresentation: 3
     text: "10月13日，大雨。它又在呼喊我了。我听到有人在档案馆深处喊我的名字！……和安德侦探以前提过的那个声音，一模一样……"
     cgCommand: 0
     portraits: []
@@ -270,15 +301,16 @@ MonoBehaviour:
     speakerId: andre
     text: "一道闪电劈开夜空，照亮了办公桌上散乱的调查笔记。"
     cgCommand: 1
-    cgSprite: {fileID: 21300000, guid: 5c049d0cba7e4ba4db252da0185767e3, type: 3}
+    cgSprite: {fileID: 21300000, guid: 100fb24f0e3e4504eb87b1109c59fb2b, type: 3}
     portraits: []
-    effectIds: []
-    blocksAdvance: 0
+    effectIds:
+    - opening_thunder
+    blocksAdvance: 1
   - nodeId: opening_033
     speakerId: andre
     text: "我认识日记的主人。"
     cgCommand: 1
-    cgSprite: {fileID: 21300000, guid: 3523a3f3c77fb95448961dcebc930631, type: 3}
+    cgSprite: {fileID: 21300000, guid: 9c6615a835b4784439337cc9fae537cf, type: 3}
     portraits: []
     effectIds: []
     blocksAdvance: 0
@@ -349,7 +381,7 @@ MonoBehaviour:
     speakerId: andre
     text: "当我推开外围那座虚掩的黑色哥特式铁门，档案馆的轮廓在夜色中像一具巨大的黑色棺椁。"
     cgCommand: 1
-    cgSprite: {fileID: 21300000, guid: b8a02d68f1be6b243ba332f6bee81597, type: 3}
+    cgSprite: {fileID: 21300000, guid: e089c04e512d3ed439a24a688c59b65a, type: 3}
     portraits: []
     effectIds: []
     blocksAdvance: 0
@@ -378,7 +410,7 @@ MonoBehaviour:
     speakerId: andre
     text: "我听见墙壁后面传来了犹如无数纸页在黑暗中摩擦的沙沙声，以及沉重的、拖沓的、一步步朝大门走来的……脚步声。"
     cgCommand: 1
-    cgSprite: {fileID: 21300000, guid: 3523a3f3c77fb95448961dcebc930631, type: 3}
+    cgSprite: {fileID: 21300000, guid: 9c6615a835b4784439337cc9fae537cf, type: 3}
     portraits: []
     effectIds: []
     blocksAdvance: 0

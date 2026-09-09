@@ -188,11 +188,11 @@ namespace MemorialArchive.Gameplay.Lighting.Logic
                 var safetyLightPosition = new Vector2(
                     lastPlayerPosition.x,
                     lastPlayerPosition.y + config.PlayerSafetyLightYOffset);
-                results.Add(ActiveLight.VerticalBeam(
+                AddCharacterLightRig(results,
                     safetyLightPosition,
                     config.PlayerSafetyLightWidth,
                     config.PlayerSafetyLightHeight,
-                    config.PlayerSafetyLightIntensity));
+                    config.PlayerSafetyLightIntensity);
             }
 
             if (isLanternLit && isLanternEquipped)
@@ -201,8 +201,8 @@ namespace MemorialArchive.Gameplay.Lighting.Logic
                 var lanternPosition = new Vector2(
                     lastPlayerPosition.x,
                     lastPlayerPosition.y + config.LanternLightYOffset);
-                results.Add(ActiveLight.VerticalBeam(lanternPosition,
-                    GetCurrentLanternLightWidth(), GetCurrentLanternLightHeight()));
+                AddCharacterLightRig(results, lanternPosition,
+                    GetCurrentLanternLightWidth(), GetCurrentLanternLightHeight());
             }
 
             foreach (var view in lightViews.Values)
@@ -214,6 +214,46 @@ namespace MemorialArchive.Gameplay.Lighting.Logic
 
                 results.Add(new ActiveLight(view.position, view.radius));
             }
+        }
+
+        private void AddCharacterLightRig(List<ActiveLight> results, Vector2 center,
+            float width, float height, float intensity = 1f)
+        {
+            if (results == null || config == null)
+            {
+                return;
+            }
+
+            // Keep the center beam for the torso and add two narrower side beams
+            // so the darkness overlay does not hide the outer silhouette of a
+            // tall Spine character. The shader takes the maximum contribution,
+            // so these beams extend coverage without making the center glow twice.
+            AddVerticalLightTriad(results, center, width, height, intensity);
+
+            // A second triad sits above the first one. This is deliberately a
+            // separate light group instead of relying only on a larger ellipse,
+            // so the upper body and head remain readable without widening the
+            // light around the floor.
+            AddVerticalLightTriad(results,
+                center + new Vector2(0f, config.CharacterLightUpperOffset),
+                width * config.CharacterLightUpperWidthScale,
+                height * config.CharacterLightUpperHeightScale,
+                intensity * config.CharacterLightUpperIntensityScale);
+        }
+
+        private void AddVerticalLightTriad(List<ActiveLight> results, Vector2 center,
+            float width, float height, float intensity)
+        {
+            results.Add(ActiveLight.VerticalBeam(center, width, height, intensity));
+
+            var sideWidth = width * config.CharacterLightSideWidthScale;
+            var sideHeight = height * config.CharacterLightSideHeightScale;
+            var sideIntensity = intensity * config.CharacterLightSideIntensityScale;
+            var sideOffset = config.CharacterLightSideOffset;
+            results.Add(ActiveLight.VerticalBeam(
+                center + new Vector2(-sideOffset, 0f), sideWidth, sideHeight, sideIntensity));
+            results.Add(ActiveLight.VerticalBeam(
+                center + new Vector2(sideOffset, 0f), sideWidth, sideHeight, sideIntensity));
         }
 
         // ---- View 注册 ----

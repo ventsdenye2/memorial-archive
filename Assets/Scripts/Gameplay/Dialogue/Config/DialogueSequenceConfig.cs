@@ -10,17 +10,29 @@ namespace MemorialArchive.Gameplay.Dialogue.Config
         Clear
     }
 
+    public enum DialogueTextPresentation
+    {
+        Automatic,
+        Narration,
+        Speech,
+        Quotation
+    }
+
     [Serializable]
     public sealed class DialoguePortraitConfig
     {
         [SerializeField] private string characterId;
         [SerializeField] private Color placeholderColor = Color.white;
         [SerializeField] private Sprite portrait;
+        [SerializeField] private Sprite inactivePortrait;
+        [SerializeField] private Sprite nameplate;
         [SerializeField] private string slotId;
         [SerializeField] private bool visible = true;
 
         public string CharacterId => characterId;
         public Sprite Portrait => portrait;
+        public Sprite InactivePortrait => inactivePortrait;
+        public Sprite Nameplate => nameplate;
         public Color PlaceholderColor => placeholderColor;
         public string SlotId => slotId;
         public bool Visible => visible;
@@ -31,6 +43,7 @@ namespace MemorialArchive.Gameplay.Dialogue.Config
     {
         [SerializeField] private string nodeId;
         [SerializeField] private string speakerId;
+        [SerializeField] private DialogueTextPresentation textPresentation;
         [TextArea(3, 8)]
         [SerializeField] private string text;
         [SerializeField] private DialogueCgCommand cgCommand = DialogueCgCommand.Keep;
@@ -41,6 +54,7 @@ namespace MemorialArchive.Gameplay.Dialogue.Config
 
         public string NodeId => nodeId;
         public string SpeakerId => speakerId;
+        public DialogueTextPresentation TextPresentation => textPresentation;
         public string Text => text;
         public DialogueCgCommand CgCommand => cgCommand;
         public Sprite CgSprite => cgSprite;

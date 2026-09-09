@@ -10,9 +10,8 @@ namespace MemorialArchive.Framework.UI
     /// </summary>
     internal static class SaveSlotPanelViewFactory
     {
-        private static readonly Color EnabledColor = Color.white;
-        private static readonly Color DisabledColor = new Color(0.58f, 0.52f, 0.46f, 0.78f);
-        private const float SlotHitAreaHeight = 158f;
+        // The closest authored slot centres are 135 units apart.
+        private const float SlotHitAreaHeight = 135f;
 
         public static Transform FindSurface(Transform panel)
         {
@@ -91,14 +90,14 @@ namespace MemorialArchive.Framework.UI
                 image.overrideSprite = null;
                 image.type = Image.Type.Simple;
                 image.preserveAspect = false;
-                image.color = interactable ? EnabledColor : DisabledColor;
+                image.color = Color.white;
                 // The authored save cards overlap vertically. The card artwork
                 // must not own the raycast, otherwise the top card captures the
                 // pointer over all cards below it.
                 image.raycastTarget = false;
             }
 
-            var hitArea = EnsureHitArea(button);
+            var hitArea = EnsureHitArea(button.transform);
             button.transition = Selectable.Transition.None;
             button.targetGraphic = hitArea;
             button.interactable = interactable;
@@ -109,20 +108,20 @@ namespace MemorialArchive.Framework.UI
                 hoverView = button.gameObject.AddComponent<SaveSlotHoverView>();
             }
 
-            hoverView.Configure(image, normal, highlighted, interactable);
+            hoverView.Configure(image, normal, highlighted);
         }
 
-        private static Image EnsureHitArea(Button button)
+        private static Image EnsureHitArea(Transform slot)
         {
-            var hitArea = button.transform.Find("HitArea")?.GetComponent<Image>();
+            var hitArea = slot.Find("HitArea")?.GetComponent<Image>();
             if (hitArea == null)
             {
                 var hitObject = new GameObject("HitArea", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
-                hitObject.transform.SetParent(button.transform, false);
+                hitObject.transform.SetParent(slot, false);
                 hitArea = hitObject.GetComponent<Image>();
             }
 
-            var rootRect = button.transform as RectTransform;
+            var rootRect = slot as RectTransform;
             var hitRect = hitArea.rectTransform;
             hitRect.anchorMin = hitRect.anchorMax = new Vector2(0.5f, 0.5f);
             hitRect.anchoredPosition = Vector2.zero;
@@ -133,15 +132,23 @@ namespace MemorialArchive.Framework.UI
             return hitArea;
         }
 
-        public static void ConfigureDisabledSlot(Image image)
+        public static void ConfigureDisabledSlot(Image image, Sprite normal, Sprite highlighted)
         {
             if (image == null)
             {
                 return;
             }
 
-            image.color = DisabledColor;
+            image.color = Color.white;
             image.raycastTarget = false;
+            EnsureHitArea(image.transform);
+            var hoverView = image.GetComponent<SaveSlotHoverView>();
+            if (hoverView == null)
+            {
+                hoverView = image.gameObject.AddComponent<SaveSlotHoverView>();
+            }
+
+            hoverView.Configure(image, normal, highlighted);
         }
 
 #if UNITY_EDITOR
@@ -216,12 +223,12 @@ namespace MemorialArchive.Framework.UI
             return button;
         }
 
-        public static Image CreateAuthoredDisabledSlot(Transform parent, int slotIndex, Sprite normal,
+        public static Image CreateAuthoredDisabledSlot(Transform parent, int slotIndex, Sprite normal, Sprite highlighted,
             Vector2 position, out Text label)
         {
             var image = CreateAuthoredImage(parent, "Slot_" + (slotIndex + 1), position,
                 normal != null ? normal.rect.size : new Vector2(837f, 285f), normal, false);
-            ConfigureDisabledSlot(image);
+            ConfigureDisabledSlot(image, normal, highlighted);
             label = CreateAuthoredText(image.transform, "SlotLabel", new Vector2(100f, -72f),
                 new Vector2(330f, 58f), 16, TextAnchor.MiddleCenter, new Color(0.39f, 0.2f, 0.12f, 0.94f));
             label.text = "第一阶段预留";

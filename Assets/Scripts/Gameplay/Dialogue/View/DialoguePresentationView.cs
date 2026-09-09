@@ -18,6 +18,9 @@ namespace MemorialArchive.Gameplay.Dialogue.View
             [NonSerialized] private string currentCharacterId;
             [SerializeField] private Image portraitImage;
             [SerializeField] private Image dimOverlay;
+            public Sprite SpeakingSprite { get; set; }
+            public Sprite InactiveSprite { get; set; }
+            public Sprite Nameplate { get; set; }
 
             public string SlotId => slotId;
             public Image PortraitImage => portraitImage;
@@ -27,6 +30,12 @@ namespace MemorialArchive.Gameplay.Dialogue.View
 
         [SerializeField] private Text dialogueText;
         [SerializeField] private Image cgImage;
+        [SerializeField] private bool fillCgViewport;
+        [SerializeField] private Image speakerNameImage;
+        [SerializeField] private Image dialogueFrame;
+        [SerializeField] private Sprite narrationFrameSprite;
+        [SerializeField] private Sprite spokenFrameSprite;
+        [SerializeField] private bool useNativePortraitSize;
         [SerializeField] private Image flashOverlay;
         [SerializeField] private AudioSource effectAudioSource;
         [SerializeField] private PortraitSlot[] portraitSlots = Array.Empty<PortraitSlot>();
@@ -39,6 +48,11 @@ namespace MemorialArchive.Gameplay.Dialogue.View
         [SerializeField] private GameObject presentationRoot;
         [Header("Dialogue text")]
         [SerializeField, Min(1)] private int dialogueFontSize = 30;
+        [SerializeField] private bool useAuthoredTextStyles;
+        [SerializeField] private Font narrationFont;
+        [SerializeField] private Font speechFont;
+        [SerializeField, Min(1)] private int narrationFontSize = 32;
+        [SerializeField, Min(1)] private int speechFontSize = 40;
         [SerializeField] private bool useTypewriter = true;
         [SerializeField, Min(1f)] private float charactersPerSecond = 36f;
 
@@ -48,10 +62,13 @@ namespace MemorialArchive.Gameplay.Dialogue.View
         private string typewriterText;
         private string typewriterDialogueId;
         private int typewriterNodeIndex = -1;
+        private Config.DialogueTextPresentation currentTextPresentation = Config.DialogueTextPresentation.Narration;
+        private static readonly Color QuotationTextColor = new Color(0.62f, 0.015f, 0.025f, 1f);
 
         private void Awake()
         {
             ApplyDialogueTextStyle();
+            ApplyCgLayout();
         }
 
 #if UNITY_EDITOR
@@ -127,6 +144,8 @@ namespace MemorialArchive.Gameplay.Dialogue.View
 
             if (dialogueText != null)
             {
+                currentTextPresentation = ResolveTextPresentation(node);
+                ApplyDialogueTextStyle();
                 StartTypewriter(node);
             }
 
@@ -154,7 +173,28 @@ namespace MemorialArchive.Gameplay.Dialogue.View
             }
 
             cgImage.sprite = node.CgSprite;
+            ApplyCgLayout();
             cgImage.gameObject.SetActive(node.CgSprite != null);
+        }
+
+        private void ApplyCgLayout()
+        {
+            if (!fillCgViewport || cgImage == null) return;
+            // Cover the viewport at any Game View aspect ratio without stretching
+            // the 1920x1080 art or introducing pillarbox/letterbox margins.
+            cgImage.preserveAspect = false;
+            var fitter = cgImage.GetComponent<AspectRatioFitter>();
+            if (fitter == null) fitter = cgImage.gameObject.AddComponent<AspectRatioFitter>();
+            fitter.aspectRatio = cgImage.sprite != null
+                ? cgImage.sprite.rect.width / cgImage.sprite.rect.height : 16f / 9f;
+            fitter.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
+        }
+
+        private static Config.DialogueTextPresentation ResolveTextPresentation(DialogueNodeData node)
+        {
+            if (node.TextPresentation != Config.DialogueTextPresentation.Automatic) return node.TextPresentation;
+            return string.IsNullOrEmpty(node.SpeakerId)
+                ? Config.DialogueTextPresentation.Narration : Config.DialogueTextPresentation.Speech;
         }
 
         private void ApplyPortraits(DialogueNodeData node)
@@ -168,25 +208,52 @@ namespace MemorialArchive.Gameplay.Dialogue.View
                 }
 
                 slot.PortraitImage.sprite = portrait.Portrait;
+                slot.SpeakingSprite = portrait.Portrait;
+                slot.InactiveSprite = portrait.InactivePortrait;
+                slot.Nameplate = portrait.Nameplate;
                 slot.PortraitImage.color = portrait.Portrait != null ? Color.white : portrait.PlaceholderColor;
                 slot.PortraitImage.gameObject.SetActive(portrait.Visible);
                 slot.CurrentCharacterId = portrait.CharacterId;
             }
 
+            Sprite speakerNameplate = null;
             foreach (var slot in portraitSlots)
             {
                 if (slot != null && slot.PortraitImage != null)
                 {
-                    SetDimmed(slot.DimOverlay, slot.PortraitImage.gameObject.activeSelf && ShouldDimCharacter(node, slot.CurrentCharacterId));
+                    bool visible = slot.PortraitImage.gameObject.activeSelf;
+                    bool dimmed = visible && ShouldDimCharacter(node, slot.CurrentCharacterId);
+                    if (slot.SpeakingSprite != null)
+                    {
+                        slot.PortraitImage.sprite = dimmed && slot.InactiveSprite != null
+                            ? slot.InactiveSprite : slot.SpeakingSprite;
+                        if (useNativePortraitSize) slot.PortraitImage.SetNativeSize();
+                    }
+
+                    // Authored inactive sprites include shading with the correct silhouette.
+                    SetDimmed(slot.DimOverlay, dimmed && slot.InactiveSprite == null);
+                    if (visible && !string.IsNullOrEmpty(node.SpeakerId) && slot.CurrentCharacterId == node.SpeakerId)
+                    {
+                        speakerNameplate = slot.Nameplate;
+                    }
                 }
             }
-        }
 
-        private bool ShouldDimPortrait(DialogueNodeData node, DialoguePortraitData portrait)
-        {
-            return string.IsNullOrEmpty(node.SpeakerId)
-                ? dimAllPortraitsForNarration
-                : portrait.CharacterId != node.SpeakerId;
+            if (speakerNameImage != null)
+            {
+                speakerNameImage.sprite = speakerNameplate;
+                speakerNameImage.gameObject.SetActive(speakerNameplate != null);
+            }
+            if (dialogueFrame != null)
+            {
+                var frameSprite = ResolveTextPresentation(node) == Config.DialogueTextPresentation.Speech
+                    ? spokenFrameSprite : narrationFrameSprite;
+                if (frameSprite != null)
+                {
+                    dialogueFrame.sprite = frameSprite;
+                    dialogueFrame.SetNativeSize();
+                }
+            }
         }
 
         private bool ShouldDimCharacter(DialogueNodeData node, string characterId)
@@ -415,10 +482,31 @@ namespace MemorialArchive.Gameplay.Dialogue.View
                 return;
             }
 
-            // Dialogue content controls wording and explicit line breaks only.
-            // Font sizing belongs to this View and remains identical for every node.
+            // Content chooses a semantic presentation; the View owns its typography.
             dialogueText.resizeTextForBestFit = false;
             dialogueText.fontSize = Mathf.Max(1, dialogueFontSize);
+            if (useAuthoredTextStyles)
+            {
+                bool speech = currentTextPresentation == Config.DialogueTextPresentation.Speech;
+                bool quotation = currentTextPresentation == Config.DialogueTextPresentation.Quotation;
+                var font = speech || quotation ? speechFont : narrationFont;
+                if (font != null) dialogueText.font = font;
+                dialogueText.fontStyle = FontStyle.Normal; // The supplied calligraphic font is already italic.
+                dialogueText.fontSize = speech || quotation ? speechFontSize : narrationFontSize;
+                // Unity multiplies the font's own line metrics, which differ between
+                // these two fonts. Normalize to the reference's 48/40 canvas-unit leading.
+                float nativeLineHeight = dialogueText.font != null
+                    ? dialogueText.font.lineHeight * (float)dialogueText.fontSize / Mathf.Max(1, dialogueText.font.fontSize)
+                    : dialogueText.fontSize;
+                dialogueText.lineSpacing = (speech || quotation ? 48f : 40f) / Mathf.Max(1f, nativeLineHeight);
+                dialogueText.alignment = quotation ? TextAnchor.MiddleCenter : TextAnchor.UpperLeft;
+                dialogueText.color = quotation ? QuotationTextColor : speech ? Color.black : Color.white;
+            }
+            else
+            {
+                dialogueText.alignment = TextAnchor.UpperLeft;
+                dialogueText.color = Color.white;
+            }
             dialogueText.supportRichText = false;
             dialogueText.horizontalOverflow = HorizontalWrapMode.Wrap;
             dialogueText.verticalOverflow = VerticalWrapMode.Overflow;

@@ -14,15 +14,13 @@ namespace MemorialArchive.Framework.UI
         private Image artwork;
         private Sprite normalSprite;
         private Sprite highlightedSprite;
-        private bool interactable;
         private bool pointerInside;
 
-        public void Configure(Image targetArtwork, Sprite normal, Sprite highlighted, bool canInteract)
+        public void Configure(Image targetArtwork, Sprite normal, Sprite highlighted)
         {
             artwork = targetArtwork;
             normalSprite = normal;
             highlightedSprite = highlighted;
-            interactable = canInteract;
             ApplyState();
         }
 
@@ -51,10 +49,15 @@ namespace MemorialArchive.Framework.UI
                 return;
             }
 
-            artwork.sprite = interactable && pointerInside && highlightedSprite != null
+            // Hover describes pointer location, independently of save/load availability.
+            // Empty load slots and reserved slots still provide visual feedback.
+            artwork.overrideSprite = null;
+            artwork.sprite = pointerInside && highlightedSprite != null
                 ? highlightedSprite
                 : normalSprite;
-            artwork.color = interactable ? Color.white : new Color(0.58f, 0.52f, 0.46f, 0.78f);
+            // Availability belongs to Button.interactable and the slot label.
+            // Tinting empty slots makes occupied slots appear permanently highlighted.
+            artwork.color = Color.white;
         }
     }
 }

@@ -21,7 +21,7 @@ namespace MemorialArchive.Gameplay.Lighting.Config
 
         [Header("角色微光")]
         [Tooltip("角色微光的横向总宽度。与高度共同形成竖向椭圆光带；该光不计入交互门禁或黑暗失败判定。")]
-        [SerializeField, Min(0.1f)] private float playerSafetyLightWidth = 1.5f;
+        [SerializeField, Min(0.1f)] private float playerSafetyLightWidth = 2f;
         [Tooltip("角色微光的纵向总高度，覆盖角色头部到脚部。")]
         [SerializeField, Min(0.1f)] private float playerSafetyLightHeight = 3.4f;
         [Tooltip("角色微光中心亮度。1 为完全挖开暗幕，0 为不产生微光。")]
@@ -30,6 +30,24 @@ namespace MemorialArchive.Gameplay.Lighting.Config
         [Tooltip("角色位置事件位于脚底，微光向上抬升后才能覆盖躯干。")]
         [SerializeField] private float playerSafetyLightYOffset = 0.9f;
 
+        [Header("角色微光补光")]
+        [Tooltip("中心光带两侧补光的水平偏移。系统会生成左右两束补光，帮助覆盖立绘边缘。")]
+        [SerializeField, Min(0f)] private float characterLightSideOffset = 0.42f;
+        [Tooltip("左右补光相对中心光带的宽度比例。")]
+        [SerializeField, Range(0.1f, 1f)] private float characterLightSideWidthScale = 0.85f;
+        [Tooltip("左右补光相对中心光带的高度比例。")]
+        [SerializeField, Range(0.1f, 1f)] private float characterLightSideHeightScale = 0.92f;
+        [Tooltip("左右补光相对中心光带的亮度比例。")]
+        [SerializeField, Range(0f, 1f)] private float characterLightSideIntensityScale = 0.85f;
+        [Tooltip("上方补光相对角色中心的竖直偏移；用于把光照延伸到角色头顶以上。")]
+        [SerializeField, Min(0f)] private float characterLightUpperOffset = 2.4f;
+        [Tooltip("上方补光相对中心光带的宽度比例。")]
+        [SerializeField, Range(0.1f, 1f)] private float characterLightUpperWidthScale = 0.82f;
+        [Tooltip("上方补光相对中心光带的高度比例。")]
+        [SerializeField, Range(0.1f, 1f)] private float characterLightUpperHeightScale = 0.7f;
+        [Tooltip("上方补光相对中心光带的亮度比例。")]
+        [SerializeField, Range(0f, 1f)] private float characterLightUpperIntensityScale = 0.78f;
+
         [Header("手提灯")]
         [SerializeField] private float lanternTotalFuelSeconds = 60f;
         [Tooltip("剩余燃料高于该值时为强光（默认 40 秒，即消耗前 20 秒）。")]
@@ -37,9 +55,9 @@ namespace MemorialArchive.Gameplay.Lighting.Config
         [Tooltip("剩余燃料低于等于该值时为弱光（默认 10 秒，即最后 10 秒）。")]
         [SerializeField] private float lanternWeakThresholdSeconds = 10f;
         [Tooltip("手提灯的横向总宽度；光源保持竖向，不再是圆形点光。")]
-        [SerializeField, Min(0.1f)] private float lanternStrongLightWidth = 2f;
-        [SerializeField, Min(0.1f)] private float lanternNormalLightWidth = 1.8f;
-        [SerializeField, Min(0.1f)] private float lanternWeakLightWidth = 1.6f;
+        [SerializeField, Min(0.1f)] private float lanternStrongLightWidth = 2.6f;
+        [SerializeField, Min(0.1f)] private float lanternNormalLightWidth = 2.35f;
+        [SerializeField, Min(0.1f)] private float lanternWeakLightWidth = 2.1f;
         [Tooltip("手提灯的纵向总高度，用于完整照亮角色。")]
         [SerializeField, Min(0.1f)] private float lanternStrongLightHeight = 4.4f;
         [SerializeField, Min(0.1f)] private float lanternNormalLightHeight = 3.9f;
@@ -68,6 +86,14 @@ namespace MemorialArchive.Gameplay.Lighting.Config
         public float PlayerSafetyLightHeight => Mathf.Max(0.1f, playerSafetyLightHeight);
         public float PlayerSafetyLightIntensity => Mathf.Clamp01(playerSafetyLightIntensity);
         public float PlayerSafetyLightYOffset => playerSafetyLightYOffset;
+        public float CharacterLightSideOffset => Mathf.Max(0f, characterLightSideOffset);
+        public float CharacterLightSideWidthScale => Mathf.Clamp(characterLightSideWidthScale, 0.1f, 1f);
+        public float CharacterLightSideHeightScale => Mathf.Clamp(characterLightSideHeightScale, 0.1f, 1f);
+        public float CharacterLightSideIntensityScale => Mathf.Clamp01(characterLightSideIntensityScale);
+        public float CharacterLightUpperOffset => Mathf.Max(0f, characterLightUpperOffset);
+        public float CharacterLightUpperWidthScale => Mathf.Clamp(characterLightUpperWidthScale, 0.1f, 1f);
+        public float CharacterLightUpperHeightScale => Mathf.Clamp(characterLightUpperHeightScale, 0.1f, 1f);
+        public float CharacterLightUpperIntensityScale => Mathf.Clamp01(characterLightUpperIntensityScale);
 
         public float LanternTotalFuelSeconds => Mathf.Max(1f, lanternTotalFuelSeconds);
         public float LanternStrongThresholdSeconds => lanternStrongThresholdSeconds;

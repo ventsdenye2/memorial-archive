@@ -317,6 +317,199 @@ MonoBehaviour:
     loop: 0
     volume: 0.65
     cooldown: 0.06
+  - id: amb_clinic
+    clips:
+    - {fileID: 8300000, guid: 81e93763e3327da52cb9c7d379405025, type: 3}
+    bus: 2
+    loop: 1
+    volume: 0.3
+    cooldown: 0
+  - id: amb_terrace
+    clips:
+    - {fileID: 8300000, guid: 65857ad96d01252d4f369a0a457f8134, type: 3}
+    bus: 2
+    loop: 1
+    volume: 0.3
+    cooldown: 0
+  - id: bgm_battle
+    clips:
+    - {fileID: 8300000, guid: 3239a099dbff0e4051c235553117d6cd, type: 3}
+    bus: 3
+    loop: 1
+    volume: 0.55
+    cooldown: 0
+  - id: bgm_explore
+    clips:
+    - {fileID: 8300000, guid: 22bca9511be8c7700de18152f7a08c97, type: 3}
+    bus: 3
+    loop: 1
+    volume: 0.55
+    cooldown: 0
+  - id: bgm_menu
+    clips:
+    - {fileID: 8300000, guid: 9ccc587581e4b5c764876814d586db61, type: 3}
+    bus: 3
+    loop: 1
+    volume: 0.55
+    cooldown: 0
+  - id: sfx_item_bandage
+    clips:
+    - {fileID: 8300000, guid: 4fd81928f6f6abb62beac622f79b80bd, type: 3}
+    bus: 0
+    loop: 0
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_item_drink_soda_water
+    clips:
+    - {fileID: 8300000, guid: 87d5118710f09c6cac49a10d1c8553cc, type: 3}
+    bus: 0
+    loop: 0
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_item_drink_tea
+    clips:
+    - {fileID: 8300000, guid: 1b052ac4f55afd9094b70f691ec9270e, type: 3}
+    bus: 0
+    loop: 0
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_item_drink_whiskey
+    clips:
+    - {fileID: 8300000, guid: d326d945b5d56e9da0a78133a7938eae, type: 3}
+    bus: 0
+    loop: 0
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_item_food_beef_jerky
+    clips:
+    - {fileID: 8300000, guid: 5e23f60e3e571079097d433eda1aafdb, type: 3}
+    bus: 0
+    loop: 0
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_item_food_toffee
+    clips:
+    - {fileID: 8300000, guid: 3a55e33d9f0c51d1ed36a7e4df2e6efb, type: 3}
+    bus: 0
+    loop: 0
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_item_laudanum
+    clips:
+    - {fileID: 8300000, guid: 8e755bb38ce5082c7b8521835426a211, type: 3}
+    bus: 0
+    loop: 0
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_item_rum_medicine
+    clips:
+    - {fileID: 8300000, guid: c99c71709f5847c58336639a2c7c7d4a, type: 3}
+    bus: 0
+    loop: 0
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_player_armor_hit
+    clips:
+    - {fileID: 8300000, guid: 9010b529ec7569d8fced19846fa1860e, type: 3}
+    - {fileID: 8300000, guid: bd858343ac4c97cca1a0047f80c614e8, type: 3}
+    bus: 0
+    loop: 0
+    sequential: 1
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_player_attack_bayonet
+    clips:
+    - {fileID: 8300000, guid: 68f789526e57991f61a5ff6cd8544bb4, type: 3}
+    - {fileID: 8300000, guid: 4b640a5273c6644feed24563a00a40af, type: 3}
+    - {fileID: 8300000, guid: fca8a2e0d991dec694327dc7cdec8894, type: 3}
+    bus: 0
+    loop: 0
+    sequential: 1
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_player_cock_pistol
+    clips:
+    - {fileID: 8300000, guid: d382dc549e225e2802c1b4e57d87ddb1, type: 3}
+    bus: 0
+    loop: 0
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_player_equip_bayonet
+    clips:
+    - {fileID: 8300000, guid: 58a5a8f5de574b97740a5fd528bf710c, type: 3}
+    bus: 0
+    loop: 0
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_player_heavy_move_run
+    clips:
+    - {fileID: 8300000, guid: d62249e9fbeffec7d5da1a3326a1d4ad, type: 3}
+    - {fileID: 8300000, guid: e46ba014e3cfd1c475bde3efaae0b552, type: 3}
+    bus: 0
+    loop: 0
+    sequential: 1
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_player_heavy_move_walk
+    clips:
+    - {fileID: 8300000, guid: 8faf2be1d720430c72e1487a01c3c586, type: 3}
+    - {fileID: 8300000, guid: 48c406191ae08c8cfdb9c3c83942968e, type: 3}
+    bus: 0
+    loop: 0
+    sequential: 1
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_player_reload_pistol
+    clips:
+    - {fileID: 8300000, guid: 203d329921f991277ed103a668f16786, type: 3}
+    bus: 0
+    loop: 0
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_player_shield_block_hit
+    clips:
+    - {fileID: 8300000, guid: 3acf71a562e03a51abe6857f0ebc9572, type: 3}
+    - {fileID: 8300000, guid: 191de6484f7223945b57832be2e61a55, type: 3}
+    bus: 0
+    loop: 0
+    sequential: 1
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_player_shoot_pistol
+    clips:
+    - {fileID: 8300000, guid: 85f64ae95dd300fe58166d7f91cf6930, type: 3}
+    bus: 0
+    loop: 0
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_player_grenade_explode
+    clips:
+    - {fileID: 8300000, guid: 735d6f1c91c196fad362b4b1eb9bab59, type: 3}
+    bus: 0
+    loop: 0
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_player_grenade_pin
+    clips:
+    - {fileID: 8300000, guid: 24978a3959a0e74385332304eb3c2ca0, type: 3}
+    bus: 0
+    loop: 0
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_player_throw
+    clips:
+    - {fileID: 8300000, guid: ee4f1f344b0e487a1baa462af1c64121, type: 3}
+    bus: 0
+    loop: 0
+    volume: 0.65
+    cooldown: 0.06
+  - id: sfx_scene_key_unlock
+    clips:
+    - {fileID: 8300000, guid: fe07443e2a7acee604df734fde7b1eec, type: 3}
+    bus: 0
+    loop: 0
+    volume: 0.65
+    cooldown: 0.06
   scenes:
   - scene: MainMenu
     ambience: 
@@ -328,61 +521,81 @@ MonoBehaviour:
     surface: wood
   - scene: FrontHall
     ambience: amb_lobby_exhibition
-    music: bgm_explore
+    music:
     surface: wood
   - scene: SampleScene
     ambience: amb_lobby_exhibition
-    music: bgm_explore
+    music:
     surface: wood
   - scene: Room_Office
     ambience: amb_office
-    music: bgm_explore
+    music:
     surface: wood
   - scene: Room_Director
     ambience: amb_office
-    music: bgm_explore
+    music:
     surface: wood
   - scene: Room_Reception
     ambience: amb_guest_room
-    music: bgm_safe
+    music:
     surface: wood
   - scene: Room_Toilet
     ambience: amb_restroom
-    music: bgm_explore
+    music:
     surface: wood
   - scene: Room_TreatmentA
-    ambience: amb_treatment_room
-    music: bgm_explore
+    ambience: amb_clinic
+    music:
     surface: wood
   - scene: Room_TreatmentB
-    ambience: amb_treatment_room
-    music: bgm_explore
+    ambience: amb_clinic
+    music:
     surface: wood
   - scene: Room_ArchiveA
     ambience: amb_archive_room
-    music: bgm_explore
+    music:
     surface: wood
   - scene: Room_ArchiveB
     ambience: amb_archive_room
-    music: bgm_explore
+    music:
     surface: wood
   - scene: Room_ArchiveC
     ambience: amb_archive_room
-    music: bgm_explore
+    music:
     surface: wood
   - scene: Floor_1F
     ambience: amb_staircase
-    music: bgm_explore
+    music:
     surface: wood
   - scene: Floor_2F
     ambience: amb_staircase
-    music: bgm_explore
+    music:
     surface: wood
   - scene: Floor_3F
     ambience: amb_staircase
-    music: bgm_explore
+    music:
     surface: wood
   - scene: Floor_4F
-    ambience: amb_staircase
-    music: bgm_explore
+    ambience: amb_terrace
+    music:
     surface: wood
+  explorationMusic: bgm_explore
+  battleMusic: bgm_battle
+  explorationScenes:
+  - Floor_2F
+  - Floor_3F
+  - Room_Reception
+  - Room_Office
+  - Room_ArchiveA
+  - Room_ArchiveB
+  - Room_ArchiveC
+  - Room_TreatmentA
+  - Room_Director
+  explorationCompletionScenes:
+  - Room_Reception
+  - Room_Office
+  - Room_ArchiveA
+  - Room_ArchiveB
+  - Room_ArchiveC
+  - Room_TreatmentA
+  - Room_Director

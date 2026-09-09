@@ -30,6 +30,7 @@ namespace MemorialArchive.Gameplay.Character.Logic
         public bool IsRunning { get; private set; } public CharacterActionState ActionState => state;
         public bool IsBlocking => state == CharacterActionState.Blocking; public bool IsAiming => state == CharacterActionState.Aiming || state == CharacterActionState.ThrowAiming;
         public bool HasShieldEquipped => offhandType == OffhandType.Shield;
+        public bool HasSplintEquipped => offhandType == OffhandType.Splint;
         public Vector2 FacingDirection => facingDirection;
         public Vector2 AimDirection => aimDirection;
         public float StaminaCostMultiplier => GetStaminaCostMultiplier();

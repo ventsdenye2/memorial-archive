@@ -284,9 +284,9 @@ namespace MemorialArchive.Framework.UI
 
             // Four contiguous cells match the shortcut row in the reference;
             // they remain valid drop targets for the inventory interactions.
-            CreateGrid(InventoryContainerKind.ShortcutBar, 0, new Vector2(611.5f, -475.5f), 3, 1,
+            CreateGrid(InventoryContainerKind.ShortcutBar, 0, new Vector2(611.5f, -430f), 3, 1,
                 new Vector2(91f, 75f), Vector2.zero, equipmentNormal, equipmentSelected);
-            CreateGrid(InventoryContainerKind.Offhand, 0, new Vector2(793.5f, -475.5f), 1, 1,
+            CreateGrid(InventoryContainerKind.Offhand, 0, new Vector2(793.5f, -430f), 1, 1,
                 new Vector2(91f, 75f), Vector2.zero, equipmentNormal, equipmentSelected);
             statusLabel = CreateText("InventoryStatus", transform, new Vector2(-437f, -235f), new Vector2(420f, 54f), 14, TextAnchor.MiddleCenter);
             statusLabel.color = new Color(0.2f, 0.13f, 0.09f, 1f);

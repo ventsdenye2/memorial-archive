@@ -99,11 +99,13 @@ namespace MemorialArchive.Editor
                 throw new InvalidOperationException("LightingGlobalConfig.darknessMaterial 未赋值。");
             }
 
-            if (config.PlayerSafetyLightRadius <= 0f || config.PlayerSafetyLightIntensity <= 0f ||
+            if (config.PlayerSafetyLightWidth <= 0f || config.PlayerSafetyLightHeight <= 0f ||
+                config.PlayerSafetyLightIntensity <= 0f ||
                 config.PlayerSafetyLightIntensity >= 1f)
             {
                 throw new InvalidOperationException(
-                    $"角色微光配置无效：radius={config.PlayerSafetyLightRadius}, intensity={config.PlayerSafetyLightIntensity}");
+                    $"角色微光配置无效：width={config.PlayerSafetyLightWidth}, height={config.PlayerSafetyLightHeight}, " +
+                    $"intensity={config.PlayerSafetyLightIntensity}");
             }
 
             Debug.Log("[Stage4LightingRenderValidator] 材质与全局配置引用检查通过。");
@@ -145,8 +147,10 @@ namespace MemorialArchive.Editor
                 propertyBlock.SetFloat("_FalloffExponent", 2f);
                 propertyBlock.SetFloat("_Dim", 1f);
                 var lightData = new Vector4[32];
+                var lightShapeData = new Vector4[32];
                 lightData[0] = new Vector4(0f, 0f, 2f, 1f);
                 propertyBlock.SetVectorArray("_LightData", lightData);
+                propertyBlock.SetVectorArray("_LightShapeData", lightShapeData);
                 propertyBlock.SetInt("_LightCount", 1);
                 renderer.SetPropertyBlock(propertyBlock);
 
@@ -162,8 +166,18 @@ namespace MemorialArchive.Editor
                 var corner = SamplePixel(pixels, 8, 8);
 
                 var config = AssetDatabase.LoadAssetAtPath<LightingGlobalConfig>(GlobalConfigPath);
-                lightData[0] = new Vector4(0f, 0f, config.PlayerSafetyLightRadius, config.PlayerSafetyLightIntensity);
+                lightData[0] = new Vector4(
+                    0f,
+                    0f,
+                    Mathf.Max(config.PlayerSafetyLightWidth, config.PlayerSafetyLightHeight) * 0.5f,
+                    config.PlayerSafetyLightIntensity);
+                lightShapeData[0] = new Vector4(
+                    1f,
+                    config.PlayerSafetyLightWidth * 0.5f,
+                    config.PlayerSafetyLightHeight * 0.5f,
+                    0f);
                 propertyBlock.SetVectorArray("_LightData", lightData);
+                propertyBlock.SetVectorArray("_LightShapeData", lightShapeData);
                 renderer.SetPropertyBlock(propertyBlock);
                 camera.Render();
 

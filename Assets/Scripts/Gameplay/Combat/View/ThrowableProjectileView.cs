@@ -80,6 +80,7 @@ namespace MemorialArchive.Gameplay.Combat.View
         {
             resolved = true;
             var center = (Vector2)transform.position;
+            GameRoot.Instance?.Context?.Events.Publish(new GrenadeExplodedEvent(center));
             ReportGrenadeTargets(center);
             if (!SpineEffectPlayer.TryPlayAt(
                     SpineEffectPlayer.GrenadeExplosionResource,

@@ -732,6 +732,12 @@ public readonly struct ContainerClosedEvent { }
         public float MinimumRemainingSeconds { get; }
     }
 
+    public readonly struct GrenadeExplodedEvent
+    {
+        public GrenadeExplodedEvent(Vector2 position) => Position = position;
+        public Vector2 Position { get; }
+    }
+
     public readonly struct DamageRequestedEvent
     {
         public DamageRequestedEvent(DamageRequest request) => Request = request;

@@ -26,5 +26,10 @@ namespace MemorialArchive.Framework.Audio
     {
         public AudioCue[] cues;
         public SceneAudioProfile[] scenes;
+        [Header("Music routing")]
+        public string explorationMusic;
+        public string battleMusic;
+        public string[] explorationScenes;
+        public string[] explorationCompletionScenes;
     }
 }

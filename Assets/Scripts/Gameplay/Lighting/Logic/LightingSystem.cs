@@ -188,9 +188,10 @@ namespace MemorialArchive.Gameplay.Lighting.Logic
                 var safetyLightPosition = new Vector2(
                     lastPlayerPosition.x,
                     lastPlayerPosition.y + config.PlayerSafetyLightYOffset);
-                results.Add(new ActiveLight(
+                results.Add(ActiveLight.VerticalBeam(
                     safetyLightPosition,
-                    config.PlayerSafetyLightRadius,
+                    config.PlayerSafetyLightWidth,
+                    config.PlayerSafetyLightHeight,
                     config.PlayerSafetyLightIntensity));
             }
 
@@ -200,7 +201,8 @@ namespace MemorialArchive.Gameplay.Lighting.Logic
                 var lanternPosition = new Vector2(
                     lastPlayerPosition.x,
                     lastPlayerPosition.y + config.LanternLightYOffset);
-                results.Add(new ActiveLight(lanternPosition, GetCurrentLanternRadius()));
+                results.Add(ActiveLight.VerticalBeam(lanternPosition,
+                    GetCurrentLanternLightWidth(), GetCurrentLanternLightHeight()));
             }
 
             foreach (var view in lightViews.Values)
@@ -683,16 +685,31 @@ namespace MemorialArchive.Gameplay.Lighting.Logic
             return fuel > config.LanternWeakThresholdSeconds ? LanternStage.Normal : LanternStage.Weak;
         }
 
-        private float GetCurrentLanternRadius()
+        private float GetCurrentLanternLightWidth()
         {
             switch (GetCurrentStage())
             {
                 case LanternStage.Strong:
-                    return config.LanternStrongRadius;
+                    return config.LanternStrongLightWidth;
                 case LanternStage.Normal:
-                    return config.LanternNormalRadius;
+                    return config.LanternNormalLightWidth;
                 case LanternStage.Weak:
-                    return config.LanternWeakRadius;
+                    return config.LanternWeakLightWidth;
+                default:
+                    return 0f;
+            }
+        }
+
+        private float GetCurrentLanternLightHeight()
+        {
+            switch (GetCurrentStage())
+            {
+                case LanternStage.Strong:
+                    return config.LanternStrongLightHeight;
+                case LanternStage.Normal:
+                    return config.LanternNormalLightHeight;
+                case LanternStage.Weak:
+                    return config.LanternWeakLightHeight;
                 default:
                     return 0f;
             }

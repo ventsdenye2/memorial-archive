@@ -12,6 +12,7 @@ namespace MemorialArchive.Framework.UI
     {
         private static readonly Color EnabledColor = Color.white;
         private static readonly Color DisabledColor = new Color(0.58f, 0.52f, 0.46f, 0.78f);
+        private const float SlotHitAreaHeight = 158f;
 
         public static Transform FindSurface(Transform panel)
         {
@@ -91,17 +92,45 @@ namespace MemorialArchive.Framework.UI
                 image.type = Image.Type.Simple;
                 image.preserveAspect = false;
                 image.color = interactable ? EnabledColor : DisabledColor;
+                // The authored save cards overlap vertically. The card artwork
+                // must not own the raycast, otherwise the top card captures the
+                // pointer over all cards below it.
+                image.raycastTarget = false;
             }
 
-            button.transition = Selectable.Transition.SpriteSwap;
-            button.targetGraphic = image;
-            var state = button.spriteState;
-            state.highlightedSprite = highlighted;
-            state.pressedSprite = highlighted;
-            state.selectedSprite = highlighted;
-            state.disabledSprite = null;
-            button.spriteState = state;
+            var hitArea = EnsureHitArea(button);
+            button.transition = Selectable.Transition.None;
+            button.targetGraphic = hitArea;
             button.interactable = interactable;
+
+            var hoverView = button.GetComponent<SaveSlotHoverView>();
+            if (hoverView == null)
+            {
+                hoverView = button.gameObject.AddComponent<SaveSlotHoverView>();
+            }
+
+            hoverView.Configure(image, normal, highlighted, interactable);
+        }
+
+        private static Image EnsureHitArea(Button button)
+        {
+            var hitArea = button.transform.Find("HitArea")?.GetComponent<Image>();
+            if (hitArea == null)
+            {
+                var hitObject = new GameObject("HitArea", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+                hitObject.transform.SetParent(button.transform, false);
+                hitArea = hitObject.GetComponent<Image>();
+            }
+
+            var rootRect = button.transform as RectTransform;
+            var hitRect = hitArea.rectTransform;
+            hitRect.anchorMin = hitRect.anchorMax = new Vector2(0.5f, 0.5f);
+            hitRect.anchoredPosition = Vector2.zero;
+            hitRect.sizeDelta = new Vector2(rootRect != null ? rootRect.rect.width : 837f, SlotHitAreaHeight);
+            hitRect.localScale = Vector3.one;
+            hitArea.color = Color.clear;
+            hitArea.raycastTarget = true;
+            return hitArea;
         }
 
         public static void ConfigureDisabledSlot(Image image)

@@ -68,6 +68,16 @@ namespace MemorialArchive.Framework.Audio
             var voice = voices.Find(v => v.source == source && v.cue != null);
             if (voice != null) voice.stopping = true;
         }
+        public void StopBus(AudioBus bus)
+        {
+            foreach (var voice in voices)
+            {
+                if (voice.cue != null && voice.cue.bus == bus)
+                {
+                    voice.stopping = true;
+                }
+            }
+        }
         public void StopSceneVoices()
         {
             foreach (var voice in voices) if (voice.cue != null && voice.cue.bus != AudioBus.UI) Release(voice);

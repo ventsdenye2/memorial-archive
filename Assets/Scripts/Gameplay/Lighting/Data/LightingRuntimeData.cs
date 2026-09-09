@@ -12,6 +12,12 @@ namespace MemorialArchive.Gameplay.Lighting.Data
         Weak = 3
     }
 
+    public enum ActiveLightShape
+    {
+        Radial = 0,
+        Vertical = 1
+    }
+
     /// <summary>场景内灯具 View 注册到 LightingSystem 的信息。</summary>
     public sealed class LightViewRegistration
     {
@@ -31,11 +37,30 @@ namespace MemorialArchive.Gameplay.Lighting.Data
             Position = position;
             Radius = radius;
             Intensity = Mathf.Clamp01(intensity);
+            Shape = ActiveLightShape.Radial;
+            HalfExtents = new Vector2(Mathf.Max(0.0001f, radius), Mathf.Max(0.0001f, radius));
+        }
+
+        private ActiveLight(Vector2 position, Vector2 halfExtents, float intensity, ActiveLightShape shape)
+        {
+            Position = position;
+            HalfExtents = new Vector2(Mathf.Max(0.0001f, halfExtents.x), Mathf.Max(0.0001f, halfExtents.y));
+            Radius = Mathf.Max(HalfExtents.x, HalfExtents.y);
+            Intensity = Mathf.Clamp01(intensity);
+            Shape = shape;
+        }
+
+        public static ActiveLight VerticalBeam(Vector2 position, float width, float height, float intensity = 1f)
+        {
+            return new ActiveLight(position, new Vector2(width * 0.5f, height * 0.5f), intensity,
+                ActiveLightShape.Vertical);
         }
 
         public Vector2 Position { get; }
         public float Radius { get; }
         public float Intensity { get; }
+        public ActiveLightShape Shape { get; }
+        public Vector2 HalfExtents { get; }
     }
 
     [Serializable]

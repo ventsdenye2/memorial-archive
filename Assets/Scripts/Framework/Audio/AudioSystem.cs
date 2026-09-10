@@ -25,16 +25,18 @@ namespace MemorialArchive.Framework.Audio
     /// <summary>
     /// Owns audio routing decisions.  Audio clips remain data in AudioCatalog;
     /// gameplay systems only publish facts and this system maps those facts to
-    /// cues.  Scene ambience is deliberately mutually exclusive with music.
+    /// cues. Scene ambience is paused while music is active and resumes from
+    /// the same playback position when the music ends.
     /// </summary>
     public sealed class AudioSystem : IGameSystem, ITickableSystem, ISaveModule, INewGameResettable
     {
         private const int BayonetItemId = 1002;
         private const int PistolItemId = 1007;
         private const int GrenadeItemId = 1010;
+        private const float BattleReleaseDelaySeconds = 1f;
 
         private readonly List<Action> unsubscribe = new List<Action>();
-        private readonly Dictionary<string, MonsterActionState> monsters = new Dictionary<string, MonsterActionState>();
+        private readonly HashSet<string> lockedMonsters = new HashSet<string>();
         private readonly AudioSaveData saveData = new AudioSaveData();
         private GameContext context;
         private AudioCatalog catalog;
@@ -84,7 +86,6 @@ namespace MemorialArchive.Framework.Audio
             Listen<GrenadeExplodedEvent>(OnGrenadeExploded);
             Listen<MonsterStateChangedEvent>(OnMonsterStateChanged);
             Listen<MonsterDiedEvent>(OnMonsterDied);
-            Listen<MonsterDamagedEvent>(e => StartBattle(1.5f));
             Listen<ItemEffectAppliedEvent>(OnItemEffectApplied);
             Listen<LanternLitChangedEvent>(e => Play("sfx_scene_lantern_switch"));
             Listen<SelectedItemChangedEvent>(e => { if (e.Item != null) Play("sfx_ui_inventory_select"); });
@@ -140,7 +141,7 @@ namespace MemorialArchive.Framework.Audio
             saveData.explorationStarted = false;
             saveData.explorationCompleted = false;
             saveData.visitedExplorationScenes.Clear();
-            monsters.Clear();
+            lockedMonsters.Clear();
             battleUntil = float.NegativeInfinity;
             pistolCockPending = false;
             equippedItem = 0;
@@ -157,7 +158,7 @@ namespace MemorialArchive.Framework.Audio
             }
 
             unsubscribe.Clear();
-            monsters.Clear();
+            lockedMonsters.Clear();
             if (Playback != null)
             {
                 UnityEngine.Object.Destroy(Playback.gameObject);
@@ -186,7 +187,7 @@ namespace MemorialArchive.Framework.Audio
 
         private void OnSceneLoaded(SceneLoadedEvent evt)
         {
-            monsters.Clear();
+            lockedMonsters.Clear();
             battleUntil = float.NegativeInfinity;
             pistolCockPending = false;
 
@@ -245,25 +246,31 @@ namespace MemorialArchive.Framework.Audio
             }
 
             var music = ResolveMusicCue();
-            var ambience = string.IsNullOrEmpty(music) ? sceneAmbience : string.Empty;
-            if (music == activeMusicCue && ambience == activeAmbienceCue)
+            var ambience = sceneAmbience;
+
+            if (music != activeMusicCue)
             {
-                return;
+                Playback.StopBus(AudioBus.Music);
+                activeMusicCue = music;
+                if (!string.IsNullOrEmpty(music))
+                {
+                    Playback.Play(music);
+                }
             }
 
-            Playback.StopBus(AudioBus.Music);
-            Playback.StopBus(AudioBus.Ambience);
-            activeMusicCue = music;
-            activeAmbienceCue = ambience;
+            if (ambience != activeAmbienceCue)
+            {
+                Playback.StopBus(AudioBus.Ambience);
+                activeAmbienceCue = ambience;
+                if (!string.IsNullOrEmpty(ambience))
+                {
+                    Playback.Play(ambience);
+                }
+            }
 
-            if (!string.IsNullOrEmpty(music))
-            {
-                Playback.Play(music);
-            }
-            else if (!string.IsNullOrEmpty(ambience))
-            {
-                Playback.Play(ambience);
-            }
+            // Keep the ambience voice alive so it can resume at its previous
+            // position after battle or other music has finished.
+            Playback.SetBusPaused(AudioBus.Ambience, !string.IsNullOrEmpty(music));
         }
 
         private string ResolveMusicCue()
@@ -293,21 +300,7 @@ namespace MemorialArchive.Framework.Audio
                 return true;
             }
 
-            foreach (var state in monsters.Values)
-            {
-                if (IsEngagedState(state))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        private void StartBattle(float seconds)
-        {
-            battleUntil = Mathf.Max(battleUntil, Time.unscaledTime + Mathf.Max(0.1f, seconds));
-            RefreshRouting();
+            return lockedMonsters.Count > 0;
         }
 
         private void OnMonsterStateChanged(MonsterStateChangedEvent evt)
@@ -319,14 +312,21 @@ namespace MemorialArchive.Framework.Audio
 
             if (evt.State == MonsterActionState.Dead || evt.State == MonsterActionState.Idle)
             {
-                monsters.Remove(evt.MonsterInstanceId);
+                var wasLocked = lockedMonsters.Remove(evt.MonsterInstanceId);
+                if (wasLocked)
+                {
+                    battleUntil = Time.unscaledTime + BattleReleaseDelaySeconds;
+                }
             }
             else
             {
-                monsters[evt.MonsterInstanceId] = evt.State;
                 if (IsEngagedState(evt.State))
                 {
-                    StartBattle(0.5f);
+                    lockedMonsters.Add(evt.MonsterInstanceId);
+                    // The state event is the single source of truth for target
+                    // acquisition. Attacks, damage, and player actions do not
+                    // extend battle music on their own.
+                    battleUntil = Time.unscaledTime + BattleReleaseDelaySeconds;
                 }
             }
 
@@ -337,7 +337,11 @@ namespace MemorialArchive.Framework.Audio
         {
             if (!string.IsNullOrEmpty(evt.MonsterInstanceId))
             {
-                monsters.Remove(evt.MonsterInstanceId);
+                var wasLocked = lockedMonsters.Remove(evt.MonsterInstanceId);
+                if (wasLocked)
+                {
+                    battleUntil = Time.unscaledTime + BattleReleaseDelaySeconds;
+                }
             }
 
             RefreshRouting();
@@ -345,14 +349,13 @@ namespace MemorialArchive.Framework.Audio
 
         private static bool IsEngagedState(MonsterActionState state) =>
             state == MonsterActionState.Chasing || state == MonsterActionState.Attacking ||
-            state == MonsterActionState.Hurt || state == MonsterActionState.AttackCooldown;
+            state == MonsterActionState.AttackCooldown;
 
         private void OnDamageApplied(DamageAppliedEvent evt)
         {
             if (evt.TargetId == CombatTargetIds.Player && evt.Result.WasBlocked)
             {
                 Play("sfx_player_shield_block_hit");
-                StartBattle(1.5f);
             }
         }
 
@@ -367,7 +370,6 @@ namespace MemorialArchive.Framework.Audio
             Play(character != null && character.HasSplintEquipped
                 ? "sfx_player_armor_hit"
                 : "sfx_player_hurt");
-            StartBattle(1.5f);
         }
 
         private void OnEquipmentChanged(CharacterEquipmentChangedEvent evt)
@@ -398,8 +400,6 @@ namespace MemorialArchive.Framework.Audio
                 {
                     Play("sfx_player_attack_dagger");
                 }
-
-                StartBattle(1.25f);
             }
             else if (attack.AttackKind == CombatAttackKind.Throwable)
             {
@@ -409,7 +409,6 @@ namespace MemorialArchive.Framework.Audio
                     Play("sfx_player_grenade_pin");
                 }
 
-                StartBattle(1.25f);
             }
         }
 
@@ -423,7 +422,6 @@ namespace MemorialArchive.Framework.Audio
             Play("sfx_player_shoot_pistol");
             pistolCockPending = true;
             pistolCockAt = Time.unscaledTime + 0.14f;
-            StartBattle(1.25f);
         }
 
         private void OnReloadRequested(ReloadRequestedEvent evt)
@@ -437,7 +435,6 @@ namespace MemorialArchive.Framework.Audio
         private void OnGrenadeExploded(GrenadeExplodedEvent evt)
         {
             Play("sfx_player_grenade_explode");
-            StartBattle(2f);
         }
 
         private void OnItemEffectApplied(ItemEffectAppliedEvent evt)

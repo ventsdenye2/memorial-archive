@@ -1900,7 +1900,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &854395105
 Transform:
   m_ObjectHideFlags: 0
@@ -2565,9 +2565,29 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 365801381}
     m_Modifications:
+    - target: {fileID: 3351208651636984, guid: f1dbcd94a02775749b4a7fe4b2e3c506, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3351208651636984, guid: f1dbcd94a02775749b4a7fe4b2e3c506, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 246360524202481315, guid: f1dbcd94a02775749b4a7fe4b2e3c506, type: 3}
       propertyPath: m_Name
       value: SettingsPanel
+      objectReference: {fileID: 0}
+    - target: {fileID: 2870541259160618507, guid: f1dbcd94a02775749b4a7fe4b2e3c506, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2870541259160618507, guid: f1dbcd94a02775749b4a7fe4b2e3c506, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2870541259160618507, guid: f1dbcd94a02775749b4a7fe4b2e3c506, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3805664006063939720, guid: f1dbcd94a02775749b4a7fe4b2e3c506, type: 3}
       propertyPath: m_Pivot.x
@@ -2647,6 +2667,26 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3805664006063939720, guid: f1dbcd94a02775749b4a7fe4b2e3c506, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8922135193164430108, guid: f1dbcd94a02775749b4a7fe4b2e3c506, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8922135193164430108, guid: f1dbcd94a02775749b4a7fe4b2e3c506, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8997162500125680736, guid: f1dbcd94a02775749b4a7fe4b2e3c506, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8997162500125680736, guid: f1dbcd94a02775749b4a7fe4b2e3c506, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8997162500125680736, guid: f1dbcd94a02775749b4a7fe4b2e3c506, type: 3}
+      propertyPath: m_AnchorMin.x
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -3502,9 +3542,29 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 365801381}
     m_Modifications:
+    - target: {fileID: 1450661062307104588, guid: ab1c64db936582e45bb5592b196aadab, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -31
+      objectReference: {fileID: 0}
+    - target: {fileID: 1527003145396053961, guid: ab1c64db936582e45bb5592b196aadab, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -19
+      objectReference: {fileID: 0}
     - target: {fileID: 2077501018547501184, guid: ab1c64db936582e45bb5592b196aadab, type: 3}
       propertyPath: m_Name
       value: LoadPanel
+      objectReference: {fileID: 0}
+    - target: {fileID: 2206623005185991177, guid: ab1c64db936582e45bb5592b196aadab, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -23
+      objectReference: {fileID: 0}
+    - target: {fileID: 3250590743882445980, guid: ab1c64db936582e45bb5592b196aadab, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -31
+      objectReference: {fileID: 0}
+    - target: {fileID: 4214694983581480134, guid: ab1c64db936582e45bb5592b196aadab, type: 3}
+      propertyPath: m_Text
+      value: "\u7A7A\u6863"
       objectReference: {fileID: 0}
     - target: {fileID: 8597509200369145793, guid: ab1c64db936582e45bb5592b196aadab, type: 3}
       propertyPath: m_Pivot.x
@@ -3916,7 +3976,7 @@ PrefabInstance:
       objectReference: {fileID: 900000000017}
     - target: {fileID: 1185624527361646676, guid: 055236ca97eba284a990b242bd959915, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -6.927636
+      value: -6.3976746
       objectReference: {fileID: 0}
     - target: {fileID: 1185624527361646676, guid: 055236ca97eba284a990b242bd959915, type: 3}
       propertyPath: m_LocalPosition.y
@@ -3932,7 +3992,7 @@ PrefabInstance:
       objectReference: {fileID: 1601838351}
     - target: {fileID: 5807756351738874901, guid: 055236ca97eba284a990b242bd959915, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.0023634434
+      value: -48.002327
       objectReference: {fileID: 0}
     - target: {fileID: 5807756351738874901, guid: 055236ca97eba284a990b242bd959915, type: 3}
       propertyPath: m_LocalPosition.y
@@ -3985,11 +4045,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1409480465569684862, guid: da52a248997bbc74e8087abd8f32d189, type: 3}
       propertyPath: m_Materials.Array.data[0]
-      value: null
+      value: 
       objectReference: {fileID: 2100000, guid: c049205bd6de52044b05bed2f234da13, type: 2}
     - target: {fileID: 2889681743841508005, guid: da52a248997bbc74e8087abd8f32d189, type: 3}
       propertyPath: m_Mesh
-      value: null
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 3890368740958347379, guid: da52a248997bbc74e8087abd8f32d189, type: 3}
       propertyPath: m_Name
@@ -4534,7 +4594,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1877742279
 Transform:
   m_ObjectHideFlags: 0

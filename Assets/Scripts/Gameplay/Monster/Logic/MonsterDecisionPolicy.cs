@@ -12,6 +12,14 @@ namespace MemorialArchive.Gameplay.Monster.Logic
             float attackRange,
             bool attackReady)
         {
+            // Callers may naturally have a signed horizontal offset rather than
+            // a magnitude. Target decisions are side-agnostic, so normalize it
+            // at the policy boundary instead of relying on every caller to do so.
+            if (distance < 0f)
+            {
+                distance = -distance;
+            }
+
             if (!canSeePlayer || !playerAlive || distance > detectionRange)
             {
                 return MonsterActionState.Idle;

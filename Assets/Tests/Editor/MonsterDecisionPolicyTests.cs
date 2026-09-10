@@ -15,6 +15,16 @@ namespace MemorialArchive.Tests.Editor
         }
 
         [Test]
+        public void InAttackRange_IsIndependentOfHorizontalSide()
+        {
+            var leftSide = MonsterDecisionPolicy.Decide(true, true, -1f, 8f, 1.2f, true);
+            var rightSide = MonsterDecisionPolicy.Decide(true, true, 1f, 8f, 1.2f, true);
+
+            Assert.That(leftSide, Is.EqualTo(MonsterActionState.Attacking));
+            Assert.That(rightSide, Is.EqualTo(leftSide));
+        }
+
+        [Test]
         public void InAttackRange_WhileCoolingDown_TransitionsToAttackCooldown()
         {
             var state = MonsterDecisionPolicy.Decide(true, true, 1f, 8f, 1.2f, false);

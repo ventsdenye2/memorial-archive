@@ -17,27 +17,32 @@ namespace MemorialArchive.Tests.Editor
         private const int FireAxeItemId = 1003;
         private const int GrenadeItemId = 1010;
         [Test]
-        public void EquipAnimation_BlocksMovementOnlyWhileAnimationIsPlaying()
+        public void EquipAnimation_BlocksRunningOnlyWhileAnimationIsPlaying()
         {
             var character = CreateCharacterSystem(out var events);
             events.Publish(new MoveInputEvent(Vector2.right));
             Assert.That(character.MoveDirection, Is.EqualTo(Vector2.right));
 
             events.Publish(new CharacterEquipmentChangedEvent(FireAxeItemId, OffhandType.None));
+            events.Publish(new RunInputEvent(true));
+            Assert.That(character.IsRunning, Is.True, "An equipped weapon must not permanently disable running.");
             events.Publish(new MoveInputEvent(Vector2.left));
             Assert.That(character.MoveDirection, Is.EqualTo(Vector2.left), "Holding an equipped weapon must not block movement.");
 
             events.Publish(new CharacterEquipAnimationStateChangedEvent(true));
+            events.Publish(new RunInputEvent(true));
             events.Publish(new MoveInputEvent(Vector2.left));
 
             Assert.That(character.ActionState, Is.EqualTo(CharacterActionState.Equipping));
-            Assert.That(character.MoveDirection, Is.EqualTo(Vector2.zero));
+            Assert.That(character.MoveDirection, Is.EqualTo(Vector2.left), "Equip animation may continue walking, but must not allow running.");
             Assert.That(character.IsRunning, Is.False);
 
             events.Publish(new CharacterEquipAnimationStateChangedEvent(false));
             events.Publish(new MoveInputEvent(Vector2.right));
+            events.Publish(new RunInputEvent(true));
             Assert.That(character.ActionState, Is.EqualTo(CharacterActionState.Normal));
             Assert.That(character.MoveDirection, Is.EqualTo(Vector2.right));
+            Assert.That(character.IsRunning, Is.True);
             character.Dispose();
         }
 
@@ -192,7 +197,7 @@ namespace MemorialArchive.Tests.Editor
         }
 
         [Test]
-        public void Attacking_ClearsMovementAndRejectsFurtherMoveInput()
+        public void Attacking_WalkingDoesNotInterruptAttack()
         {
             var character = CreateCharacterSystem(out var events);
             events.Publish(new CharacterEquipmentChangedEvent(FireAxeItemId, OffhandType.None));
@@ -204,6 +209,21 @@ namespace MemorialArchive.Tests.Editor
             Assert.That(character.ActionState, Is.EqualTo(CharacterActionState.Attack1));
             Assert.That(character.MoveDirection, Is.EqualTo(Vector2.zero));
             Assert.That(character.IsRunning, Is.False);
+            character.Dispose();
+        }
+
+        [Test]
+        public void Attacking_RunningInterruptsAttackAndResumesMovement()
+        {
+            var character = CreateCharacterSystem(out var events);
+            events.Publish(new CharacterEquipmentChangedEvent(FireAxeItemId, OffhandType.None));
+            events.Publish(new PrimaryActionPressedEvent());
+            events.Publish(new MoveInputEvent(Vector2.left));
+            events.Publish(new RunInputEvent(true));
+
+            Assert.That(character.ActionState, Is.EqualTo(CharacterActionState.Normal));
+            Assert.That(character.MoveDirection, Is.EqualTo(Vector2.left));
+            Assert.That(character.IsRunning, Is.True);
             character.Dispose();
         }
 

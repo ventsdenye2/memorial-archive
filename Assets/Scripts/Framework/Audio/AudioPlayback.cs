@@ -15,6 +15,7 @@ namespace MemorialArchive.Framework.Audio
             public float positionX;
             public float gain;
             public bool stopping;
+            public bool pausedByBus;
         }
         private readonly List<Voice> voices = new List<Voice>();
         private readonly Dictionary<string, AudioCue> cues = new Dictionary<string, AudioCue>();
@@ -59,6 +60,7 @@ namespace MemorialArchive.Framework.Audio
             voice.cue = cue; voice.owner = owner; voice.owned = owner != null;
             voice.positionX = owner != null ? owner.position.x : 0f;
             voice.stopping = false; voice.gain = cue.loop ? 0f : 1f;
+            voice.pausedByBus = false;
             voice.source.clip = cue.clips[variant]; voice.source.loop = cue.loop;
             voice.source.volume = Gain(voice); voice.source.Play();
             return voice.source;
@@ -78,6 +80,26 @@ namespace MemorialArchive.Framework.Audio
                 }
             }
         }
+        public void SetBusPaused(AudioBus bus, bool paused)
+        {
+            foreach (var voice in voices)
+            {
+                if (voice.cue == null || voice.cue.bus != bus)
+                {
+                    continue;
+                }
+
+                voice.pausedByBus = paused;
+                if (paused)
+                {
+                    voice.source.Pause();
+                }
+                else
+                {
+                    voice.source.UnPause();
+                }
+            }
+        }
         public void StopSceneVoices()
         {
             foreach (var voice in voices) if (voice.cue != null && voice.cue.bus != AudioBus.UI) Release(voice);
@@ -89,13 +111,21 @@ namespace MemorialArchive.Framework.Audio
             float distance = voice.owned ? Mathf.Abs(voice.positionX - ListenerPosition.x) : 0f;
             return MasterVolume * volumes[(int)voice.cue.bus] * voice.cue.volume * voice.gain * Mathf.Clamp01(1f - distance / 12f);
         }
-        private static void Release(Voice voice) { voice.source.Stop(); voice.source.clip = null; voice.cue = null; voice.owner = null; }
+        private static void Release(Voice voice)
+        {
+            voice.source.Stop();
+            voice.source.clip = null;
+            voice.cue = null;
+            voice.owner = null;
+            voice.pausedByBus = false;
+        }
         private void Update()
         {
             foreach (var voice in voices)
             {
                 if (voice.cue == null) continue;
                 if (voice.owned && voice.cue.loop && (voice.owner == null || !voice.owner.gameObject.activeInHierarchy)) { Release(voice); continue; }
+                if (voice.pausedByBus && !voice.stopping) continue;
                 bool paused = Time.timeScale <= 0 && voice.cue.bus == AudioBus.Sfx;
                 if (paused) { voice.source.Pause(); continue; }
                 voice.source.UnPause();

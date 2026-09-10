@@ -217,7 +217,7 @@ namespace MemorialArchive.Framework.UI
             rect.localScale = Vector3.one;
             var button = buttonObject.GetComponent<Button>();
             ConfigureSlotButton(button, normal, highlighted, true);
-            label = CreateAuthoredText(buttonObject.transform, "SlotLabel", new Vector2(100f, -72f),
+            label = CreateAuthoredText(buttonObject.transform, "SlotLabel", new Vector2(100f, -22f),
                 new Vector2(330f, 58f), 16, TextAnchor.MiddleCenter, new Color(0.25f, 0.16f, 0.1f, 1f));
             label.text = "空档";
             return button;
@@ -229,7 +229,7 @@ namespace MemorialArchive.Framework.UI
             var image = CreateAuthoredImage(parent, "Slot_" + (slotIndex + 1), position,
                 normal != null ? normal.rect.size : new Vector2(837f, 285f), normal, false);
             ConfigureDisabledSlot(image, normal, highlighted);
-            label = CreateAuthoredText(image.transform, "SlotLabel", new Vector2(100f, -72f),
+            label = CreateAuthoredText(image.transform, "SlotLabel", new Vector2(100f, -22f),
                 new Vector2(330f, 58f), 16, TextAnchor.MiddleCenter, new Color(0.39f, 0.2f, 0.12f, 0.94f));
             label.text = "第一阶段预留";
             return image;

@@ -16,10 +16,12 @@ namespace MemorialArchive.Gameplay.Character.Logic
     public sealed class CharacterSystem : IGameSystem, ITickableSystem, ISaveModule, ISaveScenePositionProvider, INewGameResettable, ICharacterCombatStateProvider
     {
         private CharacterData data = new CharacterData(); private GameContext context; private CharacterAttributeConfig attributes;
-        private Vector2 moveDirection, facingDirection = Vector2.right, aimDirection = Vector2.right, throwAimTarget;
+        private Vector2 moveDirection, moveInputDirection, facingDirection = Vector2.right, aimDirection = Vector2.right, throwAimTarget;
         private float exactStamina, dodgeCooldown, dodgeInvincible, staggerRemaining, staggerCooldown, weakRemaining;
         private int primaryItemId, comboStage; private OffhandType offhandType;
         private bool bufferedPrimaryAction;
+        private bool runRequested;
+        private bool moveInputUpdatedSinceRun;
         private bool primaryActionHeld;
         private int firearmAimItemId;
         private CharacterActionState state = CharacterActionState.Normal;
@@ -62,6 +64,7 @@ namespace MemorialArchive.Gameplay.Character.Logic
                 position = Vector2.zero
             };
             moveDirection = Vector2.zero;
+            moveInputDirection = Vector2.zero;
             facingDirection = Vector2.right;
             aimDirection = Vector2.right;
             throwAimTarget = Vector2.zero;
@@ -79,6 +82,8 @@ namespace MemorialArchive.Gameplay.Character.Logic
             firearmAimItemId = 0;
             offhandType = OffhandType.None;
             IsRunning = false;
+            runRequested = false;
+            moveInputUpdatedSinceRun = false;
             state = CharacterActionState.Normal;
             PublishState();
             context?.Events.Publish(new CharacterStatsChangedEvent());
@@ -126,6 +131,8 @@ namespace MemorialArchive.Gameplay.Character.Logic
         private void OnMove(MoveInputEvent e)
         {
             var horizontal = Mathf.Clamp(e.Direction.x, -1, 1);
+            moveInputDirection = new Vector2(horizontal, 0f);
+            moveInputUpdatedSinceRun = true;
             if (Mathf.Abs(horizontal) > 0.0001f)
             {
                 facingDirection = new Vector2(Mathf.Sign(horizontal), 0f);
@@ -133,8 +140,15 @@ namespace MemorialArchive.Gameplay.Character.Logic
 
             if (IsAttackState(state) && Mathf.Abs(horizontal) > 0.0001f)
             {
-                moveDirection = new Vector2(horizontal, 0f);
-                SetState(weakRemaining > 0 ? CharacterActionState.Weak : CharacterActionState.Normal);
+                if (runRequested)
+                {
+                    InterruptAttackForRun(moveInputDirection);
+                }
+                else
+                {
+                    // Walking input does not cancel an active attack.
+                    moveDirection = Vector2.zero;
+                }
                 return;
             }
 
@@ -149,11 +163,22 @@ namespace MemorialArchive.Gameplay.Character.Logic
 
         private void OnRun(RunInputEvent e)
         {
-            IsRunning = e.IsRunning
-                && !BlocksMovement()
-                && (state == CharacterActionState.Normal || state == CharacterActionState.Equipping)
-                && exactStamina > 0
-                && !HasPrimaryWeaponEquipped();
+            runRequested = e.IsRunning;
+            if (IsAttackState(state))
+            {
+                IsRunning = false;
+                // GameplayInputReader publishes Move before Run. Evaluate the
+                // current movement intent so a run press can interrupt now.
+                if (e.IsRunning && moveInputUpdatedSinceRun && moveInputDirection.sqrMagnitude > 0.0001f)
+                {
+                    InterruptAttackForRun(moveInputDirection);
+                }
+                moveInputUpdatedSinceRun = false;
+                return;
+            }
+
+            IsRunning = e.IsRunning && CanRun() && exactStamina > 0;
+            moveInputUpdatedSinceRun = false;
         }
         private void OnEquipment(CharacterEquipmentChangedEvent e)
         {
@@ -167,10 +192,6 @@ namespace MemorialArchive.Gameplay.Character.Logic
             offhandType = e.OffhandType;
             comboStage = 0;
             bufferedPrimaryAction = false;
-            if (HasPrimaryWeaponEquipped())
-            {
-                IsRunning = false;
-            }
         }
         private void OnEquipAnimationStateChanged(CharacterEquipAnimationStateChangedEvent e)
         {
@@ -178,6 +199,7 @@ namespace MemorialArchive.Gameplay.Character.Logic
             {
                 if (!data.isDead)
                 {
+                    IsRunning = false;
                     SetState(CharacterActionState.Equipping);
                 }
                 return;
@@ -807,15 +829,15 @@ namespace MemorialArchive.Gameplay.Character.Logic
             state == CharacterActionState.Throwing ||
             IsAttackState(state);
 
-        private bool HasPrimaryWeaponEquipped()
-        {
-            if (context == null)
-            {
-                return false;
-            }
+        private bool CanRun() =>
+            !BlocksMovement() &&
+            state == CharacterActionState.Normal;
 
-            var config = context.Configs?.GetItem(primaryItemId);
-            return config != null && config.Category == ItemCategory.Weapon;
+        private void InterruptAttackForRun(Vector2 direction)
+        {
+            moveDirection = direction;
+            SetState(weakRemaining > 0 ? CharacterActionState.Weak : CharacterActionState.Normal);
+            IsRunning = runRequested && CanRun() && exactStamina > 0;
         }
 
         private static bool IsAttackState(CharacterActionState value) =>
@@ -872,6 +894,7 @@ namespace MemorialArchive.Gameplay.Character.Logic
             context?.Events.Publish(new AimInputEvent(false, data.position));
 
             moveDirection = Vector2.zero;
+            moveInputDirection = Vector2.zero;
             aimDirection = facingDirection.sqrMagnitude > 0.0001f ? facingDirection : Vector2.right;
             throwAimTarget = data.position;
             dodgeCooldown = 0f;
@@ -886,6 +909,8 @@ namespace MemorialArchive.Gameplay.Character.Logic
             primaryActionHeld = false;
             firearmAimItemId = 0;
             IsRunning = false;
+            runRequested = false;
+            moveInputUpdatedSinceRun = false;
             state = CharacterActionState.Normal;
         }
     }

@@ -127,6 +127,15 @@ namespace MemorialArchive.Gameplay.Monster.View
                     return;
                 }
 
+                // 攻击命中通常由动画事件报告，但动画是表现层，不能决定
+                // 攻击是否生效。若事件缺失或未被当前 Spine 轨道回报，
+                // 在攻击状态结束前补交一次命中；CommitAttackHit 自身仍会
+                // 校验目标存活和当前距离，因此不会把已经离开的玩家判定为命中。
+                if (State == MonsterActionState.Attacking && attackAwaitingHit)
+                {
+                    CommitAttackHit();
+                }
+
                 SetState(MonsterActionState.Idle);
                 decisionRemaining = 0f;
             }
@@ -158,6 +167,11 @@ namespace MemorialArchive.Gameplay.Monster.View
             var distance = hasPlayerPosition
                 ? Mathf.Abs(playerPosition.x - body.position.x)
                 : float.PositiveInfinity;
+            ApplyDecision(distance);
+        }
+
+        private void ApplyDecision(float distance)
+        {
             var nextState = stateMachine.DecideTarget(
                 hasPlayerPosition,
                 playerAlive,
@@ -187,17 +201,21 @@ namespace MemorialArchive.Gameplay.Monster.View
             }
 
             var maximumStep = config.MoveSpeed * DesignUnitsToWorldUnits * deltaTime;
-            var step = Mathf.Min(maximumStep, distance - config.AttackRange);
+            // 追击只负责按正常速度靠近目标，不把位置强行截到
+            // AttackRange 边界。跨入攻击范围后由状态决策立即切换为攻击，
+            // 这样“是否攻击”只由实际距离决定，而不是由某个边界落点决定。
+            var step = Mathf.Min(maximumStep, distance);
             var nextPosition = body.position + Vector2.right * Mathf.Sign(horizontalOffset) * step;
             body.MovePosition(nextPosition);
             animationView?.SetFacing(horizontalOffset);
 
-            // MovePosition 在本次物理步末才提交。先离开 Chasing，下一物理步再用已提交的位置
-            // 决定是攻击还是继续等待冷却，避免到达边界后出现一帧以上的追踪残留。
-            if (Mathf.Abs(playerPosition.x - nextPosition.x) <= config.AttackRange)
+            // MovePosition 在本次物理步末才提交，但决策应基于本步结束后的预计位置。
+            // 否则怪物会在已经进入攻击范围时仍保留 Chasing，直到下一次 AI tick 才切换。
+            var projectedDistance = Mathf.Abs(playerPosition.x - nextPosition.x);
+            if (projectedDistance <= config.AttackRange)
             {
                 decisionRemaining = 0f;
-                SetState(MonsterActionState.AttackCooldown);
+                ApplyDecision(projectedDistance);
             }
         }
 

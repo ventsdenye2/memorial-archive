@@ -143,7 +143,7 @@ namespace MemorialArchive.Framework.UI
             {
                 SaveSlotPanelViewFactory.ConfigureDisabledSlot(fourthImage,
                     GetNormalSprite(SaveManager.Stage1SlotCount), GetSelectedSprite(SaveManager.Stage1SlotCount));
-                if (fourthLabel != null) fourthLabel.text = "第一阶段预留";
+                if (fourthLabel != null) fourthLabel.text = "空档";
             }
 
             layoutBound = true;

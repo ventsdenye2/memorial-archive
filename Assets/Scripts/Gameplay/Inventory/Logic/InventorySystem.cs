@@ -687,10 +687,13 @@ namespace MemorialArchive.Gameplay.Inventory.Logic
                 return Fail(null, "Shortcut slot index must be 0, 1, or 2.");
             }
 
-            // 数字键选择的是快捷栏格子本身。即使该格暂时为空，也需要保留
-            // 选中反馈；空格只会让 SelectedItemChangedEvent 携带 null，不会使用物品。
-            var placement = FindPlayerSlot(InventoryContainerKind.ShortcutBar, slotIndex);
-            playerInventory.selectedShortcutIndex = slotIndex;
+            // 数字键和 HUD 点击共用这条路径。再次触发当前格时切换为未装备，
+            // 这样快捷栏既能装备物品，也能明确卸下当前物品。
+            var isSelected = playerInventory.selectedShortcutIndex == slotIndex;
+            playerInventory.selectedShortcutIndex = isSelected ? -1 : slotIndex;
+            var placement = isSelected
+                ? null
+                : FindPlayerSlot(InventoryContainerKind.ShortcutBar, slotIndex);
             context.Events.Publish(new SelectedItemChangedEvent(placement?.item));
             PublishCharacterEquipment();
             return true;

@@ -25,6 +25,8 @@ namespace MemorialArchive.Gameplay.Monster.View
 
         public event Action AttackHit;
 
+        public float FacingDirection => facingRight ? 1f : -1f;
+
         private void OnDisable()
         {
             UnbindAttackTrackEntry();

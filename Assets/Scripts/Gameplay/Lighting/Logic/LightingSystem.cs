@@ -205,12 +205,25 @@ namespace MemorialArchive.Gameplay.Lighting.Logic
 
             foreach (var view in lightViews.Values)
             {
-                if (view.sceneName != activeSceneName || view.isSpecial || !IsLightOn(view.lightId))
+                if (view.sceneName != activeSceneName)
                 {
                     continue;
                 }
 
-                results.Add(new ActiveLight(view.position, view.radius));
+                if (view.isSpecial)
+                {
+                    var isOn = IsLightOn(view.lightId);
+                    var radius = view.radius * config.SpecialLightRadiusMultiplier *
+                        (isOn ? config.SpecialLightLitRadiusMultiplier : 1f);
+                    var intensity = isOn ? config.SpecialLightLitIntensity : config.SpecialLightIntensity;
+                    results.Add(new ActiveLight(view.position, radius, intensity));
+                    continue;
+                }
+
+                if (IsLightOn(view.lightId))
+                {
+                    results.Add(new ActiveLight(view.position, view.radius));
+                }
             }
         }
 

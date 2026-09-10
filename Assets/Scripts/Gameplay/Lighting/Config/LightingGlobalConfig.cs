@@ -21,12 +21,24 @@ namespace MemorialArchive.Gameplay.Lighting.Config
 
         [Header("角色圆形微光")]
         [Tooltip("没有点亮手提灯时，角色脚下的圆形识别光半径。该光不计入交互门禁或黑暗失败判定。")]
-        [SerializeField, Min(0.1f)] private float playerSafetyLightRadius = 1.8f;
+        [SerializeField, Min(0.1f)] private float playerSafetyLightRadius = 2.2f;
         [Tooltip("角色微光亮度。1 为完全挖开暗幕，0 为不产生微光。")]
         [Range(0f, 1f)]
         [SerializeField] private float playerSafetyLightIntensity = 0.32f;
         [Tooltip("角色位置事件位于脚底，微光向上抬升后才能覆盖躯干。")]
-        [SerializeField] private float playerSafetyLightYOffset = 0.9f;
+        [SerializeField] private float playerSafetyLightYOffset = 1.1f;
+
+        [Header("特殊灯具")]
+        [Tooltip("特殊灯具未点亮时仍保留的微弱识别光强度。")]
+        [Range(0f, 1f)]
+        [SerializeField] private float specialLightIntensity = 0.3f;
+        [Tooltip("特殊灯具整体光圈的半径倍率，同时作用于默认微光和点亮后的强光。")]
+        [SerializeField, Min(0.1f)] private float specialLightRadiusMultiplier = 0.8f;
+        [Tooltip("特殊灯具交互点亮后的光照强度。1 为完全挖开暗幕。")]
+        [Range(0f, 1f)]
+        [SerializeField] private float specialLightLitIntensity = 1f;
+        [Tooltip("特殊灯具点亮后的半径倍率，以灯具配置的默认微光半径为基准。")]
+        [SerializeField, Min(1f)] private float specialLightLitRadiusMultiplier = 1.5f;
 
         [Header("手提灯")]
         [SerializeField] private float lanternTotalFuelSeconds = 60f;
@@ -61,6 +73,10 @@ namespace MemorialArchive.Gameplay.Lighting.Config
         public float PlayerSafetyLightRadius => Mathf.Max(0.1f, playerSafetyLightRadius);
         public float PlayerSafetyLightIntensity => Mathf.Clamp01(playerSafetyLightIntensity);
         public float PlayerSafetyLightYOffset => playerSafetyLightYOffset;
+        public float SpecialLightIntensity => Mathf.Clamp01(specialLightIntensity);
+        public float SpecialLightRadiusMultiplier => Mathf.Max(0.1f, specialLightRadiusMultiplier);
+        public float SpecialLightLitIntensity => Mathf.Clamp(specialLightLitIntensity, SpecialLightIntensity, 1f);
+        public float SpecialLightLitRadiusMultiplier => Mathf.Max(1f, specialLightLitRadiusMultiplier);
 
         public float LanternTotalFuelSeconds => Mathf.Max(1f, lanternTotalFuelSeconds);
         public float LanternStrongThresholdSeconds => lanternStrongThresholdSeconds;

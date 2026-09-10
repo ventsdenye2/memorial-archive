@@ -13,6 +13,8 @@ namespace MemorialArchive.Gameplay.Monster.View
     public sealed class MonsterAIView : MonoBehaviour
     {
         private const float DesignUnitsToWorldUnits = 0.01f;
+        private const float EnemyKnifeVisualHeight = 1.35f;
+        private const float EnemyKnifeVisualForwardOffset = 6f;
 
         [SerializeField] private Rigidbody2D body;
         [SerializeField] private MonsterTargetView targetView;
@@ -256,20 +258,34 @@ namespace MemorialArchive.Gameplay.Monster.View
             if (config.AttackMode == MonsterAttackMode.Ranged)
             {
                 PlayAudio("attack");
-                var projectileDirection = playerPosition - body.position;
-                if (projectileDirection.sqrMagnitude <= 0.0001f)
+                // The game is a horizontal side-view. Keep the knife effect
+                // level and place it just beyond the monster's facing edge;
+                // using the full target vector made the effect drift upward or
+                // downward with the player's world-space height.
+                var horizontalDirection = animationView != null
+                    ? animationView.FacingDirection
+                    : Mathf.Sign(playerPosition.x - body.position.x);
+                if (Mathf.Abs(horizontalDirection) <= 0.0001f)
                 {
-                    projectileDirection = Vector2.left;
+                    horizontalDirection = -1f;
                 }
-                projectileDirection.Normalize();
+
+                var projectileDirection = horizontalDirection > 0f ? Vector2.right : Vector2.left;
+                var projectilePosition = body.position + new Vector2(
+                    projectileDirection.x * EnemyKnifeVisualForwardOffset,
+                    EnemyKnifeVisualHeight);
                 SpineEffectPlayer.TryPlayAt(
                     SpineEffectPlayer.EnemyKnifeProjectileResource,
                     "animation",
-                    body.position + Vector2.up * 1.35f,
-                    Mathf.Atan2(projectileDirection.y, projectileDirection.x) * Mathf.Rad2Deg,
+                    projectilePosition,
+                    // The authored knife faces the opposite local direction,
+                    // so apply the requested 180-degree visual correction.
+                    projectileDirection.x > 0f ? 180f : 0f,
                     1f,
                     58,
-                    0.32f);
+                    maximumLifetimeSeconds: 0.32f,
+                    reversePlayback: true,
+                    reverseStartTimeSeconds: 0.32f);
             }
             var request = new DamageRequest(
                 0,

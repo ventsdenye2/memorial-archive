@@ -1,12 +1,15 @@
+using System.Collections.Generic;
 using System.Linq;
 using MemorialArchive.Framework.Config;
 using MemorialArchive.Framework.Core;
 using MemorialArchive.Framework.Event;
 using MemorialArchive.Gameplay.Inventory.Data;
 using MemorialArchive.Gameplay.Inventory.Logic;
+using MemorialArchive.Gameplay.Lighting.Data;
 using MemorialArchive.Gameplay.Lighting.Logic;
 using NUnit.Framework;
 using UnityEditor;
+using UnityEngine;
 
 namespace MemorialArchive.Tests.Editor
 {
@@ -15,6 +18,7 @@ namespace MemorialArchive.Tests.Editor
         private ConfigManager configs;
         private InventorySystem inventory;
         private LightingSystem lighting;
+        private EventBus events;
 
         [SetUp]
         public void SetUp()
@@ -23,7 +27,7 @@ namespace MemorialArchive.Tests.Editor
                 "Assets/GameConfigs/GameConfigDatabase.asset");
             Assert.That(database, Is.Not.Null);
 
-            var events = new EventBus();
+            events = new EventBus();
             configs = new ConfigManager(database);
             var context = new GameContext(events, configs, null, null, null);
             configs.Initialize(context);
@@ -40,6 +44,77 @@ namespace MemorialArchive.Tests.Editor
             lighting?.Dispose();
             inventory?.Dispose();
             configs?.Dispose();
+        }
+
+        [Test]
+        public void SpecialFixtureGlowsByDefaultAndGrowsBrighterAndLargerAfterInteraction()
+        {
+            var fixture = RegisterSpecialFixture();
+            var lights = new List<ActiveLight>();
+            lighting.CollectActiveLights(lights);
+            var idle = lights.Single(light => light.Position == fixture.position);
+
+            Assert.That(lighting.IsLightOn(fixture.lightId), Is.False);
+            Assert.That(idle.Intensity, Is.GreaterThan(0f).And.LessThan(1f));
+            Assert.That(idle.Radius, Is.EqualTo(fixture.radius * configs.GetLightingGlobal().SpecialLightRadiusMultiplier));
+
+            var lantern = inventory.PlayerInventory.playerItems.First(p => p?.item?.itemId == 1006);
+            Assert.That(inventory.TryEquipToFirstAvailableSlot(lantern.item.instanceId), Is.True);
+            var shortcut = inventory.PlayerInventory.playerItems.First(p => p?.item?.instanceId == lantern.item.instanceId);
+            Assert.That(inventory.TrySelectShortcut(shortcut.slotIndex), Is.True);
+            events.Publish(new LightSourceInteractRequestedEvent(fixture.lightId));
+
+            lighting.CollectActiveLights(lights);
+            var lit = lights.Single(light => light.Position == fixture.position);
+            Assert.That(lighting.IsRegionLit(fixture.regionId), Is.True);
+            Assert.That(lit.Intensity, Is.GreaterThan(idle.Intensity));
+            Assert.That(lit.Radius, Is.GreaterThan(idle.Radius));
+            Assert.That(lit.Intensity, Is.EqualTo(configs.GetLightingGlobal().SpecialLightLitIntensity));
+            Assert.That(lit.Radius, Is.EqualTo(idle.Radius * configs.GetLightingGlobal().SpecialLightLitRadiusMultiplier));
+
+            var save = JsonUtility.ToJson(lighting.CaptureSaveData());
+            lighting.RestoreSaveData(save);
+            lighting.CollectActiveLights(lights);
+            var restored = lights.Single(light => light.Position == fixture.position);
+            Assert.That(restored.Intensity, Is.EqualTo(lit.Intensity));
+            Assert.That(restored.Radius, Is.EqualTo(lit.Radius));
+
+            lighting.ResetForNewGame();
+            lighting.CollectActiveLights(lights);
+            var reset = lights.Single(light => light.Position == fixture.position);
+            Assert.That(reset.Intensity, Is.EqualTo(idle.Intensity));
+            Assert.That(reset.Radius, Is.EqualTo(idle.Radius));
+        }
+
+        [Test]
+        public void SpecialFixtureGlowDoesNotGrantDarknessProtectionOrLeakIntoOtherScenes()
+        {
+            var fixture = RegisterSpecialFixture();
+            events.Publish(new PlayerPositionChangedEvent(fixture.position));
+            Assert.That(lighting.IsPlayerInLight(), Is.False);
+
+            events.Publish(new SceneLoadedEvent("OtherScene"));
+            var lights = new List<ActiveLight>();
+            lighting.CollectActiveLights(lights);
+            Assert.That(lights.Any(light => light.Position == fixture.position), Is.False);
+        }
+
+        private LightViewRegistration RegisterSpecialFixture()
+        {
+            var config = configs.GetLightSource("light_corridor_1f_special");
+            Assert.That(config, Is.Not.Null);
+            var fixture = new LightViewRegistration
+            {
+                lightId = config.LightId,
+                regionId = config.RegionId,
+                isSpecial = config.IsSpecial,
+                position = new Vector2(20f, 5f),
+                radius = config.Radius,
+                sceneName = "Floor_1F"
+            };
+            events.Publish(new SceneLoadedEvent(fixture.sceneName));
+            lighting.RegisterLightView(fixture);
+            return fixture;
         }
 
         [Test]

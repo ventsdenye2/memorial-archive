@@ -32,6 +32,7 @@ namespace MemorialArchive.Framework.UI
             base.Awake();
             ResolveReferences();
             EnsureSlotContent();
+            BindShortcutButtons();
         }
 
         private void Start()
@@ -146,6 +147,33 @@ namespace MemorialArchive.Framework.UI
             hint.raycastTarget = false;
             hint.text = keyHint;
             itemLabels.Add(hint);
+        }
+
+        private void BindShortcutButtons()
+        {
+            for (var i = 0; i < shortcutSlots.Length; i++)
+            {
+                var slot = shortcutSlots[i];
+                if (slot == null)
+                {
+                    continue;
+                }
+
+                var button = slot.GetComponent<Button>();
+                if (button == null)
+                {
+                    button = slot.gameObject.AddComponent<Button>();
+                }
+
+                button.targetGraphic = slot;
+                var slotIndex = i;
+                button.onClick.AddListener(() => PublishShortcutSelection(slotIndex));
+            }
+        }
+
+        private static void PublishShortcutSelection(int slotIndex)
+        {
+            GameRoot.Instance?.Context?.Events.Publish(new ShortcutEquipPressedEvent(slotIndex));
         }
 
         private void SubscribeAndRefresh()

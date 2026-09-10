@@ -102,6 +102,21 @@ namespace MemorialArchive.Tests.Editor
         }
 
         [Test]
+        public void ShortcutSelection_TogglesTheSelectedItemOff()
+        {
+            var item = AddBackpackItem("toggle-shortcut", 1001);
+            Assert.That(inventory.TryMoveToShortcut(item.instanceId, 0), Is.True);
+
+            Assert.That(inventory.TrySelectShortcut(0), Is.True);
+            Assert.That(inventory.PlayerInventory.selectedShortcutIndex, Is.EqualTo(0));
+            Assert.That(inventory.GetSelectedShortcutPlacement()?.item, Is.SameAs(item));
+
+            Assert.That(inventory.TrySelectShortcut(0), Is.True);
+            Assert.That(inventory.PlayerInventory.selectedShortcutIndex, Is.EqualTo(-1));
+            Assert.That(inventory.GetSelectedShortcutPlacement(), Is.Null);
+        }
+
+        [Test]
         public void DiscardRule_RemovesTheSelectedPlayerItemInstance()
         {
             var item = AddBackpackItem("discard", 1024);

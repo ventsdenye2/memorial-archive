@@ -2,6 +2,7 @@ using MemorialArchive.Framework.Core;
 using MemorialArchive.Framework.Event;
 using MemorialArchive.Gameplay.Dialogue.Logic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace MemorialArchive.Gameplay.Character.View
 {
@@ -61,13 +62,14 @@ namespace MemorialArchive.Gameplay.Character.View
             var pointerWorldPosition = GetPointerWorldPosition();
             events.Publish(new SecondaryActionInputEvent(Input.GetMouseButton(1), pointerWorldPosition));
 
-            if (Input.GetMouseButtonDown(0))
+            var pointerOverUi = EventSystem.current != null && EventSystem.current.IsPointerOverGameObject();
+            if (Input.GetMouseButtonDown(0) && !pointerOverUi)
             {
                 gameplayPrimaryHeld = true;
                 events.Publish(new PrimaryActionPhaseEvent(PrimaryActionPhase.Started, pointerWorldPosition));
                 events.Publish(new PrimaryActionPressedEvent());
             }
-            else if (gameplayPrimaryHeld && Input.GetMouseButton(0))
+            else if (gameplayPrimaryHeld && Input.GetMouseButton(0) && !pointerOverUi)
             {
                 events.Publish(new PrimaryActionPhaseEvent(PrimaryActionPhase.Updated, pointerWorldPosition));
             }

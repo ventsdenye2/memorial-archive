@@ -263,6 +263,20 @@ namespace MemorialArchive.Tests.Editor
             character.Dispose();
         }
 
+        [Test]
+        public void Dodge_UpdatesStaminaImmediatelyForHudObservers()
+        {
+            var character = CreateCharacterSystem(out var events);
+            var statsChangedCount = 0;
+            events.Subscribe<CharacterStatsChangedEvent>(_ => statsChangedCount++);
+
+            events.Publish(new DodgePressedEvent());
+
+            Assert.That(character.Data.stamina, Is.EqualTo(24));
+            Assert.That(statsChangedCount, Is.EqualTo(1));
+            character.Dispose();
+        }
+
         private static CharacterSystem CreateCharacterSystem(out EventBus events)
         {
             var database = AssetDatabase.LoadAssetAtPath<GameConfigDatabase>("Assets/GameConfigs/GameConfigDatabase.asset");

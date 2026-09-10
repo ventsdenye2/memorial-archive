@@ -404,7 +404,7 @@ namespace MemorialArchive.Gameplay.Character.Logic
                 return false;
             }
 
-            if (!debugModeEnabled) exactStamina -= staminaCost;
+            SpendStamina(staminaCost);
             SetState(CharacterActionState.Attack1);
             return true;
         }
@@ -457,7 +457,7 @@ namespace MemorialArchive.Gameplay.Character.Logic
                 return;
             }
 
-            if (!debugModeEnabled) exactStamina -= staminaCost;
+            SpendStamina(staminaCost);
             SetState(CharacterActionState.Throwing);
         }
         private void BufferMeleeComboInput()
@@ -497,7 +497,7 @@ namespace MemorialArchive.Gameplay.Character.Logic
             }
 
             comboStage = nextComboStage;
-            if (!debugModeEnabled) exactStamina -= staminaCost;
+            SpendStamina(staminaCost);
             SetState(nextState);
             return true;
         }
@@ -506,7 +506,7 @@ namespace MemorialArchive.Gameplay.Character.Logic
             var staminaCost = (attributes?.DodgeStaminaCost ?? 6f) * StaminaCostMultiplier;
             var canInterruptAttack = IsAttackState(state);
             if (attributes == null || (!canInterruptAttack && BlocksActions()) || dodgeCooldown > 0 || exactStamina < staminaCost) return;
-            if (!debugModeEnabled) exactStamina -= staminaCost;
+            SpendStamina(staminaCost);
             IsRunning = false;
             PublishSecondary(false, false, data.position);
             dodgeCooldown = attributes.DodgeCooldownSeconds;
@@ -566,6 +566,24 @@ namespace MemorialArchive.Gameplay.Character.Logic
             data.stamina = Mathf.CeilToInt(exactStamina);
             context?.Events.Publish(new CharacterStatsChangedEvent());
             if (exactStamina <= 0f && weakRemaining <= 0f) EnterWeakState();
+        }
+
+        private void SpendStamina(float amount)
+        {
+            if (debugModeEnabled || amount <= 0f)
+            {
+                return;
+            }
+
+            exactStamina = Mathf.Max(0f, exactStamina - amount);
+            var stamina = Mathf.CeilToInt(exactStamina);
+            if (data.stamina == stamina)
+            {
+                return;
+            }
+
+            data.stamina = stamina;
+            context?.Events.Publish(new CharacterStatsChangedEvent());
         }
 
         private void OnItemEffectRequested(CharacterItemEffectRequestedEvent evt)

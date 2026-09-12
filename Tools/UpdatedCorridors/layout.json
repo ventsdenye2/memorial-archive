@@ -1,0 +1,1171 @@
+{
+  "floors": [
+    {
+      "floor": "1F",
+      "scene": "Floor_1F",
+      "width": 15360,
+      "height": 1080,
+      "left": -9.6,
+      "layers": [
+        {
+          "path": "Assets/Art/Imported/UpdatedCorridors/1F/Source/纸张.png",
+          "x": 0,
+          "y": 0,
+          "width": 15360,
+          "height": 1080,
+          "order": -30,
+          "tint": [
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "path": "Assets/Art/Imported/UpdatedCorridors/1F/Source/图层 1 副本 12.png",
+          "x": 0,
+          "y": 0,
+          "width": 15353,
+          "height": 1080,
+          "order": -29,
+          "tint": [
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "path": "Assets/Art/Imported/UpdatedCorridors/1F/Source/壁纸 副本.png",
+          "x": 0,
+          "y": 0,
+          "width": 15349,
+          "height": 1080,
+          "order": -28,
+          "tint": [
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "path": "Assets/Art/Imported/UpdatedCorridors/1F/Source/组 1 副本.png",
+          "x": 200,
+          "y": 0,
+          "width": 1765,
+          "height": 1067,
+          "order": -27,
+          "tint": [
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "path": "Assets/Art/Imported/UpdatedCorridors/1F/Source/组 5.png",
+          "x": 1963,
+          "y": 0,
+          "width": 13321,
+          "height": 1080,
+          "order": -26,
+          "tint": [
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "path": "Assets/Art/Imported/UpdatedCorridors/1F/Source/组 6 副本.png",
+          "x": 1896,
+          "y": 4,
+          "width": 11728,
+          "height": 1071,
+          "order": 40,
+          "tint": [
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "path": "Assets/Art/Imported/UpdatedCorridors/1F/Source/门 副本 2.png",
+          "x": 14784,
+          "y": 514,
+          "width": 264,
+          "height": 556,
+          "order": -24,
+          "tint": [
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "path": "Assets/Art/Imported/UpdatedCorridors/1F/Source/楼梯 副本.png",
+          "x": 7850,
+          "y": 466,
+          "width": 559,
+          "height": 593,
+          "order": -23,
+          "tint": [
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "path": "Assets/Art/Imported/UpdatedCorridors/1F/Source/地面 副本 3.png",
+          "x": 0,
+          "y": 0,
+          "width": 15360,
+          "height": 1080,
+          "order": -5,
+          "tint": [
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "path": "Assets/Art/Imported/UpdatedCorridors/1F/Source/漫画专用渐变 副本.png",
+          "x": 0,
+          "y": 0,
+          "width": 15360,
+          "height": 1080,
+          "order": -4,
+          "tint": [
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      "anchors": [
+        {
+          "id": "Floor1_to_FrontHall",
+          "x": 86,
+          "y": 1060
+        },
+        {
+          "id": "Floor1_spawn_from_FrontHall",
+          "x": 86,
+          "y": 1060
+        },
+        {
+          "id": "Floor1_to_Toilet",
+          "x": 14916,
+          "y": 1060
+        },
+        {
+          "id": "Floor1_spawn_from_Toilet",
+          "x": 14916,
+          "y": 1060
+        },
+        {
+          "id": "Corridor_1F_3_stairs",
+          "x": 8129.5,
+          "y": 1060
+        },
+        {
+          "id": "Corridor_1F_3_spawn_stairs",
+          "x": 8129.5,
+          "y": 1060
+        },
+        {
+          "id": "Corridor_1F_1_spawn_left",
+          "x": 220,
+          "y": 1060
+        },
+        {
+          "id": "Corridor_1F_1_spawn_right",
+          "x": 3620,
+          "y": 1060
+        },
+        {
+          "id": "Corridor_1F_1_spawn_initial",
+          "x": 220,
+          "y": 1060
+        },
+        {
+          "id": "Corridor_1F_2_spawn_left",
+          "x": 4060,
+          "y": 1060
+        },
+        {
+          "id": "Corridor_1F_2_spawn_right",
+          "x": 7460,
+          "y": 1060
+        },
+        {
+          "id": "Corridor_1F_2_spawn_initial",
+          "x": 4060,
+          "y": 1060
+        },
+        {
+          "id": "Corridor_1F_3_spawn_left",
+          "x": 7900,
+          "y": 1060
+        },
+        {
+          "id": "Corridor_1F_3_spawn_right",
+          "x": 11300,
+          "y": 1060
+        },
+        {
+          "id": "Corridor_1F_3_spawn_initial",
+          "x": 7900,
+          "y": 1060
+        },
+        {
+          "id": "Corridor_1F_4_spawn_left",
+          "x": 11740,
+          "y": 1060
+        },
+        {
+          "id": "Corridor_1F_4_spawn_right",
+          "x": 15140,
+          "y": 1060
+        },
+        {
+          "id": "Corridor_1F_4_spawn_initial",
+          "x": 11740,
+          "y": 1060
+        }
+      ],
+      "lights": [
+        {
+          "x": 221,
+          "y": 474
+        },
+        {
+          "x": 785,
+          "y": 487
+        },
+        {
+          "x": 1353,
+          "y": 492
+        },
+        {
+          "x": 2565,
+          "y": 447
+        },
+        {
+          "x": 3129,
+          "y": 460
+        },
+        {
+          "x": 3699,
+          "y": 467
+        },
+        {
+          "x": 5996,
+          "y": 453
+        },
+        {
+          "x": 6560,
+          "y": 466
+        },
+        {
+          "x": 7197,
+          "y": 457
+        },
+        {
+          "x": 7797,
+          "y": 463
+        },
+        {
+          "x": 8489,
+          "y": 465
+        },
+        {
+          "x": 9053,
+          "y": 475
+        },
+        {
+          "x": 14056,
+          "y": 458
+        },
+        {
+          "x": 14620,
+          "y": 471
+        },
+        {
+          "x": 15190,
+          "y": 478
+        }
+      ]
+    },
+    {
+      "floor": "2F",
+      "scene": "Floor_2F",
+      "width": 15360,
+      "height": 1080,
+      "left": -9.6,
+      "layers": [
+        {
+          "path": "Assets/Art/Imported/UpdatedCorridors/2F/Source/纸张.png",
+          "x": 0,
+          "y": 0,
+          "width": 15360,
+          "height": 1080,
+          "order": -30,
+          "tint": [
+            0.922077922077922,
+            0.78125,
+            0.7012987012987013,
+            1
+          ]
+        },
+        {
+          "path": "Assets/Art/Imported/UpdatedCorridors/2F/Source/图层 1.png",
+          "x": 0,
+          "y": 0,
+          "width": 15351,
+          "height": 1080,
+          "order": -29,
+          "tint": [
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "path": "Assets/Art/Imported/UpdatedCorridors/2F/Source/组 5.png",
+          "x": 24,
+          "y": 0,
+          "width": 15113,
+          "height": 1077,
+          "order": -28,
+          "tint": [
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "path": "Assets/Art/Imported/UpdatedCorridors/2F/Source/组 6 副本.png",
+          "x": 1896,
+          "y": 4,
+          "width": 11728,
+          "height": 1071,
+          "order": 40,
+          "tint": [
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "path": "Assets/Art/Imported/UpdatedCorridors/2F/Source/门 副本 2.png",
+          "x": 89,
+          "y": 535,
+          "width": 308,
+          "height": 528,
+          "order": -26,
+          "tint": [
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "path": "Assets/Art/Imported/UpdatedCorridors/2F/Source/门 副本 2.png",
+          "x": 3451,
+          "y": 526,
+          "width": 308,
+          "height": 528,
+          "order": -25,
+          "tint": [
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "path": "Assets/Art/Imported/UpdatedCorridors/2F/Source/门 副本 2.png",
+          "x": 7884,
+          "y": 523,
+          "width": 308,
+          "height": 528,
+          "order": -24,
+          "tint": [
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "path": "Assets/Art/Imported/UpdatedCorridors/2F/Source/门 副本 2.png",
+          "x": 13655,
+          "y": 521,
+          "width": 308,
+          "height": 528,
+          "order": -23,
+          "tint": [
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "path": "Assets/Art/Imported/UpdatedCorridors/2F/Source/楼梯 副本.png",
+          "x": 1004,
+          "y": 474,
+          "width": 559,
+          "height": 593,
+          "order": -22,
+          "tint": [
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "path": "Assets/Art/Imported/UpdatedCorridors/2F/Source/楼梯 副本.png",
+          "x": 8687,
+          "y": 480,
+          "width": 559,
+          "height": 593,
+          "order": -21,
+          "tint": [
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "path": "Assets/Art/Imported/UpdatedCorridors/2F/Source/图层 8 副本 3.png",
+          "x": 3944,
+          "y": 540,
+          "width": 124,
+          "height": 287,
+          "order": -20,
+          "tint": [
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "path": "Assets/Art/Imported/UpdatedCorridors/2F/Source/桌子 副本 8.png",
+          "x": 6883,
+          "y": 821,
+          "width": 302,
+          "height": 246,
+          "order": -19,
+          "tint": [
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "path": "Assets/Art/Imported/UpdatedCorridors/2F/Source/门 副本.png",
+          "x": 15213,
+          "y": 452,
+          "width": 120,
+          "height": 613,
+          "order": -18,
+          "tint": [
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "path": "Assets/Art/Imported/UpdatedCorridors/2F/Source/地面 副本 2.png",
+          "x": 0,
+          "y": 0,
+          "width": 15360,
+          "height": 1080,
+          "order": -5,
+          "tint": [
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      "anchors": [
+        {
+          "id": "Room_Office_enter",
+          "x": 243,
+          "y": 1060
+        },
+        {
+          "id": "Floor2_spawn_from_Room_Office",
+          "x": 243,
+          "y": 1060
+        },
+        {
+          "id": "Room_ArchiveA_enter",
+          "x": 3605,
+          "y": 1060
+        },
+        {
+          "id": "Floor2_spawn_from_Room_ArchiveA",
+          "x": 3605,
+          "y": 1060
+        },
+        {
+          "id": "Room_ArchiveB_enter",
+          "x": 8038,
+          "y": 1060
+        },
+        {
+          "id": "Floor2_spawn_from_Room_ArchiveB",
+          "x": 8038,
+          "y": 1060
+        },
+        {
+          "id": "Room_Reception_enter",
+          "x": 13809,
+          "y": 1060
+        },
+        {
+          "id": "Floor2_spawn_from_Room_Reception",
+          "x": 13809,
+          "y": 1060
+        },
+        {
+          "id": "Corridor_2F_1_stairs",
+          "x": 1283.5,
+          "y": 1060
+        },
+        {
+          "id": "Corridor_2F_1_spawn_stairs",
+          "x": 1283.5,
+          "y": 1060
+        },
+        {
+          "id": "Corridor_2F_3_stairs",
+          "x": 8966.5,
+          "y": 1060
+        },
+        {
+          "id": "Corridor_2F_3_spawn_stairs",
+          "x": 8966.5,
+          "y": 1060
+        },
+        {
+          "id": "light_floor_2f_special",
+          "x": 4006,
+          "y": 683.5
+        },
+        {
+          "id": "Floor_2F_container_1",
+          "x": 7034,
+          "y": 940
+        },
+        {
+          "id": "Floor_2F_hide",
+          "x": 8665,
+          "y": 940
+        },
+        {
+          "id": "Corridor_2F_1_spawn_left",
+          "x": 220,
+          "y": 1060
+        },
+        {
+          "id": "Corridor_2F_1_spawn_right",
+          "x": 3620,
+          "y": 1060
+        },
+        {
+          "id": "Corridor_2F_1_spawn_initial",
+          "x": 220,
+          "y": 1060
+        },
+        {
+          "id": "Corridor_2F_2_spawn_left",
+          "x": 4060,
+          "y": 1060
+        },
+        {
+          "id": "Corridor_2F_2_spawn_right",
+          "x": 7460,
+          "y": 1060
+        },
+        {
+          "id": "Corridor_2F_2_spawn_initial",
+          "x": 4060,
+          "y": 1060
+        },
+        {
+          "id": "Corridor_2F_3_spawn_left",
+          "x": 7900,
+          "y": 1060
+        },
+        {
+          "id": "Corridor_2F_3_spawn_right",
+          "x": 11300,
+          "y": 1060
+        },
+        {
+          "id": "Corridor_2F_3_spawn_initial",
+          "x": 7900,
+          "y": 1060
+        },
+        {
+          "id": "Corridor_2F_4_spawn_left",
+          "x": 11740,
+          "y": 1060
+        },
+        {
+          "id": "Corridor_2F_4_spawn_right",
+          "x": 15140,
+          "y": 1060
+        },
+        {
+          "id": "Corridor_2F_4_spawn_initial",
+          "x": 11740,
+          "y": 1060
+        }
+      ],
+      "lights": [
+        {
+          "x": 45,
+          "y": 555
+        },
+        {
+          "x": 442,
+          "y": 569
+        },
+        {
+          "x": 966,
+          "y": 577
+        },
+        {
+          "x": 1589,
+          "y": 578
+        },
+        {
+          "x": 2132,
+          "y": 572
+        },
+        {
+          "x": 2708,
+          "y": 580
+        },
+        {
+          "x": 3314,
+          "y": 582
+        },
+        {
+          "x": 4194,
+          "y": 584
+        },
+        {
+          "x": 4770,
+          "y": 592
+        },
+        {
+          "x": 5376,
+          "y": 594
+        },
+        {
+          "x": 5904,
+          "y": 593
+        },
+        {
+          "x": 6421,
+          "y": 596
+        },
+        {
+          "x": 7762,
+          "y": 598
+        },
+        {
+          "x": 8338,
+          "y": 606
+        },
+        {
+          "x": 9514,
+          "y": 604
+        },
+        {
+          "x": 10038,
+          "y": 576
+        },
+        {
+          "x": 10614,
+          "y": 584
+        },
+        {
+          "x": 11220,
+          "y": 586
+        },
+        {
+          "x": 11800,
+          "y": 593
+        },
+        {
+          "x": 12317,
+          "y": 596
+        },
+        {
+          "x": 14053,
+          "y": 590
+        },
+        {
+          "x": 14659,
+          "y": 592
+        }
+      ]
+    },
+    {
+      "floor": "3F",
+      "scene": "Floor_3F",
+      "width": 15360,
+      "height": 1080,
+      "left": -9.6,
+      "layers": [
+        {
+          "path": "Assets/Art/Imported/UpdatedCorridors/3F/Source/纸张.png",
+          "x": 0,
+          "y": 0,
+          "width": 15360,
+          "height": 1080,
+          "order": -30,
+          "tint": [
+            0.922077922077922,
+            0.78125,
+            0.7012987012987013,
+            1
+          ]
+        },
+        {
+          "path": "Assets/Art/Imported/UpdatedCorridors/3F/Source/图层 1 副本 11.png",
+          "x": 0,
+          "y": 0,
+          "width": 15353,
+          "height": 1080,
+          "order": -29,
+          "tint": [
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "path": "Assets/Art/Imported/UpdatedCorridors/3F/Source/组 4.png",
+          "x": 63,
+          "y": 0,
+          "width": 15249,
+          "height": 1074,
+          "order": -28,
+          "tint": [
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "path": "Assets/Art/Imported/UpdatedCorridors/3F/Source/组 6.png",
+          "x": 1896,
+          "y": 19,
+          "width": 11581,
+          "height": 1056,
+          "order": 40,
+          "tint": [
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "path": "Assets/Art/Imported/UpdatedCorridors/3F/Source/门 副本 2.png",
+          "x": 584,
+          "y": 531,
+          "width": 308,
+          "height": 528,
+          "order": -26,
+          "tint": [
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "path": "Assets/Art/Imported/UpdatedCorridors/3F/Source/门 副本 2.png",
+          "x": 3155,
+          "y": 525,
+          "width": 308,
+          "height": 528,
+          "order": -25,
+          "tint": [
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "path": "Assets/Art/Imported/UpdatedCorridors/3F/Source/门 副本 2.png",
+          "x": 8150,
+          "y": 532,
+          "width": 308,
+          "height": 528,
+          "order": -24,
+          "tint": [
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "path": "Assets/Art/Imported/UpdatedCorridors/3F/Source/门 副本 2.png",
+          "x": 11132,
+          "y": 534,
+          "width": 308,
+          "height": 528,
+          "order": -23,
+          "tint": [
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "path": "Assets/Art/Imported/UpdatedCorridors/3F/Source/楼梯 副本.png",
+          "x": 1006,
+          "y": 468,
+          "width": 559,
+          "height": 593,
+          "order": -22,
+          "tint": [
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "path": "Assets/Art/Imported/UpdatedCorridors/3F/Source/组 5.png",
+          "x": 10857,
+          "y": 543,
+          "width": 1062,
+          "height": 537,
+          "order": -21,
+          "tint": [
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "path": "Assets/Art/Imported/UpdatedCorridors/3F/Source/电话本体 副本.png",
+          "x": 4737,
+          "y": 741,
+          "width": 110,
+          "height": 85,
+          "order": -20,
+          "tint": [
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "path": "Assets/Art/Imported/UpdatedCorridors/3F/Source/电话通 副本.png",
+          "x": 4746,
+          "y": 737,
+          "width": 107,
+          "height": 67,
+          "order": -19,
+          "tint": [
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "path": "Assets/Art/Imported/UpdatedCorridors/3F/Source/地面 副本.png",
+          "x": 0,
+          "y": 0,
+          "width": 15360,
+          "height": 1080,
+          "order": -5,
+          "tint": [
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      "anchors": [
+        {
+          "id": "Room_Director_enter",
+          "x": 738,
+          "y": 1060
+        },
+        {
+          "id": "Floor3_spawn_from_Room_Director",
+          "x": 738,
+          "y": 1060
+        },
+        {
+          "id": "Room_ArchiveC_enter",
+          "x": 3309,
+          "y": 1060
+        },
+        {
+          "id": "Floor3_spawn_from_Room_ArchiveC",
+          "x": 3309,
+          "y": 1060
+        },
+        {
+          "id": "Room_TreatmentA_enter",
+          "x": 8304,
+          "y": 1060
+        },
+        {
+          "id": "Floor3_spawn_from_Room_TreatmentA",
+          "x": 8304,
+          "y": 1060
+        },
+        {
+          "id": "Room_TreatmentB_enter",
+          "x": 11286,
+          "y": 1060
+        },
+        {
+          "id": "Floor3_spawn_from_Room_TreatmentB",
+          "x": 11286,
+          "y": 1060
+        },
+        {
+          "id": "Corridor_3F_1_stairs",
+          "x": 1285.5,
+          "y": 1060
+        },
+        {
+          "id": "Corridor_3F_1_spawn_stairs",
+          "x": 1285.5,
+          "y": 1060
+        },
+        {
+          "id": "Floor_3F_save",
+          "x": 4792,
+          "y": 783.5
+        },
+        {
+          "id": "Room_Terrace_enter",
+          "x": 150,
+          "y": 910
+        },
+        {
+          "id": "Floor3_spawn_from_Terrace",
+          "x": 310,
+          "y": 1060
+        },
+        {
+          "id": "Corridor_3F_1_spawn_left",
+          "x": 220,
+          "y": 1060
+        },
+        {
+          "id": "Corridor_3F_1_spawn_right",
+          "x": 3620,
+          "y": 1060
+        },
+        {
+          "id": "Corridor_3F_1_spawn_initial",
+          "x": 220,
+          "y": 1060
+        },
+        {
+          "id": "Corridor_3F_2_spawn_left",
+          "x": 4060,
+          "y": 1060
+        },
+        {
+          "id": "Corridor_3F_2_spawn_right",
+          "x": 7460,
+          "y": 1060
+        },
+        {
+          "id": "Corridor_3F_2_spawn_initial",
+          "x": 4060,
+          "y": 1060
+        },
+        {
+          "id": "Corridor_3F_3_spawn_left",
+          "x": 7900,
+          "y": 1060
+        },
+        {
+          "id": "Corridor_3F_3_spawn_right",
+          "x": 11300,
+          "y": 1060
+        },
+        {
+          "id": "Corridor_3F_3_spawn_initial",
+          "x": 7900,
+          "y": 1060
+        },
+        {
+          "id": "Corridor_3F_4_spawn_left",
+          "x": 11740,
+          "y": 1060
+        },
+        {
+          "id": "Corridor_3F_4_spawn_right",
+          "x": 15140,
+          "y": 1060
+        },
+        {
+          "id": "Corridor_3F_4_spawn_initial",
+          "x": 11740,
+          "y": 1060
+        }
+      ],
+      "lights": [
+        {
+          "x": 84,
+          "y": 561
+        },
+        {
+          "x": 444,
+          "y": 563
+        },
+        {
+          "x": 968,
+          "y": 571
+        },
+        {
+          "x": 1591,
+          "y": 572
+        },
+        {
+          "x": 1883,
+          "y": 576
+        },
+        {
+          "x": 2391,
+          "y": 566
+        },
+        {
+          "x": 2974,
+          "y": 571
+        },
+        {
+          "x": 3597,
+          "y": 572
+        },
+        {
+          "x": 4142,
+          "y": 571
+        },
+        {
+          "x": 4718,
+          "y": 579
+        },
+        {
+          "x": 5324,
+          "y": 581
+        },
+        {
+          "x": 5736,
+          "y": 578
+        },
+        {
+          "x": 6312,
+          "y": 586
+        },
+        {
+          "x": 6918,
+          "y": 588
+        },
+        {
+          "x": 7398,
+          "y": 574
+        },
+        {
+          "x": 7981,
+          "y": 579
+        },
+        {
+          "x": 8604,
+          "y": 580
+        },
+        {
+          "x": 9168,
+          "y": 576
+        },
+        {
+          "x": 9744,
+          "y": 584
+        },
+        {
+          "x": 10350,
+          "y": 586
+        },
+        {
+          "x": 11006,
+          "y": 573
+        },
+        {
+          "x": 11589,
+          "y": 578
+        },
+        {
+          "x": 12212,
+          "y": 579
+        },
+        {
+          "x": 12627,
+          "y": 573
+        },
+        {
+          "x": 13203,
+          "y": 581
+        },
+        {
+          "x": 13809,
+          "y": 583
+        },
+        {
+          "x": 14257,
+          "y": 569
+        },
+        {
+          "x": 14833,
+          "y": 577
+        }
+      ]
+    }
+  ]
+}

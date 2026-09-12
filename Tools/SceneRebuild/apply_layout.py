@@ -50,10 +50,10 @@ def texture(path):
     meta.write_text(text,encoding='utf8')
     return w,h
 
-def sprite(doc,parent,path,x,y,width=None,order=-10,name='Background'):
+def sprite(doc,parent,path,x,y,width=None,order=-10,name='Background',tint=None):
     w,h=texture(path);sx=width/w if width else 1
     go,t=doc.game_object(name,(x,y,0),parent,scale=(sx,1,1))
-    doc.clone_component(go,212,'SpriteRenderer',sprite_template,m_Sprite=ref(path,21300000),m_SortingOrder=order,m_Color={'r':1,'g':1,'b':1,'a':1},m_DrawMode=0,m_Size={'x':w/100,'y':h/100},m_Enabled=1)
+    doc.clone_component(go,212,'SpriteRenderer',sprite_template,m_Sprite=ref(path,21300000),m_SortingOrder=order,m_Color=dict(zip('rgba',tint or [1,1,1,1])),m_DrawMode=0,m_Size={'x':w/100,'y':h/100},m_Enabled=1)
     return go,t
 
 def box(doc,go,width,height,trigger=False,offset_y=0):
@@ -138,6 +138,9 @@ for s in PLAN['scenes']:
         if d.get('m_Name') in ['RoomGeometry','MonsterSpawnPoints']:doc.edit(i)['m_IsActive']=0
     _,root=doc.game_object('SceneLayout0909')
     _,artroot=doc.game_object('Art',(0,0,0),root)
+    for b in s.get('layers',[]):
+        if scene=='Floor_2F' and b['path'].endswith('图层 8 副本 3.png'):continue
+        sprite(doc,artroot,b['path'],s['left']+(b['x']+b['width']/2)/100,5.4-(b['y']+b['height']/2)/100,order=b['order'],name=Path(b['path']).stem,tint=b['tint'])
     for b in s['backgrounds']:sprite(doc,artroot,b['path'],b['x'],0,b['width'],order=b.get('order',-10))
     for b in s.get('decor',[]):sprite(doc,artroot,b['path'],s['left']+b['x']/100,5.4-b['y']/100,order=-5,name='DoorArt')
     _,geometry=doc.game_object('Geometry',(0,0,0),root)

@@ -4,6 +4,8 @@ import sys
 import urllib.request
 
 headers = {'Content-Type': 'application/json', 'Accept': 'application/json, text/event-stream'}
+# This bridge is strictly loopback; Windows system proxies must not intercept it.
+opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 
 def request(method, params=None, identifier=1):
     body = {'jsonrpc': '2.0', 'method': method}
@@ -12,7 +14,7 @@ def request(method, params=None, identifier=1):
     if params is not None:
         body['params'] = params
     req = urllib.request.Request('http://127.0.0.1:8080/mcp', json.dumps(body).encode(), headers)
-    with urllib.request.urlopen(req, timeout=120) as response:
+    with opener.open(req, timeout=120) as response:
         session = response.headers.get('Mcp-Session-Id')
         if session:
             headers['Mcp-Session-Id'] = session

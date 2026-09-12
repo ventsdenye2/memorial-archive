@@ -378,6 +378,28 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 25f47975fc0313ec832ba47a702755a6, type: 2}
   - {fileID: 11400000, guid: 7f259a69b655415adcf7f7b870254321, type: 2}
   - {fileID: 11400000, guid: 66e7a31d107e98349b2b9725c934a635, type: 2}
+  - {fileID: 11400000, guid: 7282e6ba912c87b43a7752c78e293cbc, type: 2}
+  - {fileID: 11400000, guid: c454b3d6e5b9312498fc8cae1e07d283, type: 2}
+  - {fileID: 11400000, guid: 6034d15193a547943ad9c90a494d3d5a, type: 2}
+  - {fileID: 11400000, guid: bd4cd6766134dd241af08693a0080d0e, type: 2}
+  - {fileID: 11400000, guid: bbf8cba1506d6824da5deb5a802ae40b, type: 2}
+  - {fileID: 11400000, guid: 2671f333994186d4aa97982bd164f0e1, type: 2}
+  - {fileID: 11400000, guid: 950ba0d5b68958a4babb81e0cfa32ab6, type: 2}
+  - {fileID: 11400000, guid: b9023cfc03dda704b9c9bdec3d1ec720, type: 2}
+  - {fileID: 11400000, guid: 373bcd389030e8d488a5e6e8e1cac6bb, type: 2}
+  - {fileID: 11400000, guid: bd3645a4be6fb3344aec2c75f368c819, type: 2}
+  - {fileID: 11400000, guid: 3654756f799482d448e3651f219a9791, type: 2}
+  - {fileID: 11400000, guid: ef32f4e13c8937f4085b0964041809a9, type: 2}
+  - {fileID: 11400000, guid: 0abb913c17eb7f747be92ca0b1f18e9f, type: 2}
+  - {fileID: 11400000, guid: 7854b788df4c1914da76d11d4b5aadb4, type: 2}
+  - {fileID: 11400000, guid: 9b4f5c684eed6ef4194151808bd88adc, type: 2}
+  - {fileID: 11400000, guid: ba975d3d5ea2fbe49b95813631366571, type: 2}
+  - {fileID: 11400000, guid: 64581704966f9e645a54e65d4bb2c617, type: 2}
+  - {fileID: 11400000, guid: 9c6f9ae49fd2cf24f96923062093b008, type: 2}
+  - {fileID: 11400000, guid: de2baf40a113af44ebe70e70164b569e, type: 2}
+  - {fileID: 11400000, guid: a4470c4442c4fbb45971ff3bfe482a76, type: 2}
+  - {fileID: 11400000, guid: 17cfade4a3ed93248b0488d9616e017a, type: 2}
+  - {fileID: 11400000, guid: bc007e1687bd89f49af9d0753424809d, type: 2}
   sceneAccessRules:
   - fromSceneId: Floor_2F
     destinationSceneId: Room_Office

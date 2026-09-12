@@ -22,6 +22,7 @@ namespace MemorialArchive.Gameplay.Lighting.View
         private MaterialPropertyBlock propertyBlock;
         private MeshRenderer quadRenderer;
         private Transform cameraTransform;
+        private UnityEngine.Camera viewCamera;
         private LightingSystem lightingSystem;
         private float dimFactor = 1f;
 
@@ -70,17 +71,10 @@ namespace MemorialArchive.Gameplay.Lighting.View
             }
 
             lightingSystem.CollectActiveLights(activeLights);
-            var lightCount = Mathf.Min(activeLights.Count, lightData.Length);
-            if (config != null)
-            {
-                lightCount = Mathf.Min(lightCount, config.MaxSimultaneousLights);
-            }
-
-            for (var index = 0; index < lightCount; index++)
-            {
-                var light = activeLights[index];
-                lightData[index] = new Vector4(light.Position.x, light.Position.y, light.Radius, light.Intensity);
-            }
+            var halfHeight = viewCamera != null ? viewCamera.orthographicSize : quadSize * .5f;
+            var halfSize = new Vector2(halfHeight * (viewCamera != null ? viewCamera.aspect : 1), halfHeight);
+            var lightCount = LightRenderSelection.Fill(activeLights, transform.position, halfSize, lightData,
+                config != null ? config.MaxSimultaneousLights : lightData.Length);
 
             propertyBlock.SetVectorArray("_LightData", lightData);
             propertyBlock.SetInt("_LightCount", lightCount);
@@ -100,6 +94,7 @@ namespace MemorialArchive.Gameplay.Lighting.View
                 var mainCamera = UnityEngine.Camera.main;
                 if (mainCamera != null)
                 {
+                    viewCamera = mainCamera;
                     cameraTransform = mainCamera.transform;
                 }
             }

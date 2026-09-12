@@ -99,6 +99,7 @@ private void FixedUpdate()
     }
 
     nextPosition = ClampToSceneBounds(nextPosition);
+    nextPosition = GameRoot.Instance?.GetSystem<MemorialArchive.Gameplay.Guide.Logic.GuideFlowSystem>()?.ConstrainPosition(nextPosition) ?? nextPosition;
     body.MovePosition(nextPosition);
     character.Data.position = body.position;
     GameRoot.Instance?.Context?.Events.Publish(new PlayerPositionChangedEvent(body.position));

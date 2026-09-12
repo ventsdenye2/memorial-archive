@@ -14,10 +14,18 @@ namespace MemorialArchive.Gameplay.Interaction.Logic
     {
         private readonly Dictionary<string, InteractionRuntimeData> interactions = new Dictionary<string, InteractionRuntimeData>();
         private readonly Dictionary<string, RoomStateData> rooms = new Dictionary<string, RoomStateData>();
+        private readonly Dictionary<string, FocusCandidate> activeFocus = new Dictionary<string, FocusCandidate>();
         private readonly LightingSystem lighting;
         private GameContext context;
         private string focusedInteractionId;
         private InteractionType focusedInteractionType = InteractionType.None;
+        private long focusOrder;
+
+        private sealed class FocusCandidate
+        {
+            public InteractionType type;
+            public long order;
+        }
 
         public string ModuleKey => "interactions";
 
@@ -32,6 +40,7 @@ namespace MemorialArchive.Gameplay.Interaction.Logic
             context.Events.Subscribe<InteractionFocusChangedEvent>(HandleInteractionFocusChanged);
             context.Events.Subscribe<InteractPressedEvent>(HandleInteractPressed);
             context.Events.Subscribe<RoomEnteredEvent>(HandleRoomEntered);
+            context.Events.Subscribe<SceneLoadedEvent>(HandleSceneLoaded);
         }
 
         public void Dispose()
@@ -41,21 +50,20 @@ namespace MemorialArchive.Gameplay.Interaction.Logic
                 context.Events.Unsubscribe<InteractionFocusChangedEvent>(HandleInteractionFocusChanged);
                 context.Events.Unsubscribe<InteractPressedEvent>(HandleInteractPressed);
                 context.Events.Unsubscribe<RoomEnteredEvent>(HandleRoomEntered);
+                context.Events.Unsubscribe<SceneLoadedEvent>(HandleSceneLoaded);
             }
 
             context = null;
             interactions.Clear();
             rooms.Clear();
-            focusedInteractionId = null;
-            focusedInteractionType = InteractionType.None;
+            ClearFocus();
         }
 
         public void ResetForNewGame()
         {
             interactions.Clear();
             rooms.Clear();
-            focusedInteractionId = null;
-            focusedInteractionType = InteractionType.None;
+            ClearFocus();
         }
 
         public void RegisterInteraction(string interactionId, InteractionType interactionType, string linkedContainerId = null)
@@ -86,6 +94,7 @@ namespace MemorialArchive.Gameplay.Interaction.Logic
 
         public void RestoreSaveData(string json)
         {
+            ClearFocus();
             if (string.IsNullOrEmpty(json))
             {
                 return;
@@ -121,35 +130,69 @@ namespace MemorialArchive.Gameplay.Interaction.Logic
                     }
                 }
             }
+
         }
 
-private void HandleInteractionFocusChanged(InteractionFocusChangedEvent evt)
-{
-    if (evt.HasFocus)
-    {
-        focusedInteractionId = evt.InteractionId;
-        focusedInteractionType = evt.InteractionType;
-        RegisterInteraction(evt.InteractionId, evt.InteractionType);
-        if (evt.InteractionType == InteractionType.Container)
+        private void HandleInteractionFocusChanged(InteractionFocusChangedEvent evt)
         {
-            var config = context.Configs.GetInteraction(evt.InteractionId);
-            context.Events.Publish(new ContainerFocusChangedEvent(GetContainerId(config, evt.InteractionId)));
-        }
-        else
-        {
-            // Only ContainerPoint focus is allowed to expose SceneContainer.
-            context.Events.Publish(new ContainerFocusChangedEvent(null));
-        }
-        return;
-    }
+            if (string.IsNullOrEmpty(evt.InteractionId)) return;
 
-    if (focusedInteractionId == evt.InteractionId)
-    {
-        focusedInteractionId = null;
-        focusedInteractionType = InteractionType.None;
-        context.Events.Publish(new ContainerFocusChangedEvent(null));
-    }
-}
+            if (evt.HasFocus)
+            {
+                activeFocus[evt.InteractionId] = new FocusCandidate { type = evt.InteractionType, order = ++focusOrder };
+                RegisterInteraction(evt.InteractionId, evt.InteractionType);
+            }
+            else
+            {
+                activeFocus.Remove(evt.InteractionId);
+            }
+
+            RefreshFocusedInteraction();
+        }
+
+        private void RefreshFocusedInteraction()
+        {
+            string selectedId = null;
+            FocusCandidate selected = null;
+            foreach (var pair in activeFocus)
+            {
+                if (selected == null || IsBetterFocus(pair.Key, pair.Value, selectedId, selected))
+                {
+                    selectedId = pair.Key;
+                    selected = pair.Value;
+                }
+            }
+
+            focusedInteractionId = selectedId;
+            focusedInteractionType = selected != null ? selected.type : InteractionType.None;
+            if (selected == null || selected.type != InteractionType.Container)
+            {
+                context.Events.Publish(new ContainerFocusChangedEvent(null));
+                return;
+            }
+
+            var config = context.Configs?.GetInteraction(selectedId);
+            context.Events.Publish(new ContainerFocusChangedEvent(GetContainerId(config, selectedId)));
+        }
+
+        private bool IsBetterFocus(string candidateId, FocusCandidate candidate, string currentId, FocusCandidate current)
+        {
+            var candidateLight = candidate.type == InteractionType.LightSource;
+            var currentLight = current.type == InteractionType.LightSource;
+            if (candidateLight && currentLight)
+            {
+                var candidateSpecial = IsSpecialLight(candidateId);
+                var currentSpecial = IsSpecialLight(currentId);
+                if (candidateSpecial != currentSpecial) return candidateSpecial;
+            }
+            return candidate.order > current.order;
+        }
+
+        private bool IsSpecialLight(string candidateId)
+        {
+            var config = context?.Configs?.GetLightSource(candidateId);
+            return config != null ? config.IsSpecial : lighting != null && lighting.IsSpecialLight(candidateId);
+        }
 
         private void HandleInteractPressed(InteractPressedEvent evt)
         {
@@ -260,6 +303,20 @@ private void HandleInteractionFocusChanged(InteractionFocusChangedEvent evt)
             }
 
             room.visited = true;
+        }
+
+        private void HandleSceneLoaded(SceneLoadedEvent evt)
+        {
+            ClearFocus();
+            context.Events.Publish(new ContainerFocusChangedEvent(null));
+        }
+
+        private void ClearFocus()
+        {
+            activeFocus.Clear();
+            focusOrder = 0;
+            focusedInteractionId = null;
+            focusedInteractionType = InteractionType.None;
         }
 
         private void MarkCompleted(string interactionId)

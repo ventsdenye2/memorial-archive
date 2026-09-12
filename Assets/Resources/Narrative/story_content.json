@@ -147,6 +147,15 @@
       "isDiary": true,
       "reflectionId": "",
       "aliases": []
+    },
+    {
+      "id": "guide_first_diary",
+      "title": "灯下的日记",
+      "isDiary": true,
+      "sceneId": "FrontHall",
+      "content": "走廊深处的黑暗会吞噬失去灯光的人。\n记得点亮特殊灯具，它们能照亮区域，并补满手提灯的燃料。\n我在这一页背面留下了馆内的地图。",
+      "reflectionId": "",
+      "aliases": []
     }
   ],
   "sequences": [
@@ -480,6 +489,182 @@
           "next": -1,
           "choices": [],
           "fadeCecil": true
+        }
+      ]
+    },
+    {
+      "id": "guide_need_lantern",
+      "sceneId": "",
+      "onFirstEnter": false,
+      "interactionId": "",
+      "requiredNotes": [],
+      "lines": [
+        {
+          "text": "前面堆着障碍，黑暗里什么都看不清。先打开背包，把手提灯放进快捷栏并选中。",
+          "speaker": "",
+          "next": -1,
+          "fadeCecil": false,
+          "choices": []
+        }
+      ]
+    },
+    {
+      "id": "guide_obstacle",
+      "sceneId": "",
+      "onFirstEnter": false,
+      "interactionId": "",
+      "requiredNotes": [],
+      "lines": [
+        {
+          "text": "有了灯光，终于能看清这些杂物。靠近后按 F，把挡路的椅子挪开。",
+          "speaker": "",
+          "next": -1,
+          "fadeCecil": false,
+          "choices": []
+        }
+      ]
+    },
+    {
+      "id": "guide_lamp_diary",
+      "sceneId": "",
+      "onFirstEnter": false,
+      "interactionId": "",
+      "requiredNotes": [],
+      "lines": [
+        {
+          "text": "灯亮起来了。灯下落着一页日记，靠近按 F 捡起来看看。",
+          "speaker": "",
+          "next": -1,
+          "fadeCecil": false,
+          "choices": []
+        }
+      ]
+    },
+    {
+      "id": "guide_dark_warning_1",
+      "sceneId": "",
+      "onFirstEnter": false,
+      "interactionId": "",
+      "requiredNotes": [],
+      "lines": [
+        {
+          "text": "身后的灯具也许能补充燃料。灯光开始不稳了……应该回去。",
+          "speaker": "",
+          "next": -1,
+          "fadeCecil": false,
+          "choices": []
+        }
+      ]
+    },
+    {
+      "id": "guide_dark_warning_2",
+      "sceneId": "",
+      "onFirstEnter": false,
+      "interactionId": "",
+      "requiredNotes": [],
+      "lines": [
+        {
+          "text": "光越来越弱，再往前就危险了。立刻回到那盏壁灯旁！",
+          "speaker": "",
+          "next": -1,
+          "fadeCecil": false,
+          "choices": []
+        }
+      ]
+    },
+    {
+      "id": "guide_dark_warning_3",
+      "sceneId": "",
+      "onFirstEnter": false,
+      "interactionId": "",
+      "requiredNotes": [],
+      "lines": [
+        {
+          "text": "手提灯熄灭了……黑暗正在靠近。",
+          "speaker": "",
+          "next": -1,
+          "fadeCecil": false,
+          "choices": []
+        }
+      ]
+    },
+    {
+      "id": "guide_dark_ending",
+      "sceneId": "",
+      "onFirstEnter": false,
+      "interactionId": "",
+      "requiredNotes": [],
+      "lines": [
+        {
+          "text": "黑暗吞没了最后一丝光亮。\n这次探索结束了，请重新开始，或读取之前的存档。",
+          "speaker": "",
+          "next": -1,
+          "fadeCecil": false,
+          "choices": []
+        }
+      ]
+    },
+    {
+      "id": "guide_encounter",
+      "sceneId": "",
+      "onFirstEnter": false,
+      "interactionId": "",
+      "requiredNotes": [],
+      "lines": [
+        {
+          "text": "门外有什么东西……它发现我了！",
+          "speaker": "",
+          "next": -1,
+          "fadeCecil": false,
+          "choices": []
+        }
+      ]
+    },
+    {
+      "id": "guide_victory",
+      "sceneId": "",
+      "onFirstEnter": false,
+      "interactionId": "",
+      "requiredNotes": [],
+      "lines": [
+        {
+          "text": "它终于倒下了。必要的时候，可以使用快捷栏里的消耗品帮助自己。",
+          "speaker": "",
+          "next": -1,
+          "fadeCecil": false,
+          "choices": []
+        }
+      ]
+    },
+    {
+      "id": "guide_combat_defeat",
+      "sceneId": "",
+      "onFirstEnter": false,
+      "interactionId": "",
+      "requiredNotes": [],
+      "lines": [
+        {
+          "text": "这次没能躲开。记住先闪避，再选中武器反击；消耗品也能帮助你渡过难关。",
+          "speaker": "",
+          "next": -1,
+          "fadeCecil": false,
+          "choices": []
+        }
+      ]
+    },
+    {
+      "id": "guide_stairs",
+      "sceneId": "",
+      "onFirstEnter": false,
+      "interactionId": "",
+      "requiredNotes": [],
+      "lines": [
+        {
+          "text": "楼上也许还有线索。去楼梯那边看看吧。",
+          "speaker": "",
+          "next": -1,
+          "fadeCecil": false,
+          "choices": []
         }
       ]
     }

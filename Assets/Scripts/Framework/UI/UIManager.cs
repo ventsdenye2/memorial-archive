@@ -10,13 +10,22 @@ namespace MemorialArchive.Framework.UI
         [SerializeField] private List<BasePanel> panels = new List<BasePanel>();
 
         private readonly Stack<BasePanel> panelStack = new Stack<BasePanel>();
+        private readonly HashSet<PanelId> persistentPanelIds = new HashSet<PanelId>();
         private GameContext context;
         private string focusedContainerId;
+        private readonly HashSet<object> pauseOwners = new HashSet<object>();
+
+        public void SetPauseOwner(object owner, bool paused)
+        {
+            if (paused) pauseOwners.Add(owner); else pauseOwners.Remove(owner);
+            ApplyPauseState();
+        }
 
         public bool IsGameplayInputBlocked
         {
             get
             {
+                if (GameRoot.Instance?.GetSystem<MemorialArchive.Gameplay.Guide.Logic.GuideSystem>()?.BlocksInput == true) return true;
                 foreach (var panel in panelStack)
                 {
                     if (panel != null && panel.IsOpen && !IsNonModalOverlay(panel.PanelId))
@@ -65,6 +74,12 @@ namespace MemorialArchive.Framework.UI
             context = null;
         }
 
+        public void RegisterPersistentPanel(BasePanel panel)
+        {
+            RegisterScenePanels(new[] { panel });
+            persistentPanelIds.Add(panel.PanelId);
+        }
+
         public void RegisterScenePanels(IEnumerable<BasePanel> scenePanels)
         {
             if (scenePanels == null)
@@ -76,6 +91,12 @@ namespace MemorialArchive.Framework.UI
             {
                 if (panel == null)
                 {
+                    continue;
+                }
+
+                if (persistentPanelIds.Contains(panel.PanelId) && FindPanel(panel.PanelId) != panel)
+                {
+                    panel.Close();
                     continue;
                 }
 
@@ -347,6 +368,7 @@ namespace MemorialArchive.Framework.UI
 
         private void ApplyPauseState()
         {
+            if (pauseOwners.Count > 0) { Time.timeScale = 0f; return; }
             foreach (var panel in panelStack)
             {
                 if (panel != null && panel.IsOpen && !IsNonModalOverlay(panel.PanelId))
@@ -369,8 +391,10 @@ namespace MemorialArchive.Framework.UI
         }
 
         private void HandleOpenInventoryPressed(OpenInventoryPressedEvent evt) => Toggle(PanelId.Inventory);
-        private void HandleOpenDiaryPressed(OpenDiaryPressedEvent evt) => Toggle(PanelId.Diary);
-        private void HandleOpenMapPressed(OpenMapPressedEvent evt) => Toggle(PanelId.Map);
+        private void HandleOpenDiaryPressed(OpenDiaryPressedEvent evt)
+        { if (GameRoot.Instance?.GetSystem<MemorialArchive.Gameplay.Guide.Logic.GuideFlowSystem>()?.MapUnlocked != false) Toggle(PanelId.Diary); }
+        private void HandleOpenMapPressed(OpenMapPressedEvent evt)
+        { if (GameRoot.Instance?.GetSystem<MemorialArchive.Gameplay.Guide.Logic.GuideFlowSystem>()?.MapUnlocked != false) Toggle(PanelId.Map); }
         private void HandlePausePressed(PausePressedEvent evt) => Toggle(PanelId.System);
         private void HandleCharacterDied(CharacterDiedEvent evt) => Open(PanelId.Load);
 

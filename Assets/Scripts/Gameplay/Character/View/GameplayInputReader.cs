@@ -26,6 +26,13 @@ namespace MemorialArchive.Gameplay.Character.View
             }
 
             var events = root.Context.Events;
+            if (root.GetSystem<MemorialArchive.Gameplay.Guide.Logic.GuideSystem>()?.ProcessInput() == true)
+            {
+                CancelPrimaryAction(events);
+                events.Publish(new MoveInputEvent(Vector2.zero));
+                events.Publish(new RunInputEvent(false));
+                return;
+            }
             if (root.GetSystem<MemorialArchive.Gameplay.Story.Logic.NarrativeSystem>()?.BlocksGameplayInput == true)
             {
                 CancelPrimaryAction(events);
@@ -54,6 +61,8 @@ namespace MemorialArchive.Gameplay.Character.View
             }
 
             PublishUiKeys(events);
+            if (root.GetSystem<MemorialArchive.Gameplay.Guide.Logic.GuideFlowSystem>()?.AwaitingWeaponSelection == true && root.Context.UI.IsOpen(MemorialArchive.Framework.UI.PanelId.Inventory))
+                PublishShortcutKeys(events);
             if (root.Context.UI != null && root.Context.UI.IsGameplayInputBlocked)
             {
                 CancelPrimaryAction(events);
@@ -89,7 +98,8 @@ namespace MemorialArchive.Gameplay.Character.View
 
             if (Input.GetKeyDown(interactKey))
             {
-                events.Publish(new InteractPressedEvent());
+                if (root.GetSystem<MemorialArchive.Gameplay.Guide.Logic.GuideFlowSystem>()?.TryInteract() != true)
+                    events.Publish(new InteractPressedEvent());
             }
 
             if (Input.GetKeyDown(lanternToggleKey))
@@ -117,7 +127,7 @@ namespace MemorialArchive.Gameplay.Character.View
                 events.Publish(new OpenInventoryPressedEvent());
             }
 
-            if (Input.GetKeyDown(diaryKey))
+            if (Input.GetKeyDown(diaryKey) || Input.GetKeyDown(KeyCode.N))
             {
                 events.Publish(new OpenDiaryPressedEvent());
             }

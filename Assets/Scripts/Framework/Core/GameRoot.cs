@@ -153,6 +153,7 @@ namespace MemorialArchive.Framework.Core
             RegisterSystem(new StorySystem());
             RegisterSystem(new NarrativeSystem());
             RegisterSystem(new GuideSystem());
+            RegisterSystem(new GuideFlowSystem());
             RegisterSystem(new DialogueSystem());
             RegisterSystem(new MemorialArchive.Framework.Audio.AudioSystem());
 
@@ -171,6 +172,7 @@ namespace MemorialArchive.Framework.Core
             }
 
             initialized = true;
+            gameObject.AddComponent<MemorialArchive.Gameplay.Guide.View.GuideWorldView>();
         }
 
         private void RegisterSystem(IGameSystem system)

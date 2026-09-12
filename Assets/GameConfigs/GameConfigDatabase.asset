@@ -142,6 +142,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 9a56fe1c16db34c4a87ef2bccb00a22c, type: 2}
   - {fileID: 11400000, guid: 8510f1198b9e342418461a75d14e1c78, type: 2}
   - {fileID: 11400000, guid: 86d49b9972add5940ae235db1b5a1bce, type: 2}
+  - {fileID: 11400000, guid: 4b1edeef63d63c046897fb2bd2708a6e, type: 2}
   puzzles: []
   stories:
   - {fileID: 11400000, guid: 57ad3a19c27d5de43a8544f1e35b4332, type: 2}

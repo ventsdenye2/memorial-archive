@@ -33,6 +33,10 @@ namespace MemorialArchive.Gameplay.Lighting.Logic
         private readonly Dictionary<string, float> tempLightRemaining = new Dictionary<string, float>();
         private readonly Dictionary<string, float> lanternFuelByInstance = new Dictionary<string, float>();
 
+        private readonly HashSet<object> darknessFailureOwners = new HashSet<object>();
+        public void SetDarknessFailureOwner(object owner, bool owned)
+        { if (owned) darknessFailureOwners.Add(owner); else darknessFailureOwners.Remove(owner); }
+        public bool IsSpecialLight(string id) => lightViews.TryGetValue(id, out var light) && light.isSpecial;
         private GameContext context;
         private LightingGlobalConfig config;
         private string activeSceneName;
@@ -517,6 +521,14 @@ namespace MemorialArchive.Gameplay.Lighting.Logic
             return lanternFuelByInstance.TryGetValue(equippedLanternInstanceId, out var fuel) ? fuel : 0f;
         }
 
+        /// <summary>Authored environmental depletion; the lighting owner updates fuel, stage and light together.</summary>
+        public void LimitSelectedLanternFuel(float ceilingSeconds)
+        {
+            if (equippedLanternInstanceId == null || GetEquippedLanternFuel() <= ceilingSeconds) return;
+            lanternFuelByInstance[equippedLanternInstanceId] = Mathf.Max(0, ceilingSeconds);
+            if (ceilingSeconds <= 0) SetLanternLit(false); else PublishLanternFuel();
+        }
+
         private void RefuelEquippedLantern()
         {
             if (equippedLanternInstanceId == null)
@@ -602,6 +614,7 @@ namespace MemorialArchive.Gameplay.Lighting.Logic
 
         private void TickDarknessFailure(float deltaTime)
         {
+            if (darknessFailureOwners.Count > 0) return;
             failureCooldownRemaining = Mathf.Max(0f, failureCooldownRemaining - deltaTime);
 
             // 游戏失败条件：玩家处于全黑，且没有任何可点亮的手提灯

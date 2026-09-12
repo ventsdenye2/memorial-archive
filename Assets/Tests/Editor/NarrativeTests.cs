@@ -28,8 +28,9 @@ namespace MemorialArchive.Tests.Editor
         [Test]
         public void Catalog_HasAllReviewedNotesAndValidDialogueLinks()
         {
-            Assert.That(content.notes.Length, Is.EqualTo(16));
-            Assert.That(content.notes.Select(n => n.id).Distinct().Count(), Is.EqualTo(16));
+            Assert.That(content.notes.Length, Is.EqualTo(17));
+            Assert.That(content.notes.Select(n => n.id).Distinct().Count(), Is.EqualTo(17));
+            Assert.That(content.FindNote("guide_first_diary").isDiary, Is.True);
             foreach (var note in content.notes) Assert.That(note.content, Is.Not.Null.And.Not.Empty, note.id);
             foreach (var sequence in content.sequences)
             {

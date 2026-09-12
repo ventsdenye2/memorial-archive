@@ -19,6 +19,19 @@ namespace MemorialArchive.Gameplay.Interaction.View
         public string InteractionId => interactionId;
         public InteractionType InteractionType => interactionType;
 
+        public void Configure(string id, InteractionType type)
+        {
+            interactionId = id;
+            interactionType = type;
+        }
+
+        private void OnDisable()
+        {
+            if (focusedPlayerCollider != null) PublishFocus(false);
+            focusedPlayerCollider = null;
+            focusPublishPending = false;
+        }
+
         private void Awake()
         {
             triggerCollider = GetComponent<Collider2D>();

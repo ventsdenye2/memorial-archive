@@ -37,14 +37,14 @@
         {
           "id": "fronthall_save_point_01",
           "kind": 5,
-          "x": 7809,
+          "x": 7938.0,
           "y": 796.5,
           "sprite": "Assets/Art/Imported/SceneRebuild0909/前厅素材/电话本体 副本.png",
           "display": "存档电话",
           "visualParts": [
             {
               "path": "Assets/Art/Imported/SceneRebuild0909/前厅素材/电话通 副本.png",
-              "x": 7816.5,
+              "x": 7945.5,
               "y": 783.5
             }
           ]
@@ -52,7 +52,7 @@
         {
           "id": "FrontHall_note_1",
           "kind": 9,
-          "x": 498,
+          "x": 484.0,
           "y": 832.5,
           "noteId": "FrontHall_note_1",
           "sprite": "Assets/Art/Imported/SceneRebuild0909/前厅素材/线索 副本.png",
@@ -79,7 +79,7 @@
         {
           "id": "light_fronthall_special",
           "kind": 11,
-          "x": 3842,
+          "x": 3726.0,
           "y": 679.5,
           "sprite": "Assets/Art/Imported/UpdatedCorridors/2F/Source/图层 8 副本 3.png",
           "special": true,
@@ -140,19 +140,19 @@
           "y": 463.0
         },
         {
-          "x": 7798,
+          "x": 7798.0,
           "y": 447
         },
         {
-          "x": 8466,
+          "x": 8466.0,
           "y": 463
         },
         {
-          "x": 9130,
+          "x": 9130.0,
           "y": 467
         },
         {
-          "x": 9740,
+          "x": 9740.0,
           "y": 453
         },
         {
@@ -197,14 +197,14 @@
         {
           "id": "Room_Office_save",
           "kind": 5,
-          "x": 1064,
+          "x": 1117.0,
           "y": 790,
           "sprite": "Assets/Art/Scenes/办公室素材8.4/办公室素材/电话本体 副本.png",
           "display": "存档电话",
           "visualParts": [
             {
               "path": "Assets/Art/Scenes/办公室素材8.4/办公室素材/电话通 副本.png",
-              "x": 1049,
+              "x": 1102.0,
               "y": 817
             }
           ]
@@ -261,7 +261,7 @@
           "y": 542.0
         },
         {
-          "x": 3795,
+          "x": 3787.0,
           "y": 555
         }
       ],
@@ -299,7 +299,7 @@
         {
           "id": "Room_Reception_save",
           "kind": 5,
-          "x": 1669.5,
+          "x": 1857.0,
           "y": 768.5,
           "sprite": "Assets/Art/Scenes/接待室素材8.4/接待室素材/电话本体 副本.png",
           "display": "存档电话"
@@ -334,26 +334,26 @@
         {
           "id": "Room_Reception_hide",
           "kind": 7,
-          "x": 2840,
+          "x": 2980.0,
           "y": 930,
           "display": "躲藏点"
         }
       ],
       "lights": [
         {
-          "x": 71,
+          "x": 71.0,
           "y": 481
         },
         {
-          "x": 1531,
+          "x": 1531.0,
           "y": 480
         },
         {
-          "x": 1717,
+          "x": 1717.0,
           "y": 537
         },
         {
-          "x": 3797,
+          "x": 3787.0,
           "y": 484
         }
       ],
@@ -398,14 +398,14 @@
         {
           "id": "Room_ArchiveA_save",
           "kind": 5,
-          "x": 2365.5,
+          "x": 2249.0,
           "y": 740.5,
           "sprite": "Assets/Art/Scenes/档案室a素材8.4/档案室a素材/电话本体 副本.png",
           "display": "存档电话",
           "visualParts": [
             {
               "path": "Assets/Art/Scenes/档案室a素材8.4/档案室a素材/电话通 副本.png",
-              "x": 2350,
+              "x": 2233.5,
               "y": 768
             }
           ]
@@ -422,7 +422,7 @@
         {
           "id": "light_room_archivea_special",
           "kind": 11,
-          "x": 2840,
+          "x": 2772.0,
           "y": 680,
           "sprite": "Assets/Art/Imported/UpdatedCorridors/2F/Source/图层 8 副本 3.png",
           "special": true,
@@ -483,7 +483,7 @@
         {
           "id": "Room_ArchiveB_note_1",
           "kind": 9,
-          "x": 680.0,
+          "x": 753.0,
           "y": 800,
           "noteId": "Room_ArchiveB_note_1",
           "sprite": "Assets/Art/Imported/SceneRebuild0909/露台素材/线索 副本.png",
@@ -492,7 +492,7 @@
         {
           "id": "light_room_archiveb_special",
           "kind": 11,
-          "x": 1650.0,
+          "x": 1754.0,
           "y": 680,
           "sprite": "Assets/Art/Imported/UpdatedCorridors/2F/Source/图层 8 副本 3.png",
           "special": true,
@@ -501,7 +501,7 @@
       ],
       "lights": [
         {
-          "x": 49.0,
+          "x": 53.0,
           "y": 500.0
         },
         {
@@ -614,7 +614,7 @@
         {
           "id": "Room_Director_save",
           "kind": 5,
-          "x": 598.5,
+          "x": 766.0,
           "y": 800.5,
           "sprite": "Assets/Art/Scenes/馆长办公室素材8.4/馆长办公室素材/电话本体 副本.png",
           "display": "存档电话"
@@ -622,7 +622,7 @@
         {
           "id": "Room_Director_note_1",
           "kind": 9,
-          "x": 340,
+          "x": 375.0,
           "y": 835,
           "noteId": "Room_Director_main_note_1",
           "sprite": "Assets/Art/Imported/SceneRebuild0909/露台素材/线索 副本.png",
@@ -631,7 +631,7 @@
         {
           "id": "Room_Director_note_2",
           "kind": 9,
-          "x": 2389.5,
+          "x": 2276.0,
           "y": 905,
           "noteId": "Room_Director_note_2",
           "sprite": "Assets/Art/Scenes/馆长办公室素材8.4/馆长办公室素材/图层 3.png",
@@ -640,7 +640,7 @@
         {
           "id": "Room_Director_container_1",
           "kind": 1,
-          "x": 1770,
+          "x": 1504.0,
           "y": 940,
           "items": [
             1003
@@ -660,7 +660,7 @@
         {
           "id": "Room_Director_hide",
           "kind": 7,
-          "x": 1750,
+          "x": 1989.0,
           "y": 930,
           "display": "躲藏点"
         }
@@ -740,7 +740,7 @@
         {
           "id": "Room_TreatmentA_note_1",
           "kind": 9,
-          "x": 884,
+          "x": 777.0,
           "y": 812.5,
           "noteId": "Room_TreatmentA_note_1",
           "sprite": "Assets/Art/Imported/UpdatedTreatmentRooms/A/Source/Clue.png",
@@ -760,7 +760,7 @@
         {
           "id": "light_room_treatmenta_special",
           "kind": 11,
-          "x": 3330,
+          "x": 3318.0,
           "y": 680,
           "sprite": "Assets/Art/Imported/UpdatedCorridors/2F/Source/图层 8 副本 3.png",
           "special": true,
@@ -769,39 +769,39 @@
       ],
       "lights": [
         {
-          "x": 132,
+          "x": 132.0,
           "y": 483
         },
         {
-          "x": 511,
+          "x": 511.0,
           "y": 486
         },
         {
-          "x": 917,
+          "x": 917.0,
           "y": 490
         },
         {
-          "x": 1318,
+          "x": 1318.0,
           "y": 487
         },
         {
-          "x": 1963,
+          "x": 1963.0,
           "y": 486
         },
         {
-          "x": 2508,
+          "x": 2508.0,
           "y": 488
         },
         {
-          "x": 2869,
+          "x": 2869.0,
           "y": 493
         },
         {
-          "x": 3458,
+          "x": 3458.0,
           "y": 491
         },
         {
-          "x": 3777,
+          "x": 3777.0,
           "y": 496
         }
       ],
@@ -839,7 +839,7 @@
         {
           "id": "Room_TreatmentB_save",
           "kind": 5,
-          "x": 891.5,
+          "x": 1057.0,
           "y": 781.5,
           "sprite": "Assets/Art/Imported/UpdatedTreatmentRooms/B/Source/TelephoneBody.png",
           "display": "存档电话"
@@ -847,7 +847,7 @@
         {
           "id": "Room_TreatmentB_note_1",
           "kind": 9,
-          "x": 600,
+          "x": 651.0,
           "y": 840,
           "noteId": "Room_TreatmentB_main_note_1",
           "sprite": "Assets/Art/Imported/SceneRebuild0909/露台素材/线索 副本.png",
@@ -886,35 +886,35 @@
       ],
       "lights": [
         {
-          "x": 132,
+          "x": 132.0,
           "y": 483
         },
         {
-          "x": 511,
+          "x": 511.0,
           "y": 486
         },
         {
-          "x": 917,
+          "x": 917.0,
           "y": 490
         },
         {
-          "x": 1318,
+          "x": 1318.0,
           "y": 487
         },
         {
-          "x": 1847,
+          "x": 1847.0,
           "y": 486
         },
         {
-          "x": 2421,
+          "x": 2421.0,
           "y": 501
         },
         {
-          "x": 3373,
+          "x": 3373.0,
           "y": 505
         },
         {
-          "x": 3777,
+          "x": 3777.0,
           "y": 516
         }
       ],
@@ -939,7 +939,7 @@
         {
           "id": "Room_Toilet_container_1",
           "kind": 1,
-          "x": 1675.0,
+          "x": 1575.0,
           "y": 940,
           "items": [],
           "random": true,
@@ -948,7 +948,7 @@
         {
           "id": "Room_Toilet_hide",
           "kind": 7,
-          "x": 900.0,
+          "x": 942.0,
           "y": 940,
           "display": "躲藏点"
         },
@@ -964,11 +964,11 @@
       ],
       "lights": [
         {
-          "x": 420,
+          "x": 420.0,
           "y": 582
         },
         {
-          "x": 802,
+          "x": 802.0,
           "y": 580
         }
       ],
@@ -1014,7 +1014,7 @@
         {
           "id": "Room_Terrace_container_1",
           "kind": 1,
-          "x": 640,
+          "x": 784,
           "y": 940,
           "items": [
             1025
@@ -1055,68 +1055,68 @@
       "points": [],
       "lights": [
         {
-          "x": 221,
+          "x": 221.0,
           "y": 474
         },
         {
-          "x": 785,
+          "x": 785.0,
           "y": 487
         },
         {
-          "x": 1353,
+          "x": 1353.0,
           "y": 492
         },
         {
-          "x": 2565,
+          "x": 2565.0,
           "y": 447
         },
         {
-          "x": 3129,
+          "x": 3129.0,
           "y": 460
         },
         {
-          "x": 3699,
+          "x": 3699.0,
           "y": 467
         },
         {
-          "x": 5996,
+          "x": 5996.0,
           "y": 453
         },
         {
-          "x": 6560,
+          "x": 6560.0,
           "y": 466
         },
         {
-          "x": 7197,
+          "x": 7197.0,
           "y": 457
         },
         {
-          "x": 7797,
+          "x": 7797.0,
           "y": 463
         },
         {
-          "x": 8489,
+          "x": 8489.0,
           "y": 465
         },
         {
-          "x": 9053,
+          "x": 9053.0,
           "y": 475
         },
         {
-          "x": 14056,
+          "x": 14056.0,
           "y": 458
         },
         {
-          "x": 14620,
+          "x": 14620.0,
           "y": 471
         },
         {
-          "x": 15190,
+          "x": 15190.0,
           "y": 478
         }
       ],
       "moves": {
-        "Floor1_to_FrontHall": 86,
+        "Floor1_to_FrontHall": 381.0,
         "Corridor_1F_1_spawn_left": 220,
         "Corridor_1F_1_spawn_right": 3620,
         "Corridor_1F_1_spawn_initial": 220,
@@ -1129,7 +1129,7 @@
         "Corridor_1F_3_spawn_right": 11300,
         "Corridor_1F_3_spawn_stairs": 8129.5,
         "Corridor_1F_3_spawn_initial": 7900,
-        "Floor1_to_Toilet": 14916,
+        "Floor1_to_Toilet": 14916.0,
         "Corridor_1F_4_spawn_left": 11740,
         "Corridor_1F_4_spawn_right": 15140,
         "Corridor_1F_4_spawn_initial": 11740,
@@ -1323,115 +1323,115 @@
       ],
       "lights": [
         {
-          "x": 45,
+          "x": 53.0,
           "y": 555
         },
         {
-          "x": 442,
+          "x": 442.0,
           "y": 569
         },
         {
-          "x": 966,
+          "x": 966.0,
           "y": 577
         },
         {
-          "x": 1589,
+          "x": 1589.0,
           "y": 578
         },
         {
-          "x": 2132,
+          "x": 2132.0,
           "y": 572
         },
         {
-          "x": 2708,
+          "x": 2708.0,
           "y": 580
         },
         {
-          "x": 3314,
+          "x": 3314.0,
           "y": 582
         },
         {
-          "x": 4194,
+          "x": 4194.0,
           "y": 584
         },
         {
-          "x": 4770,
+          "x": 4770.0,
           "y": 592
         },
         {
-          "x": 5376,
+          "x": 5376.0,
           "y": 594
         },
         {
-          "x": 5904,
+          "x": 5904.0,
           "y": 593
         },
         {
-          "x": 6421,
+          "x": 6421.0,
           "y": 596
         },
         {
-          "x": 7762,
+          "x": 7762.0,
           "y": 598
         },
         {
-          "x": 8338,
+          "x": 8338.0,
           "y": 606
         },
         {
-          "x": 9514,
+          "x": 9514.0,
           "y": 604
         },
         {
-          "x": 10038,
+          "x": 10038.0,
           "y": 576
         },
         {
-          "x": 10614,
+          "x": 10614.0,
           "y": 584
         },
         {
-          "x": 11220,
+          "x": 11220.0,
           "y": 586
         },
         {
-          "x": 11800,
+          "x": 11800.0,
           "y": 593
         },
         {
-          "x": 12317,
+          "x": 12317.0,
           "y": 596
         },
         {
-          "x": 14053,
+          "x": 14053.0,
           "y": 590
         },
         {
-          "x": 14659,
+          "x": 14659.0,
           "y": 592
         }
       ],
       "moves": {
         "Corridor_2F_1_stairs": 1283.5,
-        "Room_Office_enter": 243,
+        "Room_Office_enter": 243.0,
         "Corridor_2F_1_spawn_left": 220,
         "Corridor_2F_1_spawn_right": 3620,
         "Corridor_2F_1_spawn_stairs": 1283.5,
         "Corridor_2F_1_spawn_initial": 220,
         "Floor2_spawn_from_Room_Office": 243,
-        "Room_ArchiveA_enter": 3605,
+        "Room_ArchiveA_enter": 3605.0,
         "Corridor_2F_2_spawn_left": 4060,
         "Corridor_2F_2_spawn_right": 7460,
         "Corridor_2F_2_spawn_initial": 4060,
         "Floor2_spawn_from_Room_ArchiveA": 3605,
         "Corridor_2F_3_stairs": 8966.5,
-        "Room_ArchiveB_enter": 8038,
+        "Room_ArchiveB_enter": 8038.0,
         "Corridor_2F_3_spawn_left": 7900,
         "Corridor_2F_3_spawn_right": 11300,
         "Corridor_2F_3_spawn_stairs": 8966.5,
         "Corridor_2F_3_spawn_initial": 7900,
         "Floor2_spawn_from_Room_ArchiveB": 8038,
-        "Room_Reception_enter": 13809,
+        "Room_Reception_enter": 13809.0,
         "Corridor_2F_4_spawn_left": 11740,
         "Corridor_2F_4_spawn_right": 15140,
         "Corridor_2F_4_spawn_initial": 11740,
@@ -1655,7 +1655,7 @@
         {
           "id": "Floor_3F_save",
           "kind": 5,
-          "x": 4792,
+          "x": 4858.0,
           "y": 783.5,
           "display": "存档电话"
         },
@@ -1670,142 +1670,142 @@
       ],
       "lights": [
         {
-          "x": 84,
+          "x": 84.0,
           "y": 561
         },
         {
-          "x": 444,
+          "x": 444.0,
           "y": 563
         },
         {
-          "x": 968,
+          "x": 968.0,
           "y": 571
         },
         {
-          "x": 1591,
+          "x": 1591.0,
           "y": 572
         },
         {
-          "x": 1883,
+          "x": 1883.0,
           "y": 576
         },
         {
-          "x": 2391,
+          "x": 2391.0,
           "y": 566
         },
         {
-          "x": 2974,
+          "x": 2974.0,
           "y": 571
         },
         {
-          "x": 3597,
+          "x": 3597.0,
           "y": 572
         },
         {
-          "x": 4142,
+          "x": 4142.0,
           "y": 571
         },
         {
-          "x": 4718,
+          "x": 4718.0,
           "y": 579
         },
         {
-          "x": 5324,
+          "x": 5324.0,
           "y": 581
         },
         {
-          "x": 5736,
+          "x": 5736.0,
           "y": 578
         },
         {
-          "x": 6312,
+          "x": 6312.0,
           "y": 586
         },
         {
-          "x": 6918,
+          "x": 6918.0,
           "y": 588
         },
         {
-          "x": 7398,
+          "x": 7398.0,
           "y": 574
         },
         {
-          "x": 7981,
+          "x": 7981.0,
           "y": 579
         },
         {
-          "x": 8604,
+          "x": 8604.0,
           "y": 580
         },
         {
-          "x": 9168,
+          "x": 9168.0,
           "y": 576
         },
         {
-          "x": 9744,
+          "x": 9744.0,
           "y": 584
         },
         {
-          "x": 10350,
+          "x": 10350.0,
           "y": 586
         },
         {
-          "x": 11006,
+          "x": 11006.0,
           "y": 573
         },
         {
-          "x": 11589,
+          "x": 11589.0,
           "y": 578
         },
         {
-          "x": 12212,
+          "x": 12212.0,
           "y": 579
         },
         {
-          "x": 12627,
+          "x": 12627.0,
           "y": 573
         },
         {
-          "x": 13203,
+          "x": 13203.0,
           "y": 581
         },
         {
-          "x": 13809,
+          "x": 13809.0,
           "y": 583
         },
         {
-          "x": 14257,
+          "x": 14257.0,
           "y": 569
         },
         {
-          "x": 14833,
+          "x": 14833.0,
           "y": 577
         }
       ],
       "moves": {
         "Corridor_3F_1_stairs": 1285.5,
-        "Room_Director_enter": 738,
+        "Room_Director_enter": 738.0,
         "Corridor_3F_1_spawn_left": 220,
         "Corridor_3F_1_spawn_right": 3620,
         "Corridor_3F_1_spawn_stairs": 1285.5,
         "Corridor_3F_1_spawn_initial": 220,
         "Floor3_spawn_from_Room_Director": 738,
-        "Room_ArchiveC_enter": 3309,
+        "Room_ArchiveC_enter": 3309.0,
         "Corridor_3F_2_spawn_left": 4060,
         "Corridor_3F_2_spawn_right": 7460,
         "Corridor_3F_2_spawn_initial": 4060,
         "Floor3_spawn_from_Room_ArchiveC": 3309,
-        "Room_TreatmentA_enter": 8304,
+        "Room_TreatmentA_enter": 8304.0,
         "Corridor_3F_3_spawn_left": 7900,
         "Corridor_3F_3_spawn_right": 11300,
         "Corridor_3F_3_spawn_initial": 7900,
         "Floor3_spawn_from_Room_TreatmentA": 8304,
-        "Room_TreatmentB_enter": 11286,
+        "Room_TreatmentB_enter": 11286.0,
         "Corridor_3F_4_spawn_left": 11740,
         "Corridor_3F_4_spawn_right": 15140,
         "Corridor_3F_4_spawn_initial": 11740,
         "Floor3_spawn_from_Room_TreatmentB": 11286,
-        "Room_Terrace_enter": 150,
+        "Room_Terrace_enter": 244.0,
         "Floor3_spawn_from_Terrace": 310
       },
       "decor": [],
@@ -2024,7 +2024,7 @@
         {
           "id": "Floor_4F_container_1",
           "kind": 1,
-          "x": 350.0,
+          "x": 302.0,
           "y": 940,
           "items": [],
           "random": true,
@@ -2040,7 +2040,7 @@
         {
           "id": "light_floor_4f_special",
           "kind": 11,
-          "x": 2760.0,
+          "x": 2746.0,
           "y": 680,
           "sprite": "Assets/Art/Imported/UpdatedCorridors/2F/Source/图层 8 副本 3.png",
           "special": true,
@@ -2083,7 +2083,7 @@
         "Corridor_4F_1_spawn_stairs": 960.0,
         "Corridor_4F_1_spawn_right": 1680.0,
         "Corridor_4F_1_spawn_initial": 240.0,
-        "Corridor_4F_1_stairs": 960.0,
+        "Corridor_4F_1_stairs": 796.0,
         "Corridor_4F_2_spawn_initial": 2160.0,
         "Corridor_4F_1_spawn_left": 240.0
       }

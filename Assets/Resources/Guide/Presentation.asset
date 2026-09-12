@@ -1,0 +1,68 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9413373a00166649a02cd2461b5d571, type: 3}
+  m_Name: Presentation
+  m_EditorClassIdentifier: 
+  pages:
+  - id: movement
+    artwork: {fileID: 21300000, guid: a160722442d361d4097d2270190509ea, type: 3}
+    pause: 0
+    dismissKey: 0
+    message: 
+  - id: inventory
+    artwork: {fileID: 21300000, guid: 668a321bb3fb0d242b1c0e36637695ea, type: 3}
+    pause: 1
+    dismissKey: 0
+    message: 
+  - id: light
+    artwork: {fileID: 21300000, guid: fdeaa9e79372d21429b27dfd201a464f, type: 3}
+    pause: 1
+    dismissKey: 0
+    message: 
+  - id: systems
+    artwork: {fileID: 21300000, guid: 9c36de226d6d3054d9078f2a9cb99bc4, type: 3}
+    pause: 1
+    dismissKey: 0
+    message: 
+  - id: combat
+    artwork: {fileID: 21300000, guid: f20b0a9bde2abe744af5462a012962b4, type: 3}
+    pause: 1
+    dismissKey: 0
+    message: 
+  - id: dodge
+    artwork: {fileID: 0}
+    pause: 1
+    dismissKey: 32
+    message: "\u6309\u7A7A\u683C\u95EA\u907F"
+  - id: equip
+    artwork: {fileID: 0}
+    pause: 1
+    dismissKey: 0
+    message: "\u6253\u5F00\u80CC\u5305\u5C06\u6B66\u5668\u88C5\u5907\u81F3\u5FEB\u6377\u680F\u5E76\u9009\u4E2D"
+  closeHint: {fileID: 21300000, guid: 93fe822511a30cd4fbeb94cf4f22a5fc, type: 3}
+  encounterPrefab: {fileID: 6305148875104229209, guid: 8626592375e5a6f42be3239b63e188cb, type: 3}
+  overlayPrefab: {fileID: 5803966209905036390, guid: 3709fb2b2262f044e90ad34c46e90f3e, type: 3}
+  obstacleSprite: {fileID: 21300000, guid: 1ea0bb15a2289684b97cf851d3427477, type: 3}
+  diarySprite: {fileID: 21300000, guid: c60a2e7bd81f9eb4f8f6dc4b345aef06, type: 3}
+  diaryInteraction: {fileID: 11400000, guid: 4b1edeef63d63c046897fb2bd2708a6e, type: 2}
+  frontHallLeft: -57.6
+  equipmentGatePixels: 2093
+  specialLampPixels: 3725.9998
+  diaryPixels: 4100
+  diaryInteractionWidth: 1.2
+  obstacleInteractionWidth: 1.8
+  warningIntervalPixels: 1920
+  darknessGraceSeconds: 3
+  frontHallRegion: corridor_1f
+  treatmentScene: Room_TreatmentA
+  encounterScene: Floor_3F
+  keyItemId: 1024

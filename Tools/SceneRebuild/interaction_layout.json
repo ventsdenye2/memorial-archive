@@ -1,0 +1,1324 @@
+{
+  "version": 1,
+  "units": "Unity world units (100 source pixels per unit)",
+  "minimumGap": 0.25,
+  "scenes": [
+    {
+      "scene": "Floor_1F",
+      "points": [
+        {
+          "id": "light_floor_1f_ordinary_01",
+          "x": -7.39,
+          "width": 1.0
+        },
+        {
+          "id": "Floor1_to_FrontHall",
+          "x": -5.79,
+          "width": 1.6
+        },
+        {
+          "id": "light_floor_1f_ordinary_02",
+          "x": -1.75,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_1f_ordinary_03",
+          "x": 3.93,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_1f_ordinary_04",
+          "x": 16.05,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_1f_ordinary_05",
+          "x": 21.69,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_1f_ordinary_06",
+          "x": 27.39,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_1f_ordinary_07",
+          "x": 50.36,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_1f_ordinary_08",
+          "x": 56.0,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_1f_ordinary_09",
+          "x": 62.37,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_1f_ordinary_10",
+          "x": 68.37,
+          "width": 1.0
+        },
+        {
+          "id": "Corridor_1F_3_stairs",
+          "x": 71.695,
+          "width": 1.8
+        },
+        {
+          "id": "light_floor_1f_ordinary_11",
+          "x": 75.29,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_1f_ordinary_12",
+          "x": 80.93,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_1f_ordinary_13",
+          "x": 130.96,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_1f_ordinary_14",
+          "x": 136.6,
+          "width": 1.0
+        },
+        {
+          "id": "Floor1_to_Toilet",
+          "x": 139.56,
+          "width": 1.6
+        },
+        {
+          "id": "light_floor_1f_ordinary_15",
+          "x": 142.3,
+          "width": 1.0
+        }
+      ]
+    },
+    {
+      "scene": "Floor_2F",
+      "points": [
+        {
+          "id": "light_floor_2f_ordinary_01",
+          "x": -9.07,
+          "width": 1.0
+        },
+        {
+          "id": "Room_Office_enter",
+          "x": -7.17,
+          "width": 1.6
+        },
+        {
+          "id": "light_floor_2f_ordinary_02",
+          "x": -5.18,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_2f_ordinary_03",
+          "x": 0.06,
+          "width": 1.0
+        },
+        {
+          "id": "Corridor_2F_1_stairs",
+          "x": 3.235,
+          "width": 1.8
+        },
+        {
+          "id": "light_floor_2f_ordinary_04",
+          "x": 6.29,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_2f_ordinary_05",
+          "x": 11.72,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_2f_ordinary_06",
+          "x": 17.48,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_2f_ordinary_07",
+          "x": 23.54,
+          "width": 1.0
+        },
+        {
+          "id": "Room_ArchiveA_enter",
+          "x": 26.45,
+          "width": 1.6
+        },
+        {
+          "id": "light_floor_2f_special",
+          "x": 30.46,
+          "width": 1.2
+        },
+        {
+          "id": "light_floor_2f_ordinary_08",
+          "x": 32.34,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_2f_ordinary_09",
+          "x": 38.1,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_2f_ordinary_10",
+          "x": 44.16,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_2f_ordinary_11",
+          "x": 49.44,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_2f_ordinary_12",
+          "x": 54.61,
+          "width": 1.0
+        },
+        {
+          "id": "Floor_2F_container_1",
+          "x": 60.74,
+          "width": 1.2
+        },
+        {
+          "id": "light_floor_2f_ordinary_13",
+          "x": 68.02,
+          "width": 1.0
+        },
+        {
+          "id": "Room_ArchiveB_enter",
+          "x": 70.78,
+          "width": 1.6
+        },
+        {
+          "id": "light_floor_2f_ordinary_14",
+          "x": 73.78,
+          "width": 1.0
+        },
+        {
+          "id": "Floor_2F_hide",
+          "x": 77.05,
+          "width": 1.2
+        },
+        {
+          "id": "Corridor_2F_3_stairs",
+          "x": 80.065,
+          "width": 1.8
+        },
+        {
+          "id": "light_floor_2f_ordinary_15",
+          "x": 85.54,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_2f_ordinary_16",
+          "x": 90.78,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_2f_ordinary_17",
+          "x": 96.54,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_2f_ordinary_18",
+          "x": 102.6,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_2f_ordinary_19",
+          "x": 108.4,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_2f_ordinary_20",
+          "x": 113.57,
+          "width": 1.0
+        },
+        {
+          "id": "Room_Reception_enter",
+          "x": 128.49,
+          "width": 1.6
+        },
+        {
+          "id": "light_floor_2f_ordinary_21",
+          "x": 130.93,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_2f_ordinary_22",
+          "x": 136.99,
+          "width": 1.0
+        }
+      ]
+    },
+    {
+      "scene": "Floor_3F",
+      "points": [
+        {
+          "id": "light_floor_3f_ordinary_01",
+          "x": -8.76,
+          "width": 1.0
+        },
+        {
+          "id": "Room_Terrace_enter",
+          "x": -7.16,
+          "width": 1.6
+        },
+        {
+          "id": "light_floor_3f_ordinary_02",
+          "x": -5.16,
+          "width": 1.0
+        },
+        {
+          "id": "Room_Director_enter",
+          "x": -2.22,
+          "width": 1.6
+        },
+        {
+          "id": "light_floor_3f_ordinary_03",
+          "x": 0.08,
+          "width": 1.0
+        },
+        {
+          "id": "Corridor_3F_1_stairs",
+          "x": 3.255,
+          "width": 1.8
+        },
+        {
+          "id": "light_floor_3f_ordinary_04",
+          "x": 6.31,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_3f_ordinary_05",
+          "x": 9.23,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_3f_ordinary_06",
+          "x": 14.31,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_3f_ordinary_07",
+          "x": 20.14,
+          "width": 1.0
+        },
+        {
+          "id": "Room_ArchiveC_enter",
+          "x": 23.49,
+          "width": 1.6
+        },
+        {
+          "id": "light_floor_3f_ordinary_08",
+          "x": 26.37,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_3f_ordinary_09",
+          "x": 31.82,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_3f_ordinary_10",
+          "x": 37.58,
+          "width": 1.0
+        },
+        {
+          "id": "Floor_3F_save",
+          "x": 38.98,
+          "width": 1.2
+        },
+        {
+          "id": "light_floor_3f_ordinary_11",
+          "x": 43.64,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_3f_ordinary_12",
+          "x": 47.76,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_3f_ordinary_13",
+          "x": 53.52,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_3f_ordinary_14",
+          "x": 59.58,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_3f_ordinary_15",
+          "x": 64.38,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_3f_ordinary_16",
+          "x": 70.21,
+          "width": 1.0
+        },
+        {
+          "id": "Room_TreatmentA_enter",
+          "x": 73.44,
+          "width": 1.6
+        },
+        {
+          "id": "light_floor_3f_ordinary_17",
+          "x": 76.44,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_3f_ordinary_18",
+          "x": 82.08,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_3f_ordinary_19",
+          "x": 87.84,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_3f_ordinary_20",
+          "x": 93.9,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_3f_ordinary_21",
+          "x": 100.46,
+          "width": 1.0
+        },
+        {
+          "id": "Room_TreatmentB_enter",
+          "x": 103.26,
+          "width": 1.6
+        },
+        {
+          "id": "light_floor_3f_ordinary_22",
+          "x": 106.29,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_3f_ordinary_23",
+          "x": 112.52,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_3f_ordinary_24",
+          "x": 116.67,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_3f_ordinary_25",
+          "x": 122.43,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_3f_ordinary_26",
+          "x": 128.49,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_3f_ordinary_27",
+          "x": 132.97,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_3f_ordinary_28",
+          "x": 138.73,
+          "width": 1.0
+        }
+      ]
+    },
+    {
+      "scene": "Floor_4F",
+      "points": [
+        {
+          "id": "light_floor_4f_ordinary_01",
+          "x": -8.78,
+          "width": 1.0
+        },
+        {
+          "id": "Floor_4F_container_1",
+          "x": -6.58,
+          "width": 1.2
+        },
+        {
+          "id": "light_floor_4f_ordinary_02",
+          "x": -5.18,
+          "width": 1.0
+        },
+        {
+          "id": "Corridor_4F_1_stairs",
+          "x": -1.64,
+          "width": 1.8
+        },
+        {
+          "id": "light_floor_4f_ordinary_03",
+          "x": 0.06,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_4f_ordinary_04",
+          "x": 6.29,
+          "width": 1.0
+        },
+        {
+          "id": "Floor_4F_save",
+          "x": 9.65,
+          "width": 1.2
+        },
+        {
+          "id": "light_floor_4f_ordinary_05",
+          "x": 13.43,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_4f_special",
+          "x": 17.86,
+          "width": 1.2
+        },
+        {
+          "id": "light_floor_4f_ordinary_06",
+          "x": 19.26,
+          "width": 1.0
+        },
+        {
+          "id": "Floor_4F_hide",
+          "x": 22.7,
+          "width": 1.2
+        },
+        {
+          "id": "light_floor_4f_ordinary_07",
+          "x": 25.49,
+          "width": 1.0
+        }
+      ]
+    },
+    {
+      "scene": "FrontHall",
+      "points": [
+        {
+          "id": "light_fronthall_ordinary_01",
+          "x": -57.0,
+          "width": 1.0
+        },
+        {
+          "id": "FrontHall_note_1",
+          "x": -52.76,
+          "width": 1.2
+        },
+        {
+          "id": "light_fronthall_ordinary_02",
+          "x": -51.36,
+          "width": 1.0
+        },
+        {
+          "id": "light_fronthall_ordinary_03",
+          "x": -45.68,
+          "width": 1.0
+        },
+        {
+          "id": "light_fronthall_ordinary_04",
+          "x": -39.77,
+          "width": 1.0
+        },
+        {
+          "id": "light_fronthall_ordinary_05",
+          "x": -38.37,
+          "width": 1.0
+        },
+        {
+          "id": "guide_obstacle",
+          "x": -36.67,
+          "width": 1.8,
+          "virtual": true
+        },
+        {
+          "id": "light_fronthall_ordinary_06",
+          "x": -32.25,
+          "width": 1.0
+        },
+        {
+          "id": "light_fronthall_ordinary_07",
+          "x": -25.61,
+          "width": 1.0
+        },
+        {
+          "id": "FrontHall_note_2",
+          "x": -23.95,
+          "width": 1.2
+        },
+        {
+          "id": "light_fronthall_special",
+          "x": -20.34,
+          "width": 1.2
+        },
+        {
+          "id": "light_fronthall_ordinary_08",
+          "x": -18.94,
+          "width": 1.0
+        },
+        {
+          "id": "guide_first_diary",
+          "x": -16.6,
+          "width": 1.2,
+          "virtual": true
+        },
+        {
+          "id": "light_fronthall_ordinary_09",
+          "x": -12.46,
+          "width": 1.0
+        },
+        {
+          "id": "light_fronthall_ordinary_10",
+          "x": -5.78,
+          "width": 1.0
+        },
+        {
+          "id": "light_fronthall_ordinary_11",
+          "x": 0.96,
+          "width": 1.0
+        },
+        {
+          "id": "light_fronthall_ordinary_12",
+          "x": 7.08,
+          "width": 1.0
+        },
+        {
+          "id": "light_fronthall_ordinary_13",
+          "x": 13.72,
+          "width": 1.0
+        },
+        {
+          "id": "light_fronthall_ordinary_14",
+          "x": 20.38,
+          "width": 1.0
+        },
+        {
+          "id": "fronthall_save_point_01",
+          "x": 21.78,
+          "width": 1.2
+        },
+        {
+          "id": "light_fronthall_ordinary_15",
+          "x": 27.06,
+          "width": 1.0
+        },
+        {
+          "id": "light_fronthall_ordinary_16",
+          "x": 33.7,
+          "width": 1.0
+        },
+        {
+          "id": "light_fronthall_ordinary_17",
+          "x": 39.8,
+          "width": 1.0
+        },
+        {
+          "id": "light_fronthall_ordinary_18",
+          "x": 46.71,
+          "width": 1.0
+        },
+        {
+          "id": "light_fronthall_ordinary_19",
+          "x": 53.39,
+          "width": 1.0
+        },
+        {
+          "id": "FrontHall_note_3",
+          "x": 54.86,
+          "width": 1.2
+        },
+        {
+          "id": "light_floor_1f_ordinary_01",
+          "x": 59.81,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_1f_ordinary_02",
+          "x": 65.45,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_1f_ordinary_03",
+          "x": 71.13,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_1f_ordinary_04",
+          "x": 83.25,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_1f_ordinary_05",
+          "x": 88.89,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_1f_ordinary_06",
+          "x": 94.59,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_1f_ordinary_07",
+          "x": 117.56,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_1f_ordinary_08",
+          "x": 123.2,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_1f_ordinary_09",
+          "x": 129.57,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_1f_ordinary_10",
+          "x": 135.57,
+          "width": 1.0
+        },
+        {
+          "id": "Corridor_1F_3_stairs",
+          "x": 138.895,
+          "width": 1.8
+        },
+        {
+          "id": "light_floor_1f_ordinary_11",
+          "x": 142.49,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_1f_ordinary_12",
+          "x": 148.13,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_1f_ordinary_13",
+          "x": 198.16,
+          "width": 1.0
+        },
+        {
+          "id": "light_floor_1f_ordinary_14",
+          "x": 203.8,
+          "width": 1.0
+        },
+        {
+          "id": "Floor1_to_Toilet",
+          "x": 206.76,
+          "width": 1.6
+        },
+        {
+          "id": "light_floor_1f_ordinary_15",
+          "x": 209.5,
+          "width": 1.0
+        }
+      ]
+    },
+    {
+      "scene": "Room_ArchiveA",
+      "points": [
+        {
+          "id": "light_room_archivea_ordinary_01",
+          "x": -18.16,
+          "width": 1.0
+        },
+        {
+          "id": "light_room_archivea_ordinary_02",
+          "x": -12.13,
+          "width": 1.0
+        },
+        {
+          "id": "Room_ArchiveA_records",
+          "x": -10.7,
+          "width": 1.2
+        },
+        {
+          "id": "Room_ArchiveA_container_1",
+          "x": -3.7,
+          "width": 1.2
+        },
+        {
+          "id": "light_room_archivea_ordinary_03",
+          "x": 0.06,
+          "width": 1.0
+        },
+        {
+          "id": "Room_ArchiveA_alice",
+          "x": 1.46,
+          "width": 1.2
+        },
+        {
+          "id": "Room_ArchiveA_save",
+          "x": 3.29,
+          "width": 1.2
+        },
+        {
+          "id": "light_room_archivea_ordinary_04",
+          "x": 4.69,
+          "width": 1.0
+        },
+        {
+          "id": "light_room_archivea_special",
+          "x": 8.52,
+          "width": 1.2
+        },
+        {
+          "id": "light_room_archivea_ordinary_05",
+          "x": 9.92,
+          "width": 1.0
+        },
+        {
+          "id": "Room_ArchiveA_return",
+          "x": 12.14,
+          "width": 1.6
+        },
+        {
+          "id": "light_room_archivea_ordinary_06",
+          "x": 14.48,
+          "width": 1.0
+        }
+      ]
+    },
+    {
+      "scene": "Room_ArchiveB",
+      "points": [
+        {
+          "id": "light_room_archiveb_ordinary_01",
+          "x": -9.07,
+          "width": 1.0
+        },
+        {
+          "id": "Room_ArchiveB_return",
+          "x": -7.47,
+          "width": 1.6
+        },
+        {
+          "id": "light_room_archiveb_ordinary_02",
+          "x": -3.47,
+          "width": 1.0
+        },
+        {
+          "id": "Room_ArchiveB_note_1",
+          "x": -2.07,
+          "width": 1.2
+        },
+        {
+          "id": "light_room_archiveb_ordinary_03",
+          "x": 2.21,
+          "width": 1.0
+        },
+        {
+          "id": "light_room_archiveb_ordinary_04",
+          "x": 6.54,
+          "width": 1.0
+        },
+        {
+          "id": "light_room_archiveb_special",
+          "x": 7.94,
+          "width": 1.2
+        }
+      ]
+    },
+    {
+      "scene": "Room_ArchiveC",
+      "points": [
+        {
+          "id": "light_room_archivec_ordinary_01",
+          "x": -8.75,
+          "width": 1.0
+        },
+        {
+          "id": "Room_ArchiveC_return",
+          "x": -7.15,
+          "width": 1.6
+        },
+        {
+          "id": "Room_ArchiveC_container_1",
+          "x": -3.35,
+          "width": 1.2
+        },
+        {
+          "id": "Room_ArchiveC_records",
+          "x": -1.1,
+          "width": 1.2
+        },
+        {
+          "id": "light_room_archivec_ordinary_02",
+          "x": 2.57,
+          "width": 1.0
+        },
+        {
+          "id": "Room_ArchiveC_williams",
+          "x": 4.1,
+          "width": 1.2
+        },
+        {
+          "id": "light_room_archivec_special",
+          "x": 6.7,
+          "width": 1.2
+        }
+      ]
+    },
+    {
+      "scene": "Room_Director",
+      "points": [
+        {
+          "id": "light_room_director_ordinary_01",
+          "x": -16.85,
+          "width": 1.0
+        },
+        {
+          "id": "Room_Director_note_1",
+          "x": -15.45,
+          "width": 1.2
+        },
+        {
+          "id": "light_room_director_ordinary_02",
+          "x": -12.94,
+          "width": 1.0
+        },
+        {
+          "id": "Room_Director_save",
+          "x": -11.54,
+          "width": 1.2
+        },
+        {
+          "id": "light_room_director_ordinary_03",
+          "x": -9.43,
+          "width": 1.0
+        },
+        {
+          "id": "Room_Director_container_1",
+          "x": -4.16,
+          "width": 1.2
+        },
+        {
+          "id": "light_room_director_ordinary_04",
+          "x": -2.76,
+          "width": 1.0
+        },
+        {
+          "id": "light_room_director_ordinary_05",
+          "x": -0.71,
+          "width": 1.0
+        },
+        {
+          "id": "Room_Director_hide",
+          "x": 0.69,
+          "width": 1.2
+        },
+        {
+          "id": "Room_Director_note_2",
+          "x": 3.56,
+          "width": 1.2
+        },
+        {
+          "id": "light_room_director_ordinary_06",
+          "x": 4.96,
+          "width": 1.0
+        },
+        {
+          "id": "light_room_director_ordinary_07",
+          "x": 6.31,
+          "width": 1.0
+        },
+        {
+          "id": "Room_Director_return",
+          "x": 12.28,
+          "width": 1.6
+        },
+        {
+          "id": "light_room_director_special",
+          "x": 16.3,
+          "width": 1.2
+        },
+        {
+          "id": "light_room_director_ordinary_08",
+          "x": 18.43,
+          "width": 1.0
+        }
+      ]
+    },
+    {
+      "scene": "Room_Office",
+      "points": [
+        {
+          "id": "light_room_office_ordinary_01",
+          "x": -17.72,
+          "width": 1.0
+        },
+        {
+          "id": "light_room_office_ordinary_02",
+          "x": -13.81,
+          "width": 1.0
+        },
+        {
+          "id": "light_room_office_ordinary_03",
+          "x": -9.43,
+          "width": 1.0
+        },
+        {
+          "id": "Room_Office_save",
+          "x": -8.03,
+          "width": 1.2
+        },
+        {
+          "id": "Room_Office_note_1",
+          "x": -6.48,
+          "width": 1.2
+        },
+        {
+          "id": "light_room_office_ordinary_04",
+          "x": -4.11,
+          "width": 1.0
+        },
+        {
+          "id": "light_room_office_ordinary_05",
+          "x": -1.55,
+          "width": 1.0
+        },
+        {
+          "id": "Room_Office_diary_2",
+          "x": 5.6,
+          "width": 1.2
+        },
+        {
+          "id": "Room_Office_container_1",
+          "x": 8.42,
+          "width": 1.2
+        },
+        {
+          "id": "Room_Office_return",
+          "x": 12.3,
+          "width": 1.6
+        },
+        {
+          "id": "light_room_office_special",
+          "x": 15.6,
+          "width": 1.2
+        },
+        {
+          "id": "light_room_office_ordinary_06",
+          "x": 18.67,
+          "width": 1.0
+        }
+      ]
+    },
+    {
+      "scene": "Room_Reception",
+      "points": [
+        {
+          "id": "light_room_reception_ordinary_01",
+          "x": -18.49,
+          "width": 1.0
+        },
+        {
+          "id": "Cecil",
+          "x": -5.39,
+          "width": 1.4
+        },
+        {
+          "id": "light_room_reception_ordinary_02",
+          "x": -3.89,
+          "width": 1.0
+        },
+        {
+          "id": "light_room_reception_ordinary_03",
+          "x": -2.03,
+          "width": 1.0
+        },
+        {
+          "id": "Room_Reception_save",
+          "x": -0.63,
+          "width": 1.2
+        },
+        {
+          "id": "light_room_reception_special",
+          "x": 9.1,
+          "width": 1.2
+        },
+        {
+          "id": "Room_Reception_hide",
+          "x": 10.6,
+          "width": 1.2
+        },
+        {
+          "id": "Room_Reception_return",
+          "x": 12.45,
+          "width": 1.6
+        },
+        {
+          "id": "Room_Reception_container_1",
+          "x": 15.8,
+          "width": 1.2
+        },
+        {
+          "id": "light_room_reception_ordinary_04",
+          "x": 18.67,
+          "width": 1.0
+        }
+      ]
+    },
+    {
+      "scene": "Room_Terrace",
+      "points": [
+        {
+          "id": "light_room_terrace_ordinary_01",
+          "x": -12.76,
+          "width": 1.0
+        },
+        {
+          "id": "Room_Terrace_container_1",
+          "x": -11.36,
+          "width": 1.2
+        },
+        {
+          "id": "Room_Terrace_note_1",
+          "x": -5.24,
+          "width": 1.2
+        },
+        {
+          "id": "light_room_terrace_ordinary_02",
+          "x": -0.01,
+          "width": 1.0
+        },
+        {
+          "id": "light_room_terrace_special",
+          "x": 14.41,
+          "width": 1.2
+        },
+        {
+          "id": "Room_Terrace_return",
+          "x": 17.3,
+          "width": 1.6
+        }
+      ]
+    },
+    {
+      "scene": "Room_Toilet",
+      "points": [
+        {
+          "id": "light_room_toilet_ordinary_01",
+          "x": -5.4,
+          "width": 1.0
+        },
+        {
+          "id": "light_room_toilet_ordinary_02",
+          "x": -1.58,
+          "width": 1.0
+        },
+        {
+          "id": "Room_Toilet_hide",
+          "x": -0.18,
+          "width": 1.2
+        },
+        {
+          "id": "light_room_toilet_special",
+          "x": 3.65,
+          "width": 1.2
+        },
+        {
+          "id": "Room_Toilet_container_1",
+          "x": 6.15,
+          "width": 1.2
+        },
+        {
+          "id": "Toilet_to_Floor1",
+          "x": 7.85,
+          "width": 1.6
+        }
+      ]
+    },
+    {
+      "scene": "Room_TreatmentA",
+      "points": [
+        {
+          "id": "light_room_treatmenta_ordinary_01",
+          "x": -17.88,
+          "width": 1.0
+        },
+        {
+          "id": "light_room_treatmenta_ordinary_02",
+          "x": -14.09,
+          "width": 1.0
+        },
+        {
+          "id": "Room_TreatmentA_note_1",
+          "x": -11.43,
+          "width": 1.2
+        },
+        {
+          "id": "light_room_treatmenta_ordinary_03",
+          "x": -10.03,
+          "width": 1.0
+        },
+        {
+          "id": "light_room_treatmenta_ordinary_04",
+          "x": -6.02,
+          "width": 1.0
+        },
+        {
+          "id": "Room_TreatmentA_container_1",
+          "x": -3.4,
+          "width": 1.2
+        },
+        {
+          "id": "light_room_treatmenta_ordinary_05",
+          "x": 0.43,
+          "width": 1.0
+        },
+        {
+          "id": "Room_TreatmentA_blood_note",
+          "x": 4.48,
+          "width": 1.2
+        },
+        {
+          "id": "light_room_treatmenta_ordinary_06",
+          "x": 5.88,
+          "width": 1.0
+        },
+        {
+          "id": "light_room_treatmenta_ordinary_07",
+          "x": 9.49,
+          "width": 1.0
+        },
+        {
+          "id": "light_room_treatmenta_special",
+          "x": 13.98,
+          "width": 1.2
+        },
+        {
+          "id": "light_room_treatmenta_ordinary_08",
+          "x": 15.38,
+          "width": 1.0
+        },
+        {
+          "id": "Room_TreatmentA_return",
+          "x": 17.07,
+          "width": 1.4
+        },
+        {
+          "id": "light_room_treatmenta_ordinary_09",
+          "x": 18.57,
+          "width": 1.0
+        }
+      ]
+    },
+    {
+      "scene": "Room_TreatmentB",
+      "points": [
+        {
+          "id": "light_room_treatmentb_ordinary_01",
+          "x": -17.88,
+          "width": 1.0
+        },
+        {
+          "id": "light_room_treatmentb_ordinary_02",
+          "x": -14.09,
+          "width": 1.0
+        },
+        {
+          "id": "Room_TreatmentB_note_1",
+          "x": -12.69,
+          "width": 1.2
+        },
+        {
+          "id": "light_room_treatmentb_ordinary_03",
+          "x": -10.03,
+          "width": 1.0
+        },
+        {
+          "id": "Room_TreatmentB_save",
+          "x": -8.63,
+          "width": 1.2
+        },
+        {
+          "id": "light_room_treatmentb_ordinary_04",
+          "x": -6.02,
+          "width": 1.0
+        },
+        {
+          "id": "light_room_treatmentb_ordinary_05",
+          "x": -0.73,
+          "width": 1.0
+        },
+        {
+          "id": "Room_TreatmentB_container_1",
+          "x": 2.5,
+          "width": 1.2
+        },
+        {
+          "id": "light_room_treatmentb_ordinary_06",
+          "x": 5.01,
+          "width": 1.0
+        },
+        {
+          "id": "light_room_treatmentb_special",
+          "x": 10.5,
+          "width": 1.2
+        },
+        {
+          "id": "light_room_treatmentb_ordinary_07",
+          "x": 14.53,
+          "width": 1.0
+        },
+        {
+          "id": "Room_TreatmentB_return",
+          "x": 16.97,
+          "width": 1.6
+        },
+        {
+          "id": "light_room_treatmentb_ordinary_08",
+          "x": 18.57,
+          "width": 1.0
+        }
+      ]
+    },
+    {
+      "scene": "SampleScene",
+      "points": [
+        {
+          "id": "stage1_entrance_01",
+          "x": -8.75,
+          "width": 1.6
+        },
+        {
+          "id": "stage1_inspect_point_01",
+          "x": -6.9,
+          "width": 1.2
+        },
+        {
+          "id": "stage1_container_03",
+          "x": -5.4,
+          "width": 1.2
+        },
+        {
+          "id": "stage1_container_01",
+          "x": -1.5,
+          "width": 1.2
+        },
+        {
+          "id": "stage1_container_02",
+          "x": 1.5,
+          "width": 1.2
+        },
+        {
+          "id": "stage1_save_point_01",
+          "x": 3.5,
+          "width": 1.2
+        }
+      ]
+    }
+  ]
+}

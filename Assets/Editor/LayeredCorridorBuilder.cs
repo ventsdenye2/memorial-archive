@@ -51,6 +51,7 @@ namespace MemorialArchive.Editor
                 ti.SaveAndReimport();
             }
             foreach(var floor in plan.floors) ApplyFloor(floor);
+            FirstFloorSceneMerger.Apply();
             AssetDatabase.SaveAssets();
             Debug.Log("Layered corridors rebuilt: 1F-3F, 15360 pixels, Source PNGs, geometry and semantic anchors.");
         }

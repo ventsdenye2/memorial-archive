@@ -2,6 +2,8 @@
 
 Usage: python -X utf8 Tools/SceneRebuild/apply_layout.py
 Requires PyYAML and Pillow. Close/save Unity scenes before applying offline changes.
+After offline authoring, run Unity's Merge Front Hall and First Floor menu to
+refresh the combined runtime scene from the preserved Floor_1F source.
 """
 import copy,json,re,shutil
 from pathlib import Path

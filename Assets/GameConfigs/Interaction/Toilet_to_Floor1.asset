@@ -20,7 +20,7 @@ MonoBehaviour:
   puzzleId: 
   storyId: 
   noteId: 
-  transitionSceneId: Floor_1F
+  transitionSceneId: FrontHall
   transitionSpawnPointId: Floor1_spawn_from_Toilet
   stairPrompt: "\u8BF7\u9009\u62E9\u524D\u5F80\u697C\u5C42"
   requiresConfirmation: 1

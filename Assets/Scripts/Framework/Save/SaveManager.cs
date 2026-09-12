@@ -166,7 +166,7 @@ namespace MemorialArchive.Framework.Save
                 return;
             }
 
-            if (string.IsNullOrEmpty(saveData.currentSceneId) || !Application.CanStreamedLevelBeLoaded(saveData.currentSceneId))
+            if (string.IsNullOrEmpty(saveData.currentSceneId) || !Application.CanStreamedLevelBeLoaded(MemorialArchive.Framework.Scene.FirstFloorSceneLayout.ResolveScene(saveData.currentSceneId)))
             {
                 context.Events.Publish(new LoadFailedEvent(loadRequested.SlotIndex, "存档对应的场景不可用。"));
                 return;

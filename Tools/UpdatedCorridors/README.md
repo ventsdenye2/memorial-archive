@@ -1,5 +1,8 @@
 # Updated corridor authoring
 
+The first-floor corridor now runs inside FrontHall; see
+`FIRST_FLOOR_MERGE.md` for the merged scene, authoring source and old-save mapping.
+
 The reviewed `layout.json` describes 1F–3F at 15360×1080, 100 pixels/unit,
 left -9.6, right 144. Source coordinates are native top-left pixel offsets.
 Background images are reference-only; runtime art uses separate Source sprites.

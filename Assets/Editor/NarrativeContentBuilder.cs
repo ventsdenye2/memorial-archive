@@ -103,6 +103,7 @@ namespace MemorialArchive.Editor
                 finally { if (!alreadyLoaded) EditorSceneManager.CloseScene(scene, true); }
             }
             RegisterConfigs(usedConfigs);
+            FirstFloorSceneMerger.Apply();
             AssetDatabase.SaveAssets();
             Debug.Log("NARRATIVE_AUTHORING_PASS: 16 notes, scene dialogue, Cecil, third-floor terrace.");
         }

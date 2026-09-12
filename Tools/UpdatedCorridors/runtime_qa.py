@@ -16,13 +16,16 @@ for scene,spawn,x in routes:
     code(prefix+json.dumps(scene)+','+json.dumps(spawn)+')); return true;')
     time.sleep(.5)
     r=code('var p=GameObject.FindGameObjectWithTag("Player"); return new {scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene().name,x=p.transform.position.x};')
-    assert r['scene']==scene,(scene,r)
+    expected_scene='FrontHall' if scene=='Floor_1F' else scene
+    if scene=='Floor_1F' and x is not None:x+=67.2
+    assert r['scene']==expected_scene,(scene,r)
     if x is not None:assert abs(r['x']-x)<.15,(spawn,x,r)
     rows.append(dict(spawn=spawn,**r));print(spawn,'PASS',flush=True)
 for scene in ['Floor_1F','Floor_2F','Floor_3F']:
     code('MemorialArchive.Framework.Core.GameRoot.Instance.GetSystem<MemorialArchive.Framework.Scene.SceneFlowManager>().LoadSavedScene('+json.dumps(scene)+',new Vector3(140,-5.2f,0));return true;')
     time.sleep(1)
     r=code('var p=GameObject.FindGameObjectWithTag("Player");var c=Camera.main;return new {scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene().name,playerX=p.transform.position.x,cameraX=c.transform.position.x,right=c.transform.position.x+c.orthographicSize*c.aspect};')
-    assert r['playerX']>139 and r['cameraX']>120 and r['right']<=144.05,r
+    offset=67.2 if scene=='Floor_1F' else 0
+    assert r['playerX']>139+offset and r['cameraX']>120+offset and r['right']<=144.05+offset,r
     rows.append(r);print(scene,'far-right camera PASS',flush=True)
 (root/'Logs/CorridorQA/runtime.json').write_text(json.dumps(rows,indent=2),encoding='utf-8')

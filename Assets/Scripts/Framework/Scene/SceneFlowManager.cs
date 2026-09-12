@@ -38,6 +38,7 @@ namespace MemorialArchive.Framework.Scene
 
         private void HandleSceneTransitionRequested(SceneTransitionRequestedEvent evt)
         {
+            evt = new SceneTransitionRequestedEvent(FirstFloorSceneLayout.ResolveScene(evt.SceneId), evt.SpawnPointId);
             if (isLoading || string.IsNullOrEmpty(evt.SceneId))
             {
                 return;
@@ -77,6 +78,8 @@ namespace MemorialArchive.Framework.Scene
 
         public void LoadSavedScene(string sceneId, Vector3 savedPosition)
         {
+            savedPosition = FirstFloorSceneLayout.ResolveSavedPosition(sceneId, savedPosition);
+            sceneId = FirstFloorSceneLayout.ResolveScene(sceneId);
             if (isLoading)
             {
                 throw new System.InvalidOperationException("A scene transition is already in progress.");

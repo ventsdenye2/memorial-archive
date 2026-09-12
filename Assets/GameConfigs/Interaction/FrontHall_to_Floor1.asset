@@ -20,9 +20,11 @@ MonoBehaviour:
   puzzleId: 
   storyId: 
   noteId: 
-  transitionSceneId: Floor_1F
+  transitionSceneId: FrontHall
   transitionSpawnPointId: Floor1_spawn_from_FrontHall
   stairPrompt: "\u8BF7\u9009\u62E9\u524D\u5F80\u697C\u5C42"
+  requiresConfirmation: 0
+  confirmationMessage: "\u786E\u8BA4\u524D\u5F80\u8BE5\u623F\u95F4\uFF1F"
   stairUpSceneId: 
   stairUpSpawnPointId: 
   stairDownSceneId: 

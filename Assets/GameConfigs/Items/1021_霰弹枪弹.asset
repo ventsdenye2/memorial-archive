@@ -15,7 +15,7 @@ MonoBehaviour:
   itemId: 1021
   itemName: "\u9730\u5F39\u67AA\u5F39"
   description: "\u6760\u6746\u9730\u5F39\u67AA\u4E13\u7528\u5F39\u836F\u3002"
-  icon: {fileID: 21300000, guid: 975ba36c49f27394d91fd449e74adc7f, type: 3}
+  icon: {fileID: 21300000, guid: 26d971d4a9e5267438ffbab736d4b801, type: 3}
   category: 3
   sourceType: 5
   isMissionItem: 0

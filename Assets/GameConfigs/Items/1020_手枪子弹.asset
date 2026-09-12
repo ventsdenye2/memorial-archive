@@ -15,7 +15,7 @@ MonoBehaviour:
   itemId: 1020
   itemName: "\u624B\u67AA\u5B50\u5F39"
   description: 单动手枪专用弹药。
-  icon: {fileID: 21300000, guid: 975ba36c49f27394d91fd449e74adc7f, type: 3}
+  icon: {fileID: 21300000, guid: 26d971d4a9e5267438ffbab736d4b801, type: 3}
   category: 3
   sourceType: 5
   isMissionItem: 0

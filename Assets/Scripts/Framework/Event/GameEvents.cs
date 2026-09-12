@@ -115,6 +115,21 @@ namespace MemorialArchive.Framework.Event
         public bool HasFocus { get; }
     }
 
+    /// <summary>交互系统完成候选排序后的当前交互目标。</summary>
+    public readonly struct ActiveInteractionChangedEvent
+    {
+        public ActiveInteractionChangedEvent(string interactionId, InteractionType interactionType, bool hasFocus)
+        {
+            InteractionId = interactionId;
+            InteractionType = interactionType;
+            HasFocus = hasFocus;
+        }
+
+        public string InteractionId { get; }
+        public InteractionType InteractionType { get; }
+        public bool HasFocus { get; }
+    }
+
     public readonly struct SaveRequestedEvent
     {
         public SaveRequestedEvent(int slotIndex) => SlotIndex = slotIndex;

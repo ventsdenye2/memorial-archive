@@ -165,6 +165,10 @@ namespace MemorialArchive.Gameplay.Interaction.Logic
 
             focusedInteractionId = selectedId;
             focusedInteractionType = selected != null ? selected.type : InteractionType.None;
+            context.Events.Publish(new ActiveInteractionChangedEvent(
+                focusedInteractionId,
+                focusedInteractionType,
+                selected != null));
             if (selected == null || selected.type != InteractionType.Container)
             {
                 context.Events.Publish(new ContainerFocusChangedEvent(null));

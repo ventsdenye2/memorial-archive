@@ -14,6 +14,7 @@ namespace MemorialArchive.Framework.UI
 
         private bool isInitialized;
         private EventBus boundEvents;
+        private bool hasLightFocus;
 
         private void Awake()
         {
@@ -33,6 +34,8 @@ namespace MemorialArchive.Framework.UI
 
         private void Update()
         {
+            if (hasLightFocus && isInitialized && promptRoot != null)
+                promptRoot.SetActive(GameRoot.Instance?.GetSystem<MemorialArchive.Gameplay.Lighting.Logic.LightingSystem>()?.IsLanternEquipped == true);
             // Player objects can enable before GameRoot has built its context.
             // Retry only until the event bus becomes available.
             if (boundEvents == null)
@@ -43,6 +46,7 @@ namespace MemorialArchive.Framework.UI
 
         private void OnDisable()
         {
+            hasLightFocus = false;
             if (boundEvents != null)
             {
                 boundEvents.Unsubscribe<InteractionFocusChangedEvent>(HandleFocusChanged);
@@ -79,6 +83,7 @@ namespace MemorialArchive.Framework.UI
 
         private void HandleFocusChanged(InteractionFocusChangedEvent evt)
         {
+            hasLightFocus = evt.HasFocus && evt.InteractionType == InteractionType.LightSource;
             if (!isInitialized || promptRoot == null || promptText == null)
             {
                 return;
@@ -90,7 +95,7 @@ namespace MemorialArchive.Framework.UI
                     ? "前往"
                     : GetActionName(evt.InteractionType);
                 promptText.text = $"[{interactKey}] {actionName}";
-                promptRoot.SetActive(true);
+                promptRoot.SetActive(!hasLightFocus || GameRoot.Instance?.GetSystem<MemorialArchive.Gameplay.Lighting.Logic.LightingSystem>()?.IsLanternEquipped == true);
             }
             else
             {

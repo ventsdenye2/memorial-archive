@@ -727,6 +727,7 @@ namespace MemorialArchive.Gameplay.Inventory.Logic
                 playerInventory.playerItems = new List<InventoryItemPlacement>();
             }
             NormalizePlacements(playerInventory.playerItems);
+            MigrateLegacyLanterns();
             sceneContainers.Clear();
             if (saveData.sceneContainers != null)
             {
@@ -775,6 +776,42 @@ namespace MemorialArchive.Gameplay.Inventory.Logic
                 EnsureInstanceId(placement.item);
                 placement.item.quantity = Mathf.Max(1, placement.item.quantity);
                 placement.item.loadedAmmo = Mathf.Max(0, placement.item.loadedAmmo);
+            }
+        }
+
+        private void MigrateLegacyLanterns()
+        {
+            foreach (var placement in playerInventory.playerItems.ToArray())
+            {
+                if (placement?.item == null || placement.containerKind != InventoryContainerKind.Offhand ||
+                    context.Configs.GetItem(placement.item.itemId)?.OffhandType != OffhandType.Lantern) continue;
+
+                var moved = false;
+                for (var slot = 0; slot < ShortcutSlotCount; slot++)
+                {
+                    if (FindPlayerSlot(InventoryContainerKind.ShortcutBar, slot) != null) continue;
+                    placement.containerKind = InventoryContainerKind.ShortcutBar;
+                    placement.slotIndex = slot;
+                    placement.x = placement.y = 0;
+                    placement.width = placement.height = 1;
+                    placement.containerId = null;
+                    moved = true;
+                    break;
+                }
+                if (moved) continue;
+
+                // Never replace another item when an old save has all shortcuts occupied.
+                for (var y = 0; y < BackpackHeight && !moved; y++)
+                for (var x = 0; x < BackpackWidth && !moved; x++)
+                {
+                    var candidate = BuildPlayerPlacement(placement.item, InventoryContainerKind.Backpack, x, y, 1, 1, -1);
+                    if (!backpackGrid.CanPlace(candidate, GetPlayerItems(InventoryContainerKind.Backpack), placement.item.instanceId)) continue;
+                    playerInventory.playerItems.Remove(placement);
+                    playerInventory.playerItems.Add(candidate);
+                    moved = true;
+                }
+                if (!moved)
+                    Debug.LogWarning("旧存档背包和快捷栏已满，手提灯暂留原位；腾出快捷栏后请移入，物品不会丢失。");
             }
         }
 

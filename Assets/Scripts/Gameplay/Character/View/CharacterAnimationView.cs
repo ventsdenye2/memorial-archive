@@ -939,7 +939,7 @@ namespace MemorialArchive.Gameplay.Character.View
         private bool SelectedItemUses(CombatAttackKind attackKind)
         {
             var config = GameRoot.Instance?.Context?.Configs.GetItem(selectedItemId);
-            return config != null && config.CombatAttackKind == attackKind;
+            return config != null && config.Category == ItemCategory.Weapon && config.CombatAttackKind == attackKind;
         }
 
         private bool IsLanternSelected()

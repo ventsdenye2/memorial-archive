@@ -244,6 +244,7 @@ namespace MemorialArchive.Gameplay.Character.Logic
         }
         private void OnPrimary(PrimaryActionPressedEvent e)
         {
+            if (IsRunning && moveInputDirection.sqrMagnitude > 0.0001f) return;
             var selectedConfig = context.Configs.GetItem(primaryItemId);
             if (state == CharacterActionState.ThrowAiming || selectedConfig != null &&
                 (selectedConfig.CombatAttackKind == CombatAttackKind.Throwable ||
@@ -271,6 +272,13 @@ namespace MemorialArchive.Gameplay.Character.Logic
 
         private void OnPrimaryPhase(PrimaryActionPhaseEvent e)
         {
+            if (IsRunning && moveInputDirection.sqrMagnitude > 0.0001f)
+            {
+                CancelFirearmAim(e.PointerWorldPosition);
+                if (state == CharacterActionState.ThrowAiming)
+                    SetState(weakRemaining > 0 ? CharacterActionState.Weak : CharacterActionState.Normal);
+                return;
+            }
             if (e.Phase == PrimaryActionPhase.Started)
             {
                 var config = context.Configs.GetItem(primaryItemId);
@@ -493,6 +501,7 @@ namespace MemorialArchive.Gameplay.Character.Logic
         }
         private bool TryStartPrimaryAttack(bool allowDirectComboTransition)
         {
+            if (IsRunning && moveInputDirection.sqrMagnitude > 0.0001f) return false;
             var continuingCompletedAttack = allowDirectComboTransition && IsAttackState(state);
             if (BlocksActions() && !continuingCompletedAttack || IsBlocking || primaryItemId <= 0) return false; var config = context.Configs.GetItem(primaryItemId); if (config == null || config.Category != ItemCategory.Weapon) return false;
             var staminaCost = config.StaminaCost * StaminaCostMultiplier;

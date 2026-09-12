@@ -4,6 +4,9 @@ namespace MemorialArchive.Gameplay.Monster.Logic
 {
     public static class MonsterDecisionPolicy
     {
+        public static bool IsTargetInFront(float horizontalOffset, float attackFacingDirection) =>
+            horizontalOffset * attackFacingDirection > 0f;
+
         public static MonsterActionState Decide(
             bool canSeePlayer,
             bool playerAlive,

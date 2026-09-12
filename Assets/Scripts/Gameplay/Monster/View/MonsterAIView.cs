@@ -223,12 +223,13 @@ namespace MemorialArchive.Gameplay.Monster.View
 
         private void PerformAttack()
         {
+            attackFacingDirection = playerPosition.x >= body.position.x ? 1f : -1f;
+            animationView?.SetFacing(attackFacingDirection);
             if (config.AttackMode == MonsterAttackMode.Melee) PlayAudio("attack");
             attackAwaitingHit = true;
             SetState(MonsterActionState.Attacking);
             actionLockRemaining = config.AttackInterval;
             attackCooldownRemaining = config.AttackInterval;
-            animationView?.SetFacing(playerPosition.x - body.position.x);
 
             // 没有可用动画组件时仍保持一次安全回退，避免怪物永久无法造成伤害。
             if (animationView == null)
@@ -245,11 +246,15 @@ namespace MemorialArchive.Gameplay.Monster.View
             }
         }
 
+        private float attackFacingDirection = 1f;
+
         private void CommitAttackHit()
         {
             if (!attackAwaitingHit || config == null || targetView == null) return;
             attackAwaitingHit = false;
             if (!playerAlive || !hasPlayerPosition) return;
+            // Lock facing at attack start; crossing behind during wind-up evades both monsters.
+            if (!MonsterDecisionPolicy.IsTargetInFront(playerPosition.x - body.position.x, attackFacingDirection)) return;
             if (config.AttackMode == MonsterAttackMode.Melee &&
                 Mathf.Abs(playerPosition.x - body.position.x) > config.AttackRange)
             {
@@ -262,9 +267,7 @@ namespace MemorialArchive.Gameplay.Monster.View
                 // level and place it just beyond the monster's facing edge;
                 // using the full target vector made the effect drift upward or
                 // downward with the player's world-space height.
-                var horizontalDirection = animationView != null
-                    ? animationView.FacingDirection
-                    : Mathf.Sign(playerPosition.x - body.position.x);
+                var horizontalDirection = attackFacingDirection;
                 if (Mathf.Abs(horizontalDirection) <= 0.0001f)
                 {
                     horizontalDirection = -1f;

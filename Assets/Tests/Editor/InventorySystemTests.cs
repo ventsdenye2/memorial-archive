@@ -13,6 +13,19 @@ namespace MemorialArchive.Tests.Editor
     {
         private InventorySystem inventory;
 
+        [Test]
+        public void Restore_OldOffhandLanternMovesToFreeShortcutWithoutLosingIdentity()
+        {
+            inventory.RestoreSaveData("{\"playerInventory\":{\"selectedShortcutIndex\":-1,\"playerItems\":[{\"item\":{\"instanceId\":\"old-lantern\",\"itemId\":1006,\"quantity\":1},\"containerKind\":2,\"slotIndex\":0}]}}");
+            var lantern = Find("old-lantern");
+            Assert.That(lantern.containerKind, Is.EqualTo(InventoryContainerKind.ShortcutBar));
+            Assert.That(lantern.slotIndex, Is.Zero);
+            var saved = UnityEngine.JsonUtility.ToJson(inventory.CaptureSaveData());
+            inventory.RestoreSaveData(saved);
+            Assert.That(Find("old-lantern").containerKind, Is.EqualTo(InventoryContainerKind.ShortcutBar));
+            Assert.That(inventory.PlayerInventory.playerItems.Count, Is.EqualTo(1));
+        }
+
         [SetUp]
         public void SetUp()
         {

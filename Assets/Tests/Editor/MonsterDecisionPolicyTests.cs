@@ -6,6 +6,15 @@ namespace MemorialArchive.Tests.Editor
 {
     public sealed class MonsterDecisionPolicyTests
     {
+        [TestCase(1f, 1f, true)]
+        [TestCase(-1f, 1f, false)]
+        [TestCase(-1f, -1f, true)]
+        [TestCase(1f, -1f, false)]
+        [TestCase(0f, -1f, false)]
+        public void AttackHit_OnlyAllowsTargetsAheadOfLockedFacing(float offset, float facing, bool canHit)
+        {
+            Assert.That(MonsterDecisionPolicy.IsTargetInFront(offset, facing), Is.EqualTo(canHit));
+        }
         [Test]
         public void InAttackRange_AndAttackReady_TransitionsToAttacking()
         {

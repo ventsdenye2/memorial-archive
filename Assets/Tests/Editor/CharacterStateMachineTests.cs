@@ -16,6 +16,29 @@ namespace MemorialArchive.Tests.Editor
     {
         private const int FireAxeItemId = 1003;
         private const int GrenadeItemId = 1010;
+        [TestCase(1001)]
+        [TestCase(1003)]
+        [TestCase(1007)]
+        [TestCase(1008)]
+        [TestCase(1010)]
+        public void Running_PrimaryGestureDoesNotAttackOrSpendStamina(int itemId)
+        {
+            var character = CreateCharacterSystem(out var events);
+            var attacks = 0;
+            events.Subscribe<CharacterAttackRequestedEvent>(e => attacks++);
+            events.Publish(new CharacterEquipmentChangedEvent(itemId, OffhandType.None));
+            events.Publish(new MoveInputEvent(Vector2.right));
+            events.Publish(new RunInputEvent(true));
+            var stamina = character.Data.stamina;
+            events.Publish(new SecondaryActionInputEvent(false, Vector2.right));
+            events.Publish(new PrimaryActionPhaseEvent(PrimaryActionPhase.Started, Vector2.right));
+            events.Publish(new PrimaryActionPressedEvent());
+            events.Publish(new PrimaryActionPhaseEvent(PrimaryActionPhase.Released, Vector2.right));
+            Assert.That(attacks, Is.Zero);
+            Assert.That(character.Data.stamina, Is.EqualTo(stamina));
+            Assert.That(character.IsRunning, Is.True);
+            character.Dispose();
+        }
         [Test]
         public void EquipAnimation_BlocksRunningOnlyWhileAnimationIsPlaying()
         {

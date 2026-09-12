@@ -16,6 +16,14 @@ namespace MemorialArchive.Framework.Save
         private readonly Dictionary<int, SaveData> inMemorySlots = new Dictionary<int, SaveData>();
         private GameContext context;
         private string currentRoomId;
+        private readonly string storageDirectory;
+
+        public SaveManager(string storageDirectory = null)
+        {
+            this.storageDirectory = storageDirectory;
+        }
+
+        private string SaveDirectory => storageDirectory ?? Application.persistentDataPath;
 
         public void Initialize(GameContext context)
         {
@@ -24,6 +32,7 @@ namespace MemorialArchive.Framework.Save
             context.Events.Subscribe<LoadRequestedEvent>(HandleLoadRequested);
             context.Events.Subscribe<RoomEnteredEvent>(HandleRoomEntered);
             LoadPersistentSlots();
+            Debug.Log($"Save directory: {SaveDirectory}. Loaded {inMemorySlots.Count} slots.");
         }
 
         public void Dispose()
@@ -221,14 +230,19 @@ namespace MemorialArchive.Framework.Save
 
         private static bool IsValidSlot(int slotIndex) => slotIndex >= 0 && slotIndex < Stage1SlotCount;
 
-        private static string GetSlotPath(int slotIndex) =>
-            Path.Combine(Application.persistentDataPath, $"save_slot_{slotIndex}.json");
+        private string GetSlotPath(int slotIndex) =>
+            Path.Combine(SaveDirectory, $"save_slot_{slotIndex}.json");
 
-        private static void WriteSlot(int slotIndex, SaveData saveData)
+        private void WriteSlot(int slotIndex, SaveData saveData)
         {
-            var directory = Application.persistentDataPath;
+            var directory = SaveDirectory;
             Directory.CreateDirectory(directory);
-            File.WriteAllText(GetSlotPath(slotIndex), JsonUtility.ToJson(saveData, true));
+            var path = GetSlotPath(slotIndex);
+            var temporaryPath = path + ".tmp";
+            // Finish writing before replacing the last valid save.
+            File.WriteAllText(temporaryPath, JsonUtility.ToJson(saveData, true));
+            if (File.Exists(path)) File.Replace(temporaryPath, path, path + ".bak");
+            else File.Move(temporaryPath, path);
         }
     }
 }

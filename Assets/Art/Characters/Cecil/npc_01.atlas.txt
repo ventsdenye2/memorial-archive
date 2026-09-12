@@ -1,0 +1,188 @@
+
+npc_01.png
+size: 1964,397
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+npc_split_arm
+  rotate: true
+  xy: 869, 94
+  size: 301, 285
+  orig: 301, 285
+  offset: 0, 0
+  index: -1
+npc_split_beard
+  rotate: true
+  xy: 1901, 361
+  size: 34, 51
+  orig: 34, 51
+  offset: 0, 0
+  index: -1
+npc_split_body
+  rotate: true
+  xy: 227, 35
+  size: 360, 640
+  orig: 360, 640
+  offset: 0, 0
+  index: -1
+npc_split_chest
+  rotate: true
+  xy: 1597, 5
+  size: 167, 202
+  orig: 167, 202
+  offset: 0, 0
+  index: -1
+npc_split_collar
+  rotate: false
+  xy: 1374, 14
+  size: 131, 148
+  orig: 131, 148
+  offset: 0, 0
+  index: -1
+npc_split_corner
+  rotate: true
+  xy: 1582, 174
+  size: 221, 107
+  orig: 221, 107
+  offset: 0, 0
+  index: -1
+npc_split_ear
+  rotate: true
+  xy: 1879, 14
+  size: 81, 74
+  orig: 81, 74
+  offset: 0, 0
+  index: -1
+npc_split_eye_1
+  rotate: false
+  xy: 1548, 13
+  size: 39, 22
+  orig: 39, 22
+  offset: 0, 0
+  index: -1
+npc_split_eye_2
+  rotate: false
+  xy: 1507, 11
+  size: 39, 24
+  orig: 39, 24
+  offset: 0, 0
+  index: -1
+npc_split_eyebrow
+  rotate: true
+  xy: 2, 3
+  size: 20, 14
+  orig: 20, 14
+  offset: 0, 0
+  index: -1
+npc_split_face
+  rotate: true
+  xy: 1691, 175
+  size: 220, 166
+  orig: 220, 166
+  offset: 0, 0
+  index: -1
+npc_split_hair1
+  rotate: false
+  xy: 1156, 108
+  size: 216, 287
+  orig: 216, 287
+  offset: 0, 0
+  index: -1
+npc_split_hair2
+  rotate: true
+  xy: 1839, 97
+  size: 76, 123
+  orig: 76, 123
+  offset: 0, 0
+  index: -1
+npc_split_hair3
+  rotate: true
+  xy: 1247, 11
+  size: 95, 125
+  orig: 95, 125
+  offset: 0, 0
+  index: -1
+npc_split_hair4
+  rotate: false
+  xy: 1066, 2
+  size: 93, 90
+  orig: 93, 90
+  offset: 0, 0
+  index: -1
+npc_split_leg
+  rotate: false
+  xy: 2, 25
+  size: 223, 370
+  orig: 223, 370
+  offset: 0, 0
+  index: -1
+npc_split_paper
+  rotate: false
+  xy: 1374, 164
+  size: 206, 231
+  orig: 206, 231
+  offset: 0, 0
+  index: -1
+npc_split_plate
+  rotate: true
+  xy: 1859, 210
+  size: 185, 40
+  orig: 185, 40
+  offset: 0, 0
+  index: -1
+npc_split_rope_1
+  rotate: true
+  xy: 227, 7
+  size: 26, 837
+  orig: 26, 837
+  offset: 0, 0
+  index: -1
+npc_split_rope_3
+  rotate: true
+  xy: 1801, 2
+  size: 171, 36
+  orig: 171, 36
+  offset: 0, 0
+  index: -1
+npc_split_rope_4
+  rotate: true
+  xy: 1901, 282
+  size: 77, 50
+  orig: 77, 50
+  offset: 0, 0
+  index: -1
+npc_split_rope_5
+  rotate: false
+  xy: 869, 35
+  size: 106, 57
+  orig: 106, 57
+  offset: 0, 0
+  index: -1
+npc_split_rope_7
+  rotate: false
+  xy: 1161, 8
+  size: 84, 98
+  orig: 84, 98
+  offset: 0, 0
+  index: -1
+npc_split_rope_8
+  rotate: false
+  xy: 977, 41
+  size: 85, 51
+  orig: 85, 51
+  offset: 0, 0
+  index: -1
+npc_split_rope_9
+  rotate: true
+  xy: 1839, 3
+  size: 92, 38
+  orig: 92, 38
+  offset: 0, 0
+  index: -1
+npc_split_teapot
+  rotate: true
+  xy: 1507, 37
+  size: 125, 88
+  orig: 125, 88
+  offset: 0, 0
+  index: -1

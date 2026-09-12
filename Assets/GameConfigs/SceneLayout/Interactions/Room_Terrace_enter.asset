@@ -11,21 +11,21 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 04e91c37f4f6db44f8acc346aeda0225, type: 3}
   m_Name: Room_Terrace_enter
-  m_EditorClassIdentifier: ''
+  m_EditorClassIdentifier: 
   interactionId: Room_Terrace_enter
   interactionType: 6
-  displayName: 前往露台
-  sceneId: Room_Director
-  containerId: ''
-  puzzleId: ''
-  storyId: ''
-  noteId: ''
+  displayName: "\u524D\u5F80\u9732\u53F0"
+  sceneId: Floor_3F
+  containerId: 
+  puzzleId: 
+  storyId: 
+  noteId: 
   transitionSceneId: Room_Terrace
   transitionSpawnPointId: Room_Terrace_spawn_entry
+  stairPrompt: "\u8BF7\u9009\u62E9\u76EE\u7684\u697C\u5C42"
   requiresConfirmation: 1
-  confirmationMessage: 确认前往？
-  stairPrompt: 请选择目的楼层
-  stairUpSceneId: ''
-  stairUpSpawnPointId: ''
-  stairDownSceneId: ''
-  stairDownSpawnPointId: ''
+  confirmationMessage: "\u524D\u5F80\u9732\u53F0\uFF1F"
+  stairUpSceneId: 
+  stairUpSpawnPointId: 
+  stairDownSceneId: 
+  stairDownSpawnPointId: 

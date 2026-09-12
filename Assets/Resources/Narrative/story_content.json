@@ -1,0 +1,487 @@
+{
+  "notes": [
+    {
+      "id": "FrontHall_note_1",
+      "title": "阿尔伯特的日记 · 其一",
+      "sceneId": "FrontHall",
+      "content": "我进来了！见鬼，大门墙壁缺口去哪了？！那个声音就在上面，还在喊我的名字！啊哈，我一点也不害怕，我会找到的！我倒要看看那声音的来源到底是个什么鬼东西。",
+      "isDiary": true,
+      "reflectionId": "reflect_FrontHall_note_1",
+      "aliases": []
+    },
+    {
+      "id": "FrontHall_main_note_2",
+      "title": "泛黄的旧照片",
+      "sceneId": "FrontHall",
+      "content": "上面是几位档案记录员在门前的合影。奇怪的是，所有人的脸都被人用墨汁涂黑了，手法极其粗暴。照片的背后用墨水写着1895.9.2.",
+      "isDiary": false,
+      "reflectionId": "",
+      "aliases": [
+        "FrontHall_note_2"
+      ]
+    },
+    {
+      "id": "FrontHall_note_3",
+      "title": "无名纸条",
+      "sceneId": "FrontHall",
+      "content": "跑！快跑！不要进入！不要进入！快跑！",
+      "isDiary": false,
+      "reflectionId": "",
+      "aliases": []
+    },
+    {
+      "id": "Room_Office_main_note_1",
+      "title": "档案馆行政与访客登记",
+      "sceneId": "Room_Office",
+      "content": "1889年10月12日23:15-23:30\n事由：社会局例行抽查（第三季度档案合规性巡视）\n来访人员：社会局高级督察 威廉氏（随行2人）\n备注：查验通过，档案手续齐备。\n1889年10月18日14:00-15:30\n事由：教会慈善代表日常慰问与宗教图书赠予\n来访人员：圣裘德修道院 执事执事一行\n备注：已于前厅交接慰问物资，未进入后方存放区。\n1889年10月25日02:00-03:00\n事由：特种物资与防腐用品进货验收\n供应方：皇家医疗器械与化学制剂商行\n进货清单：高浓度水合氯醛12箱、盐酸吐根碱50瓶、工业用盐20袋、加厚黄铜约束皮带20套、束缚斜板2组。",
+      "isDiary": false,
+      "reflectionId": "reflect_Room_Office_main_note_1",
+      "aliases": []
+    },
+    {
+      "id": "Room_Office_diary_2",
+      "title": "阿尔伯特的日记 · 其二",
+      "sceneId": "Room_Office",
+      "content": "墙缝里好像一直有声音在叫我。踏进这间房间的时候，我看到红木桌旁站着一个高大的军装黑影。\n太奇怪了……我明明从没来过这里，可看着那个高大又佝偻的背影，眼泪却止不住地流。他的轮廓熟稔得让我发疯。我是在哪里见过？！\n我想叫出他的名字，可那个称呼一到舌尖就发不了声。我想不起来……我什么都想不起来！\n那个身影朝着壁炉后走过去了。他在回头看我。我得跟上去……",
+      "isDiary": true,
+      "reflectionId": "reflect_Room_Office_diary_2",
+      "aliases": []
+    },
+    {
+      "id": "Room_ArchiveA_records",
+      "title": "档案柜 A · 病状记录",
+      "sceneId": "Room_ArchiveA",
+      "content": "编号：1887-F-021\n姓名：塞西莉亚·斯特林\n种族：白鼬\n入院年龄：24\n患者数次参与非法集会并散发颠覆性宣传材料，拒绝履行家族婚约。在谈话中对现行法律及政治体制表现出病态的攻击性与妄想性偏执。医学鉴定为由于神经功能失调引起的更年期精神错乱（前兆）。\n编号：1887-F-052\n姓名：艾玛·沃森\n种族：灰兔\n入院年龄：28\n患者因体质虚弱及体液不调发生急性产后癔症。表现为认知障碍、幻觉偏执及强烈的言语攻击性。为保障其个人安全，依其监护人申请，进行长期全封闭托管护理。\n编号：1889-F-117\n姓名：爱丽丝·坎贝尔\n种族：折耳猫\n入院年龄：12\n患者患有严重的先天性舞蹈手足徐动症及早熟型道德失智症。表现为认知倒错、言语荒诞、无法识别亲属，并伴有严重的自残与破坏行为。鉴于其年幼且病情恶化，遵监护人（叔父）书面申请，入住本院进行全封闭隔离矫正与镇静治疗。",
+      "isDiary": false,
+      "reflectionId": "",
+      "aliases": []
+    },
+    {
+      "id": "Room_ArchiveA_alice",
+      "title": "爱丽丝·坎贝尔的日记",
+      "sceneId": "Room_ArchiveA",
+      "content": "叔叔今天又来看爱丽丝了。\n叔叔给了我一颗黑黑的糖果，说吃完手就不会乱跳了。\n糖果一点都不甜。吃完糖果，房间就开始摇摇晃晃的，像在大海里划船。墙上爸爸妈妈的画也在流眼泪，他们的脸融化成了红色的水呀。\n1888.2\n白衣医生把我绑在带大齿轮的椅子上。刺啦一下！我的头好痛哇！眼眶里全是亮晶晶的白光，比马戏团的大火圈还要亮！爱丽丝的手又在不听话地乱抖了，把纸都扎破好几个洞。医生叔叔在纸上画画，还笑着说我是坏孩子。\n1889.6\n昨天有个穿黑裙子的阿姨在铁门外面一直哭，叫我的名字。真是奇怪，她怎么可能是我阿姨呢？她的眼睛像玻璃珠一样掉在地上了呀。\n叔叔把爸爸的大钥匙和亮晶晶的印章都拿走了。\n他隔着门跟我说，爱丽丝是个生病的小疯子，要一辈子呆在这个大铁盒子里，再也不能回家了。\n视线越来越黑了。\n脑子里总是响着踩在泥巴里的声音……哒，哒，哒……就像以前爸爸带我去骑过的那些小马，在倒着跑一样。\n爸爸妈妈，爱丽丝找不到它了。\n1893.4",
+      "isDiary": true,
+      "reflectionId": "",
+      "aliases": []
+    },
+    {
+      "id": "Room_ArchiveB_note_1",
+      "title": "档案柜 B · 病状记录",
+      "sceneId": "Room_ArchiveB",
+      "content": "编号：1890-M-157\n姓名：尤金·华莱士\n种族：灰孔雀\n入院年龄：34\n患者因长期高强度艺术表演导致严重的精神运动性激越与自残型癔症。表现为对自身发声器官产生病态错觉，并试图进行危险的自伤行为。目前已对其采取必要的肢体约束措施，每日定时注射镇静药剂。\n编号：1890-F-184\n姓名：奥菲莉亚·斯特林\n种族：银狐\n入院年龄：28\n患者奥菲莉亚·斯特林（斯特林伯爵次女），于克莱蒙特公爵舞会上突发精神狂躁，撕毁自身礼服，并对旁人表现出极强的攻击性。经诊断，其长期使用含铅量过高的“威尼斯白铅”面霜，已导致中枢神经发生不可逆的汞/铅中毒，伴随严重的皮肤溃烂与幻觉偏执。依其长兄意愿送入本院长期托管。\n编号：1889-M-127\n姓名：莱昂内尔·冯·克劳瑟\n种族：黑鬃狮\n入院年龄：36\n从布尔前线退役后，无法履行正常的社交与家族职责。在伦敦街头时，对马车皮鞭声表现出过激的恐惧反应，曾误将工厂鸣笛认作敌袭，拔枪击伤两名无辜家仆。其父克劳瑟将军认为其丧失了普鲁士与大英军人的高贵荣誉，沦为家族懦夫，特送入本院进行治疗。",
+      "isDiary": false,
+      "reflectionId": "",
+      "aliases": []
+    },
+    {
+      "id": "Room_ArchiveC_records",
+      "title": "档案柜 C · 病状记录",
+      "sceneId": "Room_ArchiveC",
+      "content": "编号：1888-F-78\n姓名：夏洛特·格林\n种族：苍鹰\n入院年龄：31\n患者患有急性艺术性妄想与道德感丧失症。表现为拒绝参加上流社交相亲，沉迷于异端诗歌与舞台表演，并对光线产生病态恐惧。依其家族监护人申请，进行黑暗疗法与行为矫正。\n编号：1888-M-092\n姓名：爱德华·兰开斯特\n种族：猞猁\n入院年龄：67\n据其长子（现任代理勋爵）与次子陈述，老勋爵已无法辨认亲人，且数次试图纵火烧毁庄园、修改遗嘱。经本院主治医生鉴定，其已丧失民事行为能力，需无限期住院托管。备注：未经代理勋爵许可，任何人不得探视。\n编号：1890-M-201\n姓名：艾伯特·威廉姆斯\n种族：长角公牛\n入院年龄：68\n在一场因“传送带绞死童工”引发的罢工暴动中受到惊吓。此后闭门不出，产生严重的迫害妄想。",
+      "isDiary": false,
+      "reflectionId": "",
+      "aliases": []
+    },
+    {
+      "id": "Room_ArchiveC_williams",
+      "title": "艾伯特·威廉姆斯的日记",
+      "sceneId": "Room_ArchiveC",
+      "content": "从前，有一只巨大的钢铁怪兽，每天都要吃掉三十块红肉。\n左边的，右边的。\n伟大的威廉姆斯先生是它的主人，也是它的饲养员。\n几十年来，每天晚上，他坐在高高的皮椅上，都能听到怪兽在墙壁里磨牙，吐出一枚枚亮晶晶的金币。所有的羊、兔子和牛犊都得听他的号令，去给怪兽喂肉。\n有一天，怪兽吃腻了红肉，它顺着电线爬进了威廉姆斯先生的卧室。它的眼睛是灯泡，皮带是舌头。\n那些低贱的、没有角的东西在外面尖叫、砸门，把怪兽的肚子撑爆了。鲜血顺着传送带流到了威廉姆斯先生的靴子上。怪物吃饱了，但它还没有停下。 到了晚上，它顺着电线和漆黑的管道爬进了威廉姆斯先生的卧室。\n哦！别过来！我是威廉姆斯！\n我是这里的王！\n哦！他们在动！哦！他们在动！\n别过来！别过来！！别过来！！！",
+      "isDiary": true,
+      "reflectionId": "reflect_Room_ArchiveC_williams",
+      "aliases": []
+    },
+    {
+      "id": "Room_TreatmentA_note_1",
+      "title": "看守巡查日志（节选）",
+      "sceneId": "Room_TreatmentA",
+      "content": "LOG-0327\n内容：地下水管今晚又在剧烈震响。隔壁 03 号房的加斯顿·彭布罗克整夜都在抓挠门板，喊着要见他的法务代理人。按规程，已通知护工对其追加一剂水合氯醛。\n07 号房的埃利亚斯·考德威尔在送餐时试图袭击看守，已将其押送至诊疗室 A 进行特别处置。\n……",
+      "isDiary": false,
+      "reflectionId": "",
+      "aliases": []
+    },
+    {
+      "id": "Room_TreatmentA_blood_note",
+      "title": "带血的纸条",
+      "sceneId": "Room_TreatmentA",
+      "content": "别往我嘴里灌水了求求你们肺要炸了鼻子里全血和盐味刚才通电的时候我咬断了半个舌头嘴里全是烂肉和血沫可他们只是拿铁钳把我的嘴撬开继续把电针扎进我的太阳穴里脑子里像是有刀子在反复地刮骨头在抽搐里响表叔你为了遗产把我扔给这群魔鬼我发不出声音了喉咙里在喷血让我死吧求求你们把电阀开到最大让我死吧求求你们让我死吧",
+      "isDiary": false,
+      "reflectionId": "",
+      "aliases": []
+    },
+    {
+      "id": "Room_TreatmentB_main_note_1",
+      "title": "诊疗记录（节选）",
+      "sceneId": "Room_TreatmentB",
+      "content": "编号：1889-M-077\n姓名：埃利亚斯·考德威尔\n记录：采用连续灌水疗法。将患者固定于斜板，通过软管强制灌入带盐度的冷水，直至腹部剧烈隆起、出现窒息与痉挛反应。经过三次灌水与绝食循环，患者的抗拒情绪大幅降低。\n编号：1887-M-121\n姓名：阿瑟·阿什福德\n记录：高压电击行为矫正。头部与手脚套入黄铜接线皮带。通电30秒，患者出现剧烈生理抽搐与短期失语。\n编号：1888-M-089\n姓名：休·辛克莱\n记录：禁闭沉寂疗法。将患者隔离于完全隔音且无光的沉寂室中，仅提供维持基本生命的水和食物，严禁任何交流。\n结果：禁闭第十五日，患者出现剧烈应激反应，丧失正常发声与语言表达功能，对看守指令呈绝对服从状态。\n……",
+      "isDiary": false,
+      "reflectionId": "",
+      "aliases": [
+        "Room_TreatmentB_note_2"
+      ]
+    },
+    {
+      "id": "Room_Director_main_note_1",
+      "title": "馆长私人信件",
+      "sceneId": "Room_Director",
+      "content": "……不必担心社会局的例行抽查。在本馆的档案库里，诸位尊贵家族提供的精神诊断证明手续一应俱全。只要资金按期汇入，这些“病人”在法律和世俗意义上，就永远只是一页无法发声的死纸，诸位尽可安心享受你们的名誉与遗产……",
+      "isDiary": false,
+      "reflectionId": "",
+      "aliases": []
+    },
+    {
+      "id": "Room_Director_note_2",
+      "title": "档案馆“特别赞助金”流水账册",
+      "sceneId": "Room_Director",
+      "content": "条目摘要：\n多方家族代理律师签署之公证书，接收“长期精神失常”专案委托。\n每笔“赞助金”均附带永久封存协议，承诺被收容人员之法律身份、继承权及社会关系失效。\n账册末尾的编号已延续至三百余号。",
+      "isDiary": false,
+      "reflectionId": "",
+      "aliases": []
+    },
+    {
+      "id": "Room_Terrace_note_1",
+      "title": "无名日记",
+      "sceneId": "Room_Terrace",
+      "content": "终于撬开锁撬开门跑出来了。今晚看不到月亮风很大但至少这里的空气里没有防腐药水和烧焦头发的味道。\n站在三楼露台往外看，外面的黑夜真大啊。我看到那边的庄园灯火了，我知道父亲和弟弟现在正坐在温暖的餐炉旁切着熟牛肉讨论着属于我的那份爵位和封地。他们以为我死在底下的电击椅上了吧。\n下面诊疗室的灌水声和哭喊声还在顺着烟囱往上飘。我的手在发抖了药效又上来了。我一定不能活着离开这里了我逃不掉了。如果有人能来到这里，请替我看看外面的月亮吧。",
+      "isDiary": true,
+      "reflectionId": "",
+      "aliases": []
+    }
+  ],
+  "sequences": [
+    {
+      "id": "reflect_FrontHall_note_1",
+      "sceneId": "",
+      "onFirstEnter": false,
+      "interactionId": "",
+      "requiredNotes": [],
+      "lines": [
+        {
+          "text": "……字迹凌乱，甚至一些地方因为用力过猛被划破了，不过还能看出和那页日记的笔迹一致。看来他往楼上去了。",
+          "speaker": "安德",
+          "next": -1,
+          "choices": [],
+          "fadeCecil": false
+        }
+      ]
+    },
+    {
+      "id": "reflect_Room_Office_main_note_1",
+      "sceneId": "",
+      "onFirstEnter": false,
+      "interactionId": "",
+      "requiredNotes": [],
+      "lines": [
+        {
+          "text": "社会局深夜抽查、教会慈善代表定期慰问……表面上看，这只是一家行政手续合规、甚至具备慈善性质的普通档案馆。可为什么一个只负责保管纸质文件的档案馆，需要定期大量采购医疗禁药和刑具级别的约束器材？",
+          "speaker": "安德",
+          "next": -1,
+          "choices": [],
+          "fadeCecil": false
+        }
+      ]
+    },
+    {
+      "id": "reflect_Room_Office_diary_2",
+      "sceneId": "",
+      "onFirstEnter": false,
+      "interactionId": "",
+      "requiredNotes": [],
+      "lines": [
+        {
+          "text": "阿尔伯特的字迹。这是他留下来的第二篇日记。",
+          "speaker": "安德",
+          "next": -1,
+          "choices": [],
+          "fadeCecil": false
+        }
+      ]
+    },
+    {
+      "id": "reflect_Room_ArchiveC_williams",
+      "sceneId": "",
+      "onFirstEnter": false,
+      "interactionId": "",
+      "requiredNotes": [],
+      "lines": [
+        {
+          "text": "我听说过他，艾伯特·威廉姆斯，曾经靠童工和榨取工厂利润发家致富的工厂主。",
+          "speaker": "安德",
+          "next": -1,
+          "choices": [],
+          "fadeCecil": false
+        }
+      ]
+    },
+    {
+      "id": "enter_front_hall",
+      "sceneId": "FrontHall",
+      "onFirstEnter": true,
+      "interactionId": "",
+      "requiredNotes": [],
+      "lines": [
+        {
+          "text": "……",
+          "speaker": "",
+          "next": 1,
+          "choices": [],
+          "fadeCecil": false
+        },
+        {
+          "text": "三秒钟前，我侧身跨过缺口时，暴雨夹杂着泥土的腥味还扑在我的风衣领口。但现在，那面墙平滑得令人发指，如同自百年前起便如此严整，不曾有过让我佝偻通过的痕迹。",
+          "speaker": "",
+          "next": 2,
+          "choices": [],
+          "fadeCecil": false
+        },
+        {
+          "text": "我走上前，摘下右手的手套，指关节抵上冰冷的砖石，用力叩击。",
+          "speaker": "",
+          "next": 3,
+          "choices": [],
+          "fadeCecil": false
+        },
+        {
+          "text": "深处传来骨骼撞击石块的钝响。要是留着在这里用蛮力破墙，恐怕不等苏格兰场的人找到这，现场就会躺着一具满手墙粉、指甲翻裂的尸体。",
+          "speaker": "",
+          "next": 4,
+          "choices": [],
+          "fadeCecil": false
+        },
+        {
+          "text": "冷静下来，安德。恐慌也没用，后路被堵死，现在唯一的选择就是向前探索。这么大的档案馆，总得有个后门或者暗道吧。",
+          "speaker": "",
+          "next": 5,
+          "choices": [],
+          "fadeCecil": false
+        },
+        {
+          "text": "我转过身，重新戴上手套，提亮煤气灯的阀门，勉强照亮了小范围黑暗。",
+          "speaker": "",
+          "next": 6,
+          "choices": [],
+          "fadeCecil": false
+        },
+        {
+          "text": "依据官方的资料，此处区域应当是前厅展览馆。空间比从外面看要庞大得多。",
+          "speaker": "",
+          "next": 7,
+          "choices": [],
+          "fadeCecil": false
+        },
+        {
+          "text": "我深吸一口气，迈出了第一步。",
+          "speaker": "",
+          "next": -1,
+          "choices": [],
+          "fadeCecil": false
+        }
+      ]
+    },
+    {
+      "id": "enter_office",
+      "sceneId": "Room_Office",
+      "onFirstEnter": true,
+      "interactionId": "",
+      "requiredNotes": [],
+      "lines": [
+        {
+          "text": "推开橡木门，眼前是一间堆满倾倒书柜与废弃卷宗的庞大房间。",
+          "speaker": "",
+          "next": 1,
+          "choices": [],
+          "fadeCecil": false
+        },
+        {
+          "text": "这里就是主管办公室了。看来当年离开的人走得非常仓促。",
+          "speaker": "安德",
+          "next": -1,
+          "choices": [],
+          "fadeCecil": false
+        }
+      ]
+    },
+    {
+      "id": "enter_reception",
+      "sceneId": "Room_Reception",
+      "onFirstEnter": true,
+      "interactionId": "",
+      "requiredNotes": [],
+      "lines": [
+        {
+          "text": "拾级而上来到二楼，长廊两侧的壁画都被人泼上了发黑的墨汁。",
+          "speaker": "",
+          "next": 1,
+          "choices": [],
+          "fadeCecil": false
+        },
+        {
+          "text": "一扇厚重的橡木门半掩着，空气中弥漫着发霉茶叶与刺鼻乙醚的怪味。",
+          "speaker": "",
+          "next": 2,
+          "choices": [],
+          "fadeCecil": false
+        },
+        {
+          "text": "我推开二楼休息室的门，提灯的光圈照亮了室内。几张皮革沙发早已破烂不堪。",
+          "speaker": "",
+          "next": 3,
+          "choices": [],
+          "fadeCecil": false
+        },
+        {
+          "text": "那是一个身穿破损管家制服的黑山羊族老人。他的耳廓耷拉着，双眼微闭，干瘪的双手正死死维持着端茶倒水的姿态——",
+          "speaker": "",
+          "next": 4,
+          "choices": [],
+          "fadeCecil": false
+        },
+        {
+          "text": "可他却只有半条腿，腿上贴满了泛黄的病例，一直缠到腰部，那唯一完整的腿被一根从漆黑天花板垂下的黑色绳索死死悬挂在半空。",
+          "speaker": "",
+          "next": -1,
+          "choices": [],
+          "fadeCecil": false
+        }
+      ]
+    },
+    {
+      "id": "enter_director",
+      "sceneId": "Room_Director",
+      "onFirstEnter": true,
+      "interactionId": "",
+      "requiredNotes": [],
+      "lines": [
+        {
+          "text": "这里的装潢与下方的阴森破败截然不同。尽管落满灰尘，依然能看出当年极其考究的品味。",
+          "speaker": "",
+          "next": -1,
+          "choices": [],
+          "fadeCecil": false
+        }
+      ]
+    },
+    {
+      "id": "director_conclusion",
+      "sceneId": "",
+      "onFirstEnter": false,
+      "interactionId": "",
+      "requiredNotes": [
+        "Room_Director_main_note_1",
+        "Room_Director_note_2"
+      ],
+      "lines": [
+        {
+          "text": "好一个“体面”的交易所，这哪里是什么档案馆，这分明是一间是用金钱和伪造诊断书堆砌起来的、靠受贿帮贵族名门“合法抹杀”亲人社会身份的交易场。",
+          "speaker": "安德",
+          "next": 1,
+          "choices": [],
+          "fadeCecil": false
+        },
+        {
+          "text": "多达三百多名被秘密收容的记录，所谓的患者，恐怕也根本不是因为精神失常被送进来的。",
+          "speaker": "安德",
+          "next": 2,
+          "choices": [],
+          "fadeCecil": false
+        },
+        {
+          "text": "……我必须继续往下查。这里的每一个角落、每一份隐藏的交接名单，都是揭露这场罪恶的铁证。还有那群年轻人，我必须找到他们的踪迹。",
+          "speaker": "安德",
+          "next": -1,
+          "choices": [],
+          "fadeCecil": false
+        }
+      ]
+    },
+    {
+      "id": "cecil_conversation",
+      "sceneId": "Room_Reception",
+      "onFirstEnter": false,
+      "interactionId": "Cecil",
+      "requiredNotes": [],
+      "lines": [
+        {
+          "text": "客人？茶水，已经……冷了，九个……茶杯，全，碎，了。",
+          "speaker": "塞西尔",
+          "next": -1,
+          "choices": [
+            {
+              "text": "九个茶杯？你见到过失踪的那九个年轻人？",
+              "next": 1
+            },
+            {
+              "text": "你在说什么？你是谁？",
+              "next": 3
+            }
+          ],
+          "fadeCecil": false
+        },
+        {
+          "text": "噢……你是，说那些、孩子？呵呵，我为他们倒的茶！……九个，年轻的肉体啊，他们，顺着血里的、声音——跑上来了。",
+          "speaker": "塞西尔",
+          "next": 2,
+          "choices": [],
+          "fadeCecil": false
+        },
+        {
+          "text": "那些孩子带着和他们亲缘一模一样的眼睛……顺着墙缝里滴血的声音……一步、一步走到最深处去了！",
+          "speaker": "",
+          "next": 5,
+          "choices": [],
+          "fadeCecil": false
+        },
+        {
+          "text": "我是谁？咔哒、我是谁？我是首席迎宾管家，塞西尔！",
+          "speaker": "",
+          "next": 4,
+          "choices": [],
+          "fadeCecil": false
+        },
+        {
+          "text": "我在这里……已经倒了四十年的茶？记录了三百多位，身份，高贵之人的、档案！我的名字早已被抽干了。咔哒、只是……挂在、梁上等死的，一张废纸。",
+          "speaker": "",
+          "next": 5,
+          "choices": [],
+          "fadeCecil": false
+        },
+        {
+          "text": "这里当年到底发生过什么？",
+          "speaker": "安德",
+          "next": 6,
+          "choices": [],
+          "fadeCecil": false
+        },
+        {
+          "text": "塞西尔像是被刺痛了一般，他猛地仰起头，双手失控地抓向天花板，声音陡然变得撕心裂肺而尖锐！",
+          "speaker": "",
+          "next": 7,
+          "choices": [],
+          "fadeCecil": false
+        },
+        {
+          "text": "哈哈哈哈哈！发生了什么！你会相信吗？——无边无际的黑水从地下涌出来了！在叫他们！门在挠他们！我们全都抛弃了！！废纸都是要被烧掉的我们！",
+          "speaker": "塞西尔",
+          "next": 8,
+          "choices": [],
+          "fadeCecil": false
+        },
+        {
+          "text": "悬挂塞西尔的黑线骤然断裂！塞西尔在疯笑与哀嚎声中急剧崩解，化作无数漫天飞舞的焦黑纸屑，转瞬消散在冰冷的空气中。",
+          "speaker": "",
+          "next": 9,
+          "choices": [],
+          "fadeCecil": true
+        },
+        {
+          "text": "……他疯了。但他方才说，阿尔伯特和前面失踪的人，全都被牵引着去了最深处。看来还得往更深处寻找线索。",
+          "speaker": "安德",
+          "next": -1,
+          "choices": [],
+          "fadeCecil": true
+        }
+      ]
+    }
+  ]
+}

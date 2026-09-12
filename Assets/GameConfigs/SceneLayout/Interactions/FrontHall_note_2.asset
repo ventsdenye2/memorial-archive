@@ -11,21 +11,21 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 04e91c37f4f6db44f8acc346aeda0225, type: 3}
   m_Name: FrontHall_note_2
-  m_EditorClassIdentifier: ''
+  m_EditorClassIdentifier: 
   interactionId: FrontHall_note_2
   interactionType: 9
-  displayName: 剧情纸条
+  displayName: "\u6CDB\u9EC4\u7684\u65E7\u7167\u7247"
   sceneId: FrontHall
-  containerId: ''
-  puzzleId: ''
-  storyId: ''
+  containerId: 
+  puzzleId: 
+  storyId: 
   noteId: FrontHall_main_note_2
-  transitionSceneId: ''
-  transitionSpawnPointId: ''
+  transitionSceneId: 
+  transitionSpawnPointId: 
+  stairPrompt: "\u8BF7\u9009\u62E9\u76EE\u7684\u697C\u5C42"
   requiresConfirmation: 0
-  confirmationMessage: 确认前往？
-  stairPrompt: 请选择目的楼层
-  stairUpSceneId: ''
-  stairUpSpawnPointId: ''
-  stairDownSceneId: ''
-  stairDownSpawnPointId: ''
+  confirmationMessage: "\u786E\u8BA4\u524D\u5F80\uFF1F"
+  stairUpSceneId: 
+  stairUpSpawnPointId: 
+  stairDownSceneId: 
+  stairDownSpawnPointId: 

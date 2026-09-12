@@ -1,0 +1,114 @@
+[
+  {
+    "id": "FrontHall_note_1",
+    "scene": "FrontHall",
+    "x": 4053,
+    "y": 820,
+    "title": "阿尔伯特的日记 · 其一"
+  },
+  {
+    "id": "FrontHall_main_note_2",
+    "scene": "FrontHall",
+    "x": 6720,
+    "y": 820,
+    "title": "泛黄的旧照片"
+  },
+  {
+    "id": "FrontHall_note_3",
+    "scene": "FrontHall",
+    "x": 9140,
+    "y": 820,
+    "title": "无名纸条"
+  },
+  {
+    "id": "Room_Office_main_note_1",
+    "scene": "Room_Office",
+    "x": 1260,
+    "y": 820,
+    "title": "档案馆行政与访客登记"
+  },
+  {
+    "id": "Room_Office_diary_2",
+    "scene": "Room_Office",
+    "x": 2480,
+    "y": 820,
+    "title": "阿尔伯特的日记 · 其二"
+  },
+  {
+    "id": "Room_ArchiveA_records",
+    "scene": "Room_ArchiveA",
+    "x": 850,
+    "y": 820,
+    "title": "档案柜 A · 病状记录"
+  },
+  {
+    "id": "Room_ArchiveA_alice",
+    "scene": "Room_ArchiveA",
+    "x": 1960,
+    "y": 820,
+    "title": "爱丽丝·坎贝尔的日记"
+  },
+  {
+    "id": "Room_ArchiveB_note_1",
+    "scene": "Room_ArchiveB",
+    "x": 1100,
+    "y": 820,
+    "title": "档案柜 B · 病状记录"
+  },
+  {
+    "id": "Room_ArchiveC_records",
+    "scene": "Room_ArchiveC",
+    "x": 850,
+    "y": 820,
+    "title": "档案柜 C · 病状记录"
+  },
+  {
+    "id": "Room_ArchiveC_williams",
+    "scene": "Room_ArchiveC",
+    "x": 1370,
+    "y": 820,
+    "title": "艾伯特·威廉姆斯的日记"
+  },
+  {
+    "id": "Room_TreatmentA_note_1",
+    "scene": "Room_TreatmentA",
+    "x": 1290,
+    "y": 820,
+    "title": "看守巡查日志（节选）"
+  },
+  {
+    "id": "Room_TreatmentA_blood_note",
+    "scene": "Room_TreatmentA",
+    "x": 2480,
+    "y": 820,
+    "title": "带血的纸条"
+  },
+  {
+    "id": "Room_TreatmentB_main_note_1",
+    "scene": "Room_TreatmentB",
+    "x": 1860,
+    "y": 820,
+    "title": "诊疗记录（节选）"
+  },
+  {
+    "id": "Room_Director_main_note_1",
+    "scene": "Room_Director",
+    "x": 1480,
+    "y": 820,
+    "title": "馆长私人信件"
+  },
+  {
+    "id": "Room_Director_note_2",
+    "scene": "Room_Director",
+    "x": 2360,
+    "y": 820,
+    "title": "档案馆“特别赞助金”流水账册"
+  },
+  {
+    "id": "Room_Terrace_note_1",
+    "scene": "Room_Terrace",
+    "x": 1396,
+    "y": 1014.5,
+    "title": "无名日记"
+  }
+]

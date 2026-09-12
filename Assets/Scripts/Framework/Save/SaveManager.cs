@@ -118,6 +118,11 @@ namespace MemorialArchive.Framework.Save
                 {
                     module.RestoreSaveData(stored.json);
                 }
+                else if (module is INewGameResettable resettable)
+                {
+                    // Older saves must not inherit a newer module's state from the current session.
+                    resettable.ResetForNewGame();
+                }
             }
         }
 

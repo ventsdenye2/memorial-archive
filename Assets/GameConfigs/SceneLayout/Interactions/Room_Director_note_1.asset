@@ -11,21 +11,21 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 04e91c37f4f6db44f8acc346aeda0225, type: 3}
   m_Name: Room_Director_note_1
-  m_EditorClassIdentifier: ''
+  m_EditorClassIdentifier: 
   interactionId: Room_Director_note_1
   interactionType: 9
-  displayName: 剧情纸条
+  displayName: "\u9986\u957F\u79C1\u4EBA\u4FE1\u4EF6"
   sceneId: Room_Director
-  containerId: ''
-  puzzleId: ''
-  storyId: ''
+  containerId: 
+  puzzleId: 
+  storyId: 
   noteId: Room_Director_main_note_1
-  transitionSceneId: ''
-  transitionSpawnPointId: ''
+  transitionSceneId: 
+  transitionSpawnPointId: 
+  stairPrompt: "\u8BF7\u9009\u62E9\u76EE\u7684\u697C\u5C42"
   requiresConfirmation: 0
-  confirmationMessage: 确认前往？
-  stairPrompt: 请选择目的楼层
-  stairUpSceneId: ''
-  stairUpSpawnPointId: ''
-  stairDownSceneId: ''
-  stairDownSpawnPointId: ''
+  confirmationMessage: "\u786E\u8BA4\u524D\u5F80\uFF1F"
+  stairUpSceneId: 
+  stairUpSpawnPointId: 
+  stairDownSceneId: 
+  stairDownSpawnPointId: 

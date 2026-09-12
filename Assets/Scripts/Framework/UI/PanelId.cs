@@ -18,6 +18,7 @@ namespace MemorialArchive.Framework.UI
         Dialogue,
         StairTravel,
         RoomTravelConfirm,
-        GuideOverlay
+        GuideOverlay,
+        Narrative
     }
 }

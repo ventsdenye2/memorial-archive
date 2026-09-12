@@ -26,6 +26,13 @@ namespace MemorialArchive.Gameplay.Character.View
             }
 
             var events = root.Context.Events;
+            if (root.GetSystem<MemorialArchive.Gameplay.Story.Logic.NarrativeSystem>()?.BlocksGameplayInput == true)
+            {
+                CancelPrimaryAction(events);
+                events.Publish(new MoveInputEvent(Vector2.zero));
+                events.Publish(new RunInputEvent(false));
+                return;
+            }
 
 
             // 当前版本的临时调试模式；正式版发布前移除。

@@ -188,11 +188,11 @@ for s in PLAN['scenes']:
                 if m['propertyPath']=='m_LocalPosition.x' and m['target']['fileID']==6489321317651925394:
                     doc.dirty.add(i);m['value']=str(spawn_x)
     if scene=='Room_Terrace':
-        interaction_config(scene,dict(id='Room_Terrace_return',kind=6,target='Room_Director',spawn='Room_Director_spawn_from_Terrace',display='返回馆长办公室'))
-    if scene=='Room_Director':
-        p=dict(id='Room_Terrace_enter',kind=6,x=130,y=800,target='Room_Terrace',spawn='Room_Terrace_spawn_entry',display='前往露台')
+        interaction_config(scene,dict(id='Room_Terrace_return',kind=6,target='Floor_3F',spawn='Floor3_spawn_from_Terrace',display='返回三层走廊'))
+    if scene=='Floor_3F':
+        p=dict(id='Room_Terrace_enter',kind=6,x=150,y=910,target='Room_Terrace',spawn='Room_Terrace_spawn_entry',display='前往露台')
         add_point(doc,points,s,p)
-        go,_=doc.game_object('Room_Director_spawn_from_Terrace',(left+3,-5.2,0),root);doc.mono(go,SP,pointId='Room_Director_spawn_from_Terrace')
+        go,_=doc.game_object('Floor3_spawn_from_Terrace',(-6.5,-5.2,0),root);doc.mono(go,SP,pointId='Floor3_spawn_from_Terrace')
     doc.save();report.append(dict(scene=scene,width=s['width'],points=len(s['points']),normalLights=len(s['lights']),monsters=len(s.get('monsters',[]))))
     print(scene,'applied')
 

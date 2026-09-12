@@ -126,6 +126,7 @@ namespace MemorialArchive.Framework.UI
 
         public BasePanel Open(PanelId panelId)
         {
+            if (IsOpen(PanelId.Narrative) && panelId != PanelId.Narrative) return null;
             if (panelId == PanelId.Inventory && !string.IsNullOrEmpty(focusedContainerId))
             {
                 context?.Events.Publish(new OpenContainerRequestedEvent(focusedContainerId));

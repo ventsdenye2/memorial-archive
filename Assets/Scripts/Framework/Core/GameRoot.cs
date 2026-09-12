@@ -151,6 +151,7 @@ namespace MemorialArchive.Framework.Core
             RegisterSystem(new MonsterSystem());
             RegisterSystem(new PuzzleSystem());
             RegisterSystem(new StorySystem());
+            RegisterSystem(new NarrativeSystem());
             RegisterSystem(new GuideSystem());
             RegisterSystem(new DialogueSystem());
             RegisterSystem(new MemorialArchive.Framework.Audio.AudioSystem());

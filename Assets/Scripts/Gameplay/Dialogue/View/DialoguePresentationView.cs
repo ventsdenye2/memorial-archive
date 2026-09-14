@@ -29,6 +29,7 @@ namespace MemorialArchive.Gameplay.Dialogue.View
         }
 
         [SerializeField] private Text dialogueText;
+        [SerializeField] private Text specialText;
         [SerializeField] private Image cgImage;
         [SerializeField] private bool fillCgViewport;
         [SerializeField] private Image speakerNameImage;
@@ -63,7 +64,9 @@ namespace MemorialArchive.Gameplay.Dialogue.View
         private string typewriterDialogueId;
         private int typewriterNodeIndex = -1;
         private Config.DialogueTextPresentation currentTextPresentation = Config.DialogueTextPresentation.Narration;
-        private static readonly Color QuotationTextColor = new Color(0.62f, 0.015f, 0.025f, 1f);
+        private static readonly Color QuotationTextColor = Color.white;
+        private const float LeftPortraitX = -544.5f;
+        private const float RightPortraitX = 588.5f;
 
         private void Awake()
         {
@@ -145,11 +148,13 @@ namespace MemorialArchive.Gameplay.Dialogue.View
             if (dialogueText != null)
             {
                 currentTextPresentation = ResolveTextPresentation(node);
+                currentCenterText = node.CenterText;
                 ApplyDialogueTextStyle();
                 StartTypewriter(node);
             }
 
             ApplyCg(node);
+            ApplyCgTint(ResolveTextPresentation(node) == Config.DialogueTextPresentation.Speech);
             ApplyPortraits(node);
 
             if (node.Effects != null && node.Effects.Length > 0)
@@ -193,12 +198,37 @@ namespace MemorialArchive.Gameplay.Dialogue.View
         private static Config.DialogueTextPresentation ResolveTextPresentation(DialogueNodeData node)
         {
             if (node.TextPresentation != Config.DialogueTextPresentation.Automatic) return node.TextPresentation;
-            return string.IsNullOrEmpty(node.SpeakerId)
+            // Opening prose uses the protagonist as its authoring voice, but it is
+            // still narration unless the node carries an explicit portrait snapshot.
+            return string.IsNullOrEmpty(node.SpeakerId) || node.Portraits.Length == 0
                 ? Config.DialogueTextPresentation.Narration : Config.DialogueTextPresentation.Speech;
+        }
+
+        private void ApplyCgTint(bool spoken)
+        {
+            if (cgImage == null) return;
+            cgImage.color = spoken ? new Color(.55f, .55f, .55f, 1f) : Color.white;
         }
 
         private void ApplyPortraits(DialogueNodeData node)
         {
+            // A node owns the complete portrait state. This prevents an environment
+            // description from leaking the previous speaker into the next shot.
+            foreach (var slot in portraitSlots)
+            {
+                if (slot == null || slot.PortraitImage == null) continue;
+                slot.CurrentCharacterId = string.Empty;
+                slot.SpeakingSprite = null;
+                slot.InactiveSprite = null;
+                slot.Nameplate = null;
+                slot.PortraitImage.sprite = null;
+                slot.PortraitImage.gameObject.SetActive(false);
+                SetDimmed(slot.DimOverlay, false);
+                var position = slot.SlotId == "left" ? LeftPortraitX : RightPortraitX;
+                slot.PortraitImage.rectTransform.anchoredPosition =
+                    new Vector2(position, slot.PortraitImage.rectTransform.anchoredPosition.y);
+            }
+
             foreach (var portrait in node.Portraits)
             {
                 var slot = FindSlot(portrait.SlotId);
@@ -243,6 +273,22 @@ namespace MemorialArchive.Gameplay.Dialogue.View
             {
                 speakerNameImage.sprite = speakerNameplate;
                 speakerNameImage.gameObject.SetActive(speakerNameplate != null);
+                var namePosition = speakerNameImage.rectTransform.anchoredPosition;
+                namePosition.x = node.SpeakerId == "andre" ? -724f : 724f;
+                speakerNameImage.rectTransform.anchoredPosition = namePosition;
+            }
+
+            if (ResolveTextPresentation(node) != Config.DialogueTextPresentation.Speech &&
+                node.Portraits.Length == 1 && node.Portraits[0].CharacterId == "andre")
+            {
+                foreach (var slot in portraitSlots)
+                {
+                    if (slot == null || slot.PortraitImage == null || !slot.PortraitImage.gameObject.activeSelf)
+                        continue;
+                    var position = slot.PortraitImage.rectTransform.anchoredPosition;
+                    position.x = 0f;
+                    slot.PortraitImage.rectTransform.anchoredPosition = position;
+                }
             }
             if (dialogueFrame != null)
             {
@@ -251,7 +297,6 @@ namespace MemorialArchive.Gameplay.Dialogue.View
                 if (frameSprite != null)
                 {
                     dialogueFrame.sprite = frameSprite;
-                    dialogueFrame.SetNativeSize();
                 }
             }
         }
@@ -362,8 +407,9 @@ namespace MemorialArchive.Gameplay.Dialogue.View
             {
                 if (dialogueText != null)
                 {
-                    dialogueText.text = typewriterText;
+                    dialogueText.text = ApplyBaseInlineStyle(typewriterText);
                 }
+                UpdateSpecialText(typewriterText);
                 PublishTypewriterState(false);
                 return;
             }
@@ -372,6 +418,7 @@ namespace MemorialArchive.Gameplay.Dialogue.View
             {
                 dialogueText.text = string.Empty;
             }
+            UpdateSpecialText(string.Empty);
             PublishTypewriterState(true);
             typewriterRoutine = StartCoroutine(TypewriterRoutine());
         }
@@ -379,13 +426,16 @@ namespace MemorialArchive.Gameplay.Dialogue.View
         private IEnumerator TypewriterRoutine()
         {
             var visibleCount = 0;
+            var visibleTotal = CountVisibleCharacters(typewriterText);
             var characterDelay = new WaitForSecondsRealtime(1f / Mathf.Max(1f, charactersPerSecond));
-            while (visibleCount < typewriterText.Length && isTyping)
+            while (visibleCount < visibleTotal && isTyping)
             {
                 visibleCount++;
                 if (dialogueText != null)
                 {
-                    dialogueText.text = typewriterText.Substring(0, visibleCount);
+                    var visible = BuildVisibleRichText(typewriterText, visibleCount);
+                    dialogueText.text = ApplyBaseInlineStyle(visible);
+                    UpdateSpecialText(visible);
                 }
                 yield return characterDelay;
             }
@@ -408,8 +458,46 @@ namespace MemorialArchive.Gameplay.Dialogue.View
             isTyping = false;
             if (dialogueText != null)
             {
-                dialogueText.text = typewriterText;
+                dialogueText.text = ApplyBaseInlineStyle(typewriterText);
             }
+            UpdateSpecialText(typewriterText);
+        }
+
+        private void UpdateSpecialText(string text)
+        {
+            if (specialText == null) return;
+            const string open = "<size=32><i><color=#FFFFFF>";
+            const string close = "</color></i></size>";
+            var start = text.IndexOf(open, StringComparison.Ordinal);
+            var end = start < 0 ? -1 : text.IndexOf(close, start + open.Length, StringComparison.Ordinal);
+            specialText.gameObject.SetActive(start >= 0 && end >= 0);
+            if (start < 0 || end < 0) return;
+            var position = specialText.GetComponent<DialogueInlinePosition>();
+            if (position == null) position = specialText.gameObject.AddComponent<DialogueInlinePosition>();
+            var tracking = specialText.GetComponent<DialogueTracking>();
+            if (tracking != null) tracking.enabled = false;
+            position.Body = dialogueText;
+            position.StartCharacter = CountVisibleCharacters(text.Substring(0, start));
+            specialText.text = text.Substring(start + open.Length, end - start - open.Length);
+            specialText.SetVerticesDirty();
+        }
+
+        private static string ApplyBaseInlineStyle(string text)
+        {
+            return (text ?? string.Empty).Replace("<size=32><i><color=#FFFFFF>", "<size=32><color=#FFFFFF00>")
+                .Replace("</color></i></size>", "</color></size>");
+        }
+
+        private static string ApplySpecialInlineStyle(string text)
+        {
+            const string open = "<size=32><i><color=#FFFFFF>";
+            const string close = "</color></i></size>";
+            var start = text.IndexOf(open, StringComparison.Ordinal);
+            var end = start < 0 ? -1 : text.IndexOf(close, start + open.Length, StringComparison.Ordinal);
+            if (start < 0 || end < 0) return string.Empty;
+            var prefix = text.Substring(0, start);
+            var special = text.Substring(start + open.Length, end - start - open.Length);
+            return "<color=#FFFFFF00>" + prefix + "</color>" + open + special + close;
         }
 
         private bool ShouldPresentNode(DialogueNodeData node)
@@ -491,26 +579,82 @@ namespace MemorialArchive.Gameplay.Dialogue.View
                 bool quotation = currentTextPresentation == Config.DialogueTextPresentation.Quotation;
                 var font = speech || quotation ? speechFont : narrationFont;
                 if (font != null) dialogueText.font = font;
-                dialogueText.fontStyle = FontStyle.Normal; // The supplied calligraphic font is already italic.
-                dialogueText.fontSize = speech || quotation ? speechFontSize : narrationFontSize;
+                // FZZJ-LZXTFSJW is the authored italic face; avoid adding faux italic.
+                dialogueText.fontStyle = FontStyle.Normal;
+                dialogueText.fontSize = speech && !quotation ? speechFontSize : narrationFontSize;
                 // Unity multiplies the font's own line metrics, which differ between
                 // these two fonts. Normalize to the reference's 48/40 canvas-unit leading.
                 float nativeLineHeight = dialogueText.font != null
                     ? dialogueText.font.lineHeight * (float)dialogueText.fontSize / Mathf.Max(1, dialogueText.font.fontSize)
                     : dialogueText.fontSize;
-                dialogueText.lineSpacing = (speech || quotation ? 48f : 40f) / Mathf.Max(1f, nativeLineHeight);
-                dialogueText.alignment = quotation ? TextAnchor.MiddleCenter : TextAnchor.UpperLeft;
-                dialogueText.color = quotation ? QuotationTextColor : speech ? Color.black : Color.white;
+                dialogueText.lineSpacing = (speech && !quotation ? 48f : 40f) / Mathf.Max(1f, nativeLineHeight);
+                dialogueText.alignment = quotation && currentCenterText ? TextAnchor.MiddleCenter : TextAnchor.UpperLeft;
+                dialogueText.color = quotation ? QuotationTextColor : speech ? Color.black : new Color32(0xE3, 0xD7, 0xB2, 0xFF);
+                var tracking = dialogueText.GetComponent<DialogueTracking>();
+                if (tracking != null) tracking.Tracking = speech && !quotation ? -100f : 12f;
             }
             else
             {
                 dialogueText.alignment = TextAnchor.UpperLeft;
                 dialogueText.color = Color.white;
             }
-            dialogueText.supportRichText = false;
+            dialogueText.supportRichText = true;
             dialogueText.horizontalOverflow = HorizontalWrapMode.Wrap;
             dialogueText.verticalOverflow = VerticalWrapMode.Overflow;
         }
+
+        private static string BuildVisibleRichText(string source, int visibleCharacters)
+        {
+            if (string.IsNullOrEmpty(source) || visibleCharacters >= CountVisibleCharacters(source))
+                return source ?? string.Empty;
+
+            var result = new System.Text.StringBuilder(source.Length);
+            var openTags = new System.Collections.Generic.Stack<string>();
+            var visible = 0;
+            for (var i = 0; i < source.Length && visible < visibleCharacters;)
+            {
+                if (source[i] == '<')
+                {
+                    var end = source.IndexOf('>', i);
+                    if (end < 0) break;
+                    var tag = source.Substring(i, end - i + 1);
+                    result.Append(tag);
+                    if (tag.Length > 2 && tag[1] != '/')
+                    {
+                        var nameEnd = tag.IndexOfAny(new[] { ' ', '=', '>' }, 1);
+                        openTags.Push(nameEnd > 1 ? tag.Substring(1, nameEnd - 1) : tag.Substring(1, tag.Length - 2));
+                    }
+                    else if (tag.StartsWith("</", StringComparison.Ordinal) && openTags.Count > 0)
+                    {
+                        openTags.Pop();
+                    }
+                    i = end + 1;
+                    continue;
+                }
+
+                result.Append(source[i++]);
+                visible++;
+            }
+
+            while (openTags.Count > 0)
+                result.Append("</").Append(openTags.Pop()).Append('>');
+            return result.ToString();
+        }
+
+        private static int CountVisibleCharacters(string source)
+        {
+            var count = 0;
+            var inTag = false;
+            foreach (var character in source)
+            {
+                if (character == '<') inTag = true;
+                else if (character == '>') inTag = false;
+                else if (!inTag) count++;
+            }
+            return count;
+        }
+
+        private bool currentCenterText;
 
         private void PublishTypewriterState(bool typing)
         {

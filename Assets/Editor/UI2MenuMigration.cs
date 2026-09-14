@@ -14,7 +14,11 @@ namespace MemorialArchive.Editor
     /// </summary>
     public static class UI2MenuMigration
     {
-        private const string Ui2Root = "Assets/Art/UI/Imported_UI2.0/UI2.0";
+        // The source package is named Imported/_UI2.0 in the art handoff.
+        // Unity's imported project currently contains the same package under
+        // Imported_UI2.0, so resolve both layouts without breaking either.
+        private const string AuthoredUi2Root = "Assets/Art/UI/Imported/_UI2.0/UI2.0";
+        private const string ImportedUi2Root = "Assets/Art/UI/Imported_UI2.0/UI2.0";
         private const string PrefabRoot = "Assets/Prefabs/UI";
         private const float PixelsPerUnit = 100f;
 
@@ -64,7 +68,12 @@ namespace MemorialArchive.Editor
             }
         }
 
-        private static string P(string folder, string file) => $"{Ui2Root}/{folder}/{file}";
+        private static string P(string folder, string file) => $"{ResolveUi2Root()}/{folder}/{file}";
+
+        private static string ResolveUi2Root()
+        {
+            return AssetDatabase.IsValidFolder(AuthoredUi2Root) ? AuthoredUi2Root : ImportedUi2Root;
+        }
 
         private static void ConfigureSprite(string path)
         {
@@ -130,6 +139,15 @@ namespace MemorialArchive.Editor
 
         private static void ApplyNewGameConfirm(GameObject root)
         {
+            // The panel prefab's legacy root Image was a second dark overlay.
+            // The authored transparency mask below is the only backdrop layer.
+            var legacyOverlay = root.GetComponent<Image>();
+            if (legacyOverlay != null)
+            {
+                legacyOverlay.sprite = null;
+                legacyOverlay.color = Color.clear;
+                legacyOverlay.raycastTarget = false;
+            }
             var mask = Find(root, "Mask");
             SetSprite(mask.GetComponent<Image>(), P("开始游戏弹窗", "透明度蒙版 拷贝.png"), false, true);
             Stretch(mask.GetComponent<RectTransform>());
@@ -142,8 +160,11 @@ namespace MemorialArchive.Editor
             artImage.raycastTarget = false;
             SetNativeRect(art.GetComponent<RectTransform>(), artImage.sprite, Vector2.zero);
 
+            // Keep the text origin fixed when SpriteSwapNativeSize changes to
+            // the larger selected artwork. The selected sprites add a seal to
+            // the right, so centre alignment would move the text.
             ConfigureConfirmButton(Find(root, "ConfirmButton"), P("开始游戏弹窗", "是的.png"), P("开始游戏弹窗", "是的（选中）.png"), new Vector2(-84f, -98f));
-            ConfigureConfirmButton(Find(root, "CancelButton"), P("开始游戏弹窗", "取消_.png"), P("开始游戏弹窗", "取消（选中）.png"), new Vector2(192f, -64f));
+            ConfigureConfirmButton(Find(root, "CancelButton"), P("开始游戏弹窗", "取消_.png"), P("开始游戏弹窗", "取消（选中）.png"), new Vector2(192f, -98f));
         }
 
         private static void ApplySystemPanel(GameObject root)
@@ -201,8 +222,7 @@ namespace MemorialArchive.Editor
 
             var resolutionLabel = GetOrCreateText(root.transform, "ResolutionValue", new Vector2(35f, -90f), new Vector2(420f, 64f));
             resolutionLabel.alignment = TextAnchor.MiddleCenter;
-            resolutionLabel.fontSize = 31;
-            resolutionLabel.color = new Color(0.23f, 0.18f, 0.13f, 1f);
+            ConfigureSettingsText(resolutionLabel, 40, new Color32(0x58, 0x4d, 0x40, 0xff));
             resolutionLabel.text = "1920*1080 px";
             resolutionLabel.raycastTarget = false;
 
@@ -210,6 +230,8 @@ namespace MemorialArchive.Editor
             var gameVolume = CreateVolumeSlider(root.transform, "GameVolume", new Vector2(100f, -272f));
             var backgroundValue = GetOrCreateText(root.transform, "BackgroundVolumeValue", new Vector2(414f, -200f), new Vector2(70f, 50f));
             var gameValue = GetOrCreateText(root.transform, "GameVolumeValue", new Vector2(414f, -272f), new Vector2(70f, 50f));
+            ConfigureSettingsText(backgroundValue, 32, new Color32(0xc9, 0xbc, 0xad, 0xff));
+            ConfigureSettingsText(gameValue, 32, new Color32(0xc9, 0xbc, 0xad, 0xff));
             ConfigureVolumeValue(backgroundVolume, backgroundValue);
             ConfigureVolumeValue(gameVolume, gameValue);
 
@@ -235,11 +257,10 @@ namespace MemorialArchive.Editor
         private static void ConfigureConfirmButton(GameObject go, string normal, string selected, Vector2 position)
         {
             ConfigureButton(go, go.GetComponent<Image>(), normal, selected, position);
-            // Both sprites place their text at the top-left; the hover stamp
-            // extends right/down. Keep that corner fixed when native size changes.
             var rect = go.GetComponent<RectTransform>();
+            var normalSize = rect.rect.size;
             rect.pivot = new Vector2(0f, 1f);
-            rect.anchoredPosition = position + new Vector2(-rect.sizeDelta.x * 0.5f, rect.sizeDelta.y * 0.5f);
+            rect.anchoredPosition = position + new Vector2(-normalSize.x * 0.5f, normalSize.y * 0.5f);
         }
 
         private static void ConfigureButton(GameObject go, Image image, string normal, string selected, Vector2 position)
@@ -367,7 +388,20 @@ namespace MemorialArchive.Editor
         {
             slider.onValueChanged.RemoveAllListeners();
             slider.onValueChanged.AddListener(v => value.text = Mathf.RoundToInt(v * 100f).ToString());
-            value.text = "50";
+            // SettingsPanel binds the persisted audio value when the panel
+            // opens. Do not bake the reference image's example value into
+            // the prefab or overwrite a user's setting.
+            value.text = string.Empty;
+        }
+
+        private static void ConfigureSettingsText(Text text, int fontSize, Color color)
+        {
+            if (text == null) return;
+            text.fontSize = fontSize;
+            text.color = color;
+            text.lineSpacing = 1f;
+            var tracking = text.GetComponent<MemorialArchive.Framework.UI.ReadingTitleTracking>();
+            if (tracking == null) text.gameObject.AddComponent<MemorialArchive.Framework.UI.ReadingTitleTracking>();
         }
 
         private static void BindClick(Button button, UnityEngine.Events.UnityAction action)
@@ -405,7 +439,8 @@ namespace MemorialArchive.Editor
             rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
             rect.anchoredPosition = position;
             rect.sizeDelta = size;
-            text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            text.font = AssetDatabase.LoadAssetAtPath<Font>("Assets/Font/FZCHSJW.TTF")
+                ?? Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             text.fontStyle = FontStyle.Bold;
             text.horizontalOverflow = HorizontalWrapMode.Overflow;
             text.verticalOverflow = VerticalWrapMode.Overflow;

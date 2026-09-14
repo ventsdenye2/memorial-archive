@@ -14,7 +14,10 @@ namespace MemorialArchive.Editor
     /// </summary>
     public static class UI2SaveMigration
     {
-        private const string Ui2Root = "Assets/Art/UI/Imported_UI2.0/UI2.0";
+        // Match the art handoff path while supporting this checkout's
+        // flattened imported folder name.
+        private const string AuthoredUi2Root = "Assets/Art/UI/Imported/_UI2.0/UI2.0";
+        private const string ImportedUi2Root = "Assets/Art/UI/Imported_UI2.0/UI2.0";
         private const string PrefabRoot = "Assets/Prefabs/UI";
         private const float PixelsPerUnit = 100f;
 
@@ -67,7 +70,8 @@ namespace MemorialArchive.Editor
 
         private static Sprite LoadSprite(string folder, string file)
         {
-            var path = $"{Ui2Root}/{folder}/{file}";
+            var root = AssetDatabase.IsValidFolder(AuthoredUi2Root) ? AuthoredUi2Root : ImportedUi2Root;
+            var path = $"{root}/{folder}/{file}";
             if (AssetDatabase.LoadMainAssetAtPath(path) == null)
             {
                 throw new InvalidOperationException($"UI2.0 asset was not found: {path}");

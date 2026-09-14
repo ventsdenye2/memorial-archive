@@ -15,36 +15,43 @@ MonoBehaviour:
   pages:
   - id: movement
     artwork: {fileID: 21300000, guid: a160722442d361d4097d2270190509ea, type: 3}
+    closeHint: {fileID: 21300000, guid: acaabbd758fe025489fa5edee49f7931, type: 3}
     pause: 0
     dismissKey: 0
     message: 
   - id: inventory
     artwork: {fileID: 21300000, guid: 668a321bb3fb0d242b1c0e36637695ea, type: 3}
+    closeHint: {fileID: 21300000, guid: 70e4d9524f4ff214391d7171bb1cdf84, type: 3}
     pause: 1
     dismissKey: 0
     message: 
   - id: light
     artwork: {fileID: 21300000, guid: fdeaa9e79372d21429b27dfd201a464f, type: 3}
+    closeHint: {fileID: 21300000, guid: 142f23d8e66b2744f82b134a2df301bb, type: 3}
     pause: 1
     dismissKey: 0
     message: 
   - id: systems
     artwork: {fileID: 21300000, guid: 9c36de226d6d3054d9078f2a9cb99bc4, type: 3}
+    closeHint: {fileID: 21300000, guid: a59a5e1b1c9d37a4da3134e02ff74d28, type: 3}
     pause: 1
     dismissKey: 0
     message: 
   - id: combat
     artwork: {fileID: 21300000, guid: f20b0a9bde2abe744af5462a012962b4, type: 3}
+    closeHint: {fileID: 21300000, guid: 93fe822511a30cd4fbeb94cf4f22a5fc, type: 3}
     pause: 1
     dismissKey: 0
     message: 
   - id: dodge
     artwork: {fileID: 0}
+    closeHint: {fileID: 0}
     pause: 1
     dismissKey: 32
     message: "\u6309\u7A7A\u683C\u95EA\u907F"
   - id: equip
     artwork: {fileID: 0}
+    closeHint: {fileID: 0}
     pause: 1
     dismissKey: 0
     message: "\u6253\u5F00\u80CC\u5305\u5C06\u6B66\u5668\u88C5\u5907\u81F3\u5FEB\u6377\u680F\u5E76\u9009\u4E2D"

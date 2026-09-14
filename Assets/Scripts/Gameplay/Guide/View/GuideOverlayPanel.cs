@@ -25,7 +25,7 @@ namespace MemorialArchive.Gameplay.Guide.View
         {
             var page = guide?.Current;
             artwork.sprite = page?.artwork; artwork.enabled = page?.artwork != null;
-            closeHint.sprite = guide?.Config?.closeHint;
+            closeHint.sprite = page?.closeHint != null ? page.closeHint : guide?.Config?.closeHint;
             closeHint.enabled = page != null && page.dismissKey == KeyCode.None;
             message.text = page?.message ?? string.Empty;
             message.gameObject.SetActive(!string.IsNullOrEmpty(message.text));

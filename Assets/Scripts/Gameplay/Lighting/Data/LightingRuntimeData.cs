@@ -27,15 +27,22 @@ namespace MemorialArchive.Gameplay.Lighting.Data
     public struct ActiveLight
     {
         public ActiveLight(Vector2 position, float radius, float intensity = 1f)
+            : this(position, radius, intensity, Color.white)
+        {
+        }
+
+        public ActiveLight(Vector2 position, float radius, float intensity, Color color)
         {
             Position = position;
             Radius = Mathf.Max(0.0001f, radius);
-            Intensity = Mathf.Clamp01(intensity);
+            Intensity = Mathf.Max(0f, intensity);
+            Color = color;
         }
 
         public Vector2 Position { get; }
         public float Radius { get; }
         public float Intensity { get; }
+        public Color Color { get; }
     }
 
     [Serializable]

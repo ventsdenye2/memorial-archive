@@ -19,8 +19,7 @@ namespace MemorialArchive.Tests.Editor
         {
             yield return new EnterPlayMode();
             System.IO.File.WriteAllText("Logs/narrative-runtime.txt", "RUNNING");
-            SceneManager.LoadScene("Room_Office");
-            for (var i = 0; i < 8; i++) yield return null;
+            yield return LoadSceneAndSettle("Room_Office");
             var root = GameRoot.Instance;
             var narrative = root.GetSystem<NarrativeSystem>();
             Assert.That(narrative.Current?.id, Is.EqualTo("enter_office"));
@@ -32,8 +31,7 @@ namespace MemorialArchive.Tests.Editor
             Assert.That(Time.timeScale, Is.EqualTo(1));
             var saved = JsonUtility.ToJson(narrative.CaptureSaveData());
             narrative.RestoreSaveData(saved);
-            SceneManager.LoadScene("Room_Office");
-            for (var i = 0; i < 8; i++) yield return null;
+            yield return LoadSceneAndSettle("Room_Office");
             Assert.That(narrative.Current, Is.Null, "Completed office entry replayed after restore");
 
             // Exercise the event used by scene note interactions, not just the content catalog.
@@ -59,10 +57,9 @@ namespace MemorialArchive.Tests.Editor
             }
             for (var branch = 0; branch < 2; branch++)
             {
-                root.Context.UI.CloseAll(); narrative.ResetForNewGame();
-                SceneManager.LoadScene("Room_Reception");
-                for (var i = 0; i < 8; i++) yield return null;
-                Assert.That(narrative.Current?.id, Is.EqualTo("enter_reception"));
+                root.Context.UI.CloseAll(); root.ResetForNewGame();
+                yield return LoadSceneAndSettle("Room_Reception");
+                Assert.That(narrative.Current?.id, Is.EqualTo("enter_reception"), "branch=" + branch);
                 while (narrative.Current != null) { narrative.Advance(); yield return null; }
                 GameObject.FindGameObjectWithTag("Player").GetComponent<MemorialArchive.Framework.Scene.ISceneSpawnTarget>().MoveToSceneSpawn(new Vector3(-6.5f, -5.2f, 0));
                 yield return new WaitForSecondsRealtime(.5f);
@@ -84,8 +81,7 @@ namespace MemorialArchive.Tests.Editor
                 Assert.That(cecil.GetComponent<Collider2D>().enabled, Is.False);
                 Assert.That(cecil.GetComponentInChildren<Spine.Unity.SkeletonAnimation>().Skeleton.A, Is.Zero);
             }
-            SceneManager.LoadScene("Room_Terrace");
-            for (var i = 0; i < 8; i++) yield return null;
+            yield return LoadSceneAndSettle("Room_Terrace");
             Assert.That(root.Context.Configs.GetInteraction("Room_Terrace_return").TransitionSceneId, Is.EqualTo("Floor_3F"));
             ScreenCapture.CaptureScreenshot("Logs/NarrativeQA/terrace.png");
             yield return null;
@@ -95,6 +91,15 @@ namespace MemorialArchive.Tests.Editor
             Assert.That(GameObject.FindGameObjectWithTag("Player").transform.position.x, Is.EqualTo(-6.5f).Within(.2f));
             System.IO.File.WriteAllText("Logs/narrative-runtime.txt", "PASS: entry pause/resume; restored entry does not replay; all 16 records open/read without text overflow; both Cecil buttons select correct branches and fade; terrace returns to third-floor spawn.");
             yield return new ExitPlayMode();
+        }
+
+        private static IEnumerator LoadSceneAndSettle(string sceneName)
+        {
+            var operation = SceneManager.LoadSceneAsync(sceneName);
+            Assert.That(operation, Is.Not.Null, "Scene is not in the build settings: " + sceneName);
+            while (!operation.isDone) yield return null;
+            while (SceneManager.GetActiveScene().name != sceneName) yield return null;
+            for (var i = 0; i < 4; i++) yield return null;
         }
     }
 }

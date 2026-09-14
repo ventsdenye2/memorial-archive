@@ -764,7 +764,7 @@ MonoBehaviour:
   panelId: 1
   pausesGame: 0
   canvasGroup: {fileID: 7466022867018863260}
-  startClosed: 1
+  startClosed: 0
   shortcutSlots:
   - {fileID: 6003700006224197416}
   - {fileID: 840780916176275873}

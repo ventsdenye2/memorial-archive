@@ -102,7 +102,6 @@ namespace MemorialArchive.Tests.Editor
                 var apply = typeof(DialoguePresentationView).GetMethod("ApplyPortraits",
                     BindingFlags.Instance | BindingFlags.NonPublic);
                 Assert.That(apply, Is.Not.Null);
-                var slots = new Dictionary<string, DialoguePortraitConfig>();
                 var characterArt = new Dictionary<string, string>
                 {
                     { "andre", "安德比尔" }, { "george", "乔治" }, { "emily", "艾米丽" }
@@ -112,13 +111,12 @@ namespace MemorialArchive.Tests.Editor
                 for (var index = 0; index < config.Nodes.Length; index++)
                 {
                     var node = config.Nodes[index];
-                    foreach (var portrait in node.Portraits) slots[portrait.SlotId] = portrait;
                     apply.Invoke(view, new object[] { new DialogueNodeData(config.DialogueId, index, node, null) });
                     Sprite expectedName = null;
-                    foreach (var entry in slots)
+                    foreach (var entry in node.Portraits)
                     {
-                        var portrait = entry.Value;
-                        var suffix = entry.Key == "left" ? "Left" : "Right";
+                        var portrait = entry;
+                        var suffix = entry.SlotId == "left" ? "Left" : "Right";
                         var image = panel.Find("Portrait" + suffix).GetComponent<Image>();
                         Assert.That(image.gameObject.activeSelf, Is.EqualTo(portrait.Visible), node.NodeId);
                         Assert.That(panel.Find("Dim" + suffix).gameObject.activeSelf, Is.False, node.NodeId);
@@ -138,9 +136,16 @@ namespace MemorialArchive.Tests.Editor
                             Assert.That(portrait.Nameplate, Is.SameAs(expectedName), node.NodeId);
                         }
                     }
+                    foreach (var suffix in new[] { "Left", "Right" })
+                    {
+                        var current = System.Array.Find(node.Portraits, p => p.SlotId == (suffix == "Left" ? "left" : "right"));
+                        Assert.That(panel.Find("Portrait" + suffix).gameObject.activeSelf,
+                            Is.EqualTo(current != null && current.Visible), node.NodeId);
+                    }
                     var nameImage = panel.Find("SpeakerName").GetComponent<Image>();
                     Assert.That(nameImage.gameObject.activeSelf, Is.EqualTo(expectedName != null), node.NodeId);
-                    Assert.That(nameImage.sprite, Is.SameAs(expectedName), node.NodeId);
+                    if (expectedName == null) Assert.That(nameImage.sprite == null, Is.True, node.NodeId);
+                    else Assert.That(nameImage.sprite, Is.SameAs(expectedName), node.NodeId);
                     Assert.That(panel.Find("DialogueFrame").GetSiblingIndex(),
                         Is.GreaterThan(panel.Find("PortraitRight").GetSiblingIndex()));
                     Assert.That(nameImage.transform.GetSiblingIndex(),
@@ -163,10 +168,10 @@ namespace MemorialArchive.Tests.Editor
             var text = prefab.transform.Find("DialoguePanel/DialogueText")?.GetComponent<Text>();
             Assert.That(text, Is.Not.Null);
             Assert.That(text.fontSize, Is.EqualTo(32));
-            Assert.That(text.color, Is.EqualTo(Color.white));
+            Assert.That(text.color, Is.EqualTo((Color)new Color32(0xE3, 0xD7, 0xB2, 0xFF)));
             Assert.That(text.font, Is.SameAs(AssetDatabase.LoadAssetAtPath<Font>("Assets/Font/FZCHSJW.TTF")));
             Assert.That(text.resizeTextForBestFit, Is.False);
-            Assert.That(text.supportRichText, Is.False);
+            Assert.That(text.supportRichText, Is.True);
             Assert.That(text.horizontalOverflow, Is.EqualTo(HorizontalWrapMode.Wrap));
             Assert.That(text.verticalOverflow, Is.EqualTo(VerticalWrapMode.Overflow));
 
@@ -190,16 +195,15 @@ namespace MemorialArchive.Tests.Editor
         }
 
         [Test]
-        public void OpeningDialogue_GeorgeEntersWithFatherDescription_AndLightningMatchesItsSentence()
+        public void OpeningDialogue_FatherEntersAtSpeech_AndLightningMatchesItsSentence()
         {
             var config = AssetDatabase.LoadAssetAtPath<DialogueSequenceConfig>(
                 "Assets/GameConfigs/Dialogue/OpeningDialogue.asset");
-            var fatherDescription = System.Array.Find(config.Nodes, n => n.NodeId == "opening_024");
-            Assert.That(fatherDescription.Portraits.Length, Is.EqualTo(1));
-            Assert.That(fatherDescription.Portraits[0].CharacterId, Is.EqualTo("george"));
-            Assert.That(fatherDescription.Portraits[0].Visible, Is.True);
-            Assert.That(System.Array.Find(config.Nodes, n => n.NodeId == "opening_025").SpeakerId,
-                Is.EqualTo("george"));
+            var fatherDescription = System.Array.Find(config.Nodes, n => n.Text.StartsWith("父亲则摘下礼帽"));
+            Assert.That(fatherDescription.Portraits, Is.Empty);
+            var fatherSpeech = System.Array.Find(config.Nodes, n => n.Text.StartsWith("比尔先生……求您"));
+            Assert.That(fatherSpeech.SpeakerId, Is.EqualTo("george"));
+            Assert.That(System.Array.Find(fatherSpeech.Portraits, p => p.CharacterId == "george").Visible, Is.True);
             foreach (var node in config.Nodes)
             {
                 bool hasLightning = System.Array.IndexOf(node.EffectIds, "opening_thunder") >= 0;

@@ -5,6 +5,7 @@ using MemorialArchive.Framework.Core;
 using MemorialArchive.Framework.Event;
 using MemorialArchive.Gameplay.Inventory.Data;
 using MemorialArchive.Gameplay.Inventory.Logic;
+using MemorialArchive.Gameplay.Character.View;
 using MemorialArchive.Gameplay.Lighting.Data;
 using MemorialArchive.Gameplay.Lighting.Logic;
 using NUnit.Framework;
@@ -139,6 +140,43 @@ namespace MemorialArchive.Tests.Editor
             Assert.That(lighting.IsLanternEquipped, Is.False,
                 "Selecting another shortcut must unequip the lantern from the lighting system.");
             Assert.That(lighting.IsLanternLit, Is.False);
+        }
+
+        [Test]
+        public void SelectedLanternPublishesConfiguredWarmLight()
+        {
+            var lantern = inventory.PlayerInventory.playerItems.First(
+                placement => placement?.item?.itemId == 1006);
+            Assert.That(inventory.TryEquipToFirstAvailableSlot(lantern.item.instanceId), Is.True);
+            var shortcut = inventory.PlayerInventory.playerItems.First(
+                placement => placement?.item?.instanceId == lantern.item.instanceId);
+            Assert.That(inventory.TrySelectShortcut(shortcut.slotIndex), Is.True);
+
+            var lights = new List<ActiveLight>();
+            lighting.CollectActiveLights(lights);
+            var lanternLight = lights.Single(light => light.Color == configs.GetLightingGlobal().LanternLightColor);
+            var global = configs.GetLightingGlobal();
+            Assert.That(lanternLight.Intensity, Is.EqualTo(global.LanternLightIntensity));
+            Assert.That(lanternLight.Radius, Is.EqualTo(global.LanternStrongLightRadius));
+            Assert.That(lanternLight.Color.g, Is.LessThan(lanternLight.Color.r));
+        }
+
+        [Test]
+        public void LanternAnimationRequiresSelectedShortcut()
+        {
+            Assert.That(CharacterAnimationView.IsLanternPresentationActive(null), Is.False);
+
+            var lantern = inventory.PlayerInventory.playerItems.First(
+                placement => placement?.item?.itemId == 1006);
+            Assert.That(inventory.TryEquipToFirstAvailableSlot(lantern.item.instanceId), Is.True);
+            var shortcut = inventory.PlayerInventory.playerItems.First(
+                placement => placement?.item?.instanceId == lantern.item.instanceId);
+            Assert.That(inventory.TrySelectShortcut(shortcut.slotIndex), Is.True);
+            var selectedConfig = configs.GetItem(lantern.item.itemId);
+            Assert.That(CharacterAnimationView.IsLanternPresentationActive(selectedConfig), Is.True);
+
+            Assert.That(inventory.TrySelectShortcut(shortcut.slotIndex), Is.True);
+            Assert.That(CharacterAnimationView.IsLanternPresentationActive(null), Is.False);
         }
     }
 }

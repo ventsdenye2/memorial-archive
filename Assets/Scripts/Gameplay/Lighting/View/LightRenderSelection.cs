@@ -8,6 +8,10 @@ namespace MemorialArchive.Gameplay.Lighting.View
     public static class LightRenderSelection
     {
         public static int Fill(List<ActiveLight> lights, Vector2 cameraCenter, Vector2 cameraHalfSize, Vector4[] output, int limit)
+            => Fill(lights, cameraCenter, cameraHalfSize, output, null, limit);
+
+        public static int Fill(List<ActiveLight> lights, Vector2 cameraCenter, Vector2 cameraHalfSize,
+            Vector4[] output, Vector4[] colorOutput, int limit)
         {
             int capacity = Mathf.Clamp(limit, 0, output.Length);
             int count = 0;
@@ -24,8 +28,15 @@ namespace MemorialArchive.Gameplay.Lighting.View
                 int insert = 0;
                 while (insert < count && Score(output[insert], cameraCenter) <= score) insert++;
                 if (insert >= capacity) continue;
-                for (int i = Mathf.Min(count, capacity - 1); i > insert; i--) output[i] = output[i - 1];
+                for (int i = Mathf.Min(count, capacity - 1); i > insert; i--)
+                {
+                    output[i] = output[i - 1];
+                    if (colorOutput != null && i < colorOutput.Length && i - 1 < colorOutput.Length)
+                        colorOutput[i] = colorOutput[i - 1];
+                }
                 output[insert] = candidate;
+                if (colorOutput != null && insert < colorOutput.Length)
+                    colorOutput[insert] = light.Color;
                 count = Mathf.Min(count + 1, capacity);
             }
             return count;

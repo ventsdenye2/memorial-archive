@@ -42,6 +42,7 @@ namespace MemorialArchive.Gameplay.Dialogue.Data
         public string NodeId { get; }
         public string SpeakerId { get; }
         public DialogueTextPresentation TextPresentation { get; }
+        public bool CenterText { get; }
         public string Text { get; }
         public DialogueCgCommand CgCommand { get; }
         public Sprite CgSprite { get; }
@@ -60,6 +61,7 @@ namespace MemorialArchive.Gameplay.Dialogue.Data
             NodeId = config != null ? config.NodeId : string.Empty;
             SpeakerId = config != null ? config.SpeakerId : string.Empty;
             TextPresentation = config != null ? config.TextPresentation : DialogueTextPresentation.Automatic;
+            CenterText = config != null && config.CenterText;
             Text = config != null ? config.Text : string.Empty;
             CgCommand = config != null ? config.CgCommand : DialogueCgCommand.Keep;
             CgSprite = config != null ? config.CgSprite : null;

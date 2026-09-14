@@ -150,7 +150,8 @@ namespace MemorialArchive.Editor
             }
             finally { PrefabUtility.UnloadPrefabContents(root); }
         }
-        private static void BuildNarrative()
+        [MenuItem("Tools/Memorial Archive/Refresh Narrative Typography")]
+        public static void BuildNarrative()
         {
             var go = new GameObject("NarrativePanel", typeof(RectTransform), typeof(CanvasGroup));
             try
@@ -161,8 +162,8 @@ namespace MemorialArchive.Editor
                 var panel = go.AddComponent<NarrativePanel>(); Set(panel, "panelId", (int)PanelId.Narrative); Set(panel, "startClosed", true); Set(panel, "canvasGroup", go.GetComponent<CanvasGroup>());
                 var frame = Rect(go.transform, "Frame", new Vector2(10, 123), new Vector2(1545, 242)); frame.anchorMin = frame.anchorMax = new Vector2(.5f, 0f);
                 var image = frame.gameObject.AddComponent<Image>(); image.sprite = Sprite(Ui + "话框.png"); image.raycastTarget = true;
-                var text = Text(frame, "Text", new Vector2(40, -8), new Vector2(1360, 110), 20, new Color32(0xe3, 0xd7, 0xb2, 255));
-                text.lineSpacing = 40f / (text.font.lineHeight * 20f / text.font.fontSize);
+                var text = Text(frame, "Text", new Vector2(40, 12), new Vector2(1340, 140), 32, new Color32(0xe3, 0xd7, 0xb2, 255));
+                text.lineSpacing = 40f / (text.font.lineHeight * 32f / text.font.fontSize);
                 text.gameObject.AddComponent<ReadingTitleTracking>();
                 var hint = Rect(frame, "Continue", new Vector2(605, -80), new Vector2(221, 76)); hint.gameObject.AddComponent<Image>().sprite = Sprite(Ui + "按任意键继续.png");
                 var choices = new Button[2];

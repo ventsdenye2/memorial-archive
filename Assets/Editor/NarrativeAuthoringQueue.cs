@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Text;
 using UnityEditor;
 using UnityEditor.TestTools.TestRunner.Api;
 using UnityEngine;
@@ -29,10 +28,13 @@ namespace MemorialArchive.Editor
             try
             {
                 if (action == "apply") { NarrativeContentBuilder.Apply(); File.WriteAllText("Logs/narrative-authoring.txt", "PASS"); }
-                else if (action == "test")
+                else if (action == "test" || action == "feedback-test")
                 {
                     SessionState.SetBool("NarrativeTestsRunning", true); RegisterResults();
-                    api.Execute(new ExecutionSettings(new Filter { testMode = TestMode.EditMode, groupNames = new[] { "NarrativeTests", "NarrativeRuntimeTests" } }));
+                    var groups = action == "feedback-test"
+                        ? new[] { "Feedback0913Tests", "Feedback0913RuntimeTests", "OpeningDialogueRegressionTests", "DialogueSystemTests", "NarrativeTests", "NarrativeRuntimeTests", "GuideProgressTests", "LightingSystemTests", "LightRenderSelectionTests", "InventorySystemTests", "CharacterStateMachineTests", "SavePersistenceTests" }
+                        : new[] { "NarrativeTests", "NarrativeRuntimeTests" };
+                    api.Execute(new ExecutionSettings(new Filter { testMode = TestMode.EditMode, groupNames = groups }));
                 }
                 else if (action == "build") { RegressionPlayerBuild.Build(); File.WriteAllText("Logs/narrative-build.txt", "PASS"); }
             }
@@ -40,15 +42,17 @@ namespace MemorialArchive.Editor
         }
         private sealed class Results : ICallbacks
         {
-            private readonly StringBuilder output = new StringBuilder();
-            public void RunStarted(ITestAdaptor test) { }
+            public void RunStarted(ITestAdaptor test) => File.WriteAllText("Logs/narrative-tests.txt", "RUNNING\n");
             public void TestStarted(ITestAdaptor test) { }
-            public void TestFinished(ITestResultAdaptor result) => output.AppendLine(result.FullName + ": " + result.ResultState + " " + result.Message);
+            public void TestFinished(ITestResultAdaptor result) => File.AppendAllText(
+                "Logs/narrative-tests.txt", result.FullName + ": " + result.ResultState + " " + result.Message +
+                (string.IsNullOrEmpty(result.StackTrace) ? string.Empty : Environment.NewLine + result.StackTrace) + Environment.NewLine);
             public void RunFinished(ITestResultAdaptor result)
             {
                 SessionState.SetBool("NarrativeTestsRunning", false);
-                output.Insert(0, $"{result.ResultState}: passed={result.PassCount}, failed={result.FailCount}\n");
-                File.WriteAllText("Logs/narrative-tests.txt", output.ToString());
+                var path = "Logs/narrative-tests.txt";
+                var details = File.Exists(path) ? File.ReadAllText(path) : string.Empty;
+                File.WriteAllText(path, $"{result.ResultState}: passed={result.PassCount}, failed={result.FailCount}\n" + details);
             }
         }
     }

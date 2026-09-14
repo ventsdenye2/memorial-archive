@@ -1,0 +1,110 @@
+{
+  "portraits": {
+    "andre": {
+      "characterId": "andre",
+      "placeholderColor": {
+        "r": 0.25,
+        "g": 0.44999998807907104,
+        "b": 0.800000011920929,
+        "a": 1.0
+      },
+      "portrait": {
+        "fileID": 21300000,
+        "guid": "0db949548410a414d8789a498bceb383",
+        "type": 3
+      },
+      "inactivePortrait": {
+        "fileID": 21300000,
+        "guid": "97caa12a367ce534cba45fc7e0cd787d",
+        "type": 3
+      },
+      "nameplate": {
+        "fileID": 21300000,
+        "guid": "67f75469a8b5b814898c088447427999",
+        "type": 3
+      },
+      "slotId": "left",
+      "visible": true
+    },
+    "george": {
+      "characterId": "george",
+      "placeholderColor": {
+        "r": 0.44999998807907104,
+        "g": 0.3199999928474426,
+        "b": 0.20000000298023224,
+        "a": 1.0
+      },
+      "portrait": {
+        "fileID": 21300000,
+        "guid": "cecf67af453ce1041b8ddfdff0d36f77",
+        "type": 3
+      },
+      "inactivePortrait": {
+        "instanceID": 0
+      },
+      "nameplate": {
+        "fileID": 21300000,
+        "guid": "6ce731d3a6af87747b4dea2916982b61",
+        "type": 3
+      },
+      "slotId": "right",
+      "visible": true
+    },
+    "emily": {
+      "characterId": "emily",
+      "placeholderColor": {
+        "r": 0.6200000047683716,
+        "g": 0.2800000011920929,
+        "b": 0.3499999940395355,
+        "a": 1.0
+      },
+      "portrait": {
+        "fileID": 21300000,
+        "guid": "f3c8fd9d927a9224ba6c2d8fd0e755b1",
+        "type": 3
+      },
+      "inactivePortrait": {
+        "fileID": 21300000,
+        "guid": "75ddf199cd5203c4081a01790cc2e6bb",
+        "type": 3
+      },
+      "nameplate": {
+        "fileID": 21300000,
+        "guid": "b92a39b09356ae546b5d1aa10cb984ef",
+        "type": 3
+      },
+      "slotId": "right",
+      "visible": true
+    }
+  },
+  "cg": {
+    "CG01": {
+      "fileID": 21300000,
+      "guid": "182ca303a08f2aa40906e63de804d65d",
+      "type": 3
+    },
+    "CG02": {
+      "fileID": 21300000,
+      "guid": "791fddf8ba1f3974cbec0c9cb6cf8221",
+      "type": 3
+    },
+    "CG03": {
+      "fileID": 21300000,
+      "guid": "100fb24f0e3e4504eb87b1109c59fb2b",
+      "type": 3
+    },
+    "CG04": {
+      "fileID": 21300000,
+      "guid": "0e7ff664461bca944b54de888dc1be33",
+      "type": 3
+    },
+    "CG05": {
+      "fileID": 21300000,
+      "guid": "e089c04e512d3ed439a24a688c59b65a",
+      "type": 3
+    }
+  },
+  "effect": [
+    "opening_thunder"
+  ]
+}

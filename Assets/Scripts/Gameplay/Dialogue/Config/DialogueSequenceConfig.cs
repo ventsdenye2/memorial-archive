@@ -44,6 +44,7 @@ namespace MemorialArchive.Gameplay.Dialogue.Config
         [SerializeField] private string nodeId;
         [SerializeField] private string speakerId;
         [SerializeField] private DialogueTextPresentation textPresentation;
+        [SerializeField] private bool centerText;
         [TextArea(3, 8)]
         [SerializeField] private string text;
         [SerializeField] private DialogueCgCommand cgCommand = DialogueCgCommand.Keep;
@@ -55,6 +56,7 @@ namespace MemorialArchive.Gameplay.Dialogue.Config
         public string NodeId => nodeId;
         public string SpeakerId => speakerId;
         public DialogueTextPresentation TextPresentation => textPresentation;
+        public bool CenterText => centerText;
         public string Text => text;
         public DialogueCgCommand CgCommand => cgCommand;
         public Sprite CgSprite => cgSprite;

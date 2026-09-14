@@ -76,7 +76,8 @@ namespace MemorialArchive.Framework.UI
                    surface?.Find("CloseButton")?.GetComponent<Button>();
         }
 
-        public static void ConfigureSlotButton(Button button, Sprite normal, Sprite highlighted, bool interactable)
+        public static void ConfigureSlotButton(Button button, Sprite normal, Sprite highlighted,
+            bool interactable, float selectedYOffset = 0f)
         {
             if (button == null)
             {
@@ -108,7 +109,7 @@ namespace MemorialArchive.Framework.UI
                 hoverView = button.gameObject.AddComponent<SaveSlotHoverView>();
             }
 
-            hoverView.Configure(image, normal, highlighted);
+            hoverView.Configure(image, normal, highlighted, selectedYOffset);
         }
 
         private static Image EnsureHitArea(Transform slot)
@@ -142,6 +143,12 @@ namespace MemorialArchive.Framework.UI
             image.color = Color.white;
             image.raycastTarget = false;
             EnsureHitArea(image.transform);
+            // LoadPanel refreshes this reserved card at runtime and may set
+            // its legacy placeholder text. Keep the authored fourth card
+            // available for future stages while hiding that text entirely.
+            var reservedLabel = image.transform.Find("SlotLabel")?.GetComponent<Text>()
+                ?? image.transform.Find("Label")?.GetComponent<Text>();
+            if (reservedLabel != null) reservedLabel.gameObject.SetActive(false);
             var hoverView = image.GetComponent<SaveSlotHoverView>();
             if (hoverView == null)
             {
@@ -194,13 +201,19 @@ namespace MemorialArchive.Framework.UI
             rect.sizeDelta = size;
             rect.localScale = Vector3.one;
             var text = textObject.GetComponent<Text>();
-            text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            text.fontSize = fontSize;
+            text.font = UnityEditor.AssetDatabase.LoadAssetAtPath<Font>("Assets/Font/FZCHSJW.TTF")
+                ?? Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            // The authored UI specification uses design points at 4 px/point.
+            text.fontSize = fontSize * 2;
             text.alignment = alignment;
             text.horizontalOverflow = HorizontalWrapMode.Overflow;
             text.verticalOverflow = VerticalWrapMode.Overflow;
             text.color = color;
             text.raycastTarget = false;
+            if (text.GetComponent<ReadingTitleTracking>() == null)
+            {
+                text.gameObject.AddComponent<ReadingTitleTracking>();
+            }
             return text;
         }
 
@@ -231,7 +244,9 @@ namespace MemorialArchive.Framework.UI
             ConfigureDisabledSlot(image, normal, highlighted);
             label = CreateAuthoredText(image.transform, "SlotLabel", new Vector2(100f, -22f),
                 new Vector2(330f, 58f), 16, TextAnchor.MiddleCenter, new Color(0.39f, 0.2f, 0.12f, 0.94f));
-            label.text = "第一阶段预留";
+            // The fourth card is retained for the authored layout, but its
+            // placeholder caption must not be shown in the shipped UI.
+            label.text = string.Empty;
             return image;
         }
 

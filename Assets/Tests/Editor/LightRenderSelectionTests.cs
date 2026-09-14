@@ -70,6 +70,30 @@ namespace MemorialArchive.Tests.Editor
         }
 
         [Test]
+        public void ColorOutputFollowsLightWhenSelectionIsSorted()
+        {
+            var warm = new ActiveLight(Vector2.right * 3f, 2f, 1.35f, new Color(1f, .72f, .34f));
+            var white = new ActiveLight(Vector2.zero, 1f, 1f, Color.white);
+            var lights = new List<ActiveLight> { warm, white };
+            var output = new Vector4[2];
+            var colors = new Vector4[2];
+
+            var count = LightRenderSelection.Fill(lights, Vector2.zero, new Vector2(10f, 10f), output, colors, 2);
+
+            Assert.That(count, Is.EqualTo(2));
+            Assert.That(colors[0], Is.EqualTo((Vector4)Color.white));
+            Assert.That(colors[1], Is.EqualTo((Vector4)warm.Color));
+        }
+
+        [Test]
+        public void LanternIdleSamplingIsFiniteAndFrozenWithinClip()
+        {
+            Assert.That(MemorialArchive.Gameplay.Character.View.CharacterAnimationView.LanternIdleTrackTime(2f), Is.EqualTo(.5f));
+            Assert.That(MemorialArchive.Gameplay.Character.View.CharacterAnimationView.LanternIdleTrackTime(.2f), Is.EqualTo(.2f));
+            Assert.That(MemorialArchive.Gameplay.Character.View.CharacterAnimationView.LanternIdleTrackTime(-1f), Is.EqualTo(0f));
+        }
+
+        [Test]
         public void InvalidRadiusIsDiscarded()
         {
             var lights = new List<ActiveLight>

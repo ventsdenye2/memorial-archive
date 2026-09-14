@@ -45,13 +45,13 @@ namespace MemorialArchive.Editor
 
             var pages = new List<GuidePage>
             {
-                Page("movement", SpriteAt($"{ArtworkRoot}/教程页2/蒙版.png"), false, KeyCode.None, string.Empty),
-                Page("inventory", SpriteAt($"{SupplementRoot}/教程页5/将背包物品拖拽至快捷栏，或选中物品点击装备按钮即可完成装备。.png"), true, KeyCode.None, string.Empty),
-                Page("light", SpriteAt($"{ArtworkRoot}/教程页3/蒙版.png"), true, KeyCode.None, string.Empty),
-                Page("systems", SpriteAt($"{SupplementRoot}/教程页4/组 44.png"), true, KeyCode.None, string.Empty),
-                Page("combat", SpriteAt($"{ArtworkRoot}/教程页1/蒙版.png"), true, KeyCode.None, string.Empty),
-                Page("dodge", null, true, KeyCode.Space, "按空格闪避"),
-                Page("equip", null, true, KeyCode.None, "打开背包将武器装备至快捷栏并选中")
+                Page("movement", SpriteAt($"{ArtworkRoot}/教程页2/蒙版.png"), SpriteAt($"{ArtworkRoot}/教程页2/按下任意键关闭.png"), false, KeyCode.None, string.Empty),
+                Page("inventory", SpriteAt($"{SupplementRoot}/教程页5/将背包物品拖拽至快捷栏，或选中物品点击装备按钮即可完成装备。.png"), SpriteAt($"{SupplementRoot}/教程页5/按下任意键关闭 拷贝 2.png"), true, KeyCode.None, string.Empty),
+                Page("light", SpriteAt($"{ArtworkRoot}/教程页3/蒙版.png"), SpriteAt($"{ArtworkRoot}/教程页3/按下任意键关闭.png"), true, KeyCode.None, string.Empty),
+                Page("systems", SpriteAt($"{SupplementRoot}/教程页4/组 44.png"), SpriteAt($"{SupplementRoot}/教程页4/按下任意键关闭 拷贝.png"), true, KeyCode.None, string.Empty),
+                Page("combat", SpriteAt($"{ArtworkRoot}/教程页1/蒙版.png"), SpriteAt($"{ArtworkRoot}/教程页1/按下任意键关闭.png"), true, KeyCode.None, string.Empty),
+                Page("dodge", null, null, true, KeyCode.Space, "按空格闪避"),
+                Page("equip", null, null, true, KeyCode.None, "打开背包将武器装备至快捷栏并选中")
             };
             config.pages = pages.ToArray();
             config.closeHint = SpriteAt($"{ArtworkRoot}/教程页1/按下任意键关闭.png");
@@ -67,9 +67,9 @@ namespace MemorialArchive.Editor
             ConfigureSprites(pages, config.closeHint);
         }
 
-        private static GuidePage Page(string id, Sprite artwork, bool pause, KeyCode dismissKey, string message)
+        private static GuidePage Page(string id, Sprite artwork, Sprite closeHint, bool pause, KeyCode dismissKey, string message)
         {
-            return new GuidePage { id = id, artwork = artwork, pause = pause, dismissKey = dismissKey, message = message };
+            return new GuidePage { id = id, artwork = artwork, closeHint = closeHint, pause = pause, dismissKey = dismissKey, message = message };
         }
 
         private static void BuildOverlayPrefab()
@@ -203,7 +203,11 @@ namespace MemorialArchive.Editor
 
         private static void ConfigureSprites(IEnumerable<GuidePage> pages, Sprite closeHint)
         {
-            foreach (var page in pages) ConfigureSprite(page.artwork);
+            foreach (var page in pages)
+            {
+                ConfigureSprite(page.artwork);
+                ConfigureSprite(page.closeHint);
+            }
             ConfigureSprite(closeHint);
         }
 

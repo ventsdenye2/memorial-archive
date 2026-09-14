@@ -6,6 +6,7 @@ namespace MemorialArchive.Gameplay.Guide.Config
     {
         public string id;
         public Sprite artwork;
+        public Sprite closeHint;
         public bool pause = true;
         public KeyCode dismissKey = KeyCode.None;
         [TextArea] public string message;

@@ -343,7 +343,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6226588549979949640}
   m_Enabled: 1
-  m_Alpha: 0
+  m_Alpha: 1
   m_Interactable: 0
   m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
@@ -404,51 +404,51 @@ MonoBehaviour:
   mapRect: {fileID: 7069829379552086489}
   markerImage: {fileID: 7310000000000000004}
   markerPlacements:
-    - sceneId: Floor_4F
-      roomId: ''
-      normalizedPosition: {x: 0.424, y: 0.57}
-    - sceneId: Floor_3F
-      roomId: ''
-      normalizedPosition: {x: 0.424, y: 0.45}
-    - sceneId: Floor_2F
-      roomId: ''
-      normalizedPosition: {x: 0.424, y: 0.36}
-    - sceneId: Floor_1F
-      roomId: ''
-      normalizedPosition: {x: 0.591, y: 0.25}
-    - sceneId: FrontHall
-      roomId: ''
-      normalizedPosition: {x: 0.464, y: 0.25}
-    - sceneId: Room_Director
-      roomId: ''
-      normalizedPosition: {x: 0.365, y: 0.45}
-    - sceneId: Room_Office
-      roomId: ''
-      normalizedPosition: {x: 0.365, y: 0.36}
-    - sceneId: Room_ArchiveC
-      roomId: ''
-      normalizedPosition: {x: 0.484, y: 0.45}
-    - sceneId: Room_TreatmentA
-      roomId: ''
-      normalizedPosition: {x: 0.561, y: 0.45}
-    - sceneId: Room_TreatmentB
-      roomId: ''
-      normalizedPosition: {x: 0.641, y: 0.45}
-    - sceneId: Room_ArchiveA
-      roomId: ''
-      normalizedPosition: {x: 0.484, y: 0.36}
-    - sceneId: Room_ArchiveB
-      roomId: ''
-      normalizedPosition: {x: 0.561, y: 0.36}
-    - sceneId: Room_Reception
-      roomId: ''
-      normalizedPosition: {x: 0.641, y: 0.36}
-    - sceneId: Room_Toilet
-      roomId: ''
-      normalizedPosition: {x: 0.651, y: 0.25}
-    - sceneId: Room_Terrace
-      roomId: ''
-      normalizedPosition: {x: 0.3, y: 0.45}
+  - sceneId: Floor_4F
+    roomId: 
+    normalizedPosition: {x: 0.424, y: 0.57}
+  - sceneId: Floor_3F
+    roomId: 
+    normalizedPosition: {x: 0.424, y: 0.45}
+  - sceneId: Floor_2F
+    roomId: 
+    normalizedPosition: {x: 0.424, y: 0.36}
+  - sceneId: Floor_1F
+    roomId: 
+    normalizedPosition: {x: 0.591, y: 0.25}
+  - sceneId: FrontHall
+    roomId: 
+    normalizedPosition: {x: 0.464, y: 0.25}
+  - sceneId: Room_Director
+    roomId: 
+    normalizedPosition: {x: 0.365, y: 0.45}
+  - sceneId: Room_Office
+    roomId: 
+    normalizedPosition: {x: 0.365, y: 0.36}
+  - sceneId: Room_ArchiveC
+    roomId: 
+    normalizedPosition: {x: 0.484, y: 0.45}
+  - sceneId: Room_TreatmentA
+    roomId: 
+    normalizedPosition: {x: 0.561, y: 0.45}
+  - sceneId: Room_TreatmentB
+    roomId: 
+    normalizedPosition: {x: 0.641, y: 0.45}
+  - sceneId: Room_ArchiveA
+    roomId: 
+    normalizedPosition: {x: 0.484, y: 0.36}
+  - sceneId: Room_ArchiveB
+    roomId: 
+    normalizedPosition: {x: 0.561, y: 0.36}
+  - sceneId: Room_Reception
+    roomId: 
+    normalizedPosition: {x: 0.641, y: 0.36}
+  - sceneId: Room_Toilet
+    roomId: 
+    normalizedPosition: {x: 0.651, y: 0.25}
+  - sceneId: Room_Terrace
+    roomId: 
+    normalizedPosition: {x: 0.3, y: 0.45}
 --- !u!114 &8160528963196324159
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -462,7 +462,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ownerPanelId: 6
-
 --- !u!1 &7310000000000000001
 GameObject:
   m_ObjectHideFlags: 0

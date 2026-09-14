@@ -19,6 +19,7 @@ namespace MemorialArchive.Gameplay.Lighting.View
 
         private readonly List<ActiveLight> activeLights = new List<ActiveLight>();
         private readonly Vector4[] lightData = new Vector4[32];
+        private readonly Vector4[] lightColors = new Vector4[32];
         private MaterialPropertyBlock propertyBlock;
         private MeshRenderer quadRenderer;
         private Transform cameraTransform;
@@ -73,10 +74,11 @@ namespace MemorialArchive.Gameplay.Lighting.View
             lightingSystem.CollectActiveLights(activeLights);
             var halfHeight = viewCamera != null ? viewCamera.orthographicSize : quadSize * .5f;
             var halfSize = new Vector2(halfHeight * (viewCamera != null ? viewCamera.aspect : 1), halfHeight);
-            var lightCount = LightRenderSelection.Fill(activeLights, transform.position, halfSize, lightData,
+            var lightCount = LightRenderSelection.Fill(activeLights, transform.position, halfSize, lightData, lightColors,
                 config != null ? config.MaxSimultaneousLights : lightData.Length);
 
             propertyBlock.SetVectorArray("_LightData", lightData);
+            propertyBlock.SetVectorArray("_LightColorData", lightColors);
             propertyBlock.SetInt("_LightCount", lightCount);
             quadRenderer.SetPropertyBlock(propertyBlock);
         }

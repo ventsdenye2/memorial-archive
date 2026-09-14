@@ -28,10 +28,12 @@ MonoBehaviour:
   lanternTotalFuelSeconds: 60
   lanternStrongThresholdSeconds: 40
   lanternWeakThresholdSeconds: 10
-  lanternStrongLightRadius: 3
-  lanternNormalLightRadius: 2.6
-  lanternWeakLightRadius: 2
+  lanternStrongLightRadius: 4.2
+  lanternNormalLightRadius: 3.5
+  lanternWeakLightRadius: 2.7
   lanternLightYOffset: 0.9
+  lanternLightColor: {r: 1, g: 0.72, b: 0.34, a: 1}
+  lanternLightIntensity: 1.35
   tempLightSeconds: 10
   darknessFailureDamage: 9999
   failureRetrySeconds: 1

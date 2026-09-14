@@ -607,10 +607,8 @@ namespace MemorialArchive.Editor
                 inst.name = name;
                 var bp = inst.GetComponent<BasePanel>();
                 if (bp == null) { Debug.LogWarning($"No BasePanel on {name}"); continue; }
-                var so = new SerializedObject(bp);
-                so.FindProperty("panelId").enumValueIndex = (int)id;
-                so.FindProperty("startClosed").boolValue = id != PanelId.Hud;
-                so.ApplyModifiedPropertiesWithoutUndo();
+                // Panel identity and visibility are owned by the prefab. Do
+                // not create scene overrides that can stack with prefab edits.
                 list.Add(bp);
             }
             return list;

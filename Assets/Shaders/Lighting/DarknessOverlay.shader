@@ -33,6 +33,7 @@ Shader "Memorial Archive/Lighting/Darkness Overlay"
             float _FalloffExponent;
             float _Dim;
             float4 _LightData[MAX_LIGHTS];
+            float4 _LightColorData[MAX_LIGHTS];
             int _LightCount;
 
             struct v2f
@@ -52,18 +53,88 @@ Shader "Memorial Archive/Lighting/Darkness Overlay"
             fixed4 frag(v2f input) : SV_Target
             {
                 float lightAmount = 0.0;
+                fixed3 lightColor = fixed3(1, 1, 1);
                 int lightCount = min(_LightCount, MAX_LIGHTS);
                 for (int index = 0; index < lightCount; index++)
                 {
                     float4 lightData = _LightData[index];
                     float distanceToLight = distance(input.worldPosition, lightData.xy);
                     float contribution = saturate(1.0 - distanceToLight / max(lightData.z, 0.0001));
-                    contribution = pow(contribution, _FalloffExponent) * saturate(lightData.w);
-                    lightAmount = max(lightAmount, contribution);
+                    contribution = pow(contribution, _FalloffExponent) * max(lightData.w, 0.0);
+                    if (contribution > lightAmount)
+                    {
+                        lightAmount = contribution;
+                        lightColor = _LightColorData[index].rgb;
+                    }
                 }
 
                 float alpha = _DarknessAlpha * _Dim * (1.0 - saturate(lightAmount));
-                return fixed4(_DarknessColor.rgb, alpha);
+                // Neutral (white) fixtures retain the original black veil.
+                // Only the lantern's authored non-neutral color participates.
+                float warmMask = step(0.02, abs(lightColor.r - lightColor.g) + abs(lightColor.g - lightColor.b));
+                fixed3 veilColor = lerp(_DarknessColor.rgb, lightColor,
+                    warmMask * saturate(lightAmount * 0.35));
+                return fixed4(veilColor, alpha);
+            }
+            ENDCG
+        }
+
+        // A restrained additive tint keeps the lantern warm at the centre of
+        // its hole, where the veil alpha is zero. Neutral fixtures contribute
+        // nothing to this pass.
+        Pass
+        {
+            Blend One One
+            ZWrite Off
+            Cull Off
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment fragWarm
+            #pragma target 3.0
+
+            #define MAX_LIGHTS 32
+            float4 _LightData[MAX_LIGHTS];
+            float4 _LightColorData[MAX_LIGHTS];
+            float _FalloffExponent;
+            float _Dim;
+            int _LightCount;
+
+            struct v2f
+            {
+                float4 vertex : SV_POSITION;
+                float2 worldPosition : TEXCOORD0;
+            };
+
+            v2f vert(float4 vertex : POSITION)
+            {
+                v2f output;
+                output.vertex = UnityObjectToClipPos(vertex);
+                output.worldPosition = mul(unity_ObjectToWorld, vertex).xy;
+                return output;
+            }
+
+            fixed4 fragWarm(v2f input) : SV_Target
+            {
+                float warmAmount = 0.0;
+                fixed3 warmColor = fixed3(0, 0, 0);
+                int lightCount = min(_LightCount, MAX_LIGHTS);
+                for (int index = 0; index < lightCount; index++)
+                {
+                    float4 lightData = _LightData[index];
+                    float contribution = saturate(1.0 - distance(input.worldPosition, lightData.xy) /
+                        max(lightData.z, 0.0001));
+                    contribution = pow(contribution, _FalloffExponent) * max(lightData.w, 0.0);
+                    fixed3 candidateColor = _LightColorData[index].rgb;
+                    float warmMask = step(0.02, abs(candidateColor.r - candidateColor.g) +
+                        abs(candidateColor.g - candidateColor.b));
+                    if (contribution * warmMask > warmAmount)
+                    {
+                        warmAmount = contribution * warmMask;
+                        warmColor = candidateColor;
+                    }
+                }
+
+                return fixed4(warmColor * saturate(warmAmount) * 0.12 * _Dim, 1);
             }
             ENDCG
         }

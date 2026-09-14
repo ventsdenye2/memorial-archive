@@ -54,6 +54,8 @@ namespace MemorialArchive.Gameplay.Lighting.Config
         [SerializeField, Min(0.1f)] private float lanternWeakLightRadius = 2f;
         [Tooltip("手提灯光源的竖直抬升量（世界单位）。玩家事件位置在角色脚底原点，Spine 身体向上延伸，不抬升会让光圈压在脚下。")]
         [SerializeField] private float lanternLightYOffset = 0.9f;
+        [SerializeField] private Color lanternLightColor = new Color(1f, 0.72f, 0.34f, 1f);
+        [SerializeField, Min(0f)] private float lanternLightIntensity = 1.35f;
 
         [Header("普通灯")]
         [SerializeField] private float tempLightSeconds = 10f;
@@ -85,6 +87,8 @@ namespace MemorialArchive.Gameplay.Lighting.Config
         public float LanternNormalLightRadius => Mathf.Max(0.1f, lanternNormalLightRadius);
         public float LanternWeakLightRadius => Mathf.Max(0.1f, lanternWeakLightRadius);
         public float LanternLightYOffset => lanternLightYOffset;
+        public Color LanternLightColor => lanternLightColor;
+        public float LanternLightIntensity => Mathf.Max(0f, lanternLightIntensity);
 
         public float TempLightSeconds => Mathf.Max(0.1f, tempLightSeconds);
 

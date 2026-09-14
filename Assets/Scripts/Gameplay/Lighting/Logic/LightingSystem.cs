@@ -204,7 +204,8 @@ namespace MemorialArchive.Gameplay.Lighting.Logic
                 var lanternPosition = new Vector2(
                     lastPlayerPosition.x,
                     lastPlayerPosition.y + config.LanternLightYOffset);
-                results.Add(new ActiveLight(lanternPosition, GetCurrentLanternLightRadius()));
+                results.Add(new ActiveLight(lanternPosition, GetCurrentLanternLightRadius(),
+                    config.LanternLightIntensity, config.LanternLightColor));
             }
 
             foreach (var view in lightViews.Values)

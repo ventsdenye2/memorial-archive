@@ -43,6 +43,16 @@ namespace MemorialArchive.Framework.UI
             RefreshSlots("选择要继续的档案。");
         }
 
+        public override void Close()
+        {
+            foreach (var button in slotButtons)
+            {
+                button?.GetComponent<SaveSlotHoverView>()?.ResetInteraction();
+            }
+
+            base.Close();
+        }
+
         private void Subscribe()
         {
             if (subscribed || GameRoot.Instance?.Context?.Events == null) return;
@@ -78,7 +88,7 @@ namespace MemorialArchive.Framework.UI
                 var info = saves?.GetSlotInfo(slotIndex);
                 label.text = FormatSlot(slotIndex, info);
                 SaveSlotPanelViewFactory.ConfigureSlotButton(button, GetNormalSprite(slotIndex),
-                    GetSelectedSprite(slotIndex), info != null && info.hasSave);
+                    GetSelectedSprite(slotIndex), info != null && info.hasSave, 25f);
             }
         }
 
@@ -121,7 +131,7 @@ namespace MemorialArchive.Framework.UI
 
                 var capturedIndex = slotIndex;
                 SaveSlotPanelViewFactory.ConfigureSlotButton(button, GetNormalSprite(slotIndex),
-                    GetSelectedSprite(slotIndex), true);
+                    GetSelectedSprite(slotIndex), true, 25f);
                 button.onClick.AddListener(() => RequestLoad(capturedIndex));
             }
 

@@ -165,7 +165,7 @@ MonoBehaviour:
     centerText: 0
     text: "我叫安德·比尔，一名私家侦探。"
     cgCommand: 1
-    portraits: [{"characterId": "andre", "placeholderColor": {"r": 0.25, "g": 0.44999998807907104, "b": 0.800000011920929, "a": 1.0}, "portrait": {"fileID": 21300000, "guid": "0db949548410a414d8789a498bceb383", "type": 3}, "inactivePortrait": {"fileID": 21300000, "guid": "97caa12a367ce534cba45fc7e0cd787d", "type": 3}, "nameplate": {"fileID": 21300000, "guid": "67f75469a8b5b814898c088447427999", "type": 3}, "slotId": "left", "visible": 1}]
+    portraits: []
     effectIds: []
     blocksAdvance: 0
     cgSprite: {"fileID": 21300000, "guid": "791fddf8ba1f3974cbec0c9cb6cf8221", "type": 3}
@@ -175,7 +175,7 @@ MonoBehaviour:
     centerText: 0
     text: "最近一个月，伦敦有八个热衷于冒险的年轻人在那座废弃的档案馆附近失踪。"
     cgCommand: 0
-    portraits: [{"characterId": "andre", "placeholderColor": {"r": 0.25, "g": 0.44999998807907104, "b": 0.800000011920929, "a": 1.0}, "portrait": {"fileID": 21300000, "guid": "0db949548410a414d8789a498bceb383", "type": 3}, "inactivePortrait": {"fileID": 21300000, "guid": "97caa12a367ce534cba45fc7e0cd787d", "type": 3}, "nameplate": {"fileID": 21300000, "guid": "67f75469a8b5b814898c088447427999", "type": 3}, "slotId": "left", "visible": 1}]
+    portraits: []
     effectIds: []
     blocksAdvance: 0
   - nodeId: "opening_019"
@@ -184,7 +184,7 @@ MonoBehaviour:
     centerText: 0
     text: "没有人知道那群年轻人是怎么消失的。苏格兰场那些高高在上的巡警们甚至懒得去现场勘验。在一叠叠被草草归档的失踪报告里，唯一的线索，是一句被认为是在梦呓的模糊证言："
     cgCommand: 0
-    portraits: [{"characterId": "andre", "placeholderColor": {"r": 0.25, "g": 0.44999998807907104, "b": 0.800000011920929, "a": 1.0}, "portrait": {"fileID": 21300000, "guid": "0db949548410a414d8789a498bceb383", "type": 3}, "inactivePortrait": {"fileID": 21300000, "guid": "97caa12a367ce534cba45fc7e0cd787d", "type": 3}, "nameplate": {"fileID": 21300000, "guid": "67f75469a8b5b814898c088447427999", "type": 3}, "slotId": "left", "visible": 1}]
+    portraits: []
     effectIds: []
     blocksAdvance: 0
   - nodeId: "opening_020"
@@ -313,7 +313,7 @@ MonoBehaviour:
     centerText: 0
     text: "我认识日记的主人。"
     cgCommand: 1
-    portraits: [{"characterId": "andre", "placeholderColor": {"r": 0.25, "g": 0.44999998807907104, "b": 0.800000011920929, "a": 1.0}, "portrait": {"fileID": 21300000, "guid": "0db949548410a414d8789a498bceb383", "type": 3}, "inactivePortrait": {"fileID": 21300000, "guid": "97caa12a367ce534cba45fc7e0cd787d", "type": 3}, "nameplate": {"fileID": 21300000, "guid": "67f75469a8b5b814898c088447427999", "type": 3}, "slotId": "left", "visible": 1}]
+    portraits: []
     effectIds: []
     blocksAdvance: 0
     cgSprite: {"fileID": 21300000, "guid": "791fddf8ba1f3974cbec0c9cb6cf8221", "type": 3}
@@ -323,7 +323,7 @@ MonoBehaviour:
     centerText: 0
     text: "阿尔伯特，一个经常来我这儿兜售旧报纸和小道消息的年轻人。半个月前，他曾神色古怪地向我打听那些失踪者的下落。"
     cgCommand: 0
-    portraits: [{"characterId": "andre", "placeholderColor": {"r": 0.25, "g": 0.44999998807907104, "b": 0.800000011920929, "a": 1.0}, "portrait": {"fileID": 21300000, "guid": "0db949548410a414d8789a498bceb383", "type": 3}, "inactivePortrait": {"fileID": 21300000, "guid": "97caa12a367ce534cba45fc7e0cd787d", "type": 3}, "nameplate": {"fileID": 21300000, "guid": "67f75469a8b5b814898c088447427999", "type": 3}, "slotId": "left", "visible": 1}]
+    portraits: []
     effectIds: []
     blocksAdvance: 0
   - nodeId: "opening_035"
@@ -332,7 +332,7 @@ MonoBehaviour:
     centerText: 0
     text: "那时我喝醉了。在酒精的作用下，我向他讲述了反复折磨我十年的那个梦魇：档案馆黑暗的走廊、堆到天花板的病历、忽明忽暗的煤气灯……深渊里那个模糊的声音，一直在叫着我的名字。"
     cgCommand: 0
-    portraits: [{"characterId": "andre", "placeholderColor": {"r": 0.25, "g": 0.44999998807907104, "b": 0.800000011920929, "a": 1.0}, "portrait": {"fileID": 21300000, "guid": "0db949548410a414d8789a498bceb383", "type": 3}, "inactivePortrait": {"fileID": 21300000, "guid": "97caa12a367ce534cba45fc7e0cd787d", "type": 3}, "nameplate": {"fileID": 21300000, "guid": "67f75469a8b5b814898c088447427999", "type": 3}, "slotId": "left", "visible": 1}]
+    portraits: []
     effectIds: []
     blocksAdvance: 0
   - nodeId: "opening_036"
@@ -341,7 +341,7 @@ MonoBehaviour:
     centerText: 0
     text: "“安德……安德……”"
     cgCommand: 0
-    portraits: [{"characterId": "andre", "placeholderColor": {"r": 0.25, "g": 0.44999998807907104, "b": 0.800000011920929, "a": 1.0}, "portrait": {"fileID": 21300000, "guid": "0db949548410a414d8789a498bceb383", "type": 3}, "inactivePortrait": {"fileID": 21300000, "guid": "97caa12a367ce534cba45fc7e0cd787d", "type": 3}, "nameplate": {"fileID": 21300000, "guid": "67f75469a8b5b814898c088447427999", "type": 3}, "slotId": "left", "visible": 1}]
+    portraits: []
     effectIds: []
     blocksAdvance: 0
   - nodeId: "opening_037"
@@ -350,7 +350,7 @@ MonoBehaviour:
     centerText: 0
     text: "像是两块滑腻的、饱含水分的腐肉在阴冷的岩石上反复摩擦。它毫无抑扬顿挫的声调可言，音节之间生硬地黏连在一起，干瘪、空洞，却带着一种近乎恶意的、不属于活人的狂热。"
     cgCommand: 0
-    portraits: [{"characterId": "andre", "placeholderColor": {"r": 0.25, "g": 0.44999998807907104, "b": 0.800000011920929, "a": 1.0}, "portrait": {"fileID": 21300000, "guid": "0db949548410a414d8789a498bceb383", "type": 3}, "inactivePortrait": {"fileID": 21300000, "guid": "97caa12a367ce534cba45fc7e0cd787d", "type": 3}, "nameplate": {"fileID": 21300000, "guid": "67f75469a8b5b814898c088447427999", "type": 3}, "slotId": "left", "visible": 1}]
+    portraits: []
     effectIds: []
     blocksAdvance: 0
   - nodeId: "opening_038"
@@ -359,7 +359,7 @@ MonoBehaviour:
     centerText: 0
     text: "当时我想借着酒意吓退这个好奇心过剩的年轻人。可他不仅没被吓退，反而循着我的噩梦，走向了那片黑色的阴影。"
     cgCommand: 0
-    portraits: [{"characterId": "andre", "placeholderColor": {"r": 0.25, "g": 0.44999998807907104, "b": 0.800000011920929, "a": 1.0}, "portrait": {"fileID": 21300000, "guid": "0db949548410a414d8789a498bceb383", "type": 3}, "inactivePortrait": {"fileID": 21300000, "guid": "97caa12a367ce534cba45fc7e0cd787d", "type": 3}, "nameplate": {"fileID": 21300000, "guid": "67f75469a8b5b814898c088447427999", "type": 3}, "slotId": "left", "visible": 1}]
+    portraits: []
     effectIds: []
     blocksAdvance: 0
   - nodeId: "opening_039"
@@ -368,7 +368,7 @@ MonoBehaviour:
     centerText: 0
     text: "我盯着办公桌上那本湿冷的日记。"
     cgCommand: 0
-    portraits: [{"characterId": "andre", "placeholderColor": {"r": 0.25, "g": 0.44999998807907104, "b": 0.800000011920929, "a": 1.0}, "portrait": {"fileID": 21300000, "guid": "0db949548410a414d8789a498bceb383", "type": 3}, "inactivePortrait": {"fileID": 21300000, "guid": "97caa12a367ce534cba45fc7e0cd787d", "type": 3}, "nameplate": {"fileID": 21300000, "guid": "67f75469a8b5b814898c088447427999", "type": 3}, "slotId": "left", "visible": 1}]
+    portraits: []
     effectIds: []
     blocksAdvance: 0
   - nodeId: "opening_040"
@@ -377,7 +377,7 @@ MonoBehaviour:
     centerText: 0
     text: "一个受过严格思维训练的私家侦探，绝不该被一个荒诞的梦魇牵着鼻子走，更不该在毫无准备的深夜，只身闯入一栋让九个人人间蒸发的建筑。"
     cgCommand: 0
-    portraits: [{"characterId": "andre", "placeholderColor": {"r": 0.25, "g": 0.44999998807907104, "b": 0.800000011920929, "a": 1.0}, "portrait": {"fileID": 21300000, "guid": "0db949548410a414d8789a498bceb383", "type": 3}, "inactivePortrait": {"fileID": 21300000, "guid": "97caa12a367ce534cba45fc7e0cd787d", "type": 3}, "nameplate": {"fileID": 21300000, "guid": "67f75469a8b5b814898c088447427999", "type": 3}, "slotId": "left", "visible": 1}]
+    portraits: []
     effectIds: []
     blocksAdvance: 0
   - nodeId: "opening_041"
@@ -386,7 +386,7 @@ MonoBehaviour:
     centerText: 0
     text: "理智在疯狂叫嚣。这是个致命的精神圈套，可内心深处的矛盾与不安，却疯狂地催促着我去直面那个蚕食我十年的梦魇。"
     cgCommand: 0
-    portraits: [{"characterId": "andre", "placeholderColor": {"r": 0.25, "g": 0.44999998807907104, "b": 0.800000011920929, "a": 1.0}, "portrait": {"fileID": 21300000, "guid": "0db949548410a414d8789a498bceb383", "type": 3}, "inactivePortrait": {"fileID": 21300000, "guid": "97caa12a367ce534cba45fc7e0cd787d", "type": 3}, "nameplate": {"fileID": 21300000, "guid": "67f75469a8b5b814898c088447427999", "type": 3}, "slotId": "left", "visible": 1}]
+    portraits: []
     effectIds: []
     blocksAdvance: 0
   - nodeId: "opening_042"
@@ -395,7 +395,7 @@ MonoBehaviour:
     centerText: 0
     text: "我没有再给自己犹豫的时间。我拿上那把制式格斗匕首，提上黄铜手提灯，穿过被雨水与浓雾浸透的伦敦街区。"
     cgCommand: 0
-    portraits: [{"characterId": "andre", "placeholderColor": {"r": 0.25, "g": 0.44999998807907104, "b": 0.800000011920929, "a": 1.0}, "portrait": {"fileID": 21300000, "guid": "0db949548410a414d8789a498bceb383", "type": 3}, "inactivePortrait": {"fileID": 21300000, "guid": "97caa12a367ce534cba45fc7e0cd787d", "type": 3}, "nameplate": {"fileID": 21300000, "guid": "67f75469a8b5b814898c088447427999", "type": 3}, "slotId": "left", "visible": 1}]
+    portraits: []
     effectIds: []
     blocksAdvance: 0
   - nodeId: "opening_043"

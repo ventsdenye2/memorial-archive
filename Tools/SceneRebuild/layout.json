@@ -467,33 +467,40 @@
     },
     {
       "scene": "Room_ArchiveB",
-      "width": 1920,
+      "width": 3840,
       "height": 1080,
-      "left": -9.6,
+      "left": -19.2,
       "backgrounds": [
         {
-          "path": "Assets/Art/Scenes/档案室Bd.png",
-          "x": 0.0,
-          "width": 1920
+          "path": "Assets/Art/Imported/UpdatedRooms0914/档案室b素材/纸张.png",
+          "x": 0,
+          "width": 3840,
+          "order": -12
+        },
+        {
+          "path": "Assets/Art/Imported/UpdatedRooms0914/档案室b素材/组 1.png",
+          "x": 0,
+          "width": 3840,
+          "order": -10
         }
       ],
       "region": "room_archive_b",
-      "door_x": 150.0,
+      "door_x": 2070,
       "points": [
         {
           "id": "Room_ArchiveB_note_1",
           "kind": 9,
-          "x": 753.0,
-          "y": 800,
+          "x": 2818,
+          "y": 788.5,
           "noteId": "Room_ArchiveB_note_1",
-          "sprite": "Assets/Art/Imported/SceneRebuild0909/露台素材/线索 副本.png",
+          "sprite": "Assets/Art/Imported/UpdatedRooms0914/档案室b素材/线索 副本.png",
           "display": "纸条"
         },
         {
           "id": "light_room_archiveb_special",
           "kind": 11,
-          "x": 1754.0,
-          "y": 680,
+          "x": 1450,
+          "y": 430,
           "sprite": "Assets/Art/Imported/UpdatedCorridors/2F/Source/图层 8 副本 3.png",
           "special": true,
           "display": "区域灯具"
@@ -501,63 +508,97 @@
       ],
       "lights": [
         {
-          "x": 53.0,
-          "y": 500.0
+          "x": 612,
+          "y": 510
         },
         {
-          "x": 613.0,
-          "y": 513.0
+          "x": 1180,
+          "y": 513
         },
         {
-          "x": 1181.0,
-          "y": 518.0
+          "x": 2258,
+          "y": 536
         },
         {
-          "x": 1614.0,
-          "y": 516.0
+          "x": 2980,
+          "y": 540
         }
       ],
       "moves": {},
-      "decor": [
+      "decor": [],
+      "layers": [
         {
-          "path": "Assets/Art/Imported/UpdatedCorridors/2F/Source/门 副本.png",
-          "x": 150.0,
-          "y": 790
+          "path": "Assets/Art/Imported/UpdatedRooms0914/档案室b素材/组 2.png",
+          "x": 1182,
+          "y": 654,
+          "width": 397,
+          "height": 396,
+          "order": -9,
+          "tint": [
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "path": "Assets/Art/Imported/UpdatedRooms0914/档案室b素材/漫画专用渐变 副本.png",
+          "x": 0,
+          "y": 0,
+          "width": 3840,
+          "height": 1080,
+          "order": -8,
+          "tint": [
+            1,
+            1,
+            1,
+            1
+          ]
         }
-      ]
+      ],
+      "referencePlate": "Assets/Art/Imported/UpdatedRooms0914/档案室b素材/档案室b.png",
+      "spawn_x": 1900
     },
     {
       "scene": "Room_ArchiveC",
-      "width": 1920,
+      "width": 3840,
       "height": 1080,
-      "left": -9.6,
+      "left": -19.2,
       "backgrounds": [
         {
-          "path": "Assets/Art/Scenes/档案室Cd.png",
-          "x": 0.0,
-          "width": 1920
+          "path": "Assets/Art/Imported/UpdatedRooms0914/档案室c素材/纸张.png",
+          "x": 0,
+          "width": 3840,
+          "order": -12
+        },
+        {
+          "path": "Assets/Art/Imported/UpdatedRooms0914/档案室c素材/组 1.png",
+          "x": 0,
+          "width": 3840,
+          "order": -10
         }
       ],
       "region": "room_archive_c",
-      "door_x": 150.0,
+      "door_x": 3730,
       "points": [
         {
           "id": "Room_ArchiveC_container_1",
           "kind": 1,
-          "x": 625.0,
-          "y": 940,
+          "x": 3495.5,
+          "y": 751.5,
           "items": [
             1002,
             1027
           ],
           "random": false,
-          "display": "容器"
+          "display": "容器",
+          "sprite": "Assets/Art/Imported/UpdatedRooms0914/档案室c素材/衣柜 副本.png"
         },
         {
           "id": "light_room_archivec_special",
           "kind": 11,
-          "x": 1630.0,
-          "y": 680,
+          "x": 3210,
+          "y": 330,
           "sprite": "Assets/Art/Imported/UpdatedCorridors/2F/Source/图层 8 副本 3.png",
           "special": true,
           "display": "区域灯具"
@@ -565,29 +606,31 @@
       ],
       "lights": [
         {
-          "x": 85.0,
-          "y": 489.0
+          "x": 640,
+          "y": 500
         },
         {
-          "x": 1217.0,
-          "y": 507.0
+          "x": 2450,
+          "y": 516
         }
       ],
       "moves": {},
       "monsters": [
         {
           "id": "archive_c_guard",
-          "x": 1250.0,
+          "x": 2750,
           "monster": 2001
         }
       ],
       "decor": [
         {
           "path": "Assets/Art/Imported/UpdatedCorridors/2F/Source/门 副本.png",
-          "x": 150.0,
-          "y": 790
+          "x": 3730,
+          "y": 753.5
         }
-      ]
+      ],
+      "layers": [],
+      "spawn_x": 3320
     },
     {
       "scene": "Room_Director",
@@ -923,24 +966,31 @@
     },
     {
       "scene": "Room_Toilet",
-      "width": 1920,
+      "width": 3840,
       "height": 1080,
-      "left": -9.6,
+      "left": -19.2,
       "backgrounds": [
         {
-          "path": "Assets/Art/Scenes/厕所D.jpg",
-          "x": 0.0,
-          "width": 1920
+          "path": "Assets/Art/Imported/UpdatedRooms0914/厕所素材/纸张.png",
+          "x": 0,
+          "width": 3840,
+          "order": -12
+        },
+        {
+          "path": "Assets/Art/Imported/UpdatedRooms0914/厕所素材/组 1.png",
+          "x": 0,
+          "width": 3840,
+          "order": -10
         }
       ],
       "region": "room_toilet",
-      "door_x": 1745.0,
+      "door_x": 3730,
       "points": [
         {
           "id": "Room_Toilet_container_1",
           "kind": 1,
-          "x": 1575.0,
-          "y": 940,
+          "x": 1780,
+          "y": 910,
           "items": [],
           "random": true,
           "display": "容器"
@@ -948,15 +998,15 @@
         {
           "id": "Room_Toilet_hide",
           "kind": 7,
-          "x": 942.0,
+          "x": 2755,
           "y": 940,
           "display": "躲藏点"
         },
         {
           "id": "light_room_toilet_special",
           "kind": 11,
-          "x": 1325.0,
-          "y": 680,
+          "x": 1200,
+          "y": 430,
           "sprite": "Assets/Art/Imported/UpdatedCorridors/2F/Source/图层 8 副本 3.png",
           "special": true,
           "display": "区域灯具"
@@ -964,15 +1014,54 @@
       ],
       "lights": [
         {
-          "x": 420.0,
-          "y": 582
+          "x": 420,
+          "y": 580
         },
         {
-          "x": 802.0,
+          "x": 805,
           "y": 580
         }
       ],
-      "moves": {}
+      "moves": {},
+      "layers": [
+        {
+          "path": "Assets/Art/Imported/UpdatedRooms0914/厕所素材/组 2.png",
+          "x": 2251,
+          "y": 411,
+          "width": 1006,
+          "height": 655,
+          "order": -9,
+          "tint": [
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "path": "Assets/Art/Imported/UpdatedRooms0914/厕所素材/漫画专用渐变 副本 2.png",
+          "x": 0,
+          "y": 0,
+          "width": 3840,
+          "height": 1080,
+          "order": -8,
+          "tint": [
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      "decor": [
+        {
+          "path": "Assets/Art/Imported/UpdatedCorridors/2F/Source/门 副本.png",
+          "x": 3730,
+          "y": 753.5
+        }
+      ],
+      "referencePlate": "Assets/Art/Imported/UpdatedRooms0914/厕所素材/插画.png",
+      "spawn_x": 3560
     },
     {
       "scene": "Room_Terrace",

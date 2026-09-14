@@ -12,6 +12,46 @@ namespace MemorialArchive.Framework.UI
     {
         // The closest authored slot centres are 135 units apart.
         private const float SlotHitAreaHeight = 135f;
+        // The drawer's front rim begins at row 531 of the 640px chest artwork.
+        private const float DrawerFrontEdgeFromBottom = 109f / 640f;
+
+        public static void ConfigureSlotViewport(Transform surface)
+        {
+            var rect = surface.Find("SlotViewport") as RectTransform;
+            if (rect == null)
+            {
+                var viewport = new GameObject("SlotViewport", typeof(RectTransform), typeof(RectMask2D));
+                viewport.transform.SetParent(surface, false);
+                rect = viewport.GetComponent<RectTransform>();
+                var firstSlot = surface.Find("Slot_1");
+                if (firstSlot != null) rect.SetSiblingIndex(firstSlot.GetSiblingIndex());
+            }
+            rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.sizeDelta = new Vector2(1920f, 1080f);
+            for (var i = 1; i <= 4; i++)
+            {
+                var slot = surface.Find("Slot_" + i);
+                if (slot != null) slot.SetParent(rect, false);
+            }
+            // Recalculate even for an authored viewport: card positions can be
+            // edited independently, so a fixed bottom edge silently goes stale.
+            var fourth = rect.Find("Slot_4") as RectTransform;
+            if (fourth == null) return;
+            var mask = rect.GetComponent<RectMask2D>();
+            if (mask == null) mask = rect.gameObject.AddComponent<RectMask2D>();
+            var corners = new Vector3[4];
+            fourth.GetWorldCorners(corners);
+            var bottom = rect.InverseTransformPoint(corners[0]).y + 25f;
+            var chest = surface.Find("Chest") as RectTransform;
+            if (chest != null)
+            {
+                var rim = new Vector3(0f, chest.rect.yMin + chest.rect.height * DrawerFrontEdgeFromBottom, 0f);
+                var drawerBottom = rect.InverseTransformPoint(chest.TransformPoint(rim)).y;
+                // The drawer wins when a card has been moved below its front rim.
+                bottom = Mathf.Max(bottom, drawerBottom);
+            }
+            mask.padding = new Vector4(0f, bottom - rect.rect.yMin, 0f, 0f);
+        }
 
         public static Transform FindSurface(Transform panel)
         {
@@ -34,7 +74,8 @@ namespace MemorialArchive.Framework.UI
             }
 
             var oneBased = slotIndex + 1;
-            var slot = surface.Find($"Slot_{oneBased}")
+            var slot = surface.Find($"SlotViewport/Slot_{oneBased}")
+                ?? surface.Find($"Slot_{oneBased}")
                 ?? surface.Find($"Slot{oneBased}")
                 ?? surface.Find($"Slot_{slotIndex}")
                 ?? surface.Find($"Slot{slotIndex}");

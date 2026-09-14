@@ -13,6 +13,7 @@ namespace MemorialArchive.Framework.UI
         private readonly HashSet<PanelId> persistentPanelIds = new HashSet<PanelId>();
         private GameContext context;
         private string focusedContainerId;
+        private bool deathLoadPending;
         private readonly HashSet<object> pauseOwners = new HashSet<object>();
 
         public void SetPauseOwner(object owner, bool paused)
@@ -51,6 +52,7 @@ namespace MemorialArchive.Framework.UI
             context.Events.Subscribe<StairTravelRequestedEvent>(HandleStairTravelRequested);
             context.Events.Subscribe<RoomTravelConfirmationRequestedEvent>(HandleRoomTravelConfirmationRequested);
             context.Events.Subscribe<CharacterDiedEvent>(HandleCharacterDied);
+            context.Events.Subscribe<LoadCompletedEvent>(HandleLoadCompleted);
         }
 
         public void Dispose()
@@ -67,11 +69,13 @@ namespace MemorialArchive.Framework.UI
                 context.Events.Unsubscribe<StairTravelRequestedEvent>(HandleStairTravelRequested);
                 context.Events.Unsubscribe<RoomTravelConfirmationRequestedEvent>(HandleRoomTravelConfirmationRequested);
                 context.Events.Unsubscribe<CharacterDiedEvent>(HandleCharacterDied);
+                context.Events.Unsubscribe<LoadCompletedEvent>(HandleLoadCompleted);
             }
 
             CloseAll();
             focusedContainerId = null;
             context = null;
+            deathLoadPending = false;
         }
 
         public void RegisterPersistentPanel(BasePanel panel)
@@ -396,7 +400,20 @@ namespace MemorialArchive.Framework.UI
         private void HandleOpenMapPressed(OpenMapPressedEvent evt)
         { if (GameRoot.Instance?.GetSystem<MemorialArchive.Gameplay.Guide.Logic.GuideFlowSystem>()?.MapUnlocked != false) Toggle(PanelId.Map); }
         private void HandlePausePressed(PausePressedEvent evt) => Toggle(PanelId.System);
-        private void HandleCharacterDied(CharacterDiedEvent evt) => Open(PanelId.Load);
+        private void HandleCharacterDied(CharacterDiedEvent evt)
+        {
+            // Narrative (including the authored tutorial defeat) and System can
+            // reject Open. Retain the request until the blocking panel closes.
+            deathLoadPending = Open(PanelId.Load) == null;
+        }
+
+        private void LateUpdate()
+        {
+            if (deathLoadPending && context != null && !IsOpen(PanelId.Narrative) && !IsOpen(PanelId.System))
+                deathLoadPending = Open(PanelId.Load) == null;
+        }
+
+        private void HandleLoadCompleted(LoadCompletedEvent evt) => deathLoadPending = false;
 
         private void HandleContainerFocusChanged(ContainerFocusChangedEvent evt)
         {

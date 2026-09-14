@@ -10,7 +10,7 @@ namespace MemorialArchive.Framework.Save
 {
     public sealed class SaveManager : IGameSystem
     {
-        public const int Stage1SlotCount = 3;
+        public const int Stage1SlotCount = 4;
 
         private readonly List<ISaveModule> modules = new List<ISaveModule>();
         private readonly Dictionary<int, SaveData> inMemorySlots = new Dictionary<int, SaveData>();

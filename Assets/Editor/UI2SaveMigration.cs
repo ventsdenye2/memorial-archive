@@ -191,21 +191,14 @@ namespace MemorialArchive.Editor
                 throw new InvalidOperationException($"{panelName} migration did not create SaveSlotSurface.");
             }
 
-            for (var slotIndex = 1; slotIndex <= 3; slotIndex++)
+            for (var slotIndex = 1; slotIndex <= MemorialArchive.Framework.Save.SaveManager.Stage1SlotCount; slotIndex++)
             {
-                var slot = surface.Find("Slot_" + slotIndex);
+                var slot = surface.Find("SlotViewport/Slot_" + slotIndex);
                 if (slot == null || slot.GetComponent<Button>() == null ||
                     slot.Find("SlotLabel")?.GetComponent<Text>() == null)
                 {
                     throw new InvalidOperationException($"{panelName} migration did not create authored Slot_{slotIndex}.");
                 }
-            }
-
-            var reservedSlot = surface.Find("Slot_4");
-            if (reservedSlot == null || reservedSlot.GetComponent<Image>() == null ||
-                reservedSlot.Find("SlotLabel")?.GetComponent<Text>() == null)
-            {
-                throw new InvalidOperationException($"{panelName} migration did not create authored Slot_4.");
             }
 
             if (surface.Find("Status")?.GetComponent<Text>() == null)

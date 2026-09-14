@@ -142,6 +142,67 @@ namespace MemorialArchive.Tests.Editor
             Assert.That(lighting.IsLanternLit, Is.False);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
+        public void SpecialFixtureRefuelsAndRelightsExtinguishedLantern(bool depleted)
+        {
+            var fixture = RegisterSpecialFixture();
+            EquipLanternForInteraction();
+            // An already activated special fixture must remain reusable.
+            events.Publish(new LightSourceInteractRequestedEvent(fixture.lightId));
+            if (depleted) { lighting.LimitSelectedLanternFuel(0); lighting.Tick(.01f); }
+            else events.Publish(new LanternTogglePressedEvent());
+            Assert.That(lighting.IsLanternLit, Is.False);
+            using (var scope = new InteractionScope(lighting, events, configs))
+            {
+                events.Publish(new InteractionFocusChangedEvent(fixture.lightId, MemorialArchive.Gameplay.Interaction.Data.InteractionType.LightSource, true));
+                events.Publish(new InteractPressedEvent());
+                Assert.That(lighting.IsLanternLit, Is.True);
+                Assert.That(lighting.LanternFuelRemaining, Is.EqualTo(lighting.LanternFuelTotal));
+            }
+        }
+
+        [Test]
+        public void OrdinaryFixtureFocusHidesWhenLitAndReturnsWhenExpired()
+        {
+            EquipLanternForInteraction();
+            const string id = "light_corridor_1f_floor_1f_n01";
+            ActiveInteractionChangedEvent latest = default;
+            events.Subscribe<ActiveInteractionChangedEvent>(evt => latest = evt);
+            using (var scope = new InteractionScope(lighting, events, configs))
+            {
+                events.Publish(new InteractionFocusChangedEvent(id, MemorialArchive.Gameplay.Interaction.Data.InteractionType.LightSource, true));
+                Assert.That(latest.HasFocus, Is.True);
+                events.Publish(new InteractPressedEvent());
+                Assert.That(lighting.IsLightOn(id), Is.True);
+                Assert.That(latest.HasFocus, Is.False);
+                events.Publish(new InteractionFocusChangedEvent(id, MemorialArchive.Gameplay.Interaction.Data.InteractionType.LightSource, false));
+                events.Publish(new InteractionFocusChangedEvent(id, MemorialArchive.Gameplay.Interaction.Data.InteractionType.LightSource, true));
+                Assert.That(latest.HasFocus, Is.False);
+                lighting.Tick(configs.GetLightingGlobal().TempLightSeconds + .1f);
+                Assert.That(latest.HasFocus, Is.True);
+            }
+        }
+
+        private void EquipLanternForInteraction()
+        {
+            var lantern = inventory.PlayerInventory.playerItems.First(p => p?.item?.itemId == 1006);
+            Assert.That(inventory.TryEquipToFirstAvailableSlot(lantern.item.instanceId), Is.True);
+            var shortcut = inventory.PlayerInventory.playerItems.First(p => p?.item?.instanceId == lantern.item.instanceId);
+            Assert.That(inventory.TrySelectShortcut(shortcut.slotIndex), Is.True);
+        }
+
+        private sealed class InteractionScope : System.IDisposable
+        {
+            private readonly MemorialArchive.Gameplay.Interaction.Logic.InteractionSystem system;
+            public InteractionScope(LightingSystem lighting, EventBus events, ConfigManager configs)
+            {
+                system = new MemorialArchive.Gameplay.Interaction.Logic.InteractionSystem(lighting);
+                system.Initialize(new GameContext(events, configs, null, null, null));
+            }
+            public void Dispose() => system.Dispose();
+        }
+
         [Test]
         public void SelectedLanternPublishesConfiguredWarmLight()
         {

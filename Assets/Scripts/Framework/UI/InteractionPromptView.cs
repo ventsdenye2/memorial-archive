@@ -27,9 +27,8 @@ namespace MemorialArchive.Framework.UI
 
         private bool isInitialized;
         private EventBus boundEvents;
-        private bool hasLightFocus;
         private bool hasInteractionFocus;
-        private string focusedInteractionId;
+        private bool accessDenied;
         private Image promptImage;
         private Button promptButton;
         private Sprite promptBackgroundSprite;
@@ -54,8 +53,8 @@ namespace MemorialArchive.Framework.UI
 
         private void Update()
         {
-            if (hasLightFocus && isInitialized && promptRoot != null)
-                SetPromptVisible(GameRoot.Instance?.GetSystem<MemorialArchive.Gameplay.Lighting.Logic.LightingSystem>()?.IsLanternEquipped == true);
+            if (hasInteractionFocus && isInitialized && promptRoot != null)
+                SetPromptVisible(IsLanternEquipped());
             // Player objects can enable before GameRoot has built its context.
             // Retry only until the event bus becomes available.
             if (boundEvents == null)
@@ -66,9 +65,9 @@ namespace MemorialArchive.Framework.UI
 
         private void OnDisable()
         {
-            hasLightFocus = false;
             hasInteractionFocus = false;
-            focusedInteractionId = null;
+            accessDenied = false;
+            SetPromptVisible(false);
             if (boundEvents != null)
             {
                 boundEvents.Unsubscribe<ActiveInteractionChangedEvent>(HandleActiveInteractionChanged);
@@ -99,6 +98,12 @@ namespace MemorialArchive.Framework.UI
         private void HandleAccessDenied(SceneAccessDeniedEvent evt)
         {
             if (!isInitialized || promptRoot == null || promptText == null) return;
+            if (!IsLanternEquipped())
+            {
+                SetPromptVisible(false);
+                return;
+            }
+            accessDenied = true;
             if (promptImage != null)
             {
                 promptImage.sprite = promptBackgroundSprite;
@@ -116,18 +121,10 @@ namespace MemorialArchive.Framework.UI
 
         private void HandleActiveInteractionChanged(ActiveInteractionChangedEvent evt)
         {
-            if (evt.HasFocus)
-            {
-                hasInteractionFocus = true;
-                focusedInteractionId = evt.InteractionId;
-            }
-            else if (evt.InteractionId == focusedInteractionId)
-            {
-                hasInteractionFocus = false;
-                focusedInteractionId = null;
-            }
-
-            hasLightFocus = evt.HasFocus && evt.InteractionType == InteractionType.LightSource;
+            // This is the system's resolved focus snapshot, not an individual
+            // trigger exit. No focus is published with a null interaction ID.
+            hasInteractionFocus = evt.HasFocus;
+            accessDenied = false;
             if (!isInitialized || promptRoot == null)
             {
                 return;
@@ -136,11 +133,11 @@ namespace MemorialArchive.Framework.UI
             if (evt.HasFocus)
             {
                 ApplyArtwork(evt.InteractionId, evt.InteractionType);
-                SetPromptVisible(!hasLightFocus || GameRoot.Instance?.GetSystem<MemorialArchive.Gameplay.Lighting.Logic.LightingSystem>()?.IsLanternEquipped == true);
+                SetPromptVisible(IsLanternEquipped());
             }
-            else if (!hasInteractionFocus)
+            else
             {
-                promptRoot.SetActive(false);
+                SetPromptVisible(false);
             }
         }
 
@@ -174,7 +171,7 @@ namespace MemorialArchive.Framework.UI
 
         private void HandlePromptClicked()
         {
-            if (!hasInteractionFocus || (hasLightFocus && !IsLanternEquipped()))
+            if (!hasInteractionFocus || accessDenied || !IsLanternEquipped())
             {
                 return;
             }
@@ -219,7 +216,7 @@ namespace MemorialArchive.Framework.UI
             promptRoot.SetActive(visible);
             if (promptButton != null)
             {
-                promptButton.interactable = visible && hasInteractionFocus && promptImage != null && promptImage.sprite != null;
+                promptButton.interactable = visible && hasInteractionFocus && !accessDenied && promptImage != null && promptImage.sprite != null;
             }
         }
 
@@ -236,6 +233,7 @@ namespace MemorialArchive.Framework.UI
                     return (saveSprite, saveHighlightedSprite);
                 case InteractionType.ItemPickup:
                 case InteractionType.NotePickup:
+                case InteractionType.LightSource:
                     return (pickupSprite, pickupHighlightedSprite);
                 case InteractionType.SceneExit:
                     return GetSceneExitArtwork(interactionId);

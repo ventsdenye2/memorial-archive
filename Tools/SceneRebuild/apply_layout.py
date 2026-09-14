@@ -177,7 +177,8 @@ for s in PLAN['scenes']:
                 id=id.replace('Room_Office','Room_Terrace');doc.edit(i)['interactionId' if script==guid(IP) else 'pointId']=id
         if scene.startswith('Room_') and (script==guid(SP) or d.get('interactionType')==6):
             inset=(1.7 if s['door_x']<s['width']/2 else -1.7) if script==guid(SP) else 0
-            doc.move(go,left+s['door_x']/100+inset,-5.2)
+            target_x=left+s['spawn_x']/100 if script==guid(SP) and 'spawn_x' in s else left+s['door_x']/100+inset
+            doc.move(go,target_x,-5.2)
         elif id in s['moves']:doc.move(go,left+s['moves'][id]/100,-5.2)
     # Bind both possible camera implementations to the rebuilt shape.
     for i,d in doc.find('MonoBehaviour'):
@@ -189,6 +190,7 @@ for s in PLAN['scenes']:
                 doc.dirty.add(i);m['objectReference']=ref(file_id=confiner)
         if prefab_paths.get(d.get('m_SourcePrefab',{}).get('guid'))=='Assets/Prefabs/Character/Player.prefab':
             spawn_x=left+(s['door_x']+(170 if s['door_x']<s['width']/2 else -170))/100 if scene.startswith('Room_') else left+(320 if scene=='FrontHall' else 220)/100
+            if 'spawn_x' in s:spawn_x=left+s['spawn_x']/100
             for m in d['m_Modification']['m_Modifications']:
                 if m['propertyPath']=='m_LocalPosition.x' and m['target']['fileID']==6489321317651925394:
                     doc.dirty.add(i);m['value']=str(spawn_x)

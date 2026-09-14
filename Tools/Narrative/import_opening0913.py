@@ -82,7 +82,9 @@ for pi, paragraph in enumerate(source.paragraphs):
         rendered = ''.join('<size=32><i><color=#FFFFFF>' + part + '</color></i></size>' if red else part for part, red in runs).strip()
     # A switch marker applies to the immediately following shot. Ordinary
     # narration thereafter must not inherit a portrait from that marker.
-    node_cast = list(cast) if speaker or (cast == ['andre'] and cg == 'CG02') else []
+    # CG02 already contains Andre's full portrait. Adding a standalone portrait
+    # to its narration shots draws him twice at slightly different positions.
+    node_cast = list(cast) if speaker else []
     portrait_pending = False
     # The witness quotation intentionally removes the narrator portrait.
     if pi == 25:

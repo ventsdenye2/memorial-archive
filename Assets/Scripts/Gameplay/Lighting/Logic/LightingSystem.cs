@@ -374,6 +374,7 @@ namespace MemorialArchive.Gameplay.Lighting.Logic
             }
             else
             {
+                if (IsLightOn(evt.LightId)) return;
                 tempLightRemaining[evt.LightId] = config.TempLightSeconds;
                 context.Events.Publish(new LightStateChangedEvent(evt.LightId, true, config.TempLightSeconds));
             }
@@ -538,6 +539,7 @@ namespace MemorialArchive.Gameplay.Lighting.Logic
             }
 
             lanternFuelByInstance[equippedLanternInstanceId] = config.LanternTotalFuelSeconds;
+            SetLanternLit(true);
             PublishLanternFuel();
         }
 

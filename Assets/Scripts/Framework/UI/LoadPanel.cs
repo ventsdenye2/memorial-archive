@@ -9,7 +9,7 @@ namespace MemorialArchive.Framework.UI
 {
     /// <summary>
     /// Main menu and death flow load panel. Its UI2.0 surface is authored in
-    /// the prefab; runtime code only binds the three functional slots.
+    /// the prefab; runtime code only binds the four functional slots.
     /// </summary>
     public sealed class LoadPanel : BasePanel
     {
@@ -110,6 +110,7 @@ namespace MemorialArchive.Framework.UI
                 return;
             }
 
+            SaveSlotPanelViewFactory.ConfigureSlotViewport(surface);
             statusLabel = surface.Find("Status")?.GetComponent<Text>();
             closeButton = SaveSlotPanelViewFactory.FindCloseButton(surface);
             if (closeButton != null)
@@ -133,15 +134,6 @@ namespace MemorialArchive.Framework.UI
                 SaveSlotPanelViewFactory.ConfigureSlotButton(button, GetNormalSprite(slotIndex),
                     GetSelectedSprite(slotIndex), true, 25f);
                 button.onClick.AddListener(() => RequestLoad(capturedIndex));
-            }
-
-            Text fourthLabel;
-            var fourthImage = SaveSlotPanelViewFactory.FindDisabledSlot(surface, SaveManager.Stage1SlotCount, out fourthLabel);
-            if (fourthImage != null)
-            {
-                SaveSlotPanelViewFactory.ConfigureDisabledSlot(fourthImage,
-                    GetNormalSprite(SaveManager.Stage1SlotCount), GetSelectedSprite(SaveManager.Stage1SlotCount));
-                if (fourthLabel != null) fourthLabel.text = "第一阶段预留";
             }
 
             layoutBound = true;
@@ -187,10 +179,10 @@ namespace MemorialArchive.Framework.UI
                 chestSprite != null ? chestSprite.rect.size : new Vector2(917f, 640f), chestSprite, false);
             var positions = new[]
             {
-                new Vector2(-5f, 290f),
-                new Vector2(-5f, 125f),
-                new Vector2(-5f, -10f),
-                new Vector2(-5f, -145f)
+                new Vector2(-5f, 265f),
+                new Vector2(-5f, 100f),
+                new Vector2(-5f, -35f),
+                new Vector2(-5f, -170f)
             };
             for (var slotIndex = 0; slotIndex < SaveManager.Stage1SlotCount; slotIndex++)
             {
@@ -198,9 +190,7 @@ namespace MemorialArchive.Framework.UI
                     GetNormalSprite(slotIndex), GetSelectedSprite(slotIndex), positions[slotIndex], out _);
             }
 
-            SaveSlotPanelViewFactory.CreateAuthoredDisabledSlot(surface, SaveManager.Stage1SlotCount,
-                GetNormalSprite(SaveManager.Stage1SlotCount), GetSelectedSprite(SaveManager.Stage1SlotCount),
-                positions[SaveManager.Stage1SlotCount], out _);
+            SaveSlotPanelViewFactory.ConfigureSlotViewport(surface);
             SaveSlotPanelViewFactory.CreateAuthoredText(surface, "Status", new Vector2(0f, -292f),
                 new Vector2(720f, 40f), 16, TextAnchor.MiddleCenter, new Color(0.28f, 0.18f, 0.12f, 1f));
             SaveSlotPanelViewFactory.CreateAuthoredCloseButton(surface, cancelSprite, new Vector2(0f, -390f));

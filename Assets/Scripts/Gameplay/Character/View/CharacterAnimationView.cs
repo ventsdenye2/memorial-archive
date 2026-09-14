@@ -995,17 +995,6 @@ namespace MemorialArchive.Gameplay.Character.View
 
         private void SwitchIdleAnimation()
         {
-            if (IsLanternSelected() && walkData != null)
-            {
-                var lanternIdle = SwitchSkeleton(walkData, "lanternwalk", true);
-                if (lanternIdle != null)
-                {
-                    lanternIdle.TrackTime = LanternIdleTrackTime(lanternIdle.AnimationEnd - lanternIdle.AnimationStart);
-                    lanternIdle.TimeScale = 0f;
-                }
-                return;
-            }
-
             if (SelectedItemUses(CombatAttackKind.Firearm) && firearmActionData != null)
             {
                 SwitchSkeleton(firearmActionData, "gun-hold", true);
@@ -1014,8 +1003,6 @@ namespace MemorialArchive.Gameplay.Character.View
 
             SwitchSkeleton(idleData, "idle", true);
         }
-
-        public static float LanternIdleTrackTime(float clipDuration) => Mathf.Min(Mathf.Max(0f, clipDuration), 0.5f);
 
         private void UpdateFirearmAim(Vector2 targetWorldPosition)
         {

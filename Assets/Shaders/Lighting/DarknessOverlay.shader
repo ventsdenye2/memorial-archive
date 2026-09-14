@@ -53,7 +53,9 @@ Shader "Memorial Archive/Lighting/Darkness Overlay"
             fixed4 frag(v2f input) : SV_Target
             {
                 float lightAmount = 0.0;
-                fixed3 lightColor = fixed3(1, 1, 1);
+                float totalWeight = 0.0;
+                float warmWeight = 0.0;
+                float3 warmColorSum = float3(0, 0, 0);
                 int lightCount = min(_LightCount, MAX_LIGHTS);
                 for (int index = 0; index < lightCount; index++)
                 {
@@ -61,19 +63,20 @@ Shader "Memorial Archive/Lighting/Darkness Overlay"
                     float distanceToLight = distance(input.worldPosition, lightData.xy);
                     float contribution = saturate(1.0 - distanceToLight / max(lightData.z, 0.0001));
                     contribution = pow(contribution, _FalloffExponent) * max(lightData.w, 0.0);
-                    if (contribution > lightAmount)
-                    {
-                        lightAmount = contribution;
-                        lightColor = _LightColorData[index].rgb;
-                    }
+                    lightAmount = max(lightAmount, contribution);
+                    float3 candidateColor = _LightColorData[index].rgb;
+                    float warmMask = step(0.02, abs(candidateColor.r - candidateColor.g) + abs(candidateColor.g - candidateColor.b));
+                    totalWeight += contribution;
+                    warmWeight += contribution * warmMask;
+                    warmColorSum += candidateColor * contribution * warmMask;
                 }
 
                 float alpha = _DarknessAlpha * _Dim * (1.0 - saturate(lightAmount));
-                // Neutral (white) fixtures retain the original black veil.
-                // Only the lantern's authored non-neutral color participates.
-                float warmMask = step(0.02, abs(lightColor.r - lightColor.g) + abs(lightColor.g - lightColor.b));
-                fixed3 veilColor = lerp(_DarknessColor.rgb, lightColor,
-                    warmMask * saturate(lightAmount * 0.35));
+                // Blend tint continuously instead of switching to the strongest
+                // light's color at the boundary. Keep the existing brightness.
+                float3 veilColor = _DarknessColor.rgb +
+                    (warmColorSum - _DarknessColor.rgb * warmWeight) /
+                    max(totalWeight, 0.0001) * saturate(lightAmount * 0.35);
                 return fixed4(veilColor, alpha);
             }
             ENDCG
@@ -116,7 +119,8 @@ Shader "Memorial Archive/Lighting/Darkness Overlay"
             fixed4 fragWarm(v2f input) : SV_Target
             {
                 float warmAmount = 0.0;
-                fixed3 warmColor = fixed3(0, 0, 0);
+                float warmWeight = 0.0;
+                float3 warmColorSum = float3(0, 0, 0);
                 int lightCount = min(_LightCount, MAX_LIGHTS);
                 for (int index = 0; index < lightCount; index++)
                 {
@@ -127,14 +131,13 @@ Shader "Memorial Archive/Lighting/Darkness Overlay"
                     fixed3 candidateColor = _LightColorData[index].rgb;
                     float warmMask = step(0.02, abs(candidateColor.r - candidateColor.g) +
                         abs(candidateColor.g - candidateColor.b));
-                    if (contribution * warmMask > warmAmount)
-                    {
-                        warmAmount = contribution * warmMask;
-                        warmColor = candidateColor;
-                    }
+                    float weight = contribution * warmMask;
+                    warmAmount = max(warmAmount, weight);
+                    warmWeight += weight;
+                    warmColorSum += candidateColor * weight;
                 }
 
-                return fixed4(warmColor * saturate(warmAmount) * 0.12 * _Dim, 1);
+                return fixed4(warmColorSum / max(warmWeight, 0.0001) * saturate(warmAmount) * 0.12 * _Dim, 1);
             }
             ENDCG
         }

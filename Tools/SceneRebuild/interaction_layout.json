@@ -795,38 +795,38 @@
       "points": [
         {
           "id": "light_room_archiveb_ordinary_01",
-          "x": -9.07,
+          "x": -13.08,
           "width": 1.0
-        },
-        {
-          "id": "Room_ArchiveB_return",
-          "x": -7.47,
-          "width": 1.6
         },
         {
           "id": "light_room_archiveb_ordinary_02",
-          "x": -3.47,
-          "width": 1.0
-        },
-        {
-          "id": "Room_ArchiveB_note_1",
-          "x": -2.07,
-          "width": 1.2
-        },
-        {
-          "id": "light_room_archiveb_ordinary_03",
-          "x": 2.21,
-          "width": 1.0
-        },
-        {
-          "id": "light_room_archiveb_ordinary_04",
-          "x": 6.54,
+          "x": -7.4,
           "width": 1.0
         },
         {
           "id": "light_room_archiveb_special",
-          "x": 7.94,
+          "x": -4.7,
           "width": 1.2
+        },
+        {
+          "id": "Room_ArchiveB_return",
+          "x": 1.5,
+          "width": 1.6
+        },
+        {
+          "id": "light_room_archiveb_ordinary_03",
+          "x": 3.38,
+          "width": 1.0
+        },
+        {
+          "id": "Room_ArchiveB_note_1",
+          "x": 8.98,
+          "width": 1.2
+        },
+        {
+          "id": "light_room_archiveb_ordinary_04",
+          "x": 10.6,
+          "width": 1.0
         }
       ]
     },
@@ -835,38 +835,38 @@
       "points": [
         {
           "id": "light_room_archivec_ordinary_01",
-          "x": -8.75,
+          "x": -12.8,
           "width": 1.0
         },
         {
-          "id": "Room_ArchiveC_return",
-          "x": -7.15,
-          "width": 1.6
-        },
-        {
-          "id": "Room_ArchiveC_container_1",
-          "x": -3.35,
+          "id": "Room_ArchiveC_records",
+          "x": -6.2,
           "width": 1.2
         },
         {
-          "id": "Room_ArchiveC_records",
-          "x": -1.1,
+          "id": "Room_ArchiveC_williams",
+          "x": 3.3,
           "width": 1.2
         },
         {
           "id": "light_room_archivec_ordinary_02",
-          "x": 2.57,
+          "x": 5.3,
           "width": 1.0
         },
         {
-          "id": "Room_ArchiveC_williams",
-          "x": 4.1,
+          "id": "light_room_archivec_special",
+          "x": 12.9,
           "width": 1.2
         },
         {
-          "id": "light_room_archivec_special",
-          "x": 6.7,
+          "id": "Room_ArchiveC_container_1",
+          "x": 15.755,
           "width": 1.2
+        },
+        {
+          "id": "Room_ArchiveC_return",
+          "x": 18.1,
+          "width": 1.6
         }
       ]
     },
@@ -1110,32 +1110,32 @@
       "points": [
         {
           "id": "light_room_toilet_ordinary_01",
-          "x": -5.4,
+          "x": -15.0,
           "width": 1.0
         },
         {
           "id": "light_room_toilet_ordinary_02",
-          "x": -1.58,
+          "x": -11.15,
           "width": 1.0
         },
         {
-          "id": "Room_Toilet_hide",
-          "x": -0.18,
-          "width": 1.2
-        },
-        {
           "id": "light_room_toilet_special",
-          "x": 3.65,
+          "x": -7.2,
           "width": 1.2
         },
         {
           "id": "Room_Toilet_container_1",
-          "x": 6.15,
+          "x": -1.4,
+          "width": 1.2
+        },
+        {
+          "id": "Room_Toilet_hide",
+          "x": 8.35,
           "width": 1.2
         },
         {
           "id": "Toilet_to_Floor1",
-          "x": 7.85,
+          "x": 18.1,
           "width": 1.6
         }
       ]

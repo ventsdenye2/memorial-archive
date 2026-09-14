@@ -61,7 +61,9 @@ namespace MemorialArchive.Framework.UI
 
         public void OnSelect(BaseEventData eventData)
         {
-            selected = true;
+            // A mouse click must not latch the lift after the pointer leaves.
+            // Retain selection motion for keyboard/controller navigation.
+            selected = !(eventData is PointerEventData);
             ApplyState();
         }
 
@@ -119,7 +121,7 @@ namespace MemorialArchive.Framework.UI
             }
 
             StopMovement();
-            if (!Application.isPlaying || SelectionLiftDuration <= 0f || selectedYOffset <= 0f)
+            if (!Application.isPlaying || !isActiveAndEnabled || SelectionLiftDuration <= 0f || selectedYOffset <= 0f)
             {
                 slotRect.anchoredPosition = targetPosition;
                 return;

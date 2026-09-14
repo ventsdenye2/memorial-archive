@@ -41,6 +41,8 @@ namespace MemorialArchive.Gameplay.Interaction.Logic
             context.Events.Subscribe<InteractPressedEvent>(HandleInteractPressed);
             context.Events.Subscribe<RoomEnteredEvent>(HandleRoomEntered);
             context.Events.Subscribe<SceneLoadedEvent>(HandleSceneLoaded);
+            context.Events.Subscribe<LightStateChangedEvent>(HandleLightStateChanged);
+            context.Events.Subscribe<RegionLightsStateChangedEvent>(HandleRegionLightsStateChanged);
         }
 
         public void Dispose()
@@ -51,6 +53,8 @@ namespace MemorialArchive.Gameplay.Interaction.Logic
                 context.Events.Unsubscribe<InteractPressedEvent>(HandleInteractPressed);
                 context.Events.Unsubscribe<RoomEnteredEvent>(HandleRoomEntered);
                 context.Events.Unsubscribe<SceneLoadedEvent>(HandleSceneLoaded);
+                context.Events.Unsubscribe<LightStateChangedEvent>(HandleLightStateChanged);
+                context.Events.Unsubscribe<RegionLightsStateChangedEvent>(HandleRegionLightsStateChanged);
             }
 
             context = null;
@@ -156,6 +160,8 @@ namespace MemorialArchive.Gameplay.Interaction.Logic
             FocusCandidate selected = null;
             foreach (var pair in activeFocus)
             {
+                if (pair.Value.type == InteractionType.LightSource && !IsSpecialLight(pair.Key) &&
+                    lighting != null && lighting.IsLightOn(pair.Key)) continue;
                 if (selected == null || IsBetterFocus(pair.Key, pair.Value, selectedId, selected))
                 {
                     selectedId = pair.Key;
@@ -197,6 +203,9 @@ namespace MemorialArchive.Gameplay.Interaction.Logic
             var config = context?.Configs?.GetLightSource(candidateId);
             return config != null ? config.IsSpecial : lighting != null && lighting.IsSpecialLight(candidateId);
         }
+
+        private void HandleLightStateChanged(LightStateChangedEvent evt) => RefreshFocusedInteraction();
+        private void HandleRegionLightsStateChanged(RegionLightsStateChangedEvent evt) => RefreshFocusedInteraction();
 
         private void HandleInteractPressed(InteractPressedEvent evt)
         {
@@ -321,6 +330,7 @@ namespace MemorialArchive.Gameplay.Interaction.Logic
             focusOrder = 0;
             focusedInteractionId = null;
             focusedInteractionType = InteractionType.None;
+            context?.Events.Publish(new ActiveInteractionChangedEvent(null, InteractionType.None, false));
         }
 
         private void MarkCompleted(string interactionId)

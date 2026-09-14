@@ -51,22 +51,22 @@
   {
     "id": "Room_ArchiveB_note_1",
     "scene": "Room_ArchiveB",
-    "x": 1100,
-    "y": 820,
+    "x": 2818,
+    "y": 788.5,
     "title": "档案柜 B · 病状记录"
   },
   {
     "id": "Room_ArchiveC_records",
     "scene": "Room_ArchiveC",
-    "x": 850,
-    "y": 820,
+    "x": 1300,
+    "y": 815,
     "title": "档案柜 C · 病状记录"
   },
   {
     "id": "Room_ArchiveC_williams",
     "scene": "Room_ArchiveC",
-    "x": 1370,
-    "y": 820,
+    "x": 2250,
+    "y": 810,
     "title": "艾伯特·威廉姆斯的日记"
   },
   {

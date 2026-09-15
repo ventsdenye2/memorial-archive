@@ -20,6 +20,8 @@ namespace MemorialArchive.Gameplay.Guide.Logic
         private Progress progress = new Progress();
         private GameContext context;
         private int openedFrame;
+        private float openedRealtime;
+        private const float MinimumVisibleSeconds = 1f;
         private bool suspended;
         private int consumedFrame = -1;
         public GuidePresentationConfig Config { get; private set; }
@@ -28,7 +30,8 @@ namespace MemorialArchive.Gameplay.Guide.Logic
         public bool SequenceActive => !HasCompleted("map_unlocked");
         public bool DiaryMapButtonsVisible => HasShown("light") && HasShown("systems");
         public bool HasShown(string id) => progress.startedStepIds.Contains(id) || HasCompleted(id);
-        public bool BlocksInput => Current?.pause == true || consumedFrame == Time.frameCount;
+        // Every tutorial page is modal: gameplay must stop while it is visible.
+        public bool BlocksInput => Current != null || consumedFrame == Time.frameCount;
         public event Action Changed;
         public void Initialize(GameContext value)
         {
@@ -76,7 +79,8 @@ namespace MemorialArchive.Gameplay.Guide.Logic
             Current = Config.Find(id);
             if (!progress.startedStepIds.Contains(id)) progress.startedStepIds.Add(id);
             openedFrame = Time.frameCount;
-            context.UI.SetPauseOwner(this, Current.pause);
+            openedRealtime = Time.unscaledTime;
+            context.UI.SetPauseOwner(this, true);
             Changed?.Invoke();
             context.Events.Publish(new GuideStepStartedEvent(id));
         }
@@ -84,9 +88,9 @@ namespace MemorialArchive.Gameplay.Guide.Logic
         {
             if (consumedFrame == Time.frameCount) return true;
             if (Current == null) return false;
-            if (Time.frameCount > openedFrame + 1 && (Current.dismissKey == KeyCode.None ? Input.anyKeyDown : Input.GetKeyDown(Current.dismissKey)))
+            if (Time.frameCount > openedFrame + 1 && Time.unscaledTime - openedRealtime >= MinimumVisibleSeconds && (Current.dismissKey == KeyCode.None ? Input.anyKeyDown : Input.GetKeyDown(Current.dismissKey)))
             { Acknowledge(); return true; }
-            return Current.pause;
+            return true;
         }
         public void Acknowledge()
         {

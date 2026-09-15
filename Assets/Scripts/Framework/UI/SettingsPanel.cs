@@ -15,7 +15,7 @@ namespace MemorialArchive.Framework.UI
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void InitializeDisplay()
         {
-            selectedFullscreen = PlayerPrefs.GetInt(FullscreenPreference, 0) != 0;
+            selectedFullscreen = PlayerPrefs.GetInt(FullscreenPreference, 1) != 0;
             ApplyFixedResolution();
         }
 

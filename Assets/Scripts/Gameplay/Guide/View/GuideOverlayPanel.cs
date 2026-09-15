@@ -29,8 +29,9 @@ namespace MemorialArchive.Gameplay.Guide.View
             closeHint.enabled = page != null && page.dismissKey == KeyCode.None;
             message.text = page?.message ?? string.Empty;
             message.gameObject.SetActive(!string.IsNullOrEmpty(message.text));
-            inputShield.blocksRaycasts = page?.pause == true;
-            inputShield.interactable = page?.pause == true;
+            // Tutorial pages always suspend gameplay and consume input while shown.
+            inputShield.blocksRaycasts = page != null;
+            inputShield.interactable = page != null;
         }
     }
 }

@@ -208,6 +208,40 @@ namespace MemorialArchive.Tests.Editor
             return result;
         }
         [Test]
+        public void TerraceEntranceTriggerReachesThirdFloorWalkingLine()
+        {
+            const string scenePath = "Assets/Scenes/Floor_3F.unity";
+            var originalScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+            var scene = UnityEngine.SceneManagement.SceneManager.GetSceneByPath(scenePath);
+            var wasLoaded = scene.IsValid() && scene.isLoaded;
+            if (!wasLoaded)
+                scene = UnityEditor.SceneManagement.EditorSceneManager.OpenScene(scenePath, UnityEditor.SceneManagement.OpenSceneMode.Additive);
+            try
+            {
+                var point = scene.GetRootGameObjects()
+                    .SelectMany(root => root.GetComponentsInChildren<MemorialArchive.Gameplay.Interaction.View.InteractionPointView>(true))
+                    .Single(p => p.InteractionId == "Room_Terrace_enter");
+                var trigger = point.GetComponent<BoxCollider2D>();
+                Assert.That(point.gameObject.activeInHierarchy && point.enabled && trigger.enabled && trigger.isTrigger, Is.True);
+                // Test in local space so mirrored door artwork cannot flip the trigger off the walking line.
+                var walkingPoint = (Vector2)point.transform.InverseTransformPoint(new Vector3(point.transform.position.x, -5.2f, 0));
+                var localBounds = new Rect(trigger.offset - trigger.size * .5f, trigger.size);
+                Assert.That(localBounds.Contains(walkingPoint), Is.True, "Terrace entrance must be reachable at the player's fixed walking height.");
+                var db = AssetDatabase.LoadAssetAtPath<GameConfigDatabase>("Assets/GameConfigs/GameConfigDatabase.asset");
+                var entrance = db.Interactions.Single(c => c != null && c.InteractionId == point.InteractionId);
+                Assert.That(entrance.TransitionSceneId, Is.EqualTo("Room_Terrace"));
+                Assert.That(entrance.TransitionSpawnPointId, Is.EqualTo("Room_Terrace_spawn_entry"));
+                Assert.That(EditorBuildSettings.scenes.Any(s => s.enabled && s.path == "Assets/Scenes/Room_Terrace.unity"), Is.True);
+            }
+            finally
+            {
+                if (!wasLoaded) UnityEditor.SceneManagement.EditorSceneManager.CloseScene(scene, true);
+                if (originalScene.IsValid() && originalScene.isLoaded)
+                    UnityEngine.SceneManagement.SceneManager.SetActiveScene(originalScene);
+            }
+        }
+
+        [Test]
         public void AuthoredInteractionConfigsPointToEveryReadingEntry()
         {
             var db = AssetDatabase.LoadAssetAtPath<GameConfigDatabase>("Assets/GameConfigs/GameConfigDatabase.asset");

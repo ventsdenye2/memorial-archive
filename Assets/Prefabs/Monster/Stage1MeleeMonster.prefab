@@ -97,7 +97,7 @@ MonoBehaviour:
   m_Name:
   m_EditorClassIdentifier:
   skeletonDataAsset: {fileID: 11400000, guid: 9af734b392a3e8a4c951023ccaa3c661, type: 2}
-  initialSkinName:
+  initialSkinName: normal
   initialFlipX: 0
   initialFlipY: 0
   separatorSlotNames: []
@@ -259,6 +259,9 @@ MonoBehaviour:
   idleAnimation: Enemy_01_idle
   walkAnimation: Enemy_01_walk
   attackAnimation: Enemy_01_attack01
+  secondAttackAnimation: Enemy_01_attack02
+  normalSkin: normal
+  damagedSkin: damage
   hurtAnimation: Enemy_01_hurt
   deathAnimation: Enemy_01_die
   artFacesRight: 0

@@ -1,0 +1,3 @@
+UnityEditor.AssetDatabase.Refresh();
+UnityEditor.EditorApplication.EnterPlaymode();
+return "Entering play mode for lamp verification";

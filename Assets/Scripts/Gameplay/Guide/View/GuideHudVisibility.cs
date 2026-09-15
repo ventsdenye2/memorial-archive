@@ -7,8 +7,7 @@ using UnityEngine;
 namespace MemorialArchive.Gameplay.Guide.View
 {
     /// <summary>
-    /// 引导序列进行期间隐藏 HUD 上不该出现的图标（需求 2.1 第 8 点：该阶段笔记和地图图标不出现）。
-    /// 只订阅 GuideSequenceActiveChangedEvent 切换显隐，不改 HUD 面板本身的逻辑。
+    /// 笔记和地图按钮在灯具、笔记地图教程都显示过后解锁。
     /// </summary>
     public sealed class GuideHudVisibility : MonoBehaviour
     {
@@ -19,6 +18,7 @@ namespace MemorialArchive.Gameplay.Guide.View
         private void OnEnable()
         {
             subscribed = false;
+            Apply(false);
             TrySubscribe();
         }
 
@@ -27,6 +27,7 @@ namespace MemorialArchive.Gameplay.Guide.View
             if (subscribed)
             {
                 GameRoot.Instance?.Context?.Events?.Unsubscribe<GuideSequenceActiveChangedEvent>(HandleSequenceActiveChanged);
+                GameRoot.Instance?.Context?.Events?.Unsubscribe<GuideStepStartedEvent>(HandleStepStarted);
                 subscribed = false;
             }
         }
@@ -50,13 +51,16 @@ namespace MemorialArchive.Gameplay.Guide.View
             }
 
             events.Subscribe<GuideSequenceActiveChangedEvent>(HandleSequenceActiveChanged);
+            events.Subscribe<GuideStepStartedEvent>(HandleStepStarted);
             subscribed = true;
-            Apply(GameRoot.Instance?.GetSystem<GuideSystem>()?.SequenceActive ?? false);
+            Refresh();
         }
 
-        private void HandleSequenceActiveChanged(GuideSequenceActiveChangedEvent evt) => Apply(evt.IsActive);
+        private void HandleSequenceActiveChanged(GuideSequenceActiveChangedEvent evt) => Refresh();
+        private void HandleStepStarted(GuideStepStartedEvent evt) => Refresh();
+        private void Refresh() => Apply(GameRoot.Instance?.GetSystem<GuideSystem>()?.DiaryMapButtonsVisible ?? false);
 
-        private void Apply(bool guideActive)
+        private void Apply(bool visible)
         {
             if (hiddenDuringGuide == null)
             {
@@ -67,7 +71,7 @@ namespace MemorialArchive.Gameplay.Guide.View
             {
                 if (target != null)
                 {
-                    target.SetActive(!guideActive);
+                    target.SetActive(visible);
                 }
             }
         }

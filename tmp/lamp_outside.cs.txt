@@ -1,0 +1,7 @@
+var root=MemorialArchive.Framework.Core.GameRoot.Instance;
+var guide=root.GetSystem<MemorialArchive.Gameplay.Guide.Logic.GuideSystem>();
+guide.ResetForNewGame();guide.Record("movement");
+var camera=UnityEngine.Camera.main;
+var lamp=UnityEngine.GameObject.Find("light_fronthall_special");
+camera.transform.position=new UnityEngine.Vector3(lamp.transform.position.x-2.4f,0f,-10f);
+return "Lamp moved outside mask for validation";

@@ -22,6 +22,10 @@ namespace MemorialArchive.Gameplay.Lighting.View
         private EventBus boundEvents;
         private LightingSystem lightingSystem;
         private bool isRegistered;
+        public bool IsSpecial => isRegistered && lightingSystem != null && lightingSystem.IsSpecialLight(lightId);
+        public Bounds VisualBounds => spriteRenderer != null && spriteRenderer.sprite != null
+            ? spriteRenderer.bounds : new Bounds(transform.position, Vector3.zero);
+        public bool IsVisualVisible => isActiveAndEnabled && spriteRenderer != null && spriteRenderer.enabled && spriteRenderer.sprite != null;
 
         private void Awake()
         {

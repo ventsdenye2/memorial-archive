@@ -1,0 +1,10 @@
+var root=MemorialArchive.Framework.Core.GameRoot.Instance;
+if(!UnityEditor.EditorApplication.isPlaying || root==null) return "Not playing";
+var guide=root.GetSystem<MemorialArchive.Gameplay.Guide.Logic.GuideSystem>();
+guide.Record("movement");
+root.Context.UI.CloseAll();
+var camera=UnityEngine.Camera.main;
+camera.GetComponent<MemorialArchive.Gameplay.Camera.View.CameraFollowView>().enabled=false;
+var lamp=UnityEngine.GameObject.Find("light_fronthall_special");
+camera.transform.position=new UnityEngine.Vector3(lamp.transform.position.x+0.43f,0f,-10f);
+return new{position=camera.WorldToScreenPoint(lamp.transform.position).ToString(),current=guide.Current==null?"none":guide.Current.id,blocked=root.Context.UI.IsGameplayInputBlocked};

@@ -19,6 +19,7 @@ namespace MemorialArchive.Gameplay.Monster.View
 
         public string TargetId => targetId;
         public int MonsterId => monsterId;
+        public int InitialHealth => initialHealth;
 
         private void Awake()
         {

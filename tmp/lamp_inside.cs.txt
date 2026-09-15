@@ -1,0 +1,4 @@
+var camera=UnityEngine.Camera.main;
+var lamp=UnityEngine.GameObject.Find("light_fronthall_special");
+camera.transform.position=new UnityEngine.Vector3(lamp.transform.position.x-0.2f,0f,-10f);
+return "Lamp at x=980 inside mask but outside old narrow trigger";

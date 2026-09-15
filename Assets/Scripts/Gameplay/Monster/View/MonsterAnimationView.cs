@@ -12,6 +12,9 @@ namespace MemorialArchive.Gameplay.Monster.View
         [SerializeField] private string idleAnimation;
         [SerializeField] private string walkAnimation;
         [SerializeField] private string attackAnimation;
+        [SerializeField] private string secondAttackAnimation;
+        [SerializeField] private string normalSkin;
+        [SerializeField] private string damagedSkin;
         [SerializeField] private string hurtAnimation;
         [SerializeField] private string deathAnimation;
         [SerializeField] private bool artFacesRight;
@@ -22,10 +25,25 @@ namespace MemorialArchive.Gameplay.Monster.View
         private bool facingRight;
         private TrackEntry attackTrackEntry;
         private bool attackHitReported;
+        private bool hasAuthoredAttackHit;
 
         public event Action AttackHit;
 
         public float FacingDirection => facingRight ? 1f : -1f;
+        public float CurrentAnimationDuration => skeletonAnimation?.state?.GetCurrent(0)?.Animation.Duration ?? 0f;
+
+        public void UpdateHealth(float health, float maximumHealth)
+        {
+            if (skeletonAnimation == null || string.IsNullOrEmpty(normalSkin) || string.IsNullOrEmpty(damagedSkin)) return;
+            skeletonAnimation.Initialize(false);
+            var skeleton = skeletonAnimation.Skeleton;
+            if (skeleton == null) return;
+            var skin = skeleton.Data.FindSkin(maximumHealth > 0f && health <= maximumHealth * 0.5f ? damagedSkin : normalSkin);
+            if (skin == null || skeleton.Skin == skin) return;
+            skeleton.SetSkin(skin);
+            skeleton.SetSlotsToSetupPose();
+            skeletonAnimation.AnimationState.Apply(skeleton);
+        }
 
         private void OnDisable()
         {
@@ -34,7 +52,7 @@ namespace MemorialArchive.Gameplay.Monster.View
 
         private void Update()
         {
-            if (attackTrackEntry == null || attackHitReported || currentState != MonsterActionState.Attacking)
+            if (attackTrackEntry == null || attackHitReported || hasAuthoredAttackHit || currentState != MonsterActionState.Attacking)
             {
                 return;
             }
@@ -66,7 +84,9 @@ namespace MemorialArchive.Gameplay.Monster.View
                     Play(walkAnimation, true);
                     break;
                 case MonsterActionState.Attacking:
-                    BindAttackTrackEntry(Play(attackAnimation, false));
+                    var attack = !string.IsNullOrEmpty(secondAttackAnimation) && UnityEngine.Random.Range(0, 2) == 1
+                        ? secondAttackAnimation : attackAnimation;
+                    BindAttackTrackEntry(Play(attack, false));
                     break;
                 case MonsterActionState.Hurt:
                     Play(hurtAnimation, false);
@@ -117,6 +137,14 @@ namespace MemorialArchive.Gameplay.Monster.View
             attackHitReported = false;
             if (attackTrackEntry != null)
             {
+                foreach (var timeline in attackTrackEntry.Animation.Timelines)
+                {
+                    if (!(timeline is EventTimeline events)) continue;
+                    foreach (var evt in events.Events)
+                    {
+                        if (IsAttackHitEvent(evt.Data.Name)) hasAuthoredAttackHit = true;
+                    }
+                }
                 attackTrackEntry.Event += HandleAttackAnimationEvent;
                 return;
             }
@@ -133,22 +161,27 @@ namespace MemorialArchive.Gameplay.Monster.View
             }
             attackTrackEntry = null;
             attackHitReported = false;
+            hasAuthoredAttackHit = false;
         }
 
         private void HandleAttackAnimationEvent(TrackEntry entry, Spine.Event evt)
         {
             if (entry != attackTrackEntry || evt?.Data == null) return;
-            var eventName = evt.Data.Name ?? string.Empty;
-            if (eventName.Equals("attack", StringComparison.OrdinalIgnoreCase) ||
+            if (IsAttackHitEvent(evt.Data.Name)) ReportAttackHit();
+        }
+
+        private static bool IsAttackHitEvent(string eventName)
+        {
+            eventName = eventName ?? string.Empty;
+            return eventName.Equals("attack1", StringComparison.OrdinalIgnoreCase) ||
+                eventName.Equals("attack2", StringComparison.OrdinalIgnoreCase) ||
+                eventName.Equals("attack", StringComparison.OrdinalIgnoreCase) ||
                 eventName.Equals("attack_hit", StringComparison.OrdinalIgnoreCase) ||
                 eventName.Equals("melee_hit", StringComparison.OrdinalIgnoreCase) ||
                 eventName.Equals("hit", StringComparison.OrdinalIgnoreCase) ||
                 eventName.Equals("fire", StringComparison.OrdinalIgnoreCase) ||
                 eventName.Equals("shoushudao shot", StringComparison.OrdinalIgnoreCase) ||
-                eventName.Equals("shoot", StringComparison.OrdinalIgnoreCase))
-            {
-                ReportAttackHit();
-            }
+                eventName.Equals("shoot", StringComparison.OrdinalIgnoreCase);
         }
 
         private void ReportAttackHit()

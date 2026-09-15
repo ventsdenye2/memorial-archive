@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="15" result="Passed" total="15" passed="15" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-15 06:53:15Z" end-time="2026-09-15 06:53:15Z" duration="0.1581871">
+  <test-suite type="TestSuite" id="1194" name="Memorial Archive" fullname="Memorial Archive" runstate="Runnable" testcasecount="147" result="Passed" start-time="2026-09-15 06:53:15Z" end-time="2026-09-15 06:53:15Z" duration="0.158187" total="15" passed="15" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <test-suite type="Assembly" id="1379" name="Assembly-CSharp-Editor.dll" fullname="D:/MagnetNeedle/需求/Memorial Archive/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="147" result="Passed" start-time="2026-09-15 06:53:15Z" end-time="2026-09-15 06:53:15Z" duration="0.137036" total="15" passed="15" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="83964" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <test-suite type="TestSuite" id="1380" name="MemorialArchive" fullname="MemorialArchive" runstate="Runnable" testcasecount="147" result="Passed" start-time="2026-09-15 06:53:15Z" end-time="2026-09-15 06:53:15Z" duration="0.133850" total="15" passed="15" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1381" name="Tests" fullname="MemorialArchive.Tests" runstate="Runnable" testcasecount="147" result="Passed" start-time="2026-09-15 06:53:15Z" end-time="2026-09-15 06:53:15Z" duration="0.131273" total="15" passed="15" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestSuite" id="1382" name="Editor" fullname="MemorialArchive.Tests.Editor" runstate="Runnable" testcasecount="147" result="Passed" start-time="2026-09-15 06:53:15Z" end-time="2026-09-15 06:53:15Z" duration="0.128683" total="15" passed="15" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-suite type="TestFixture" id="1313" name="MonsterAnimationAssetTests" fullname="MemorialArchive.Tests.Editor.MonsterAnimationAssetTests" classname="MemorialArchive.Tests.Editor.MonsterAnimationAssetTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-09-15 06:53:15Z" end-time="2026-09-15 06:53:15Z" duration="0.112570" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1318" name="Attacks_SelectBothVariants_AndHurtCancelsPendingHit" fullname="MemorialArchive.Tests.Editor.MonsterAnimationAssetTests.Attacks_SelectBothVariants_AndHurtCancelsPendingHit" methodname="Attacks_SelectBothVariants_AndHurtCancelsPendingHit" classname="MemorialArchive.Tests.Editor.MonsterAnimationAssetTests" runstate="Runnable" seed="122116719" result="Passed" start-time="2026-09-15 06:53:15Z" end-time="2026-09-15 06:53:15Z" duration="0.074838" asserts="0">
+                <properties />
+              </test-case>
+              <test-suite type="ParameterizedMethod" id="1317" name="AuthoredAttack_ReportsExactlyOneHitAtItsEvent" fullname="MemorialArchive.Tests.Editor.MonsterAnimationAssetTests.AuthoredAttack_ReportsExactlyOneHitAtItsEvent" classname="MemorialArchive.Tests.Editor.MonsterAnimationAssetTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-09-15 06:53:15Z" end-time="2026-09-15 06:53:15Z" duration="0.012306" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1315" name="AuthoredAttack_ReportsExactlyOneHitAtItsEvent(&quot;Enemy_01_attack01&quot;,0.3667f)" fullname="MemorialArchive.Tests.Editor.MonsterAnimationAssetTests.AuthoredAttack_ReportsExactlyOneHitAtItsEvent(&quot;Enemy_01_attack01&quot;,0.3667f)" methodname="AuthoredAttack_ReportsExactlyOneHitAtItsEvent" classname="MemorialArchive.Tests.Editor.MonsterAnimationAssetTests" runstate="Runnable" seed="2017749109" result="Passed" start-time="2026-09-15 06:53:15Z" end-time="2026-09-15 06:53:15Z" duration="0.007755" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1316" name="AuthoredAttack_ReportsExactlyOneHitAtItsEvent(&quot;Enemy_01_attack02&quot;,0.4667f)" fullname="MemorialArchive.Tests.Editor.MonsterAnimationAssetTests.AuthoredAttack_ReportsExactlyOneHitAtItsEvent(&quot;Enemy_01_attack02&quot;,0.4667f)" methodname="AuthoredAttack_ReportsExactlyOneHitAtItsEvent" classname="MemorialArchive.Tests.Editor.MonsterAnimationAssetTests" runstate="Runnable" seed="1944356476" result="Passed" start-time="2026-09-15 06:53:15Z" end-time="2026-09-15 06:53:15Z" duration="0.001307" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+              <test-case id="1314" name="HealthThreshold_ChangesSkinWithoutRestartingAttack_AndResetsOnRespawn" fullname="MemorialArchive.Tests.Editor.MonsterAnimationAssetTests.HealthThreshold_ChangesSkinWithoutRestartingAttack_AndResetsOnRespawn" methodname="HealthThreshold_ChangesSkinWithoutRestartingAttack_AndResetsOnRespawn" classname="MemorialArchive.Tests.Editor.MonsterAnimationAssetTests" runstate="Runnable" seed="896347131" result="Passed" start-time="2026-09-15 06:53:15Z" end-time="2026-09-15 06:53:15Z" duration="0.002453" asserts="0">
+                <properties />
+              </test-case>
+            </test-suite>
+            <test-suite type="TestFixture" id="1319" name="MonsterDecisionPolicyTests" fullname="MemorialArchive.Tests.Editor.MonsterDecisionPolicyTests" classname="MemorialArchive.Tests.Editor.MonsterDecisionPolicyTests" runstate="Runnable" testcasecount="11" result="Passed" start-time="2026-09-15 06:53:15Z" end-time="2026-09-15 06:53:15Z" duration="0.010832" total="11" passed="11" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-suite type="ParameterizedMethod" id="1325" name="AttackHit_OnlyAllowsTargetsAheadOfLockedFacing" fullname="MemorialArchive.Tests.Editor.MonsterDecisionPolicyTests.AttackHit_OnlyAllowsTargetsAheadOfLockedFacing" classname="MemorialArchive.Tests.Editor.MonsterDecisionPolicyTests" runstate="Runnable" testcasecount="5" result="Passed" start-time="2026-09-15 06:53:15Z" end-time="2026-09-15 06:53:15Z" duration="0.004597" total="5" passed="5" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1320" name="AttackHit_OnlyAllowsTargetsAheadOfLockedFacing(1.0f,1.0f,True)" fullname="MemorialArchive.Tests.Editor.MonsterDecisionPolicyTests.AttackHit_OnlyAllowsTargetsAheadOfLockedFacing(1.0f,1.0f,True)" methodname="AttackHit_OnlyAllowsTargetsAheadOfLockedFacing" classname="MemorialArchive.Tests.Editor.MonsterDecisionPolicyTests" runstate="Runnable" seed="1657885996" result="Passed" start-time="2026-09-15 06:53:15Z" end-time="2026-09-15 06:53:15Z" duration="0.002385" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1321" name="AttackHit_OnlyAllowsTargetsAheadOfLockedFacing(-1.0f,1.0f,False)" fullname="MemorialArchive.Tests.Editor.MonsterDecisionPolicyTests.AttackHit_OnlyAllowsTargetsAheadOfLockedFacing(-1.0f,1.0f,False)" methodname="AttackHit_OnlyAllowsTargetsAheadOfLockedFacing" classname="MemorialArchive.Tests.Editor.MonsterDecisionPolicyTests" runstate="Runnable" seed="2061859616" result="Passed" start-time="2026-09-15 06:53:15Z" end-time="2026-09-15 06:53:15Z" duration="0.000532" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1322" name="AttackHit_OnlyAllowsTargetsAheadOfLockedFacing(-1.0f,-1.0f,True)" fullname="MemorialArchive.Tests.Editor.MonsterDecisionPolicyTests.AttackHit_OnlyAllowsTargetsAheadOfLockedFacing(-1.0f,-1.0f,True)" methodname="AttackHit_OnlyAllowsTargetsAheadOfLockedFacing" classname="MemorialArchive.Tests.Editor.MonsterDecisionPolicyTests" runstate="Runnable" seed="2063661608" result="Passed" start-time="2026-09-15 06:53:15Z" end-time="2026-09-15 06:53:15Z" duration="0.000135" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1323" name="AttackHit_OnlyAllowsTargetsAheadOfLockedFacing(1.0f,-1.0f,False)" fullname="MemorialArchive.Tests.Editor.MonsterDecisionPolicyTests.AttackHit_OnlyAllowsTargetsAheadOfLockedFacing(1.0f,-1.0f,False)" methodname="AttackHit_OnlyAllowsTargetsAheadOfLockedFacing" classname="MemorialArchive.Tests.Editor.MonsterDecisionPolicyTests" runstate="Runnable" seed="356956567" result="Passed" start-time="2026-09-15 06:53:15Z" end-time="2026-09-15 06:53:15Z" duration="0.000153" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1324" name="AttackHit_OnlyAllowsTargetsAheadOfLockedFacing(0.0f,-1.0f,False)" fullname="MemorialArchive.Tests.Editor.MonsterDecisionPolicyTests.AttackHit_OnlyAllowsTargetsAheadOfLockedFacing(0.0f,-1.0f,False)" methodname="AttackHit_OnlyAllowsTargetsAheadOfLockedFacing" classname="MemorialArchive.Tests.Editor.MonsterDecisionPolicyTests" runstate="Runnable" seed="223159752" result="Passed" start-time="2026-09-15 06:53:15Z" end-time="2026-09-15 06:53:15Z" duration="0.000102" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+              <test-case id="1331" name="DeadState_IsTerminalUntilExplicitReset" fullname="MemorialArchive.Tests.Editor.MonsterDecisionPolicyTests.DeadState_IsTerminalUntilExplicitReset" methodname="DeadState_IsTerminalUntilExplicitReset" classname="MemorialArchive.Tests.Editor.MonsterDecisionPolicyTests" runstate="Runnable" seed="1803929777" result="Passed" start-time="2026-09-15 06:53:15Z" end-time="2026-09-15 06:53:15Z" duration="0.000703" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1326" name="InAttackRange_AndAttackReady_TransitionsToAttacking" fullname="MemorialArchive.Tests.Editor.MonsterDecisionPolicyTests.InAttackRange_AndAttackReady_TransitionsToAttacking" methodname="InAttackRange_AndAttackReady_TransitionsToAttacking" classname="MemorialArchive.Tests.Editor.MonsterDecisionPolicyTests" runstate="Runnable" seed="2054597514" result="Passed" start-time="2026-09-15 06:53:15Z" end-time="2026-09-15 06:53:15Z" duration="0.000259" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1327" name="InAttackRange_IsIndependentOfHorizontalSide" fullname="MemorialArchive.Tests.Editor.MonsterDecisionPolicyTests.InAttackRange_IsIndependentOfHorizontalSide" methodname="InAttackRange_IsIndependentOfHorizontalSide" classname="MemorialArchive.Tests.Editor.MonsterDecisionPolicyTests" runstate="Runnable" seed="798214333" result="Passed" start-time="2026-09-15 06:53:15Z" end-time="2026-09-15 06:53:15Z" duration="0.000510" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1328" name="InAttackRange_WhileCoolingDown_TransitionsToAttackCooldown" fullname="MemorialArchive.Tests.Editor.MonsterDecisionPolicyTests.InAttackRange_WhileCoolingDown_TransitionsToAttackCooldown" methodname="InAttackRange_WhileCoolingDown_TransitionsToAttackCooldown" classname="MemorialArchive.Tests.Editor.MonsterDecisionPolicyTests" runstate="Runnable" seed="1304042753" result="Passed" start-time="2026-09-15 06:53:15Z" end-time="2026-09-15 06:53:15Z" duration="0.000882" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1330" name="LockedState_DoesNotAcceptTargetReevaluation" fullname="MemorialArchive.Tests.Editor.MonsterDecisionPolicyTests.LockedState_DoesNotAcceptTargetReevaluation" methodname="LockedState_DoesNotAcceptTargetReevaluation" classname="MemorialArchive.Tests.Editor.MonsterDecisionPolicyTests" runstate="Runnable" seed="117711729" result="Passed" start-time="2026-09-15 06:53:15Z" end-time="2026-09-15 06:53:15Z" duration="0.000681" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1329" name="OutsideAttackRange_WithinDetectionRange_TransitionsToChasing" fullname="MemorialArchive.Tests.Editor.MonsterDecisionPolicyTests.OutsideAttackRange_WithinDetectionRange_TransitionsToChasing" methodname="OutsideAttackRange_WithinDetectionRange_TransitionsToChasing" classname="MemorialArchive.Tests.Editor.MonsterDecisionPolicyTests" runstate="Runnable" seed="984215173" result="Passed" start-time="2026-09-15 06:53:15Z" end-time="2026-09-15 06:53:15Z" duration="0.000271" asserts="0">
+                <properties />
+              </test-case>
+            </test-suite>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

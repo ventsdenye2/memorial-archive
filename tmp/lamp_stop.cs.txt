@@ -1,0 +1,2 @@
+UnityEditor.EditorApplication.ExitPlaymode();
+return "Exiting verification play mode";

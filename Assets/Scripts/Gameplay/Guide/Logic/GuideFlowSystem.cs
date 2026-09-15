@@ -56,6 +56,8 @@ namespace MemorialArchive.Gameplay.Guide.Logic
         public bool OwnsDarknessFailure => scene == "FrontHall" && !guide.HasCompleted("light_activated");
         public Vector2 PlayerPosition => playerPosition;
         public bool HasPosition => hasPosition && Time.frameCount > sceneReadyFrame;
+        public bool CanInteractObstacle => HasPosition && Config != null && NeedsObstacle &&
+            Mathf.Abs(playerPosition.x - (Config.frontHallLeft + Config.equipmentGatePixels / 100f)) <= Config.obstacleInteractionWidth * 0.5f;
 
         public void Initialize(GameContext value)
         {
@@ -67,7 +69,6 @@ namespace MemorialArchive.Gameplay.Guide.Logic
             context.Events.Subscribe<SceneLoadedEvent>(OnScene);
             context.Events.Subscribe<PlayerPositionChangedEvent>(OnPosition);
             context.Events.Subscribe<PanelOpenedEvent>(OnPanel);
-            context.Events.Subscribe<InteractionFocusChangedEvent>(OnFocus);
             context.Events.Subscribe<RegionLightsStateChangedEvent>(OnRegion);
             context.Events.Subscribe<InventoryChangedEvent>(OnInventory);
             context.Events.Subscribe<NoteUnlockedEvent>(OnNote);
@@ -86,7 +87,6 @@ namespace MemorialArchive.Gameplay.Guide.Logic
             context.Events.Unsubscribe<SceneLoadedEvent>(OnScene);
             context.Events.Unsubscribe<PlayerPositionChangedEvent>(OnPosition);
             context.Events.Unsubscribe<PanelOpenedEvent>(OnPanel);
-            context.Events.Unsubscribe<InteractionFocusChangedEvent>(OnFocus);
             context.Events.Unsubscribe<RegionLightsStateChangedEvent>(OnRegion);
             context.Events.Unsubscribe<InventoryChangedEvent>(OnInventory);
             context.Events.Unsubscribe<NoteUnlockedEvent>(OnNote);
@@ -137,10 +137,6 @@ namespace MemorialArchive.Gameplay.Guide.Logic
         }
         private void OnPosition(PlayerPositionChangedEvent evt) { playerPosition = evt.Position; hasPosition = true; }
         private void OnPanel(PanelOpenedEvent evt) { if (evt.PanelId == PanelId.Inventory) guide.Request("inventory"); }
-        private void OnFocus(InteractionFocusChangedEvent evt)
-        {
-            if (evt.HasFocus && evt.InteractionType == MemorialArchive.Gameplay.Interaction.Data.InteractionType.LightSource && lighting.IsSpecialLight(evt.InteractionId)) guide.Request("light");
-        }
         private void OnRegion(RegionLightsStateChangedEvent evt)
         {
             if (!evt.IsLit || evt.RegionId != Config?.frontHallRegion) return;
@@ -218,9 +214,7 @@ namespace MemorialArchive.Gameplay.Guide.Logic
         }
         public bool TryInteract()
         {
-            if (Config == null || scene != "FrontHall") return false;
-            var pixels = (playerPosition.x - Config.frontHallLeft) * 100;
-            if (NeedsObstacle && Mathf.Abs(pixels - Config.equipmentGatePixels) <= Config.obstacleInteractionWidth * 50)
+            if (CanInteractObstacle)
             {
                 if (!TryClearObstacle()) narrative.Queue("guide_need_lantern");
                 return true;

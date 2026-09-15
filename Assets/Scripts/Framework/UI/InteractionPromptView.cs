@@ -28,6 +28,9 @@ namespace MemorialArchive.Framework.UI
         private bool isInitialized;
         private EventBus boundEvents;
         private bool hasInteractionFocus;
+        private string activeInteractionId;
+        private InteractionType activeInteractionType;
+        private bool guideObstacleFocused;
         private bool accessDenied;
         private Image promptImage;
         private Button promptButton;
@@ -53,8 +56,17 @@ namespace MemorialArchive.Framework.UI
 
         private void Update()
         {
-            if (hasInteractionFocus && isInitialized && promptRoot != null)
-                SetPromptVisible(IsLanternEquipped());
+            if (isInitialized && promptRoot != null)
+            {
+                var obstacleFocused = GameRoot.Instance?.GetSystem<MemorialArchive.Gameplay.Guide.Logic.GuideFlowSystem>()?.CanInteractObstacle == true;
+                if (obstacleFocused != guideObstacleFocused)
+                {
+                    guideObstacleFocused = obstacleFocused;
+                    accessDenied = false;
+                    ApplyArtwork(guideObstacleFocused ? "guide_obstacle" : activeInteractionId, activeInteractionType);
+                }
+                SetPromptVisible((hasInteractionFocus || guideObstacleFocused) && CanUsePrompt());
+            }
             // Player objects can enable before GameRoot has built its context.
             // Retry only until the event bus becomes available.
             if (boundEvents == null)
@@ -66,6 +78,9 @@ namespace MemorialArchive.Framework.UI
         private void OnDisable()
         {
             hasInteractionFocus = false;
+            guideObstacleFocused = false;
+            activeInteractionId = null;
+            activeInteractionType = InteractionType.None;
             accessDenied = false;
             SetPromptVisible(false);
             if (boundEvents != null)
@@ -98,7 +113,7 @@ namespace MemorialArchive.Framework.UI
         private void HandleAccessDenied(SceneAccessDeniedEvent evt)
         {
             if (!isInitialized || promptRoot == null || promptText == null) return;
-            if (!IsLanternEquipped())
+            if (!CanUsePrompt())
             {
                 SetPromptVisible(false);
                 return;
@@ -124,16 +139,18 @@ namespace MemorialArchive.Framework.UI
             // This is the system's resolved focus snapshot, not an individual
             // trigger exit. No focus is published with a null interaction ID.
             hasInteractionFocus = evt.HasFocus;
+            activeInteractionId = evt.InteractionId;
+            activeInteractionType = evt.InteractionType;
             accessDenied = false;
             if (!isInitialized || promptRoot == null)
             {
                 return;
             }
 
-            if (evt.HasFocus)
+            if (evt.HasFocus || guideObstacleFocused)
             {
-                ApplyArtwork(evt.InteractionId, evt.InteractionType);
-                SetPromptVisible(IsLanternEquipped());
+                ApplyArtwork(guideObstacleFocused ? "guide_obstacle" : evt.InteractionId, evt.InteractionType);
+                SetPromptVisible(CanUsePrompt());
             }
             else
             {
@@ -171,12 +188,14 @@ namespace MemorialArchive.Framework.UI
 
         private void HandlePromptClicked()
         {
-            if (!hasInteractionFocus || accessDenied || !IsLanternEquipped())
+            if ((!hasInteractionFocus && !guideObstacleFocused) || accessDenied || !CanUsePrompt())
             {
                 return;
             }
 
-            GameRoot.Instance?.Context?.Events.Publish(new InteractPressedEvent());
+            var root = GameRoot.Instance;
+            if (root?.GetSystem<MemorialArchive.Gameplay.Guide.Logic.GuideFlowSystem>()?.TryInteract() != true)
+                root?.Context?.Events.Publish(new InteractPressedEvent());
         }
 
         private void ApplyArtwork(string interactionId, InteractionType type)
@@ -184,6 +203,17 @@ namespace MemorialArchive.Framework.UI
             var artwork = GetArtwork(interactionId, type);
             if (promptImage != null)
             {
+                // Keep the world-space prompt scale uniform. The new interaction art is
+                // taller than the previous square assets; a non-uniform parent scale
+                // would visibly squash it.
+                var rootRect = promptRoot != null ? promptRoot.GetComponent<RectTransform>() : null;
+                if (rootRect != null)
+                {
+                    var scale = rootRect.localScale;
+                    var uniform = Mathf.Min(Mathf.Abs(scale.x), Mathf.Abs(scale.y));
+                    if (uniform > 0f) rootRect.localScale = new Vector3(uniform, uniform, scale.z);
+                    promptImage.preserveAspect = true;
+                }
                 promptImage.sprite = artwork.normal;
                 promptImage.color = Color.white;
                 promptImage.enabled = artwork.normal != null;
@@ -216,7 +246,7 @@ namespace MemorialArchive.Framework.UI
             promptRoot.SetActive(visible);
             if (promptButton != null)
             {
-                promptButton.interactable = visible && hasInteractionFocus && !accessDenied && promptImage != null && promptImage.sprite != null;
+                promptButton.interactable = visible && (hasInteractionFocus || guideObstacleFocused) && !accessDenied && promptImage != null && promptImage.sprite != null;
             }
         }
 
@@ -225,8 +255,17 @@ namespace MemorialArchive.Framework.UI
             return GameRoot.Instance?.GetSystem<MemorialArchive.Gameplay.Lighting.Logic.LightingSystem>()?.IsLanternEquipped == true;
         }
 
+        private bool CanUsePrompt()
+        {
+            if (guideObstacleFocused) return true;
+            if (activeInteractionType == InteractionType.SceneExit &&
+                GameRoot.Instance?.Context?.Configs?.GetInteraction(activeInteractionId)?.HasStairDestinations == true) return true;
+            return IsLanternEquipped();
+        }
+
         private (Sprite normal, Sprite highlighted) GetArtwork(string interactionId, InteractionType type)
         {
+            if (interactionId == "guide_obstacle") return (pickupSprite, pickupHighlightedSprite);
             switch (type)
             {
                 case InteractionType.SavePoint:

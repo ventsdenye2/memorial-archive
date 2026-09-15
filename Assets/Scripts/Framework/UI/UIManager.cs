@@ -396,9 +396,11 @@ namespace MemorialArchive.Framework.UI
 
         private void HandleOpenInventoryPressed(OpenInventoryPressedEvent evt) => Toggle(PanelId.Inventory);
         private void HandleOpenDiaryPressed(OpenDiaryPressedEvent evt)
-        { if (GameRoot.Instance?.GetSystem<MemorialArchive.Gameplay.Guide.Logic.GuideFlowSystem>()?.MapUnlocked != false) Toggle(PanelId.Diary); }
+        { if (GameRoot.Instance?.GetSystem<MemorialArchive.Gameplay.Guide.Logic.GuideFlowSystem>()?.MapUnlocked != false &&
+              GameRoot.Instance?.GetSystem<MemorialArchive.Gameplay.Guide.Logic.GuideSystem>()?.DiaryMapButtonsVisible != false) Toggle(PanelId.Diary); }
         private void HandleOpenMapPressed(OpenMapPressedEvent evt)
-        { if (GameRoot.Instance?.GetSystem<MemorialArchive.Gameplay.Guide.Logic.GuideFlowSystem>()?.MapUnlocked != false) Toggle(PanelId.Map); }
+        { if (GameRoot.Instance?.GetSystem<MemorialArchive.Gameplay.Guide.Logic.GuideFlowSystem>()?.MapUnlocked != false &&
+              GameRoot.Instance?.GetSystem<MemorialArchive.Gameplay.Guide.Logic.GuideSystem>()?.DiaryMapButtonsVisible != false) Toggle(PanelId.Map); }
         private void HandlePausePressed(PausePressedEvent evt) => Toggle(PanelId.System);
         private void HandleCharacterDied(CharacterDiedEvent evt)
         {

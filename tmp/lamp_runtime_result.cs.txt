@@ -1,0 +1,3 @@
+var root=MemorialArchive.Framework.Core.GameRoot.Instance;
+var guide=root.GetSystem<MemorialArchive.Gameplay.Guide.Logic.GuideSystem>();
+return new{playing=UnityEditor.EditorApplication.isPlaying,current=guide.Current==null?"none":guide.Current.id,overlayOpen=root.Context.UI.IsOpen(MemorialArchive.Framework.UI.PanelId.GuideOverlay),screen=UnityEngine.Camera.main.WorldToScreenPoint(UnityEngine.GameObject.Find("light_fronthall_special").transform.position).ToString(),progress=UnityEngine.JsonUtility.ToJson(guide.CaptureSaveData())};

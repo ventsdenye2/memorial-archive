@@ -106,6 +106,7 @@ namespace MemorialArchive.Gameplay.Monster.View
             actionLockRemaining = 0f;
             attackAwaitingHit = false;
             stateMachine.Reset(MonsterActionState.Idle);
+            animationView?.UpdateHealth(targetView.InitialHealth, targetView.InitialHealth);
             SetState(MonsterActionState.Idle, true);
         }
 
@@ -228,7 +229,7 @@ namespace MemorialArchive.Gameplay.Monster.View
             if (config.AttackMode == MonsterAttackMode.Melee) PlayAudio("attack");
             attackAwaitingHit = true;
             SetState(MonsterActionState.Attacking);
-            actionLockRemaining = config.AttackInterval;
+            actionLockRemaining = Mathf.Max(config.AttackInterval, animationView != null ? animationView.CurrentAnimationDuration : 0f);
             attackCooldownRemaining = config.AttackInterval;
 
             // 没有可用动画组件时仍保持一次安全回退，避免怪物永久无法造成伤害。
@@ -329,10 +330,13 @@ namespace MemorialArchive.Gameplay.Monster.View
 
         private void HandleMonsterDamaged(MonsterDamagedEvent evt)
         {
-            if (targetView == null || evt.MonsterInstanceId != targetView.TargetId || evt.RemainingHealth <= 0f)
+            if (targetView == null || evt.MonsterInstanceId != targetView.TargetId)
             {
                 return;
             }
+
+            animationView?.UpdateHealth(evt.RemainingHealth, targetView.InitialHealth);
+            if (evt.RemainingHealth <= 0f) return;
 
             if (evt.TriggersHurt)
             {
@@ -340,6 +344,7 @@ namespace MemorialArchive.Gameplay.Monster.View
                 attackAwaitingHit = false;
                 actionLockRemaining = config.HurtDuration;
                 SetState(MonsterActionState.Hurt);
+                actionLockRemaining = Mathf.Max(actionLockRemaining, animationView != null ? animationView.CurrentAnimationDuration : 0f);
             }
         }
 

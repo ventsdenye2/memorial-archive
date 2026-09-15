@@ -1,0 +1,11 @@
+if(UnityEditor.EditorApplication.isPlaying) return "Skipped: play mode";
+var lamp=UnityEngine.GameObject.Find("light_fronthall_special");
+if(lamp==null) return "Lamp missing";
+var collider=lamp.GetComponent<UnityEngine.BoxCollider2D>();
+UnityEditor.Undo.RecordObjects(new UnityEngine.Object[]{lamp.transform,collider},"Align special lamp with tutorial");
+var position=lamp.transform.position;position.y=0.445f;lamp.transform.position=position;
+collider.offset=new UnityEngine.Vector2(0f,-5.045f);
+UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(lamp.scene);
+UnityEditor.SceneManagement.EditorSceneManager.SaveScene(lamp.scene);
+var camera=UnityEngine.Camera.main;
+return new{position=lamp.transform.position.ToString(),scale=lamp.transform.localScale.ToString(),cameraPixels=camera.pixelRect.ToString(),target=camera.targetTexture==null?"none":camera.targetTexture.name};

@@ -161,9 +161,9 @@ namespace MemorialArchive.Editor
                 GameUiPath + "设置.png", GameUiPath + "设置（选中）.png");
             ConfigureSpriteButton(root, "InventoryButton", new Vector2(-90f, -180f), new Vector2(52f, 87f),
                 GameUiPath + "背包.png", GameUiPath + "背包（选中）.png");
-            ConfigureSpriteButton(root, "DiaryButton", new Vector2(-89f, -290f), new Vector2(58f, 89f),
+            ConfigureSpriteButton(root, "DiaryButton", new Vector2(-86f, -298.5f), new Vector2(58f, 89f),
                 GameUiPath + "笔记.png", GameUiPath + "笔记（选中）.png");
-            ConfigureSpriteButton(root, "MapButton", new Vector2(-89f, -406f), new Vector2(62f, 88f),
+            ConfigureSpriteButton(root, "MapButton", new Vector2(-86f, -411f), new Vector2(62f, 88f),
                 GameUiPath + "地图.png", GameUiPath + "地图（选中）.png");
 
             var taskButton = EnsureRect(root.transform, "TaskPlaceholderButton");

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="11" result="Passed" total="11" passed="11" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-15 07:33:18Z" end-time="2026-09-15 07:33:18Z" duration="0.143333">
+  <test-suite type="TestSuite" id="1023" name="Memorial Archive" fullname="Memorial Archive" runstate="Runnable" testcasecount="11" result="Passed" start-time="2026-09-15 07:33:18Z" end-time="2026-09-15 07:33:18Z" duration="0.143333" total="11" passed="11" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties />
+    <test-suite type="Assembly" id="1037" name="Assembly-CSharp-Editor.dll" fullname="D:/MagnetNeedle/需求/Memorial Archive/tmp/guide-validation/Library/ScriptAssemblies/Assembly-CSharp-Editor.dll" runstate="Runnable" testcasecount="11" result="Passed" start-time="2026-09-15 07:33:18Z" end-time="2026-09-15 07:33:18Z" duration="0.117867" total="11" passed="11" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="96948" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+      </properties>
+      <test-suite type="TestSuite" id="1038" name="MemorialArchive" fullname="MemorialArchive" runstate="Runnable" testcasecount="11" result="Passed" start-time="2026-09-15 07:33:18Z" end-time="2026-09-15 07:33:18Z" duration="0.116287" total="11" passed="11" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1039" name="Tests" fullname="MemorialArchive.Tests" runstate="Runnable" testcasecount="11" result="Passed" start-time="2026-09-15 07:33:18Z" end-time="2026-09-15 07:33:18Z" duration="0.115319" total="11" passed="11" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestSuite" id="1040" name="Editor" fullname="MemorialArchive.Tests.Editor" runstate="Runnable" testcasecount="11" result="Passed" start-time="2026-09-15 07:33:18Z" end-time="2026-09-15 07:33:18Z" duration="0.114315" total="11" passed="11" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-suite type="TestFixture" id="1024" name="GuideProgressTests" fullname="MemorialArchive.Tests.Editor.GuideProgressTests" classname="MemorialArchive.Tests.Editor.GuideProgressTests" runstate="Runnable" testcasecount="11" result="Passed" start-time="2026-09-15 07:33:18Z" end-time="2026-09-15 07:33:18Z" duration="0.112106" total="11" passed="11" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1033" name="CaptureAndRestore_PreserveCompletedAndPendingProgress" fullname="MemorialArchive.Tests.Editor.GuideProgressTests.CaptureAndRestore_PreserveCompletedAndPendingProgress" methodname="CaptureAndRestore_PreserveCompletedAndPendingProgress" classname="MemorialArchive.Tests.Editor.GuideProgressTests" runstate="Runnable" seed="1819672257" result="Passed" start-time="2026-09-15 07:33:18Z" end-time="2026-09-15 07:33:18Z" duration="0.052786" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1035" name="InventoryRequest_IsPlacedBeforeExistingOrdinaryRequests" fullname="MemorialArchive.Tests.Editor.GuideProgressTests.InventoryRequest_IsPlacedBeforeExistingOrdinaryRequests" methodname="InventoryRequest_IsPlacedBeforeExistingOrdinaryRequests" classname="MemorialArchive.Tests.Editor.GuideProgressTests" runstate="Runnable" seed="627226099" result="Passed" start-time="2026-09-15 07:33:18Z" end-time="2026-09-15 07:33:18Z" duration="0.001175" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1031" name="LightHighlight_TallSceneLampMustAlignHorizontallyAndOverlapVertically" fullname="MemorialArchive.Tests.Editor.GuideProgressTests.LightHighlight_TallSceneLampMustAlignHorizontallyAndOverlapVertically" methodname="LightHighlight_TallSceneLampMustAlignHorizontallyAndOverlapVertically" classname="MemorialArchive.Tests.Editor.GuideProgressTests" runstate="Runnable" seed="1696453313" result="Passed" start-time="2026-09-15 07:33:18Z" end-time="2026-09-15 07:33:18Z" duration="0.001580" asserts="0">
+                <properties />
+              </test-case>
+              <test-suite type="ParameterizedMethod" id="1030" name="LightHighlight_UsesTheArtworkAreaAcrossAspectRatios" fullname="MemorialArchive.Tests.Editor.GuideProgressTests.LightHighlight_UsesTheArtworkAreaAcrossAspectRatios" classname="MemorialArchive.Tests.Editor.GuideProgressTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-09-15 07:33:18Z" end-time="2026-09-15 07:33:18Z" duration="0.013770" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <test-case id="1026" name="LightHighlight_UsesTheArtworkAreaAcrossAspectRatios(1920.0f,1080.0f)" fullname="MemorialArchive.Tests.Editor.GuideProgressTests.LightHighlight_UsesTheArtworkAreaAcrossAspectRatios(1920.0f,1080.0f)" methodname="LightHighlight_UsesTheArtworkAreaAcrossAspectRatios" classname="MemorialArchive.Tests.Editor.GuideProgressTests" runstate="Runnable" seed="1655345516" result="Passed" start-time="2026-09-15 07:33:18Z" end-time="2026-09-15 07:33:18Z" duration="0.002020" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1027" name="LightHighlight_UsesTheArtworkAreaAcrossAspectRatios(1280.0f,720.0f)" fullname="MemorialArchive.Tests.Editor.GuideProgressTests.LightHighlight_UsesTheArtworkAreaAcrossAspectRatios(1280.0f,720.0f)" methodname="LightHighlight_UsesTheArtworkAreaAcrossAspectRatios" classname="MemorialArchive.Tests.Editor.GuideProgressTests" runstate="Runnable" seed="561621407" result="Passed" start-time="2026-09-15 07:33:18Z" end-time="2026-09-15 07:33:18Z" duration="0.000679" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1028" name="LightHighlight_UsesTheArtworkAreaAcrossAspectRatios(2560.0f,1080.0f)" fullname="MemorialArchive.Tests.Editor.GuideProgressTests.LightHighlight_UsesTheArtworkAreaAcrossAspectRatios(2560.0f,1080.0f)" methodname="LightHighlight_UsesTheArtworkAreaAcrossAspectRatios" classname="MemorialArchive.Tests.Editor.GuideProgressTests" runstate="Runnable" seed="515711475" result="Passed" start-time="2026-09-15 07:33:18Z" end-time="2026-09-15 07:33:18Z" duration="0.000715" asserts="0">
+                  <properties />
+                </test-case>
+                <test-case id="1029" name="LightHighlight_UsesTheArtworkAreaAcrossAspectRatios(1600.0f,1200.0f)" fullname="MemorialArchive.Tests.Editor.GuideProgressTests.LightHighlight_UsesTheArtworkAreaAcrossAspectRatios(1600.0f,1200.0f)" methodname="LightHighlight_UsesTheArtworkAreaAcrossAspectRatios" classname="MemorialArchive.Tests.Editor.GuideProgressTests" runstate="Runnable" seed="1311544954" result="Passed" start-time="2026-09-15 07:33:18Z" end-time="2026-09-15 07:33:18Z" duration="0.000863" asserts="0">
+                  <properties />
+                </test-case>
+              </test-suite>
+              <test-case id="1025" name="LightTutorial_WaitsForAlignment_EvenAfterRestoringPendingRequest" fullname="MemorialArchive.Tests.Editor.GuideProgressTests.LightTutorial_WaitsForAlignment_EvenAfterRestoringPendingRequest" methodname="LightTutorial_WaitsForAlignment_EvenAfterRestoringPendingRequest" classname="MemorialArchive.Tests.Editor.GuideProgressTests" runstate="Runnable" seed="1056419277" result="Passed" start-time="2026-09-15 07:33:18Z" end-time="2026-09-15 07:33:18Z" duration="0.004938" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1032" name="Request_IsIdempotent_AndCompletedStepDoesNotRequeue" fullname="MemorialArchive.Tests.Editor.GuideProgressTests.Request_IsIdempotent_AndCompletedStepDoesNotRequeue" methodname="Request_IsIdempotent_AndCompletedStepDoesNotRequeue" classname="MemorialArchive.Tests.Editor.GuideProgressTests" runstate="Runnable" seed="1523749200" result="Passed" start-time="2026-09-15 07:33:18Z" end-time="2026-09-15 07:33:18Z" duration="0.002536" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1034" name="ResetForNewGame_ClearsCompletedAndPendingProgress" fullname="MemorialArchive.Tests.Editor.GuideProgressTests.ResetForNewGame_ClearsCompletedAndPendingProgress" methodname="ResetForNewGame_ClearsCompletedAndPendingProgress" classname="MemorialArchive.Tests.Editor.GuideProgressTests" runstate="Runnable" seed="2080136248" result="Passed" start-time="2026-09-15 07:33:18Z" end-time="2026-09-15 07:33:18Z" duration="0.001165" asserts="0">
+                <properties />
+              </test-case>
+              <test-case id="1036" name="RestoreSaveData_AcceptsLegacyNullLists" fullname="MemorialArchive.Tests.Editor.GuideProgressTests.RestoreSaveData_AcceptsLegacyNullLists" methodname="RestoreSaveData_AcceptsLegacyNullLists" classname="MemorialArchive.Tests.Editor.GuideProgressTests" runstate="Runnable" seed="873333388" result="Passed" start-time="2026-09-15 07:33:18Z" end-time="2026-09-15 07:33:18Z" duration="0.004515" asserts="0">
+                <properties />
+              </test-case>
+            </test-suite>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

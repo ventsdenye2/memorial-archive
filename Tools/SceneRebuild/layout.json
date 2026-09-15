@@ -80,7 +80,7 @@
           "id": "light_fronthall_special",
           "kind": 11,
           "x": 3726.0,
-          "y": 679.5,
+          "y": 495.5,
           "sprite": "Assets/Art/Imported/UpdatedCorridors/2F/Source/图层 8 副本 3.png",
           "special": true,
           "display": "区域灯具"

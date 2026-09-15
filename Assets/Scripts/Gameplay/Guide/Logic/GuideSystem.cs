@@ -15,6 +15,7 @@ namespace MemorialArchive.Gameplay.Guide.Logic
         {
             public List<string> completedStepIds = new List<string>();
             public List<string> pending = new List<string>();
+            public List<string> startedStepIds = new List<string>();
         }
         private Progress progress = new Progress();
         private GameContext context;
@@ -25,6 +26,8 @@ namespace MemorialArchive.Gameplay.Guide.Logic
         public GuidePage Current { get; private set; }
         public string ModuleKey => "guide";
         public bool SequenceActive => !HasCompleted("map_unlocked");
+        public bool DiaryMapButtonsVisible => HasShown("light") && HasShown("systems");
+        public bool HasShown(string id) => progress.startedStepIds.Contains(id) || HasCompleted(id);
         public bool BlocksInput => Current?.pause == true || consumedFrame == Time.frameCount;
         public event Action Changed;
         public void Initialize(GameContext value)
@@ -52,11 +55,26 @@ namespace MemorialArchive.Gameplay.Guide.Logic
         }
         public void Tick(float deltaTime)
         {
+            PresentPending(false);
+        }
+        public void TryShowLightTutorial(bool lampInsideHighlight)
+        {
+            if (!lampInsideHighlight || suspended || HasCompleted("light")) return;
+            Request("light");
+            PresentPending(true);
+        }
+        private void PresentPending(bool lampInsideHighlight)
+        {
             if (suspended || Current != null || progress.pending.Count == 0 || context.UI == null) return;
-            var id = progress.pending[0];
+            // Spatial lessons are checked after camera movement, including restored pending requests.
+            var index = progress.pending.FindIndex(step =>
+                (step != "light" || lampInsideHighlight) && (step != "systems" || HasShown("light")));
+            if (index < 0) return;
+            var id = progress.pending[index];
             if (context.UI.IsGameplayInputBlocked && !(id == "inventory" && context.UI.IsOpen(PanelId.Inventory))) return;
             if (context.UI.Open(PanelId.GuideOverlay) == null) return;
             Current = Config.Find(id);
+            if (!progress.startedStepIds.Contains(id)) progress.startedStepIds.Add(id);
             openedFrame = Time.frameCount;
             context.UI.SetPauseOwner(this, Current.pause);
             Changed?.Invoke();
@@ -97,6 +115,7 @@ namespace MemorialArchive.Gameplay.Guide.Logic
             progress = string.IsNullOrEmpty(json) ? new Progress() : JsonUtility.FromJson<Progress>(json) ?? new Progress();
             progress.completedStepIds = progress.completedStepIds ?? new List<string>();
             progress.pending = progress.pending ?? new List<string>();
+            progress.startedStepIds = progress.startedStepIds ?? new List<string>();
             if (HasCompleted("op_move_hint") && !HasCompleted("movement")) progress.completedStepIds.Add("movement");
             if (HasCompleted("op_lantern_equip") && !HasCompleted("inventory")) progress.completedStepIds.Add("inventory");
             context.Events.Publish(new GuideSequenceActiveChangedEvent(SequenceActive));

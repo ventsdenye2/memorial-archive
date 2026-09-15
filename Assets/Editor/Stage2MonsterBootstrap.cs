@@ -291,6 +291,7 @@ namespace MemorialArchive.Editor
             var skeletonSerialized = new SerializedObject(skeleton);
             Set(skeletonSerialized, "_animationName", idle);
             Set(skeletonSerialized, "loop", true);
+            if (config.AttackMode == MonsterAttackMode.Melee) Set(skeletonSerialized, "initialSkinName", "normal");
             skeletonSerialized.ApplyModifiedPropertiesWithoutUndo();
 
             var animation = root.AddComponent<MonsterAnimationView>();
@@ -299,6 +300,12 @@ namespace MemorialArchive.Editor
             Set(animationSerialized, "idleAnimation", idle);
             Set(animationSerialized, "walkAnimation", walk);
             Set(animationSerialized, "attackAnimation", attack);
+            if (config.AttackMode == MonsterAttackMode.Melee)
+            {
+                Set(animationSerialized, "secondAttackAnimation", "Enemy_01_attack02");
+                Set(animationSerialized, "normalSkin", "normal");
+                Set(animationSerialized, "damagedSkin", "damage");
+            }
             Set(animationSerialized, "hurtAnimation", hurt);
             Set(animationSerialized, "deathAnimation", death);
             Set(animationSerialized, "artFacesRight", false);
@@ -332,6 +339,7 @@ namespace MemorialArchive.Editor
             }
 
             var skeleton = new Spine.Skeleton(skeletonData);
+            if (skeletonData.FindSkin("normal") != null) skeleton.SetSkin("normal");
             skeleton.SetToSetupPose();
             animation.Apply(skeleton, 0f, 0f, false, null, 1f, Spine.MixBlend.Replace, Spine.MixDirection.In);
             skeleton.UpdateWorldTransform();

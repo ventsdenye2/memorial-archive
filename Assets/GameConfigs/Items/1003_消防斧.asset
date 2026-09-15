@@ -40,7 +40,7 @@ MonoBehaviour:
   combatAttackKind: 0
   damageType: 0
   damage: 240
-  attackRange: 1.2
+  attackRange: 3
   attackActiveSeconds: 1.1
   attackCooldownSeconds: 1.1
   staminaCost: 6

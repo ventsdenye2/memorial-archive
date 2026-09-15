@@ -17,8 +17,8 @@ MonoBehaviour:
   maxHealth: 1500
   attackDamage: 1
   moveSpeed: 400
-  detectionRange: 10
-  attackRange: 1.2
+  detectionRange: 15
+  attackRange: 3
   attackInterval: 1.5
   decisionInterval: 0.15
   hurtDuration: 0.8

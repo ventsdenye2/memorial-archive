@@ -83,6 +83,7 @@ namespace MemorialArchive.Tests.Editor
             Assert.That(guide.DiaryMapButtonsVisible, Is.True);
         }
 
+
         [Test]
         public void LightTutorial_WaitsForAlignment_EvenAfterRestoringPendingRequest()
         {

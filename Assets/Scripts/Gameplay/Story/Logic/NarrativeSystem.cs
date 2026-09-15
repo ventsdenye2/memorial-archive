@@ -94,10 +94,16 @@ namespace MemorialArchive.Gameplay.Story.Logic
         private void OnScene(SceneLoadedEvent evt)
         {
             sceneId = evt.SceneId;
+            if (!progress.visitedScenes.Contains(sceneId)) progress.visitedScenes.Add(sceneId);
             Current = null;
             sceneReadyFrame = Time.frameCount + 2;
             foreach (var sequence in content.sequences)
+            {
                 if (sequence.onFirstEnter && sequence.sceneId == sceneId) Queue(sequence.id);
+                if (sequence.sceneId == sceneId && sequence.requiredVisitedScenes != null &&
+                    sequence.requiredVisitedScenes.Length > 0 &&
+                    Array.TrueForAll(sequence.requiredVisitedScenes, progress.visitedScenes.Contains)) Queue(sequence.id);
+            }
             Changed?.Invoke();
         }
         private void OnLoaded(LoadCompletedEvent evt)
@@ -159,6 +165,7 @@ namespace MemorialArchive.Gameplay.Story.Logic
             progress.readNotes = progress.readNotes ?? new List<string>();
             progress.playedSequences = progress.playedSequences ?? new List<string>();
             progress.pendingSequences = progress.pendingSequences ?? new List<string>();
+            progress.visitedScenes = progress.visitedScenes ?? new List<string>();
             Current = null;
             Changed?.Invoke();
         }

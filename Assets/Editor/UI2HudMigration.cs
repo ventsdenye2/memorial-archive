@@ -298,6 +298,8 @@ namespace MemorialArchive.Editor
             ConfigureRect(toggle, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f),
                 new Vector2(102f, 56f), new Vector2(29f, 16f), new Vector2(0.5f, 0.5f));
             EnsureImage(toggle.gameObject, LoadSprite(GameUiPath + "任务栏展开按钮.png"), false);
+            // Task content is a placeholder; keep it folded away until it is needed.
+            panel.gameObject.SetActive(false);
         }
 
         private static void ConfigureHudPanelBindings(HUDPanel panel, Image[] slots, Image staminaBar)

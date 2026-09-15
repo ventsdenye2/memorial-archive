@@ -73,6 +73,61 @@ namespace MemorialArchive.Tests.Editor
             Assert.That(((NarrativeProgress)narrative.CaptureSaveData()).pendingSequences.Count(s => s == "director_conclusion"), Is.EqualTo(1));
         }
         [Test]
+        public void Upstairs_QueuesOnArrivalAndDoesNotReplayAfterSaveRestore()
+        {
+            var events = new EventBus();
+            narrative.Dispose();
+            narrative.Initialize(new GameContext(events, null, null, null, null));
+            events.Publish(new SceneLoadedEvent("Floor_2F"));
+            var progress = (NarrativeProgress)narrative.CaptureSaveData();
+            Assert.That(progress.pendingSequences, Is.EqualTo(new[] { "enter_second_floor" }));
+            Assert.That(content.FindSequence("enter_second_floor").lines[0].text, Does.StartWith("拾级而上来到二楼"));
+            Assert.That(content.FindSequence("enter_reception").lines[0].text, Does.StartWith("我推开二楼休息室的门"));
+            progress.playedSequences.Add("enter_second_floor");
+            progress.pendingSequences.Clear();
+            narrative.RestoreSaveData(JsonUtility.ToJson(progress));
+            events.Publish(new SceneLoadedEvent("Floor_2F"));
+            Assert.That(((NarrativeProgress)narrative.CaptureSaveData()).pendingSequences, Is.Empty);
+        }
+        [Test]
+        public void ExploringSecondFloor_RequiresEveryRoomAndReturnToCorridor()
+        {
+            var events = new EventBus();
+            narrative.Dispose();
+            narrative.Initialize(new GameContext(events, null, null, null, null));
+            foreach (var room in new[] { "Room_Office", "Room_ArchiveA", "Room_ArchiveB" })
+            {
+                events.Publish(new SceneLoadedEvent(room));
+                events.Publish(new SceneLoadedEvent("Floor_2F"));
+                Assert.That(((NarrativeProgress)narrative.CaptureSaveData()).pendingSequences, Does.Not.Contain("explored_second_floor"));
+            }
+            events.Publish(new SceneLoadedEvent("Room_Office"));
+            events.Publish(new SceneLoadedEvent("Floor_2F"));
+            Assert.That(((NarrativeProgress)narrative.CaptureSaveData()).pendingSequences, Does.Not.Contain("explored_second_floor"));
+            narrative.RestoreSaveData(JsonUtility.ToJson(narrative.CaptureSaveData()));
+            events.Publish(new SceneLoadedEvent("Room_Reception"));
+            Assert.That(((NarrativeProgress)narrative.CaptureSaveData()).pendingSequences, Does.Not.Contain("explored_second_floor"));
+            events.Publish(new SceneLoadedEvent("Floor_2F"));
+            events.Publish(new SceneLoadedEvent("Floor_2F"));
+            var progress = (NarrativeProgress)narrative.CaptureSaveData();
+            Assert.That(progress.pendingSequences.Count(s => s == "explored_second_floor"), Is.EqualTo(1));
+            progress.playedSequences.Add("explored_second_floor");
+            progress.pendingSequences.Remove("explored_second_floor");
+            narrative.RestoreSaveData(JsonUtility.ToJson(progress));
+            events.Publish(new SceneLoadedEvent("Floor_2F"));
+            Assert.That(((NarrativeProgress)narrative.CaptureSaveData()).pendingSequences, Does.Not.Contain("explored_second_floor"));
+        }
+        [Test]
+        public void ExplorationProgress_OldSavesAndNewGamesDoNotInheritVisitedRooms()
+        {
+            narrative.RestoreSaveData("{\"visitedScenes\":[\"Room_Office\",\"Room_ArchiveA\"]}");
+            narrative.RestoreSaveData("{\"playedSequences\":[]}");
+            Assert.That(((NarrativeProgress)narrative.CaptureSaveData()).visitedScenes, Is.Empty);
+            narrative.RestoreSaveData("{\"visitedScenes\":[\"Room_Reception\"]}");
+            narrative.ResetForNewGame();
+            Assert.That(((NarrativeProgress)narrative.CaptureSaveData()).visitedScenes, Is.Empty);
+        }
+        [Test]
         public void CollectedButUnreadDocumentsDoNotTriggerConclusion()
         {
             narrative.Collect("Room_Director_main_note_1"); narrative.Collect("Room_Director_note_2");

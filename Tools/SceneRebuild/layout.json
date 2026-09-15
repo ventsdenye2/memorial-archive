@@ -1529,6 +1529,7 @@
       "monsters": [
         {
           "id": "corridor_2f_enhanced",
+          "enabled": false,
           "x": 12000,
           "monster": 2003
         }

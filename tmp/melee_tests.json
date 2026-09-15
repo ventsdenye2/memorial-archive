@@ -1,0 +1,11 @@
+{
+  "name": "run_tests",
+  "arguments": {
+    "include_failed_tests": true,
+    "mode": "EditMode",
+    "test_names": [
+      "MemorialArchive.Tests.Editor.MonsterAnimationAssetTests",
+      "MemorialArchive.Tests.Editor.MonsterDecisionPolicyTests"
+    ]
+  }
+}

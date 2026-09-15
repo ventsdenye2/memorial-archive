@@ -100,6 +100,21 @@ namespace MemorialArchive.Tests.Editor
         }
 
         [Test]
+        public void HideSpotsNeverShowPromptsOrStealNearbyInteractionFocus()
+        {
+            events.Publish(new InteractionFocusChangedEvent("hide", InteractionType.HideSpot, true));
+            Assert.That(FocusedId(), Is.Null);
+            Assert.That(prompt.activeSelf, Is.False);
+            events.Publish(new InteractionFocusChangedEvent("inspect", InteractionType.Inspect, true));
+            events.Publish(new InteractionFocusChangedEvent("hide", InteractionType.HideSpot, true));
+            Assert.That(FocusedId(), Is.EqualTo("inspect"));
+            Assert.That(prompt.activeSelf, Is.True);
+            events.Publish(new InteractionFocusChangedEvent("inspect", InteractionType.Inspect, false));
+            Assert.That(FocusedId(), Is.Null);
+            Assert.That(prompt.activeSelf, Is.False);
+        }
+
+        [Test]
         public void SpecialLightWinsOverLaterOrdinaryLight_AndFocusFallsBackOnExit()
         {
             events.Publish(new InteractionFocusChangedEvent("special", InteractionType.LightSource, true));

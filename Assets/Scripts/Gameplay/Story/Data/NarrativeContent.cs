@@ -41,6 +41,7 @@ namespace MemorialArchive.Gameplay.Story.Data
         public bool onFirstEnter;
         public string interactionId;
         public string[] requiredNotes = Array.Empty<string>();
+        public string[] requiredVisitedScenes = Array.Empty<string>();
         public NarrativeLine[] lines = Array.Empty<NarrativeLine>();
     }
 
@@ -66,5 +67,6 @@ namespace MemorialArchive.Gameplay.Story.Data
         public List<string> readNotes = new List<string>();
         public List<string> playedSequences = new List<string>();
         public List<string> pendingSequences = new List<string>();
+        public List<string> visitedScenes = new List<string>();
     }
 }

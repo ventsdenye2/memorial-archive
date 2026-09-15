@@ -1,0 +1,4 @@
+var root=MemorialArchive.Framework.Core.GameRoot.Instance;
+var interactions=root==null?null:root.GetSystem<MemorialArchive.Gameplay.Interaction.Logic.InteractionSystem>();
+var flags=System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance;
+return new {playing=UnityEditor.EditorApplication.isPlaying,scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene().name,focused=interactions==null?null:typeof(MemorialArchive.Gameplay.Interaction.Logic.InteractionSystem).GetField("focusedInteractionId",flags).GetValue(interactions)};

@@ -160,6 +160,7 @@ namespace MemorialArchive.Gameplay.Interaction.Logic
             FocusCandidate selected = null;
             foreach (var pair in activeFocus)
             {
+                if (pair.Value.type == InteractionType.HideSpot) continue;
                 if (pair.Value.type == InteractionType.LightSource && !IsSpecialLight(pair.Key) &&
                     lighting != null && lighting.IsLightOn(pair.Key)) continue;
                 if (selected == null || IsBetterFocus(pair.Key, pair.Value, selectedId, selected))

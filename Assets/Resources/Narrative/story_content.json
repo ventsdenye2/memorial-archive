@@ -319,30 +319,16 @@
       "requiredNotes": [],
       "lines": [
         {
-          "text": "拾级而上来到二楼，长廊两侧的壁画都被人泼上了发黑的墨汁。",
+          "text": "我推开二楼休息室的门，提灯的光圈照亮了室内。几张皮革沙发早已破烂不堪。",
           "speaker": "",
           "next": 1,
           "choices": [],
           "fadeCecil": false
         },
         {
-          "text": "一扇厚重的橡木门半掩着，空气中弥漫着发霉茶叶与刺鼻乙醚的怪味。",
-          "speaker": "",
-          "next": 2,
-          "choices": [],
-          "fadeCecil": false
-        },
-        {
-          "text": "我推开二楼休息室的门，提灯的光圈照亮了室内。几张皮革沙发早已破烂不堪。",
-          "speaker": "",
-          "next": 3,
-          "choices": [],
-          "fadeCecil": false
-        },
-        {
           "text": "那是一个身穿破损管家制服的黑山羊族老人。他的耳廓耷拉着，双眼微闭，干瘪的双手正死死维持着端茶倒水的姿态——",
           "speaker": "",
-          "next": 4,
+          "next": 2,
           "choices": [],
           "fadeCecil": false
         },
@@ -665,6 +651,58 @@
           "next": -1,
           "fadeCecil": false,
           "choices": []
+        }
+      ]
+    },
+    {
+      "id": "enter_second_floor",
+      "sceneId": "Floor_2F",
+      "onFirstEnter": true,
+      "interactionId": "",
+      "requiredNotes": [],
+      "lines": [
+        {
+          "text": "拾级而上来到二楼，长廊两侧的壁画都被人泼上了发黑的墨汁。",
+          "speaker": "",
+          "next": 1,
+          "choices": [],
+          "fadeCecil": false
+        },
+        {
+          "text": "一扇厚重的橡木门半掩着，空气中弥漫着发霉茶叶与刺鼻乙醚的怪味。",
+          "speaker": "",
+          "next": 2,
+          "choices": [],
+          "fadeCecil": false
+        },
+        {
+          "text": "这里就是档案馆的2楼了，先搜索一下有没有孩子们的下落吧",
+          "speaker": "安德",
+          "next": -1,
+          "choices": [],
+          "fadeCecil": false
+        }
+      ]
+    },
+    {
+      "id": "explored_second_floor",
+      "sceneId": "Floor_2F",
+      "onFirstEnter": false,
+      "interactionId": "",
+      "requiredNotes": [],
+      "requiredVisitedScenes": [
+        "Room_Office",
+        "Room_ArchiveA",
+        "Room_ArchiveB",
+        "Room_Reception"
+      ],
+      "lines": [
+        {
+          "text": "或许我应该上三楼看看",
+          "speaker": "安德",
+          "next": -1,
+          "choices": [],
+          "fadeCecil": false
         }
       ]
     }

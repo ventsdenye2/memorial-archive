@@ -128,7 +128,7 @@ namespace MemorialArchive.Gameplay.Lighting.Logic
         {
             TickLanternFuel(deltaTime);
             TickTempLights(deltaTime);
-            TickDarknessFailure(deltaTime);
+            // Darkness remains visual only for now; it no longer kills the player.
         }
 
         // ---- 公共查询（交互门禁与黑暗层使用） ----

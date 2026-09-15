@@ -258,6 +258,7 @@ namespace MemorialArchive.Framework.UI
         private bool CanUsePrompt()
         {
             if (guideObstacleFocused) return true;
+            if (activeInteractionType == InteractionType.HideSpot) return false;
             if (activeInteractionType == InteractionType.SceneExit &&
                 GameRoot.Instance?.Context?.Configs?.GetInteraction(activeInteractionId)?.HasStairDestinations == true) return true;
             return IsLanternEquipped();
@@ -271,9 +272,10 @@ namespace MemorialArchive.Framework.UI
                 case InteractionType.SavePoint:
                     return (saveSprite, saveHighlightedSprite);
                 case InteractionType.ItemPickup:
-                case InteractionType.NotePickup:
                 case InteractionType.LightSource:
                     return (pickupSprite, pickupHighlightedSprite);
+                case InteractionType.NotePickup:
+                    return (viewSprite, viewHighlightedSprite);
                 case InteractionType.SceneExit:
                     return GetSceneExitArtwork(interactionId);
                 default:

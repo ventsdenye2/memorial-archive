@@ -14,6 +14,7 @@ namespace MemorialArchive.Framework.UI
         private GameContext context;
         private string focusedContainerId;
         private bool deathLoadPending;
+        private float deathLoadDelay;
         private readonly HashSet<object> pauseOwners = new HashSet<object>();
 
         public void SetPauseOwner(object owner, bool paused)
@@ -404,15 +405,20 @@ namespace MemorialArchive.Framework.UI
         private void HandlePausePressed(PausePressedEvent evt) => Toggle(PanelId.System);
         private void HandleCharacterDied(CharacterDiedEvent evt)
         {
-            // Narrative (including the authored tutorial defeat) and System can
-            // reject Open. Retain the request until the blocking panel closes.
-            deathLoadPending = Open(PanelId.Load) == null;
+            // Wait for the player death presentation before showing the load panel.
+            Close(PanelId.Load);
+            deathLoadPending = true;
+            deathLoadDelay = Mathf.Max(0f, evt.DeathAnimationSeconds);
         }
 
         private void LateUpdate()
         {
-            if (deathLoadPending && context != null && !IsOpen(PanelId.Narrative) && !IsOpen(PanelId.System))
-                deathLoadPending = Open(PanelId.Load) == null;
+            if (deathLoadPending)
+            {
+                deathLoadDelay = Mathf.Max(0f, deathLoadDelay - Time.unscaledDeltaTime);
+                if (deathLoadDelay <= 0f && context != null && !IsOpen(PanelId.Narrative) && !IsOpen(PanelId.System))
+                    deathLoadPending = Open(PanelId.Load) == null;
+            }
         }
 
         private void HandleLoadCompleted(LoadCompletedEvent evt) => deathLoadPending = false;

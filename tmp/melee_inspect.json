@@ -1,0 +1,7 @@
+{
+  "name": "execute_code",
+  "arguments": {
+    "action": "execute",
+    "code": "var monsters = UnityEngine.Object.FindObjectsByType<MemorialArchive.Gameplay.Monster.View.MonsterAIView>(FindObjectsSortMode.None); return new { playing = EditorApplication.isPlaying, scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name, monsters = System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Select(monsters, m => new { name = m.name, id = m.GetInstanceID(), position = m.transform.position.ToString(), state = m.State.ToString(), damage = m.Config != null ? m.Config.AttackDamage : -1, target = m.GetComponent<MemorialArchive.Gameplay.Monster.View.MonsterTargetView>().TargetId })) };"
+  }
+}

@@ -162,6 +162,8 @@ for s in PLAN['scenes']:
         box(doc,go,1.2,4.8,True,offset_y=-3.4-(5.4-l['y']/100))
         doc.mono(go,IP,interactionId=id,interactionType=11,playerTag='Player')
     for m in s.get('monsters',[]):
+        if not m.get('enabled', True):
+            continue
         go,_=doc.game_object(m['id'],(left+m['x']/100,-5.2,0),root)
         prefab='Assets/Prefabs/Monster/Stage1MeleeMonster.prefab';pd=Document(prefab)
         prefab_go=next(x['m_GameObject']['fileID'] for _,x in pd.find('Transform') if x['m_Father']['fileID']==0)

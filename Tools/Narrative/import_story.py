@@ -67,7 +67,15 @@ note('Room_Terrace_note_1', '无名日记', 'Room_Terrace', range(333,336), 1396
 
 sequence('enter_front_hall', range(38,46), sceneId='FrontHall', onFirstEnter=True)
 sequence('enter_office', [84,85], sceneId='Room_Office', onFirstEnter=True)
-sequence('enter_reception', [60,61,63,64,65], sceneId='Room_Reception', onFirstEnter=True)
+upstairs = sequence('enter_second_floor', [60,61], sceneId='Floor_2F', onFirstEnter=True)
+upstairs['lines'][-1]['next'] = len(upstairs['lines'])
+upstairs['lines'].append(dict(text='这里就是档案馆的2楼了，先搜索一下有没有孩子们的下落吧',
+                              speaker='安德', next=-1, choices=[], fadeCecil=False))
+sequences.append(dict(id='explored_second_floor', sceneId='Floor_2F', onFirstEnter=False,
+                      interactionId='', requiredNotes=[],
+                      requiredVisitedScenes=['Room_Office', 'Room_ArchiveA', 'Room_ArchiveB', 'Room_Reception'],
+                      lines=[dict(text='或许我应该上三楼看看', speaker='安德', next=-1, choices=[], fadeCecil=False)]))
+sequence('enter_reception', [63,64,65], sceneId='Room_Reception', onFirstEnter=True)
 sequence('enter_director', [318], sceneId='Room_Director', onFirstEnter=True)
 sequence('director_conclusion', [327,328,329], requiredNotes=['Room_Director_main_note_1','Room_Director_note_2'])
 cecil = sequence('cecil_conversation', [67,70,71,72,73,74,75,76,77,78],

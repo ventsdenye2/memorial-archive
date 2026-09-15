@@ -1,5 +1,4 @@
 using MemorialArchive.Framework.Audio;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
@@ -8,6 +7,27 @@ namespace MemorialArchive.Framework.UI
 {
     public sealed class SettingsPanel : BasePanel
     {
+        public const int FixedWidth = 1920;
+        public const int FixedHeight = 1080;
+        private const string FullscreenPreference = "Display.Fullscreen";
+        private static bool selectedFullscreen;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private static void InitializeDisplay()
+        {
+            selectedFullscreen = PlayerPrefs.GetInt(FullscreenPreference, 0) != 0;
+            ApplyFixedResolution();
+        }
+
+        private static void ApplyFixedResolution()
+        {
+#if UNITY_STANDALONE && !UNITY_EDITOR
+            // Exclusive fullscreen requests the fixed resolution instead of the desktop size.
+            Screen.SetResolution(FixedWidth, FixedHeight, selectedFullscreen
+                ? FullScreenMode.ExclusiveFullScreen : FullScreenMode.Windowed);
+#endif
+        }
+
         [SerializeField] private Slider masterVolumeSlider;
         [SerializeField] private Slider backgroundVolumeSlider;
         [SerializeField] private Slider gameVolumeSlider;
@@ -39,6 +59,15 @@ namespace MemorialArchive.Framework.UI
                 BindSlider(masterVolumeSlider, AudioBus.UI, SetMasterVolume);
             }
 
+            ApplyFixedResolution();
+            if (fullscreenButton != null)
+            {
+                fullscreenButton.interactable = true;
+                if (fullscreenButton.targetGraphic != null)
+                    fullscreenButton.targetGraphic.color = Color.white;
+            }
+            var resolutionNext = transform.Find("ResolutionNextButton");
+            if (resolutionNext != null) resolutionNext.gameObject.SetActive(false);
             RefreshResolutionLabel();
             RefreshModeVisuals();
         }
@@ -61,66 +90,24 @@ namespace MemorialArchive.Framework.UI
             SetVolumeLabel(gameVolumeValueLabel, value);
         }
 
-        public void SetFullscreen()
-        {
-            Screen.fullScreenMode = FullScreenMode.FullScreenWindow;
-            RefreshModeVisuals();
-        }
+        public void SetFullscreen() => SetDisplayMode(true);
 
-        public void SetWindowed()
+        public void SetWindowed() => SetDisplayMode(false);
+
+        private void SetDisplayMode(bool fullscreen)
         {
-            Screen.fullScreenMode = FullScreenMode.Windowed;
+            selectedFullscreen = fullscreen;
+            PlayerPrefs.SetInt(FullscreenPreference, fullscreen ? 1 : 0);
+            PlayerPrefs.Save();
+            ApplyFixedResolution();
+            RefreshResolutionLabel();
             RefreshModeVisuals();
         }
 
         public void CycleResolution()
         {
-            var resolutions = GetDistinctResolutions();
-            if (resolutions == null || resolutions.Length == 0)
-            {
-                RefreshResolutionLabel();
-                return;
-            }
-
-            var currentIndex = 0;
-            var bestDistance = long.MaxValue;
-            for (var i = 0; i < resolutions.Length; i++)
-            {
-                var widthDistance = resolutions[i].width - Screen.width;
-                var heightDistance = resolutions[i].height - Screen.height;
-                var distance = (long)widthDistance * widthDistance + (long)heightDistance * heightDistance;
-                if (distance < bestDistance)
-                {
-                    currentIndex = i;
-                    bestDistance = distance;
-                }
-            }
-
-            var next = resolutions[(currentIndex + 1) % resolutions.Length];
-            Screen.SetResolution(next.width, next.height, Screen.fullScreenMode, next.refreshRateRatio);
-            // SetResolution applies on a later player update. Show the
-            // requested size immediately, then Open() refreshes it from the
-            // actual Screen dimensions the next time this panel is shown.
-            if (resolutionLabel != null)
-            {
-                resolutionLabel.text = FormatResolution(next.width, next.height);
-            }
-        }
-
-        private static Resolution[] GetDistinctResolutions()
-        {
-            var source = Screen.resolutions;
-            if (source == null || source.Length == 0) return source;
-
-            var distinct = new List<Resolution>(source.Length);
-            var seen = new HashSet<string>();
-            foreach (var resolution in source)
-            {
-                var key = resolution.width + "x" + resolution.height;
-                if (seen.Add(key)) distinct.Add(resolution);
-            }
-
-            return distinct.ToArray();
+            ApplyFixedResolution();
+            RefreshResolutionLabel();
         }
 
         private void CreateVolumeSlider()
@@ -175,14 +162,14 @@ namespace MemorialArchive.Framework.UI
 
         private void RefreshResolutionLabel()
         {
-            if (resolutionLabel != null) resolutionLabel.text = FormatResolution(Screen.width, Screen.height);
+            if (resolutionLabel != null) resolutionLabel.text = FormatResolution(FixedWidth, FixedHeight);
         }
 
         private static string FormatResolution(int width, int height) => $"{width}*{height} px";
 
         private void RefreshModeVisuals()
         {
-            var isFullscreen = Screen.fullScreenMode != FullScreenMode.Windowed;
+            bool isFullscreen = selectedFullscreen;
             SetModeSprite(fullscreenButton, isFullscreen, fullscreenNormalSprite, fullscreenSelectedSprite);
             SetModeSprite(windowedButton, !isFullscreen, windowedNormalSprite, windowedSelectedSprite);
         }

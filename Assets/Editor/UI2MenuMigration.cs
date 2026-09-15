@@ -219,6 +219,7 @@ namespace MemorialArchive.Editor
             var resolutionNext = CreateButton(root.transform, "ResolutionNextButton", P("游戏设置弹窗", "下一项.png"), null, new Vector2(345f, -90f));
             resolutionNext.GetComponent<Image>().raycastTarget = true;
             BindClick(resolutionNext, panel.CycleResolution);
+            resolutionNext.gameObject.SetActive(false);
 
             var resolutionLabel = GetOrCreateText(root.transform, "ResolutionValue", new Vector2(35f, -90f), new Vector2(420f, 64f));
             resolutionLabel.alignment = TextAnchor.MiddleCenter;

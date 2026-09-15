@@ -57,6 +57,7 @@ MonoBehaviour:
     message: "\u6253\u5F00\u80CC\u5305\u5C06\u6B66\u5668\u88C5\u5907\u81F3\u5FEB\u6377\u680F\u5E76\u9009\u4E2D"
   closeHint: {fileID: 21300000, guid: 93fe822511a30cd4fbeb94cf4f22a5fc, type: 3}
   encounterPrefab: {fileID: 6305148875104229209, guid: 8626592375e5a6f42be3239b63e188cb, type: 3}
+  officeRangedPrefab: {fileID: 3425712656487595599, guid: 1bec40aa45030ea4f8166e0b29541de0, type: 3}
   overlayPrefab: {fileID: 5803966209905036390, guid: 3709fb2b2262f044e90ad34c46e90f3e, type: 3}
   obstacleSprite: {fileID: 21300000, guid: 1ea0bb15a2289684b97cf851d3427477, type: 3}
   diarySprite: {fileID: 21300000, guid: c60a2e7bd81f9eb4f8f6dc4b345aef06, type: 3}

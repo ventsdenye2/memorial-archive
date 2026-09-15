@@ -39,6 +39,7 @@ namespace MemorialArchive.Gameplay.Story.Data
         public string id;
         public string sceneId;
         public bool onFirstEnter;
+        public bool repeatable;
         public string interactionId;
         public string[] requiredNotes = Array.Empty<string>();
         public string[] requiredVisitedScenes = Array.Empty<string>();

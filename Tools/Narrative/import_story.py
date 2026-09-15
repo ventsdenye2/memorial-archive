@@ -73,7 +73,7 @@ upstairs['lines'].append(dict(text='这里就是档案馆的2楼了，先搜索�
                               speaker='安德', next=-1, choices=[], fadeCecil=False))
 sequences.append(dict(id='explored_second_floor', sceneId='Floor_2F', onFirstEnter=False,
                       interactionId='', requiredNotes=[],
-                      requiredVisitedScenes=['Room_Office', 'Room_ArchiveA', 'Room_ArchiveB', 'Room_Reception'],
+                      requiredVisitedScenes=[],
                       lines=[dict(text='或许我应该上三楼看看', speaker='安德', next=-1, choices=[], fadeCecil=False)]))
 sequence('enter_reception', [63,64,65], sceneId='Room_Reception', onFirstEnter=True)
 sequence('enter_director', [318], sceneId='Room_Director', onFirstEnter=True)
@@ -91,6 +91,13 @@ cecil['lines'][8]['fadeCecil'] = True
 cecil['lines'][9]['fadeCecil'] = True
 
 output = ROOT / 'Assets/Resources/Narrative/story_content.json'
+# Keep gameplay-authored sequences and notes that are not sourced from this document.
+if output.exists():
+    existing = json.loads(output.read_text(encoding='utf-8'))
+    sequence_ids = {entry['id'] for entry in sequences}
+    note_ids = {entry['id'] for entry in notes}
+    sequences.extend(entry for entry in existing['sequences'] if entry['id'] not in sequence_ids)
+    notes.extend(entry for entry in existing['notes'] if entry['id'] not in note_ids)
 output.parent.mkdir(parents=True, exist_ok=True)
 output.write_text(json.dumps(dict(notes=notes, sequences=sequences), ensure_ascii=False, indent=2), encoding='utf-8')
 (ROOT / 'Tools/Narrative/placements.json').write_text(json.dumps(placements, ensure_ascii=False, indent=2), encoding='utf-8')

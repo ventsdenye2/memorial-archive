@@ -90,32 +90,73 @@ namespace MemorialArchive.Tests.Editor
             Assert.That(((NarrativeProgress)narrative.CaptureSaveData()).pendingSequences, Is.Empty);
         }
         [Test]
-        public void ExploringSecondFloor_RequiresEveryRoomAndReturnToCorridor()
+        public void ExploringSecondFloor_RequiresUnlockedRoomsConversationAndLockedDoorCheck()
         {
             var events = new EventBus();
             narrative.Dispose();
             narrative.Initialize(new GameContext(events, null, null, null, null));
-            foreach (var room in new[] { "Room_Office", "Room_ArchiveA", "Room_ArchiveB" })
+            var flow = new MemorialArchive.Gameplay.Guide.Logic.GuideFlowSystem();
+            typeof(MemorialArchive.Gameplay.Guide.Logic.GuideFlowSystem).GetField("narrative", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).SetValue(flow, narrative);
+            foreach (var room in new[] { "Room_ArchiveA", "Room_ArchiveB", "Room_Reception" })
             {
                 events.Publish(new SceneLoadedEvent(room));
-                events.Publish(new SceneLoadedEvent("Floor_2F"));
-                Assert.That(((NarrativeProgress)narrative.CaptureSaveData()).pendingSequences, Does.Not.Contain("explored_second_floor"));
+                Assert.That(flow.SecondFloorExplored, Is.False);
             }
-            events.Publish(new SceneLoadedEvent("Room_Office"));
-            events.Publish(new SceneLoadedEvent("Floor_2F"));
-            Assert.That(((NarrativeProgress)narrative.CaptureSaveData()).pendingSequences, Does.Not.Contain("explored_second_floor"));
+            var flowProgress = (MemorialArchive.Gameplay.Guide.Logic.GuideFlowSystem.Progress)flow.CaptureSaveData();
+            flowProgress.lockedOfficeChecked = true;
+            Assert.That(flow.SecondFloorExplored, Is.False);
+            ((NarrativeProgress)narrative.CaptureSaveData()).playedSequences.Add("cecil_conversation");
             narrative.RestoreSaveData(JsonUtility.ToJson(narrative.CaptureSaveData()));
-            events.Publish(new SceneLoadedEvent("Room_Reception"));
-            Assert.That(((NarrativeProgress)narrative.CaptureSaveData()).pendingSequences, Does.Not.Contain("explored_second_floor"));
-            events.Publish(new SceneLoadedEvent("Floor_2F"));
-            events.Publish(new SceneLoadedEvent("Floor_2F"));
+            Assert.That(flow.SecondFloorExplored, Is.True);
+            Assert.That(narrative.HasVisited("Room_Office"), Is.False);
+            Assert.That(flow.TryTravel("Floor_2F", "Floor_3F"), Is.True);
+        }
+
+        [Test]
+        public void UpstairsDenialRepeatsAndClosedDestinationsStayBlocked()
+        {
+            var flow = new MemorialArchive.Gameplay.Guide.Logic.GuideFlowSystem();
+            typeof(MemorialArchive.Gameplay.Guide.Logic.GuideFlowSystem).GetField("narrative", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).SetValue(flow, narrative);
             var progress = (NarrativeProgress)narrative.CaptureSaveData();
-            Assert.That(progress.pendingSequences.Count(s => s == "explored_second_floor"), Is.EqualTo(1));
-            progress.playedSequences.Add("explored_second_floor");
-            progress.pendingSequences.Remove("explored_second_floor");
-            narrative.RestoreSaveData(JsonUtility.ToJson(progress));
-            events.Publish(new SceneLoadedEvent("Floor_2F"));
-            Assert.That(((NarrativeProgress)narrative.CaptureSaveData()).pendingSequences, Does.Not.Contain("explored_second_floor"));
+            for (var i = 0; i < 3; i++)
+            {
+                Assert.That(flow.TryTravel("Floor_2F", "Floor_3F"), Is.False);
+                Assert.That(progress.pendingSequences.Count(s => s == "floor3_locked"), Is.EqualTo(1));
+                progress.pendingSequences.Clear();
+                if (!progress.playedSequences.Contains("floor3_locked")) progress.playedSequences.Add("floor3_locked");
+            }
+            foreach (var destination in new[] { "Room_TreatmentB", "Room_Director", "Floor_4F" })
+                Assert.That(flow.TryTravel("Floor_3F", destination), Is.False);
+        }
+
+        [Test]
+        public void DemoCompletionRequiresEveryOfficeObjectiveAndSurvivesSave()
+        {
+            var flow = new MemorialArchive.Gameplay.Guide.Logic.GuideFlowSystem();
+            var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+            typeof(MemorialArchive.Gameplay.Guide.Logic.GuideFlowSystem).GetField("narrative", flags).SetValue(flow, narrative);
+            typeof(MemorialArchive.Gameplay.Guide.Logic.GuideFlowSystem).GetField("context", flags).SetValue(flow, new GameContext(new EventBus(), null, null, null, null));
+            narrative.RestoreSaveData("{\"visitedScenes\":[\"Room_ArchiveA\",\"Room_ArchiveB\",\"Room_Reception\"],\"playedSequences\":[\"cecil_conversation\"]}");
+            var p = (MemorialArchive.Gameplay.Guide.Logic.GuideFlowSystem.Progress)flow.CaptureSaveData();
+            p.lockedOfficeChecked = true;
+            p.combatPhase = 5;
+            p.officeCombatStarted = true;
+            p.officeMeleeHealth = 0;
+            p.officeRangedHealth = 1;
+            foreach (var id in new[] { "Room_Office_main_note_1", "Room_Office_diary_2" })
+            {
+                narrative.Collect(id);
+                narrative.RecordRead(id);
+            }
+            Assert.That(flow.DemoComplete, Is.False);
+            p.officeRangedHealth = 0;
+            Assert.That(flow.DemoComplete, Is.False);
+            p.officeSafeChecked = true;
+            Assert.That(flow.DemoComplete, Is.True);
+            flow.RestoreSaveData(JsonUtility.ToJson(p));
+            Assert.That(flow.DemoComplete, Is.True);
+            flow.RestoreSaveData("{}");
+            Assert.That(flow.DemoComplete, Is.False);
         }
         [Test]
         public void ExplorationProgress_OldSavesAndNewGamesDoNotInheritVisitedRooms()

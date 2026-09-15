@@ -54,6 +54,7 @@ namespace MemorialArchive.Gameplay.Story.Logic
         }
         public bool HasPlayed(string id) => progress.playedSequences.Contains(id);
         public bool HasRead(string id) => progress.readNotes.Contains(id);
+        public bool HasVisited(string sceneId) => progress.visitedScenes.Contains(sceneId);
         public List<ReadingEntry> GetCollectedNotes(bool diary)
         {
             var result = new List<ReadingEntry>();
@@ -114,7 +115,8 @@ namespace MemorialArchive.Gameplay.Story.Logic
         }
         public void Queue(string id)
         {
-            if (string.IsNullOrEmpty(id) || content.FindSequence(id) == null || HasPlayed(id) || progress.pendingSequences.Contains(id)) return;
+            var sequence = content.FindSequence(id);
+            if (string.IsNullOrEmpty(id) || sequence == null || (HasPlayed(id) && !sequence.repeatable) || progress.pendingSequences.Contains(id)) return;
             progress.pendingSequences.Add(id);
         }
         public void Tick(float deltaTime)
@@ -123,7 +125,7 @@ namespace MemorialArchive.Gameplay.Story.Logic
             foreach (var id in progress.pendingSequences.ToArray())
             {
                 var sequence = content.FindSequence(id);
-                if (sequence == null || HasPlayed(id)) { progress.pendingSequences.Remove(id); continue; }
+                if (sequence == null || (HasPlayed(id) && !sequence.repeatable)) { progress.pendingSequences.Remove(id); continue; }
                 if (!string.IsNullOrEmpty(sequence.sceneId) && sequence.sceneId != sceneId) continue;
                 if (sequence.lines.Length == 0) { progress.pendingSequences.Remove(id); continue; }
                 Current = sequence;
@@ -148,7 +150,7 @@ namespace MemorialArchive.Gameplay.Story.Logic
             if (next < 0 || next >= Current.lines.Length)
             {
                 var finished = Current.id;
-                progress.playedSequences.Add(finished);
+                if (!HasPlayed(finished)) progress.playedSequences.Add(finished);
                 progress.pendingSequences.Remove(finished);
                 Current = null;
                 releaseInputFrame = Time.frameCount;

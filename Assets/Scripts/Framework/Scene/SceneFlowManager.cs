@@ -45,6 +45,8 @@ namespace MemorialArchive.Framework.Scene
             }
 
             // Doors and stair-panel selections share this access check. Save restoration bypasses it.
+            var flow = GameRoot.Instance?.GetSystem<MemorialArchive.Gameplay.Guide.Logic.GuideFlowSystem>();
+            if (flow != null && !flow.TryTravel(SceneManager.GetActiveScene().name, evt.SceneId)) return;
             var requiredItemId = context.Configs.GetRequiredSceneKey(SceneManager.GetActiveScene().name, evt.SceneId);
             var inventory = GameRoot.Instance?.GetSystem<InventorySystem>();
             if (requiredItemId > 0 && (inventory == null ||

@@ -15,6 +15,85 @@ namespace MemorialArchive.Tests.Editor
     public sealed class NarrativeRuntimeTests
     {
         [UnityTest]
+        public IEnumerator TreatmentKey_StartsEncounterOnlyAfterPickupAndBlocksTravelUntilVictory()
+        {
+            yield return new EnterPlayMode();
+            yield return LoadSceneAndSettle("Floor_3F");
+            var root = GameRoot.Instance;
+            root.Context.UI.CloseAll();
+            root.ResetForNewGame();
+            root.GetSystem<MemorialArchive.Gameplay.Guide.Logic.GuideSystem>().CompleteStep("light");
+            var flow = root.GetSystem<MemorialArchive.Gameplay.Guide.Logic.GuideFlowSystem>();
+            yield return LoadSceneAndSettle("Room_TreatmentA");
+            yield return LoadSceneAndSettle("Floor_3F");
+            Assert.That(flow.NeedsEncounter, Is.False);
+            yield return LoadSceneAndSettle("Room_TreatmentA");
+            var inventory = root.GetSystem<MemorialArchive.Gameplay.Inventory.Logic.InventorySystem>();
+            Assert.That(inventory.TryAddToBackpack(new MemorialArchive.Gameplay.Inventory.Data.InventoryItemInstance { itemId = 1024 }), Is.True);
+            flow.RestoreSaveData(JsonUtility.ToJson(flow.CaptureSaveData()));
+            yield return LoadSceneAndSettle("Floor_3F");
+            for (var i = 0; i < 8; i++) yield return null;
+            Assert.That(flow.NeedsEncounter, Is.True);
+            Assert.That(GameObject.Find("GuideMeleeEncounter"), Is.Not.Null);
+            Assert.That(flow.TryTravel("Floor_3F", "Floor_2F"), Is.False);
+            root.Context.Events.Publish(new DamageRequestedEvent(new MemorialArchive.Gameplay.Combat.Data.DamageRequest(
+                0, "test", "guide_melee", 0, MemorialArchive.Gameplay.Combat.Data.DamageType.Physical, 100000, Vector2.zero)));
+            Assert.That(flow.NeedsEncounter, Is.False);
+            Assert.That(flow.TryTravel("Floor_3F", "Floor_2F"), Is.True);
+            yield return new ExitPlayMode();
+        }
+
+        [UnityTest]
+        public IEnumerator OfficeFinale_SpawnsBothMonstersAndEndsOnceAfterAllObjectives()
+        {
+            yield return new EnterPlayMode();
+            yield return LoadSceneAndSettle("Floor_2F");
+            var root = GameRoot.Instance;
+            root.Context.UI.CloseAll();
+            root.ResetForNewGame();
+            root.GetSystem<MemorialArchive.Gameplay.Guide.Logic.GuideSystem>().CompleteStep("light");
+            var flow = root.GetSystem<MemorialArchive.Gameplay.Guide.Logic.GuideFlowSystem>();
+            var narrative = root.GetSystem<NarrativeSystem>();
+            // Start at the final chapter with the earlier exploration and combat already completed.
+            flow.RestoreSaveData("{\"lockedOfficeChecked\":true,\"combatPhase\":5}");
+            narrative.RestoreSaveData("{\"visitedScenes\":[\"Room_ArchiveA\",\"Room_ArchiveB\",\"Room_Reception\"],\"playedSequences\":[\"cecil_conversation\",\"enter_second_floor\",\"explored_second_floor\"]}");
+            yield return LoadSceneAndSettle("Room_Office");
+            for (var i = 0; i < 8; i++) yield return null;
+            Assert.That(GameObject.Find("office_final_melee"), Is.Not.Null);
+            Assert.That(GameObject.Find("office_final_ranged"), Is.Not.Null);
+            Assert.That(flow.OfficeMeleeHealth, Is.EqualTo(root.Context.Configs.GetMonster(2001).MaxHealth));
+            Assert.That(flow.OfficeRangedHealth, Is.EqualTo(root.Context.Configs.GetMonster(2002).MaxHealth));
+            foreach (var id in new[] { "office_final_melee", "office_final_ranged" })
+                root.Context.Events.Publish(new DamageRequestedEvent(new MemorialArchive.Gameplay.Combat.Data.DamageRequest(
+                    0, "test", id, 0, MemorialArchive.Gameplay.Combat.Data.DamageType.Physical, 100000, Vector2.zero)));
+            Assert.That(flow.DemoComplete, Is.False);
+            foreach (var id in new[] { "Room_Office_main_note_1", "Room_Office_diary_2" })
+            {
+                narrative.Collect(id);
+                narrative.RecordRead(id);
+            }
+            Assert.That(flow.DemoComplete, Is.False);
+            root.Context.Events.Publish(new InspectRequestedEvent("Room_Office_container_1"));
+            Assert.That(flow.DemoComplete, Is.True);
+            for (var i = 0; i < 40; i++) { narrative.Advance(0); yield return null; }
+            Assert.That(narrative.HasPlayed("demo_complete"), Is.False, "The ending must wait until leaving the office.");
+            flow.RestoreSaveData(JsonUtility.ToJson(flow.CaptureSaveData()));
+            yield return LoadSceneAndSettle("Floor_2F");
+            Assert.That(narrative.Current?.id, Is.EqualTo("demo_complete"));
+            Assert.That(narrative.CurrentLine.text, Is.EqualTo("目前流程已结束，感谢您的游玩"));
+            Assert.That(Time.timeScale, Is.Zero);
+            narrative.Advance(); yield return null;
+            narrative.RestoreSaveData(JsonUtility.ToJson(narrative.CaptureSaveData()));
+            yield return LoadSceneAndSettle("Room_Office");
+            for (var i = 0; i < 6; i++) yield return null;
+            Assert.That(GameObject.Find("office_final_melee"), Is.Null);
+            Assert.That(GameObject.Find("office_final_ranged"), Is.Null);
+            yield return LoadSceneAndSettle("Floor_2F");
+            Assert.That(narrative.Current, Is.Null);
+            yield return new ExitPlayMode();
+        }
+
+        [UnityTest]
         public IEnumerator ExploringAllSecondFloorRooms_PlaysHintOnceOnReturn()
         {
             yield return new EnterPlayMode();
@@ -26,20 +105,35 @@ namespace MemorialArchive.Tests.Editor
             var narrative = root.GetSystem<NarrativeSystem>();
             yield return LoadSceneAndSettle("Floor_2F");
             while (narrative.Current != null) { narrative.Advance(); yield return null; }
-            var rooms = new[] { "Room_ArchiveB", "Room_Reception", "Room_Office", "Room_ArchiveA" };
+            var flow = root.GetSystem<MemorialArchive.Gameplay.Guide.Logic.GuideFlowSystem>();
+            Assert.That(flow.TryTravel("Floor_2F", "Room_Office"), Is.False);
+            yield return null;
+            yield return null;
+            while (narrative.Current != null) { narrative.Advance(); yield return null; }
+            var rooms = new[] { "Room_ArchiveB", "Room_Reception", "Room_ArchiveA" };
             for (var i = 0; i < rooms.Length; i++)
             {
                 yield return LoadSceneAndSettle(rooms[i]);
                 while (narrative.Current != null) { narrative.Advance(); yield return null; }
+                if (rooms[i] == "Room_Reception")
+                {
+                    narrative.Queue("cecil_conversation");
+                    yield return null;
+                    yield return null;
+                    while (narrative.Current != null) { narrative.Advance(0); yield return null; }
+                }
                 Assert.That(narrative.HasPlayed("explored_second_floor"), Is.False);
                 narrative.RestoreSaveData(JsonUtility.ToJson(narrative.CaptureSaveData()));
                 yield return LoadSceneAndSettle("Floor_2F");
                 if (i < rooms.Length - 1) Assert.That(narrative.Current, Is.Null);
             }
+            Assert.That(flow.SecondFloorExplored, Is.True, "Room visits, Cecil conversation and locked-door check must all be saved.");
+            for (var frame = 0; frame < 8 && narrative.Current == null; frame++) yield return null;
             Assert.That(narrative.Current?.id, Is.EqualTo("explored_second_floor"));
             Assert.That(narrative.CurrentLine.text, Is.EqualTo("或许我应该上三楼看看"));
             Assert.That(Time.timeScale, Is.Zero);
             Assert.That(narrative.BlocksGameplayInput, Is.True);
+            yield return null;
             narrative.Advance(); yield return null;
             Assert.That(Time.timeScale, Is.EqualTo(1));
             narrative.RestoreSaveData(JsonUtility.ToJson(narrative.CaptureSaveData()));

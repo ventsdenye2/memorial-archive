@@ -160,6 +160,47 @@
   ],
   "sequences": [
     {
+      "id": "floor3_locked",
+      "repeatable": true,
+      "sceneId": "",
+      "onFirstEnter": false,
+      "interactionId": "",
+      "requiredNotes": [],
+      "lines": [{"text":"先探索完二楼的档案室和休息室，与休息室里的人交谈，再查看一下上锁的办公室。","speaker":"安德","next":-1,"fadeCecil":false,"choices":[]}]
+    },
+    {
+      "id": "office_locked", "repeatable": true,
+      "lines": [{"text":"办公室的门锁着，需要找到钥匙才能打开。","speaker":"安德","next":-1}]
+    },
+    {
+      "id": "director_locked", "repeatable": true,
+      "lines": [{"text":"馆长办公室锁着，暂时无法进入。","speaker":"安德","next":-1}]
+    },
+    {
+      "id": "treatment_b_blocked", "repeatable": true,
+      "lines": [{"text":"前方被障碍物堵住，无法进入治疗室 B。","speaker":"安德","next":-1}]
+    },
+    {
+      "id": "fourth_floor_blocked", "repeatable": true,
+      "lines": [{"text":"通往四楼的道路暂时无法通行，先调查当前楼层吧。","speaker":"安德","next":-1}]
+    },
+    {
+      "id": "finish_encounter", "repeatable": true,
+      "lines": [{"text":"先解决走廊里的怪物，再继续调查。","speaker":"安德","next":-1}]
+    },
+    {
+      "id": "office_safe", "interactionId": "Room_Office_container_1", "repeatable": true,
+      "lines": [{"text":"这只保险箱锁得很牢，现在还无法打开。","speaker":"安德","next":-1}]
+    },
+    {
+      "id": "demo_complete", "sceneId": "Floor_2F",
+      "lines": [{"text":"目前流程已结束，感谢您的游玩","speaker":"","next":-1}]
+    },
+    {
+      "id": "return_to_office",
+      "lines": [{"text":"已经拿到办公室的钥匙了，回二楼打开那扇锁着的门看看吧。","speaker":"安德","next":-1}]
+    },
+    {
       "id": "reflect_FrontHall_note_1",
       "sceneId": "",
       "onFirstEnter": false,
@@ -598,8 +639,15 @@
       "requiredNotes": [],
       "lines": [
         {
-          "text": "门外有什么东西……它发现我了！",
+          "text": "前方突然传出一阵沉重的拖拽声与黏稠喘息。一个扭曲身影从阴影中出现。它大半躯体笼罩在暗影中，只能辨认出怪异模糊的轮廓。受到光线刺激，怪物拖着步伐迎面扑来——",
           "speaker": "",
+          "next": 1,
+          "fadeCecil": false,
+          "choices": []
+        },
+        {
+          "text": "这种地方怎么还会有人？幸好带了武器，那家伙来者不善，保持距离，随时准备战斗！",
+          "speaker": "安德",
           "next": -1,
           "fadeCecil": false,
           "choices": []
@@ -614,8 +662,22 @@
       "requiredNotes": [],
       "lines": [
         {
-          "text": "它终于倒下了。必要的时候，可以使用快捷栏里的消耗品帮助自己。",
-          "speaker": "",
+          "text": "解决了……好险。这东西的爆发力和攻击性远超常人。从着装来看，他生前大概是这所档案馆的工作人员。",
+          "speaker": "安德",
+          "next": 1,
+          "fadeCecil": false,
+          "choices": []
+        },
+        {
+          "text": "这所档案馆远比我想象的要危险得多。在这样的环境下，此前那九个失踪的年轻人……怕是生死难测。",
+          "speaker": "安德",
+          "next": 2,
+          "fadeCecil": false,
+          "choices": []
+        },
+        {
+          "text": "这绝对不是个例。接下来的路恐怕还会碰上更多这种“同类”，保持警惕吧。",
+          "speaker": "安德",
           "next": -1,
           "fadeCecil": false,
           "choices": []
@@ -690,12 +752,7 @@
       "onFirstEnter": false,
       "interactionId": "",
       "requiredNotes": [],
-      "requiredVisitedScenes": [
-        "Room_Office",
-        "Room_ArchiveA",
-        "Room_ArchiveB",
-        "Room_Reception"
-      ],
+      "requiredVisitedScenes": [],
       "lines": [
         {
           "text": "或许我应该上三楼看看",

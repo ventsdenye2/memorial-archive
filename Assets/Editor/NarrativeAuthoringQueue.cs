@@ -24,7 +24,23 @@ namespace MemorialArchive.Editor
         {
             if (!File.Exists(RequestPath) || EditorApplication.isPlayingOrWillChangePlaymode || EditorApplication.isCompiling || EditorApplication.isUpdating ||
                 DateTime.UtcNow - File.GetLastWriteTimeUtc(RequestPath) < TimeSpan.FromSeconds(10)) return;
-            var action = File.ReadAllText(RequestPath).Trim(); File.Delete(RequestPath);
+            var action = File.ReadAllText(RequestPath).Trim();
+            if (action == "test" || action == "feedback-test")
+            {
+                // Do not run cached assemblies after an external source edit.
+                var runtimeAssembly = "Library/ScriptAssemblies/Assembly-CSharp.dll";
+                var testAssembly = "Library/ScriptAssemblies/Assembly-CSharp-Editor.dll";
+                var compiledAt = File.Exists(runtimeAssembly) && File.Exists(testAssembly)
+                    ? new DateTime(Math.Min(File.GetLastWriteTimeUtc(runtimeAssembly).Ticks, File.GetLastWriteTimeUtc(testAssembly).Ticks), DateTimeKind.Utc)
+                    : DateTime.MinValue;
+                if (Array.Exists(Directory.GetFiles("Assets/Scripts", "*.cs", SearchOption.AllDirectories), path => File.GetLastWriteTimeUtc(path) > compiledAt) ||
+                    Array.Exists(Directory.GetFiles("Assets/Tests", "*.cs", SearchOption.AllDirectories), path => File.GetLastWriteTimeUtc(path) > File.GetLastWriteTimeUtc(testAssembly)))
+                {
+                    AssetDatabase.Refresh(ImportAssetOptions.ForceUpdate);
+                    return;
+                }
+            }
+            File.Delete(RequestPath);
             try
             {
                 if (action == "apply") { NarrativeContentBuilder.Apply(); File.WriteAllText("Logs/narrative-authoring.txt", "PASS"); }

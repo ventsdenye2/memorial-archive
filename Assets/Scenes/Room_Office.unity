@@ -3850,7 +3850,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   interactionId: Room_Office_container_1
-  interactionType: 1
+  interactionType: 2
   playerTag: Player
 --- !u!114 &900000000047
 MonoBehaviour:

@@ -220,13 +220,13 @@
         },
         {
           "id": "Room_Office_container_1",
-          "kind": 1,
+          "kind": 2,
           "x": 2762,
           "y": 934.5,
           "items": [],
           "random": false,
-          "display": "容器",
-          "pending": "Office puzzle item deferred by author; container intentionally empty.",
+          "display": "查看保险箱",
+          "pending": "Office safe inspection only; no puzzle in this demo.",
           "sprite": "Assets/Art/Scenes/办公室素材8.4/办公室素材/柜子门.png"
         },
         {
@@ -587,7 +587,7 @@
           "x": 3495.5,
           "y": 751.5,
           "items": [
-            1002,
+            1003,
             1027
           ],
           "random": false,
@@ -618,6 +618,7 @@
       "monsters": [
         {
           "id": "archive_c_guard",
+          "enabled": false,
           "x": 2750,
           "monster": 2001
         }

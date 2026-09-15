@@ -18,6 +18,8 @@ namespace MemorialArchive.Gameplay.Guide.View
         private GameObject obstacle;
         private GameObject diary;
         private GameObject encounter;
+        private GameObject officeMelee;
+        private GameObject officeRanged;
         private int sceneHandle = -1;
         private void Start()
         {
@@ -64,6 +66,20 @@ namespace MemorialArchive.Gameplay.Guide.View
             }
             if (flow.NeedsEncounter && encounter != null) flow.RecordEncounterPosition(encounter.transform.position);
             if (!flow.NeedsEncounter && encounter != null) { Destroy(encounter); encounter = null; }
+            if (flow.OfficeCombatActive)
+            {
+                SpawnOfficeMonster(ref officeMelee, flow.Config.encounterPrefab, "office_final_melee", 2001,
+                    flow.OfficeMeleeHealth, new Vector2(3f, -5.2f));
+                SpawnOfficeMonster(ref officeRanged, flow.Config.officeRangedPrefab, "office_final_ranged", 2002,
+                    flow.OfficeRangedHealth, new Vector2(-6f, -5.2f));
+            }
+        }
+        private static void SpawnOfficeMonster(ref GameObject instance, GameObject prefab, string id, int monsterId, int health, Vector2 position)
+        {
+            if (instance != null || health <= 0 || prefab == null) return;
+            instance = Instantiate(prefab, position, Quaternion.identity);
+            instance.name = id;
+            instance.GetComponentInChildren<MonsterTargetView>().SetRuntimeIdentity(id, monsterId, health);
         }
         private void LateUpdate()
         {
@@ -115,6 +131,9 @@ namespace MemorialArchive.Gameplay.Guide.View
             if (obstacle != null) Destroy(obstacle);
             if (diary != null) Destroy(diary);
             if (encounter != null) Destroy(encounter);
+            if (officeMelee != null) Destroy(officeMelee);
+            if (officeRanged != null) Destroy(officeRanged);
+            officeMelee = officeRanged = null;
             obstacle = diary = encounter = null;
         }
         private void OnDestroy() => Clear();

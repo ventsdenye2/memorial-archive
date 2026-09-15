@@ -3477,7 +3477,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   containerId: Room_ArchiveC_container_1
   initialItems:
-  - itemId: 1002
+  - itemId: 1003
     quantity: 1
     x: 0
     y: 0
@@ -3916,7 +3916,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &900000000068
 Transform:
   m_ObjectHideFlags: 0

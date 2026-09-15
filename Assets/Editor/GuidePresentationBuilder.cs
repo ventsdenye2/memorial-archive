@@ -59,6 +59,7 @@ namespace MemorialArchive.Editor
             config.diarySprite = AssetDatabase.LoadAssetAtPath<Sprite>(DiaryPath);
             config.diaryInteraction = BuildFirstDiaryInteraction();
             config.encounterPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Monster/Stage1MeleeMonster.prefab");
+            config.officeRangedPrefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Prefabs/Monster/Stage1RangedMonster.prefab");
             config.overlayPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath);
             config.encounterScene = "Floor_3F";
             config.treatmentScene = "Room_TreatmentA";

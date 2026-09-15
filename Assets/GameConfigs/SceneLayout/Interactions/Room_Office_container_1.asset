@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Room_Office_container_1
   m_EditorClassIdentifier: ''
   interactionId: Room_Office_container_1
-  interactionType: 1
-  displayName: 容器
+  interactionType: 2
+  displayName: 查看保险箱
   sceneId: Room_Office
   containerId: Room_Office_container_1
   puzzleId: ''

@@ -29,6 +29,11 @@ namespace MemorialArchive.Gameplay.Guide.Logic
             public int encounterHealth = 100;
             public Vector2 encounterPosition;
             public bool hasEncounterPosition;
+            public bool lockedOfficeChecked;
+            public bool officeSafeChecked;
+            public bool officeCombatStarted;
+            public int officeMeleeHealth;
+            public int officeRangedHealth;
         }
         private Progress progress = new Progress();
         private GameContext context;
@@ -56,6 +61,40 @@ namespace MemorialArchive.Gameplay.Guide.Logic
         public bool OwnsDarknessFailure => scene == "FrontHall" && !guide.HasCompleted("light_activated");
         public Vector2 PlayerPosition => playerPosition;
         public bool HasPosition => hasPosition && Time.frameCount > sceneReadyFrame;
+        public bool SecondFloorExplored => progress.lockedOfficeChecked && narrative.HasVisited("Room_ArchiveA") &&
+            narrative.HasVisited("Room_ArchiveB") && narrative.HasVisited("Room_Reception") && narrative.HasPlayed("cecil_conversation");
+        public bool OfficeCombatActive => scene == "Room_Office" && progress.officeCombatStarted;
+        public int OfficeMeleeHealth => progress.officeMeleeHealth;
+        public int OfficeRangedHealth => progress.officeRangedHealth;
+        public bool DemoComplete => progress.combatPhase == 5 && SecondFloorExplored &&
+            narrative.HasRead("Room_Office_main_note_1") && narrative.HasRead("Room_Office_diary_2") &&
+            progress.officeSafeChecked && progress.officeCombatStarted && progress.officeMeleeHealth <= 0 && progress.officeRangedHealth <= 0;
+
+        public bool TryTravel(string from, string to)
+        {
+            string denial = null;
+            if (to == "Room_TreatmentB") denial = "treatment_b_blocked";
+            else if (to == "Room_Director") denial = "director_locked";
+            else if (to == "Floor_4F") denial = "fourth_floor_blocked";
+            else if (from == "Floor_2F" && to == "Floor_3F" && !SecondFloorExplored) denial = "floor3_locked";
+            else if (from == "Floor_2F" && to == "Room_Office")
+            {
+                if (!HasOfficeKey())
+                {
+                    progress.lockedOfficeChecked = true;
+                    denial = "office_locked";
+                }
+                else if (progress.combatPhase != 5) denial = "finish_encounter";
+            }
+            else if (from == "Floor_3F" && progress.combatPhase > 0 && progress.combatPhase < 5)
+                denial = "finish_encounter";
+            if (denial == null) return true;
+            narrative.Queue(denial);
+            return false;
+        }
+
+        private bool HasOfficeKey() => inventory.PlayerInventory.playerItems.Exists(p =>
+            p?.item != null && p.item.itemId == Config.keyItemId && p.item.quantity > 0);
         public bool CanInteractObstacle => HasPosition && Config != null && NeedsObstacle &&
             Mathf.Abs(playerPosition.x - (Config.frontHallLeft + Config.equipmentGatePixels / 100f)) <= Config.obstacleInteractionWidth * 0.5f;
 
@@ -79,6 +118,7 @@ namespace MemorialArchive.Gameplay.Guide.Logic
             context.Events.Subscribe<MonsterDamagedEvent>(OnMonsterDamaged);
             context.Events.Subscribe<CharacterDiedEvent>(OnDeath);
             context.Events.Subscribe<LoadCompletedEvent>(OnLoaded);
+            context.Events.Subscribe<InspectRequestedEvent>(OnInspect);
         }
         public void Dispose()
         {
@@ -97,6 +137,7 @@ namespace MemorialArchive.Gameplay.Guide.Logic
             context.Events.Unsubscribe<MonsterDamagedEvent>(OnMonsterDamaged);
             context.Events.Unsubscribe<CharacterDiedEvent>(OnDeath);
             context.Events.Unsubscribe<LoadCompletedEvent>(OnLoaded);
+            context.Events.Unsubscribe<InspectRequestedEvent>(OnInspect);
         }
         private void OnScene(SceneLoadedEvent evt)
         {
@@ -108,12 +149,25 @@ namespace MemorialArchive.Gameplay.Guide.Logic
             sceneReadyFrame = Time.frameCount + 3;
             lighting.SetDarknessFailureOwner(this, OwnsDarknessFailure);
             context.UI?.SetPauseOwner(this, false);
-            if (previous == Config?.treatmentScene && scene == Config.encounterScene && progress.keyTakenInTreatment && progress.combatPhase == 0)
+            if (previous == Config?.treatmentScene && scene == Config.encounterScene && HasOfficeKey() && progress.combatPhase == 0)
             {
+                progress.encounterHealth = context.Configs.GetMonster(2001).MaxHealth;
                 progress.combatPhase = 1;
                 narrative.Queue("guide_encounter");
             }
+            if (scene == "Room_Office" && !progress.officeCombatStarted)
+            {
+                progress.officeCombatStarted = true;
+                progress.officeMeleeHealth = context.Configs.GetMonster(2001).MaxHealth;
+                progress.officeRangedHealth = context.Configs.GetMonster(2002).MaxHealth;
+            }
+            if (previous == "Room_Office" && scene == "Floor_2F" && DemoComplete)
+                narrative.Queue("demo_complete");
             ResumeCombat();
+        }
+        private void OnInspect(InspectRequestedEvent evt)
+        {
+            if (scene == "Room_Office" && evt.InspectId == "Room_Office_container_1") progress.officeSafeChecked = true;
         }
         private void OnLoaded(LoadCompletedEvent evt)
         {
@@ -185,7 +239,11 @@ namespace MemorialArchive.Gameplay.Guide.Logic
             return item != null && context.Configs.GetItem(item.itemId)?.Category == ItemCategory.Weapon;
         }
         private void OnMonsterDamaged(MonsterDamagedEvent evt)
-        { if (evt.MonsterInstanceId == "guide_melee") progress.encounterHealth = Mathf.CeilToInt(evt.RemainingHealth); }
+        {
+            if (evt.MonsterInstanceId == "guide_melee") progress.encounterHealth = Mathf.CeilToInt(evt.RemainingHealth);
+            if (evt.MonsterInstanceId == "office_final_melee") progress.officeMeleeHealth = Mathf.CeilToInt(evt.RemainingHealth);
+            if (evt.MonsterInstanceId == "office_final_ranged") progress.officeRangedHealth = Mathf.CeilToInt(evt.RemainingHealth);
+        }
         private void OnMonsterDied(MonsterDiedEvent evt)
         {
             if (evt.MonsterInstanceId != "guide_melee") return;
@@ -193,6 +251,7 @@ namespace MemorialArchive.Gameplay.Guide.Logic
             context.UI?.SetPauseOwner(this, false);
             guide.Record("combat_finished");
             narrative.Queue("guide_victory");
+            narrative.Queue("return_to_office");
         }
         private void OnDeath(CharacterDiedEvent evt)
         {
@@ -224,6 +283,7 @@ namespace MemorialArchive.Gameplay.Guide.Logic
         public void Tick(float dt)
         {
             if (Config == null || !HasPosition) return;
+            if (scene == "Floor_2F" && SecondFloorExplored) narrative.Queue("explored_second_floor");
             if (scene == "Floor_1F" && progress.mapUnlocked && playerPosition.x > 68 && playerPosition.x < 76) narrative.Queue("guide_stairs");
             if (deathPending)
             {
@@ -270,17 +330,7 @@ namespace MemorialArchive.Gameplay.Guide.Logic
                     narrative.Queue("guide_dark_warning_" + i);
                     lighting.LimitSelectedLanternFuel(i == 1 ? 39 : i == 2 ? 9 : 0);
                 }
-            if (pixels >= Config.specialLampPixels && !lighting.IsPlayerInLight() && !lighting.IsLanternLit)
-            {
-                progress.darkSeconds += dt;
-                if (progress.darkSeconds >= Config.darknessGraceSeconds)
-                {
-                    narrative.Queue("guide_dark_ending");
-                    if (narrative.HasPlayed("guide_dark_ending"))
-                        context.Events.Publish(new DamageRequestedEvent(new DamageRequest(0, "guide_darkness", CombatTargetIds.Player, 0, DamageType.Physical, 10000, playerPosition)));
-                }
-            }
-            else progress.darkSeconds = 0;
+            progress.darkSeconds = 0;
         }
         public void ResetForNewGame() { lighting.SetDarknessFailureOwner(this, false); progress = new Progress(); deathPending = dodgePending = false; context.UI?.SetPauseOwner(this, false); }
         public object CaptureSaveData() => progress;

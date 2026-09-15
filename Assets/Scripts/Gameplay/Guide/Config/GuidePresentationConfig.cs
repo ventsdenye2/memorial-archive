@@ -17,6 +17,7 @@ namespace MemorialArchive.Gameplay.Guide.Config
         public GuidePage[] pages = Array.Empty<GuidePage>();
         public Sprite closeHint;
         public GameObject encounterPrefab;
+        public GameObject officeRangedPrefab;
         public GameObject overlayPrefab;
         public Sprite obstacleSprite;
         public Sprite diarySprite;
